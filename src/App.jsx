@@ -9,7 +9,7 @@ function App() {
   useEffect(() => {
     useTelegram.waitReady,
       useTelegram.setFullScreen,
-      useTelegram.setHeaderColor("#3B3537")
+      useTelegram.setHeaderColor("#2F292B")
   }, [])
 
   return (
