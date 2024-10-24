@@ -9,6 +9,7 @@
     border-bottom-left-radius: 20px;
     border-bottom-right-radius: 20px;
     box-shadow: 0px 10px 5px -5px rgba(3, 7, 10, 0.6);
+    padding: 5% 0;
 }
 
 .HomeHeaderSettings img {
@@ -26,7 +27,7 @@
     width: 30%;
     background-color: var(--main-lightblack);
     border-radius: 5px;
-    padding: 2% 2%;
+    padding: 1% 2%;
 }
 
 .HomeHeaderIncome div:nth-child(1) {
