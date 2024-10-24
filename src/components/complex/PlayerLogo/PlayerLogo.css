@@ -1,0 +1,28 @@
+.PlayerLogo{
+    position: relative;
+    z-index: 1;
+    display: flex;
+    justify-content: center;
+}
+.PlayerLogo img{
+    position: absolute;
+    width: 130px;
+    height: 285px;
+    top: 1px;
+    left: -24px;
+    z-index: -1;
+}
+.CircularProgress{
+    overflow: hidden;
+}
+
+.PlayerLogoLevel{
+    font-size: var(--font-size-1);
+    text-align: center;
+    width: 100%;
+    position: absolute;
+    bottom: -7px;
+    font-weight: 500;
+    left: 0;
+    color: #fff;
+}

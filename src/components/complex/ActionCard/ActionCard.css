@@ -1,0 +1,143 @@
+.ActionCard {
+  display: flex;
+  background-size: cover;
+  position: relative;
+  border-radius: 15px;
+  z-index: 0;
+  background-color: var(--background-dark-beige);
+  color: var(--border-color);
+}
+
+.ActionCard img {
+  max-width: 100%;
+}
+.ActionCardLogo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40%;
+  text-align: center;
+}
+.ActionCardLogo img {
+  max-width: 100%;
+  height: 70%;
+}
+.ActionCardData {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  align-items: center;
+  width: 60%;
+  padding-bottom: 4%;
+}
+.ActionCardDataTitle {
+  font-size: var(--font-size-2);
+  letter-spacing: 0.5px;
+  text-align: center;
+  font-weight: bold;
+}
+.ActionCardDataSource {
+  display: flex;
+  font-size: var(--font-size-3);
+  font-weight: bold;
+  justify-content: center;
+  letter-spacing: 1px;
+  max-height: 25%;
+}
+
+.ActionCardDataSource div {
+  text-align: center;
+}
+
+.ActionCardDataSource div img {
+  max-height: 100%;
+  height: 80%;
+  vertical-align: middle;
+}
+.ActionCardBG {
+  color: white;
+}
+.ActionCardBG:before {
+  content: "";
+  position: absolute;
+  max-height: 100%;
+  max-width: 100%;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  z-index: -1;
+  background-color: #0e0905ab;
+  filter: blur(1px);
+  border-radius: 20px;
+}
+
+.ActionCardDataDuration {
+  background-color: var(--yellow-color);
+  height: 20%;
+  width: 80%;
+  border: 1px solid var(--border-color);
+  border-radius: 25px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+.ActionCardDataDuration img {
+  position: absolute;
+  left: -5%;
+  width: 15%;
+}
+
+.ActionCardDataDuration span {
+  font-weight: bold;
+  font-size: var(--font-size-2);
+}
+
+.ActionCardButtons {
+  display: flex;
+  justify-content: space-around;
+  position: absolute;
+  width: 100%;
+  bottom: -10%;
+  left: 0;
+  height: 25%;
+}
+.ActionCardButtons button {
+  max-height: 100%;
+  height: 100%;
+  border: none;
+  width: 40%;
+  color: white;
+  border-radius: 25px;
+  letter-spacing: 1px;
+  font-weight: bold;
+  border: 1px solid var(--border-color);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.ActionCardButtons button img {
+  max-width: 100%;
+  max-height: 100%;
+  width: 15%;
+  margin-right: 5%;
+}
+
+.ActionCardDataCost {
+  height: 20%;
+  width: 80%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 5%;
+  font-weight: bold;
+  letter-spacing: 1px;
+  font-size: var(--font-size-2);
+}
+.ActionCardDataCost img {
+  height: 100%;
+}

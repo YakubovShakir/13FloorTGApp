@@ -1,0 +1,44 @@
+.StartCustomize {
+    width: 100vw;
+    height: 100vh;
+    background-size: cover;
+}
+
+.StartCustomizeModal{
+    z-index: 4;
+    position: relative;
+    background-color: var(--border-color);
+    border-top-right-radius: 25px;
+    border-top-left-radius: 25px;
+    height: 30%;
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+}
+.StartCustomizeModal img {
+    max-width: 100%;
+    border-radius: 15px;
+    background-color: var(--background-dark-beige);
+    max-height: 100%;
+
+}
+
+.StartCustomizeModalData {
+    display: flex;
+    height: 75%;
+    width: 100%;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+    background-color: var(--background-beige);
+    border-top-left-radius: 25px;
+    border-top-right-radius: 25px;
+    padding: 2.5% 0;
+
+}
+
+.StartCustomizeModalDataType {
+    display: flex;
+    justify-content: space-around;
+}
+

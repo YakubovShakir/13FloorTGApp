@@ -1,0 +1,10 @@
+.ActivityTraining {
+  height: 100%;
+  width: 100%;
+  padding: 5% 0;
+
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4%;
+}

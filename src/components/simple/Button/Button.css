@@ -1,0 +1,20 @@
+
+.Button {
+    border: 1px solid var(--border-color);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 25px;
+    color: white;
+    container-type: size;
+}
+.Button span {
+    font-size: 9cqw;
+    letter-spacing: 1px;
+    font-weight: bold;
+}
+.Button img {
+  max-width: 100%;
+  width: 15%;
+  margin-right: 5%;
+}

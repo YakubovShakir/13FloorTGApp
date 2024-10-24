@@ -1,0 +1,52 @@
+.HomeHeader {
+    display: flex;
+    width: 100%;
+    justify-content: space-evenly;
+    align-items: center;
+    height: 8%;
+    position: absolute;
+    background-color: var(--main-black);
+    border-bottom-left-radius: 20px;
+    border-bottom-right-radius: 20px;
+    box-shadow: 0px 10px 5px -5px rgba(3, 7, 10, 0.6);
+    padding: 2% 0;
+}
+
+.HomeHeaderSettings img {
+    width: 100%;
+}
+
+.HomeHeaderIncome img {
+    max-width: 100%;
+}
+
+.HomeHeaderIncome {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 40%;
+    background-color: var(--main-lightblack);
+    border-radius: 5px;
+    height: 100%;
+    padding: 0 2%;
+}
+
+.HomeHeaderIncome div:nth-child(1) {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 25%;
+
+}
+.HomeHeaderIncome div:nth-child(2) {
+    width: 70%;
+    font-size: var(--font-size-2);
+    display: flex;
+    flex-direction: column;
+}
+.HomeHeaderIncome div:nth-child(2) span:nth-child(1) {
+    color: white;
+}
+.HomeHeaderIncome div:nth-child(2) span:nth-child(2) {
+    color: var(--main-orange)
+}

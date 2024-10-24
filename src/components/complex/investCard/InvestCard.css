@@ -1,0 +1,100 @@
+.InvestCard {
+  background-color: var(--background-dark-beige);
+  display: flex;
+  justify-content: space-between;
+  background-color: #d9d3c470;
+  padding: 1%;
+  color: var(--border-color);
+}
+.InvestCardLogo {
+  background-color: var(--background-dark-beige);
+  border-radius: 20px;
+  width: 32%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2.5%;
+}
+.InvestCardLogo img {
+  max-height: 60%;
+  height: 60%;
+}
+.InvestCardData {
+  background-color: var(--background-dark-beige);
+  border-radius: 20px;
+  width: 32%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.InvestCardInfo {
+  background-color: var(--background-dark-beige);
+  border-radius: 20px;
+  width: 32%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  font-weight: bold;
+}
+
+.InvestCardInfo div span {
+  font-size: 10cqw;
+}
+.InvestCard img {
+  max-width: 100%;
+}
+
+.InvestCardInfo img {
+  width: 30%;
+  top: -5%;
+  left: -10%;
+}
+
+.InvestCardDataModal {
+    background-color: var(--background-beige);
+    border-radius: 25px;
+    height: 100%;
+  padding: 3% 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+}
+.InvestCardDataModal span {
+  text-align: center;
+}
+.InvestCardDataModalIcon {
+  width: 70%;
+}
+
+.InvestCardUpgradeModal {
+  background-color: var(--background-beige);
+  border-radius: 25px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 5% 2%;
+  justify-content: space-around;
+  align-items: center;
+}
+.InvestCardUpgradeLevel {
+  display: flex;
+  gap: 1%;
+}
+
+.InvestCardUpgradeLevel div {
+    display: flex;
+    align-items: center;
+    gap: 5%;
+}
+.InvestCardUpgradeLevel div img {
+  width: 30%;
+
+}
+
+.InvestCardUpgradeDescr{
+    text-align: center;
+}

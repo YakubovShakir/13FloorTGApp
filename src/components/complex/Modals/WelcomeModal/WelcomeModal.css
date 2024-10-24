@@ -1,0 +1,95 @@
+.WelcomeModalData {
+  background-color: var(--background-beige);
+  border-radius: 25px;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2%;
+  padding: 2% 2%;
+  font-weight: bold;
+}
+.WelcomeModalData img {
+  max-width: 100%;
+}
+.WelcomeModalLeftTime {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.WelcomeModalLeftTime img {
+  max-width: 100%;
+  width: 15%;
+  margin-right: 3%;
+}
+
+.WelcomeModalLeftTime span:nth-child(2) {
+  display: flex;
+  justify-content: end;
+  align-items: center;
+}
+
+.WelcomeModalSource {
+  display: flex;
+  flex-direction: column;
+  height: 35%;
+  width: 100%;
+  gap: 5%;
+}
+.WelcomeModalSource div {
+  height: 33%;
+  background-color: var(--background-dark-beige);
+  border-radius: 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0% 5%;
+}
+.WelcomeModalSource div span img {
+  vertical-align: middle;
+  margin-right: 5%;
+}
+.WelcomeModalSource img {
+  width: 15%;
+}
+
+.WelcomeModalEarned {
+  height: 30%;
+  display: flex;
+  background-color: var(--yellow-color);
+  align-items: center;
+  justify-content: space-around;
+  border-radius: 15px;
+
+}
+.WelcomeModalEarnedIMG {
+  width: 25%;
+}
+.WelcomeModalEarned div {
+  width: 40%;
+  display: flex;
+  flex-direction: column;
+  color: white;
+  height: 100%;
+  justify-content: space-evenly;
+  text-align: center;
+  container-type: size;
+}
+.WelcomeModalEarned div span:nth-child(1) {
+  font-size: 13cqw;
+}
+.WelcomeModalEarned div span:nth-child(2) {
+  font-size: 20cqw;
+}
+.WelcomeModalEarned div img {
+  width: 20%;
+  vertical-align: middle;
+  margin-right: 5%;
+}
+.WelcomeModalMissedIncome {
+    font-size: 4cqw;
+  color: var(--border-color);
+  text-align: center;
+}

@@ -1,0 +1,9 @@
+.Title{
+    color: white;
+    font-size: var(--font-size-1);
+    font-weight: bold;
+    letter-spacing: 1px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}

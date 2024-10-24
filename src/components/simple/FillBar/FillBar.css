@@ -1,0 +1,23 @@
+.FillBar img {
+    max-width: 100%;
+    width: 60%;
+}
+.FillBar {
+    position: relative;
+    aspect-ratio: 1;
+    z-index: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 5px;
+}
+
+.FillBar div {
+    position: absolute;
+    bottom: 0;
+    z-index: -1;
+    transition: background-color 1s, height 1s;
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+
+}

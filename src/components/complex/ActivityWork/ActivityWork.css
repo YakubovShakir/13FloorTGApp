@@ -1,0 +1,65 @@
+.ActivityWork {
+  height: 100%;
+  width: 100%;
+  padding: 5% 0;
+
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  overflow: hidden;
+  gap: 5%;
+}
+
+.ActivityWorkTree {
+  white-space: nowrap;
+  height: 73%;
+  overflow: scroll;
+  display: flex;
+  flex-direction: column;
+  gap: 2%;
+}
+
+.ActivityWorkTreeHeight {
+  width: 175vw;
+  text-align: center;
+  display: flex;
+  border-bottom: 2px solid #b3ad9d;
+  padding: 5% 0;
+}
+.ActivityWorkTreeHeightWork {
+  width: 40vw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: auto;
+}
+
+.ActivityWorkTreeHeightWork button {
+  border: 1px solid var(--border-color);
+  width: 10vh;
+  border-radius: 20px;
+  padding: 2.5% 0;
+  max-height: 3vh;
+  display: flex;
+  justify-content: center;
+}
+
+.ActivityWorkTreeHeightWork button span {
+  color: white;
+  font-size: var(--font-size-3);
+  letter-spacing: 1px;
+}
+.ActivityWorkTreeHeightWork button img {
+  width: 15%;
+}
+.ActivityWorkTreeHeightWork span {
+  color: var(--border-color);
+  font-size: var(--font-size-3);
+  font-weight: bold;
+  white-space: pre-wrap;
+  width: 50%;
+  height: 5vh;
+}
+.ActivityWorkTreeHeightWorkLogo {
+  height: 10vh;
+}

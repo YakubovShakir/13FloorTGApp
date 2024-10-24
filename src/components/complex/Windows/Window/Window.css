@@ -1,0 +1,77 @@
+.Window {
+  width: 100vw;
+  height: 88vh;
+  position: absolute;
+  top: 12vh;
+  background-color: #2c1402ce;
+  z-index: 1;
+  border-top: 1px solid var(--border-color);
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
+  z-index: 4;
+}
+
+.Window::before {
+  content: "";
+  position: absolute;
+  max-height: 100%;
+  max-width: 100%;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  z-index: -1;
+  background-color: #0e090575;
+  filter: blur(1px);
+  border-radius: 25px;
+}
+
+.WindowTitle {
+  font-size: var(--font-size-1);
+  color: #fff;
+  padding: 2.5% 0;
+  text-align: center;
+  font-weight: bold;
+  max-height: 8%;
+}
+
+.WindowClose {
+  position: absolute;
+  max-width: 100%;
+  width: 8%;
+  top: 1.5%;
+  right: 5%;
+}
+
+.WindowTaps {
+  display: flex;
+  width: 100%;
+  max-height: 7%;
+}
+
+.WindowTap img {
+  max-width: 100%;
+  max-height: 100%;
+}
+
+.WindowTap {
+  border: 1px solid var(--border-color);
+  border-top-left-radius: 25px;
+  border-top-right-radius: 25px;
+  background-color: var(--tap-background);
+  text-align: center;
+  padding: 5px 0;
+}
+
+.WindowData {
+  border-left: 1px solid var(--border-color);
+  border-right: 1px solid var(--border-color);
+  background-color: var(--background-beige);
+  width: 100%;
+
+}
+
+.WindowActiveTap {
+  background-color: var(--background-beige);
+  border-bottom: none;
+}

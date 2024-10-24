@@ -1,0 +1,46 @@
+.ProgressBar{
+    border: 1px solid var(--border-color);
+    border-radius: 15px;
+    color:white;
+    background-color: #2C140259;
+    position: relative;
+    aspect-ratio: 3;
+    z-index: 1;
+    container-type: size;
+
+}
+
+.ProgressBar span {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    font-size: 14cqw;
+
+}
+.ProgressBarFill{
+    border-radius: 15px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    transition: width 1s, background-color s linear;
+    height: 100%;
+    z-index: -1;
+}
+
+.ProgressBarIcon{
+    z-index: 1;
+    position: absolute;
+    top: -15%;
+    left: -8%;
+    max-width: 100%;
+    width: 24%;
+}
+
+.ProgressBarRestoreIcon{
+    position: absolute;
+    max-width: 100%;
+    top: -5%;
+    right: -8%;
+    width: 24%;
+}

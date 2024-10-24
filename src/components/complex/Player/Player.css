@@ -1,0 +1,26 @@
+.Player img {
+  max-width: 100%;
+  max-height: 100%;
+  width: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+.Player {
+  position: relative;
+}
+
+.PlayerAvatar {
+    z-index: 0;
+}
+.PlayerTop {
+  z-index: 2;
+}
+
+.PlayerLegs {
+  z-index: 1;
+}
+.PlayerFeet {
+  z-index: 0;
+}
+
