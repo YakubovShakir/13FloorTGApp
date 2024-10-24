@@ -9,7 +9,6 @@
     border-bottom-left-radius: 20px;
     border-bottom-right-radius: 20px;
     box-shadow: 0px 10px 5px -5px rgba(3, 7, 10, 0.6);
-    padding: 2% 0;
 }
 
 .HomeHeaderSettings img {
@@ -24,14 +23,16 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    width: 40%;
+    width: 30%;
     background-color: var(--main-lightblack);
     border-radius: 5px;
-    height: 100%;
-    padding: 0 2%;
+    height: 70%;
+    padding: 2% 2%;
+    container-type: size;
 }
 
 .HomeHeaderIncome div:nth-child(1) {
+    
     display: flex;
     justify-content: center;
     align-items: center;
@@ -40,7 +41,7 @@
 }
 .HomeHeaderIncome div:nth-child(2) {
     width: 70%;
-    font-size: var(--font-size-2);
+    font-size: 14cqw;
     display: flex;
     flex-direction: column;
 }
@@ -49,4 +50,25 @@
 }
 .HomeHeaderIncome div:nth-child(2) span:nth-child(2) {
     color: var(--main-orange)
+}
+
+.HomeHeaderLevel {
+    width: 14%;
+    container-type: size;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--main-lightblack);
+    border-radius: 5px;
+    height: 70%;
+    color: white
+}
+
+.HomeHeaderLevel span:nth-child(1) {
+    font-size: 45cqw;
+}
+.HomeHeaderLevel span:nth-child(2) {
+    font-size: 20cqw;
+
 }

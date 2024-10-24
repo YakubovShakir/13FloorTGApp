@@ -19,6 +19,11 @@ const HomeHeader = ({ onClick }) => {
           <span>+ 0/Ч</span>
         </div>
       </div>
+
+      <div className="HomeHeaderLevel">
+        <span>1</span>
+        <span>Уровень</span>
+      </div>
     </div>
   )
 }
