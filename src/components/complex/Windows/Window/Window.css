@@ -1,8 +1,8 @@
 .Window {
   width: 100vw;
-  height: 88vh;
+  height: 92%;
   position: absolute;
-  top: 12vh;
+  top: 8%;
   background-color: #2c1402ce;
   z-index: 1;
   border-top: 1px solid var(--border-color);
@@ -39,39 +39,13 @@
   position: absolute;
   max-width: 100%;
   width: 8%;
-  top: 1.5%;
-  right: 5%;
-}
-
-.WindowTaps {
-  display: flex;
-  width: 100%;
-  max-height: 7%;
-}
-
-.WindowTap img {
-  max-width: 100%;
-  max-height: 100%;
-}
-
-.WindowTap {
-  border: 1px solid var(--border-color);
-  border-top-left-radius: 25px;
-  border-top-right-radius: 25px;
-  background-color: var(--tap-background);
-  text-align: center;
-  padding: 5px 0;
+  top: -5.5%;
+  left: 50%;
 }
 
 .WindowData {
   border-left: 1px solid var(--border-color);
   border-right: 1px solid var(--border-color);
-  background-color: var(--background-beige);
+  background-color: #2f292b;
   width: 100%;
-
-}
-
-.WindowActiveTap {
-  background-color: var(--background-beige);
-  border-bottom: none;
 }

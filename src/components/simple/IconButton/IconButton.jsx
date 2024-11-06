@@ -7,7 +7,7 @@ const IconButton = ({
   color = "#fff",
   notify = false,
   onClick,
-  bgTextColor = "transparent"
+  bgTextColor = "transparent",
 }) => {
   const { Icons } = Assets
   return (

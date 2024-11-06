@@ -1,5 +1,6 @@
+import { boxClasses } from "@mui/joy"
 import "./Button.css"
-
+import { useState } from "react"
 const Button = ({
   width,
   height,
@@ -10,18 +11,41 @@ const Button = ({
   ownColor = false,
   active = true,
 }) => {
+  const [boxShadow, setBoxShadow] = useState({
+    color: "rgb(49 87 49)",
+    x: 0,
+    y: 9,
+    blur: 0,
+    scale: -3,
+  })
   return (
     <button
       onClick={() => {
         onClick && onClick()
+      }}
+      onMouseDown={() => {
+        setBoxShadow({ ...boxShadow, y: boxShadow.y-5 })
+      }}
+      onMouseUp={() => {
+        setBoxShadow({ ...boxShadow, y: boxShadow.y + 5 })
+      }}
+      onTouchStart={() => {
+        setBoxShadow({ ...boxShadow, y: boxShadow.y-5 })
+      }}
+      onTouchEnd={() => {
+        setBoxShadow({ ...boxShadow, y: boxShadow.y + 5 })
       }}
       className="Button"
       style={{
         width: width,
         minHeight: height,
         height: height,
-        backgroundColor: ownColor ? bgColor : active ? "#00C200" : "#D9D3C4",
-        boxShadow: `0px 9px 4px -5px rgb(49 87 49)`,
+        background: ownColor
+          ? bgColor
+          : active
+          ? "linear-gradient(180deg, rgba(46,199,115,1) 0%, rgba(9,98,78,1) 100%)"
+          : "#D9D3C4",
+        boxShadow: `${boxShadow.x}px ${boxShadow.y}px ${boxShadow.blur}px ${boxShadow.scale}px ${boxShadow.color}`,
       }}
     >
       {icon && <img src={icon} alt="Button" />}

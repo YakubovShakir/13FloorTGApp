@@ -107,7 +107,7 @@ import typeShoes from "./IMG/icons/typeShoes.png"
 import legs from "./IMG/icons/legs.png"
 import head from "./IMG/icons/head.png"
 import body from "./IMG/icons/body.png"
-import accessory from "./IMG/icons/accessory.png"
+import access from "./IMG/icons/accessory.png"
 
 import afro from "./IMG/avatars/girls/clothes/head/afro.png"
 
@@ -119,6 +119,14 @@ import femaleBlack from "./IMG/icons/StartCustomize/black.png"
 import femaleAzia from "./IMG/icons/StartCustomize/azia.png"
 import femaleEurope from './IMG/icons/StartCustomize/europe.png'
 
+
+import flowerPot from "./IMG/icons/accessory/flowerPot.png"
+import flowerVase from "./IMG/icons/accessory/flowerVase.png"
+import framedPhoto from "./IMG/icons/accessory/framedPhoto.png"
+import goldenCat from "./IMG/icons/accessory/goldenCat.png"
+import patCat from "./IMG/icons/accessory/patCat.png"
+
+import InWorkIcon from "./IMG/icons/InWorkIcon.png"
 export function getImgUrl(name) {
   return new URL(`${name}`, import.meta.url).href
 }
@@ -136,6 +144,14 @@ const Assets = {
     afro
   },
   Icons: {
+    accessory : {
+      flowerPot,
+      flowerVase,
+      framedPhoto,
+      goldenCat,
+      patCat
+    },
+    InWorkIcon,
     femaleAzia,
     femaleBlack,
     femaleEurope,
@@ -145,7 +161,7 @@ const Assets = {
     legs,
     head,
     body,
-    accessory,
+    access,
     plus,
     happiness,
     hungry,

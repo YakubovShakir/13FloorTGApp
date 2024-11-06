@@ -1,0 +1,8 @@
+.InventoryCell {
+  background-color: #d9d9d941;
+  border: 1px solid #fff;
+  border-radius: 5px;
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+}

@@ -4,3 +4,36 @@
   width: 100vw;
   height: 100vh;
 }
+
+.HomeInventory {
+  position: absolute;
+  right: 5%;
+  top: 25%;
+  width: 50%;
+  height: 50%;
+  display: flex;
+  flex-direction: column;
+  gap: 5%;
+}
+
+.HomeInventoryHigh {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  align-items: center;
+  height: 30%;
+  gap: 5%;
+}
+.HomeInventoryBottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+}
+
+.HomePatImg {
+  position: absolute;
+  max-width: 100%;
+  width: 40%;
+  left: 25%;
+  bottom: 20%;
+}

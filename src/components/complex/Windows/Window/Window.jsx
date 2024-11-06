@@ -12,7 +12,8 @@ const Window = ({ title, onClose, tabs=undefined, data=undefined}) => {
         src={Icons.cancel}
         alt="#"
       />
-      <div className="WindowTitle">{title}</div>
+      {/* 
+      <div className="WindowTitle">{title}</div> */}
       <div className="WindowTaps">
         {tabs && Object.keys(tabs).map((tap, index) => (
           <div
@@ -27,7 +28,7 @@ const Window = ({ title, onClose, tabs=undefined, data=undefined}) => {
           </div>
         ))}
       </div>
-      <div className="WindowData" style={{ overflowY: "scroll", height: tabs ? "87%": "100%", borderTopLeftRadius: tabs ? "0" : "20px", borderTopRightRadius: tabs ? "0" : "20px"}}>
+      <div className="WindowData" style={{ overflowY: "scroll", height: tabs ? "100%": "100%", borderTopLeftRadius: tabs ? "0" : "20px", borderTopRightRadius: tabs ? "0" : "20px"}}>
       {data[activeTab] || data}
       </div>
     </div>

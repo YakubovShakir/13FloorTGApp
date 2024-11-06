@@ -4,44 +4,17 @@ import Assets from "../../../assets"
 import FillBar from "../../simple/FillBar/FillBar"
 
 import "./PlayerIndicators.css"
-const PlayerIndicators = () => {
-  const { Images, Icons } = Assets
-  const bars = [
-    {
-      icon: Icons.energy,
-      percentFill: 55,
-      width: "30%",
-    },
-    {
-      icon: Icons.hungry,
-      percentFill: 45,
-      width: "30%",
-    },
-    {
-      icon: Icons.happiness,
-      percentFill: 90,
-      width: "30%",
-    },
-  ]
+const PlayerIndicators = ({ indicators }) => {
   return (
     <div className="PlayerIndicators">
-      {bars.map((bar, index) => (
+      {indicators.map((indicator, index) => (
         <FillBar
           key={index}
-          icon={bar.icon}
-          width={bar.width}
-          percentFill={bar.percentFill}
+          icon={indicator.icon}
+          width={indicator.width}
+          percentFill={indicator.percentFill}
         />
       ))}
-
-      {/* 
-            <>
-            <SourceBar/>  Balance
-            <SourceBar/> Food
-            <SourceBar/> Energy
-            <SourceBar/> Mood
-
-        */}
     </div>
   )
 }

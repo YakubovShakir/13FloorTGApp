@@ -6,7 +6,7 @@ import Modal from "../Modals/Modal/Modal"
 import { useState } from "react"
 const InvestCard = ({
   icon,
-  name,
+  name,                
   level,
   autoClaim = false,
   claimStatus = false,
@@ -121,6 +121,8 @@ const InvestCard = ({
           height={"25%"}
           width={"80%"}
           active={claimStatus}
+          bgColor={"linear-gradient(180deg, rgba(233,78,27,1) 5%, rgba(243,117,0,1) 65%)"}
+          ownColor = {autoClaim ? true : false}
           text={autoClaim ? "Автосбор" : "Собрать"}
         />
         {/* <button>{autoClaim ? "Автосбор" : "Собрать"}</button> */}

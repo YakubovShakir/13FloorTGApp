@@ -12,7 +12,7 @@ const InvestWindow = () => {
       level: 1,
       autoClaim: false,
       upgradeStatus: true,
-      claimStatus: false,
+      claimStatus: true,
       progress: 150,
       capacity: 200,
       dataIcon: Icons.manager

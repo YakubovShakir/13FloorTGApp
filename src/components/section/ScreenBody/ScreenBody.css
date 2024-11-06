@@ -1,0 +1,8 @@
+.ScreenBody {
+  background-color: #2f292b;
+  position: absolute;
+  height: 80%;
+  width: 100%;
+  top: 10%;
+  padding-top: 4%;
+}

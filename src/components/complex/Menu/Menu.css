@@ -1,8 +1,10 @@
 .Menu {
-    display: flex;
-    justify-content: space-around;
-    height: 8%;
-    position: absolute;
-    bottom: 2%;
-    z-index: 3;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  position: absolute;
+  bottom: 0;
+  z-index: 3;
+  height: 10%;
+  padding-bottom: 2%;
 }

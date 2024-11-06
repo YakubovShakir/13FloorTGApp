@@ -9,18 +9,21 @@
   --background-beige: #ebe5d7;
   --background-dark-beige: #d9d3c4;
   --yellow-color: #fcba04;
-  
+
   --light-green: #00c200;
   --light-blue: #0088cc;
   --tap-background: #b3ad9d;
-  
-  --main-yellow: #F39200;
-  --main-orange: #E94E1B;
-  --main-black: #2F292B;
-  --main-lightblack: #3B3537;
-  --main-green: #2EC773;
-}
 
+  --main-yellow: #f39200;
+  --main-orange: #e94e1b;
+  --main-black: #2f292b;
+  --main-lightblack: #3b3537;
+  --main-green: #2ec773;
+}
+#root {
+  width: 100%;
+  height: 100%;
+}
 body {
   background-color: var(--main-bg-color);
   font-family: "Fira Sans", sans-serif;
@@ -30,7 +33,8 @@ body {
   -ms-user-select: none;
   max-height: 100vh;
   max-width: 100vw;
-
+  width: 100vw;
+  height: 100vh;
   overflow: hidden;
   touch-action: none !important;
 }
@@ -39,9 +43,9 @@ body {
   margin: 0;
 
   -webkit-box-sizing: border-box !important;
-	-moz-box-sizing: border-box !important;
-	-ms-box-sizing: border-box !important;
-	box-sizing: border-box !important;
+  -moz-box-sizing: border-box !important;
+  -ms-box-sizing: border-box !important;
+  box-sizing: border-box !important;
 }
 .css-1hs7rf2-JoyCircularProgress-progress {
   stroke: #7a28cb !important;
@@ -52,4 +56,32 @@ body {
 
 ::-webkit-scrollbar {
   display: none;
+}
+
+.grayscale-1 {
+  filter: grayscale(1);
+}
+.grayscale-0 {
+  filter: grayscale(0);
+}
+
+.scaleUpAnimation {
+  animation: scaleUp 0.5s ease-out;
+}
+@keyframes scaleUp {
+  0% {
+    scale: 1.1;
+  }
+  50% {
+    scale: 1.3;
+  }
+  100% {
+    scale: 1.1;
+  }
+}
+
+.screenMenu {
+  background-color: #2f292b;
+  border-top: 1px solid #f37500;
+  padding-top: 10px;
 }
