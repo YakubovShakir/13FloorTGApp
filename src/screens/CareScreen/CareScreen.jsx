@@ -18,7 +18,7 @@ import useTelegram from "../../hooks/useTelegram"
 import { useNavigate } from "react-router-dom"
 const CareScreen = () => {
   const [activeTab, setActiveTab] = useState(null)
-  const nagitate = useNavigate()
+  const navigate = useNavigate()
   const { Icons } = Assets
   const tabs = [ {icon: foodTab, callback: () => console.log("foodTab") },
     {icon: boost, callback: () => console.log("BoostTab")} ,
@@ -98,7 +98,7 @@ const CareScreen = () => {
   const BoostList = [{}]
 
   useEffect(()=> {
-    useTelegram.setBackButton(()=> nagitate("/"))
+    useTelegram.setBackButton(()=> navigate("/"))
   }, [])
   return (
     <Screen>
