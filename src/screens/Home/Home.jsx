@@ -31,7 +31,7 @@ const Home = () => {
       <img className="HomePatImg" src={Icons.accessory.patCat}  alt="Pat" />
       
      
-      <Menu />
+      <Menu screenMenu/>
       <div className="HomeInventory">
         <div className="HomeInventoryHigh">
           <InventoryCell active={inventoryEdit} aspectRatio={"1"} width={"30%"} icon={Icons.accessory.flowerPot} />

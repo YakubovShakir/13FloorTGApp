@@ -25,7 +25,7 @@
   height: 100%;
 }
 body {
-  background-color: var(--main-bg-color);
+  background-color: #2f292b;
   font-family: "Fira Sans", sans-serif;
   user-select: none;
   -moz-user-select: none;
@@ -80,8 +80,3 @@ body {
   }
 }
 
-.screenMenu {
-  background-color: #2f292b;
-  border-top: 1px solid #f37500;
-  padding-top: 10px;
-}
