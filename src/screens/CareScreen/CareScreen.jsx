@@ -14,15 +14,17 @@ import Screen from "../../components/section/Screen/Screen"
 import ScreenBody from "../../components/section/ScreenBody/ScreenBody"
 import ScreenTabs from "../../components/section/ScreenTabs/ScreenTabs"
 import ScreenContainer from "../../components/section/ScreenContainer/ScreenContainer"
+import useTelegram from "../../hooks/useTelegram"
+import { useNavigate } from "react-router-dom"
 const CareScreen = () => {
   const [activeTab, setActiveTab] = useState(null)
+  const nagitate = useNavigate()
   const { Icons } = Assets
   const tabs = [ {icon: foodTab, callback: () => console.log("foodTab") },
     {icon: boost, callback: () => console.log("BoostTab")} ,
     {icon: store, callback: () => console.log("StoreTab")} 
   ]
   const playerBalance = 1000
-
   const FoodList = [
     {
       name: "Бургер",
@@ -94,6 +96,10 @@ const CareScreen = () => {
       },
   ]
   const BoostList = [{}]
+
+  useEffect(()=> {
+    useTelegram.setBackButton(()=> nagitate("/"))
+  }, [])
   return (
     <Screen>
       <HomeHeader screenHeader />

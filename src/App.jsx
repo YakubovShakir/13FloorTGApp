@@ -8,20 +8,20 @@ import CareScreen from "./screens/CareScreen/CareScreen"
 
 function App() {
   useEffect(() => {
-    useTelegram.waitReady,
-      useTelegram.setFullScreen,
+    useTelegram.waitReady(),
+      useTelegram.setFullScreen(),
       useTelegram.setHeaderColor("#2F292B")
   }, [])
 
   return (
     <>
-      <BrowserRouter>
+      <MemoryRouter>
         <Routes>
           {/* <Route index element={<StartCustomize />} /> */}
           <Route index element={<Home />} />
           <Route path="/care" element={<CareScreen />} />
         </Routes>
-      </BrowserRouter>
+      </MemoryRouter>
     </>
   )
 }
