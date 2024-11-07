@@ -8,7 +8,7 @@ const useTelegram = {
     Telegram.BackButton.onClick(callback)
     Telegram.BackButton.show()
   },
-  hideBackButton: () => Telegram.BackButton.show(),
+  hideBackButton: () => Telegram.BackButton.hide(),
   setHeaderColor: (color) => Telegram.setHeaderColor(color)
 }
 

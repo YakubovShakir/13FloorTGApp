@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import "./Home.css"
 import HomeHeader from "../../components/complex/HomeHeader/HomeHeader"
 import Player from "../../components/complex/Player/Player"
@@ -7,14 +7,15 @@ import Window from "../../components/complex/Windows/Window/Window"
 import WelcomeModal from "../../components/complex/Modals/WelcomeModal/WelcomeModal"
 import InventoryCell from "../../components/simple/InventoryCell/InventoryCell"
 import Assets from "../../assets/index"
-
+import useTelegram from "../../hooks/useTelegram"
 const Home = () => {
   const { Icons, BG } = Assets
   const [currentWindow, setCurrentWindow] = useState(null)
   const [visibleWindow, setVisibleWindow] = useState(false)
   const [visibleWelcomeModal, setVisibleWelcomeModal] = useState(false)
   const [inventoryEdit, setInventoryEdit] = useState(true)
- 
+  
+  useEffect(()=> useTelegram.hideBackButton(), [])
   return (
     <div
       className="Home"
