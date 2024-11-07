@@ -9,7 +9,7 @@ import boost from "./assets/img/boost.png"
 import greenArrowUp from "./assets/img/greenArrowUp.png"
 import Button from "../../components/simple/Button/Button"
 import Assets from "../../assets"
-
+import { motion } from "framer-motion"
 import Screen from "../../components/section/Screen/Screen"
 import ScreenBody from "../../components/section/ScreenBody/ScreenBody"
 import ScreenTabs from "../../components/section/ScreenTabs/ScreenTabs"
@@ -101,7 +101,11 @@ const CareScreen = () => {
         <ScreenTabs tabs={tabs}/>
         <ScreenContainer withTab>
         {FoodList.map((food, index) => (
-            <div key={index} className="CareFoodCard">
+            <motion.div key={index} 
+            initial={{ opacity: 0, y: -100 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.15 * (index + 1) }}
+            className="CareFoodCard">
               <div style={{ width: "25%", display: "flex", alignItems: "center"}}>
                 <img src={food.icon} alt="FoodCardIcon" />
               </div>
@@ -168,7 +172,7 @@ const CareScreen = () => {
               />
               </div>
 
-            </div>
+            </motion.div>
           ))}
         </ScreenContainer>
         </ScreenBody>
