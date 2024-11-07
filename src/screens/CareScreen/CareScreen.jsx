@@ -102,7 +102,7 @@ const CareScreen = () => {
         <ScreenContainer withTab>
         {FoodList.map((food, index) => (
             <motion.div key={index} 
-            initial={{ opacity: 0, y: -100 }}
+            initial={{ opacity: 0, y: 100 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.15 * (index + 1) }}
             className="CareFoodCard">
