@@ -80,76 +80,7 @@ const CareScreen = () => {
       ],
     },
   ]
-  // const FoodList = [
-  //   {
-  //     name: "Бургер",
-  //     icon: burger,
-  //     recoveryParameters: [{
-  //       oneTime: {
-  //         hungry: 5,
-  //         happiness: 5,
-  //       },
-  //       reusable: {
-  //           hungry: 5,
-  //           happiness: 5,
-  //       }
-  //     }],
-  //     cooldown: 540,
-  //     price: 400,
-  //   },
-  //   {
-  //       name: "Бургер",
-  //       icon: burger,
-  //       recoveryParameters: {
-  //         oneTime: {
-  //           hungry: 5,
-  //           happiness: 5,
-  //         },
 
-  //       },
-  //       cooldown: 540,
-  //       price: 400,
-  //     },
-  //     {
-  //       name: "Бургер",
-  //       icon: burger,
-  //       recoveryParameters: {
-  //         oneTime: {
-  //           hungry: 5,
-  //           happiness: 5,
-  //         },
-
-  //       },
-  //       cooldown: 540,
-  //       price: 400,
-  //     },
-  //     {
-  //       name: "Бургер",
-  //       icon: burger,
-  //       recoveryParameters: {
-  //         oneTime: {
-  //           hungry: 5,
-  //           happiness: 5,
-  //         },
-
-  //       },
-  //       cooldown: 540,
-  //       price: 400,
-  //     },
-  //     {
-  //       name: "Бургер",
-  //       icon: burger,
-  //       recoveryParameters: {
-  //         oneTime: {
-  //           hungry: 5,
-  //           happiness: 5,
-  //         },
-
-  //       },
-  //       cooldown: 540,
-  //       price: 400,
-  //     },
-  // ]
   const BoostList = [{}]
 
   useEffect(() => {

@@ -1,4 +1,3 @@
-
 const Telegram = window.Telegram.WebApp
 
 const useTelegram = {
@@ -9,9 +8,12 @@ const useTelegram = {
     Telegram.BackButton.show()
   },
   hideBackButton: () => {
-    if(Telegram.BackButton.isVisible) Telegram.BackButton.hide()
- },
-  setHeaderColor: (color) => Telegram.setHeaderColor(color)
+    if (Telegram.BackButton.isVisible) {
+      console.log(Telegram.BackButton.isVisible)
+      Telegram.BackButton.hide()
+    }
+  },
+  setHeaderColor: (color) => Telegram.setHeaderColor(color),
 }
 
 export default useTelegram
