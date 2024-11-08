@@ -1,0 +1,55 @@
+.ItemCard {
+    display: flex;
+    margin-bottom: 10px;
+    height: 26%;
+    width: 90%;
+    margin: auto;
+    color: #ffffff;
+    border-bottom: 2px solid #453d3f;
+    margin-bottom: 5%;
+}
+.ItemCard img {
+    max-width: 100%;
+    object-fit: contain;
+  }
+
+
+.ItemCardParams {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-content: space-evenly;
+    max-height: 80%;
+    height: 80%;
+}
+
+.ItemCardParam {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    width: 100%;
+}
+
+.ItemCardParamBlock {
+    background-color: #3b3537;
+    padding: 1% 0;
+    position: relative;
+    text-align: center;
+    border-radius: 8px;
+}
+
+.ItemCardParamBlock img {
+    position: absolute;
+    left: -3%;
+    width: 29%;
+    top: -1%;
+    max-height: 100%;
+}
+
+.ItemCardButtons {
+    width: 25%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}

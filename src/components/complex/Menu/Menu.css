@@ -11,18 +11,6 @@
 
 .screenMenu {
   background-color: #2f292b;
-  border-top: 1px solid #f37500;
   padding-top: 10px;
-  border-top-left-radius: 20px;
-  border-top-right-radius: 20px;
-  animation: upTop 0.50s ease;
 }
 
-@keyframes upTop {
-  0%{ 
-    translate: 0 50px;
-  }
-  100%{
-    translate: 0 0;
-  }
-}
