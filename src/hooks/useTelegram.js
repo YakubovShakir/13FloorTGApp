@@ -9,7 +9,7 @@ const useTelegram = {
   },
   hideBackButton: () => {
     if (Telegram.BackButton.isVisible) {
-      console.log(Telegram.BackButton.isVisible)
+      console.log("CHECK",Telegram.BackButton.isVisible)
       Telegram.BackButton.hide()
     }
   },
