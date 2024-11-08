@@ -8,8 +8,8 @@ const useTelegram = {
     Telegram.BackButton.show()
   },
   hideBackButton: () => {
+    console.log("CHECK",Telegram.BackButton.isVisible)
     if (Telegram.BackButton.isVisible) {
-      console.log("CHECK",Telegram.BackButton.isVisible)
       Telegram.BackButton.hide()
     }
   },
