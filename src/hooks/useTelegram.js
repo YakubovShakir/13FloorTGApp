@@ -8,10 +8,8 @@ const useTelegram = {
     Telegram.BackButton.show()
   },
   hideBackButton: () => {
-    console.log("CHECK",Telegram.BackButton.isVisible)
-    if (Telegram.BackButton.isVisible) {
-      Telegram.BackButton.hide()
-    }
+    Telegram.BackButton.show()
+    Telegram.BackButton.hide()
   },
   setHeaderColor: (color) => Telegram.setHeaderColor(color),
 }

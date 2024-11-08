@@ -9,7 +9,6 @@ const ItemCard = ({
   ItemButtons,
   ItemIndex,
 }) => {
-  console.log(ItemButtons)
   return (
     <motion.div
       initial={{ opacity: 0, y: 100 }}
@@ -47,20 +46,16 @@ const ItemCard = ({
 
       {/* ItemButtons Section */}
       <div className="ItemCardButtons">
-        {ItemButtons.map((ItemButton, index) => {
-            console.log(ItemButton)
-          return (
-            <Button
-              key={index}
-              width="90%"
-              
-              height={`35%`}
-              active={ItemButton.active}
-              text={ItemButton.price}
-              icon={ItemButton.icon}
-            />
-          )
-        })}
+        {ItemButtons.map((ItemButton, index) => (
+          <Button
+            key={index}
+            width="90%"
+            height={`35%`}
+            active={ItemButton.active}
+            text={ItemButton.price}
+            icon={ItemButton.icon}
+          />
+        ))}
       </div>
     </motion.div>
   )
