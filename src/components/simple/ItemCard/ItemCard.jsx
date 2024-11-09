@@ -50,10 +50,13 @@ const ItemCard = ({
           <Button
             key={index}
             width="90%"
-            height={`35%`}
+            height={`33%`}
             active={ItemButton.active}
-            text={ItemButton.price}
+            text={ItemButton.text}
             icon={ItemButton.icon}
+            bgColor={ItemButton?.bg}
+            ownColor={ItemButton?.bg}
+            shadowColor={ItemButton?.shadowColor}
           />
         ))}
       </div>
