@@ -17,7 +17,7 @@ const Button = ({
     x: 0,
     y: 9,
     blur: 0,
-    scale: -3,
+    scale: -4,
   })
   return (
     <button
