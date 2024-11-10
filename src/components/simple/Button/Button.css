@@ -1,9 +1,9 @@
 .Button {
-  border: 1px solid var(--border-color);
+  border: none;
   display: flex;
   justify-content: center;
   align-items: center;
-  border-radius: 10px;
+  border-radius: 5px;
   color: white;
   container-type: size;
   position: relative;

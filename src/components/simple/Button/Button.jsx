@@ -13,11 +13,11 @@ const Button = ({
   shadowColor,
 }) => {
   const [boxShadow, setBoxShadow] = useState({
-    color: active ? shadowColor || "rgba(9,98,78,1)" : "#453D3F",
+    color: active ? shadowColor || "#0E3228" : "#453D3F",
     x: 0,
-    y: 9,
+    y: 5,
     blur: 0,
-    scale: -4,
+    scale: -3,
   })
   return (
     <button
@@ -25,16 +25,16 @@ const Button = ({
         onClick && onClick()
       }}
       onMouseDown={() => {
-        setBoxShadow({ ...boxShadow, y: boxShadow.y - 5 })
+        setBoxShadow({ ...boxShadow, y: boxShadow.y - 2 })
       }}
       onMouseUp={() => {
-        setBoxShadow({ ...boxShadow, y: boxShadow.y + 5 })
+        setBoxShadow({ ...boxShadow, y: boxShadow.y + 2 })
       }}
       onTouchStart={() => {
-        setBoxShadow({ ...boxShadow, y: boxShadow.y - 5 })
+        setBoxShadow({ ...boxShadow, y: boxShadow.y - 2 })
       }}
       onTouchEnd={() => {
-        setBoxShadow({ ...boxShadow, y: boxShadow.y + 5 })
+        setBoxShadow({ ...boxShadow, y: boxShadow.y + 2 })
       }}
       className="Button"
       style={{
@@ -45,7 +45,7 @@ const Button = ({
           ? ownColor
             ? bgColor
             : "linear-gradient(180deg, rgba(46,199,115,1) 0%, rgba(9,98,78,1) 100%)"
-          : "#453D3F",
+          : "linear-gradient(180deg, rgba(79,71,74,1) 5%, rgba(89,82,84,1) 65%)",
         boxShadow: `${boxShadow.x}px ${boxShadow.y}px ${boxShadow.blur}px ${boxShadow.scale}px ${boxShadow.color}`,
       }}
     >
