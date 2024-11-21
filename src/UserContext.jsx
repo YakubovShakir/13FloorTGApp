@@ -1,7 +1,7 @@
 import useTelegram from "./hooks/useTelegram";
 import React, { createContext, useState, useEffect } from "react";
 import { getParameters } from "./api/user";
-import useTelegram from "./hooks/useTelegram";
+import {useTelegram} from "./hooks/useTelegram";
 // создаем контекст
 const UserContext = createContext();
 
