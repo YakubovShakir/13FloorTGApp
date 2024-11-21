@@ -7,6 +7,6 @@ dotenv.config()
 export default defineConfig({
   plugins: [react()],
   server: {
-    host: process.env.server_IP,
+    host: true,
   },
 })

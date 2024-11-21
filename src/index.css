@@ -26,7 +26,7 @@
 }
 body {
   background-color: #2f292b;
-  font-family: "Fira Sans", sans-serif;
+  font-family: "Muller";
   user-select: none;
   -moz-user-select: none;
   -webkit-user-select: none;
@@ -80,3 +80,11 @@ body {
   }
 }
 
+@font-face {
+  font-family: "Muller";
+  src: url("./fonts//Muller.otf");
+}
+@font-face {
+  font-family: "ActayWide";
+  src: url("./fonts//ActayWide.otf");
+}

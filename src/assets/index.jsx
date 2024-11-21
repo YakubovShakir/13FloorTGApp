@@ -127,6 +127,16 @@ import goldenCat from "./IMG/icons/accessory/goldenCat.png"
 import patCat from "./IMG/icons/accessory/patCat.png"
 
 import InWorkIcon from "./IMG/icons/InWorkIcon.png"
+
+import hungryUp from "./IMG/icons/hungryUp.png"
+import energyUp from "./IMG/icons/energyUp.png"
+import moodUp from "./IMG/icons/moodUp.png"
+import boosterArrow from "./IMG/icons/boosterArrow.png"
+import lockedIcon from "./IMG/icons/lockedIcon.png"
+import unlockedIcon from "./IMG/icons/unlockedIcon.png"
+
+import modalClose from "./IMG/icons/modalClose.png"
+
 export function getImgUrl(name) {
   return new URL(`${name}`, import.meta.url).href
 }
@@ -151,6 +161,13 @@ const Assets = {
       goldenCat,
       patCat
     },
+    modalClose,
+    boosterArrow,
+    lockedIcon,
+    unlockedIcon,
+    moodUp,
+    energyUp,
+    hungryUp,
     InWorkIcon,
     femaleAzia,
     femaleBlack,

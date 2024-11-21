@@ -1,55 +1,70 @@
 .ItemCard {
-    display: flex;
-    margin-bottom: 10px;
-    height: 26%;
-    width: 90%;
-    margin: auto;
-    color: #ffffff;
-    border-bottom: 2px solid #453d3f;
-    margin-bottom: 5%;
+  display: flex;
+  margin-bottom: 10px;
+  height: 26%;
+  width: 90%;
+  margin: auto;
+  color: #ffffff;
+  border-bottom: 2px solid #453d3f;
+  margin-bottom: 5%;
 }
 .ItemCard img {
-    max-width: 100%;
-    object-fit: contain;
-  }
-
+  max-width: 100%;
+  object-fit: contain;
+}
 
 .ItemCardParams {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    align-content: space-evenly;
-    max-height: 80%;
-    height: 80%;
+  display: flex;
+  flex-wrap: wrap;
+  align-content: center;
+  gap: 5%;
+  max-height: 80%;
+  height: 80%;
 }
 
 .ItemCardParam {
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    width: 100%;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  width: 100%;
 }
 
 .ItemCardParamBlock {
-    background-color: #3b3537;
-    padding: 1% 0;
-    position: relative;
-    text-align: center;
-    border-radius: 8px;
+  background-color: #3b3537;
+  padding: 1% 0;
+  position: relative;
+  text-align: center;
+  border-radius: 5px;
+  z-index: 0;
+}
+
+.ItemCardParamBlock span {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  background: rgb(233, 78, 27);
+  background: linear-gradient(
+    90deg,
+    rgba(233, 78, 27, 1) 0%,
+    rgba(243, 117, 0, 1) 50%
+  );
+  border-radius: 5px;
+  z-index: -1;
 }
 
 .ItemCardParamBlock img {
-    position: absolute;
-    left: -3%;
-    width: 29%;
-    top: -1%;
-    max-height: 100%;
+  position: absolute;
+  left: -3%;
+  width: 29%;
+  top: -1%;
+  max-height: 100%;
 }
 
 .ItemCardButtons {
-    width: 25%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: space-evenly;
+  width: 25%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-evenly;
 }

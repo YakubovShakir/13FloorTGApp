@@ -20,7 +20,7 @@ const Menu = ({ screenMenu, activeName }) => {
       title: "Инвестиции",
     },
     activity: {
-      onClick: () => navigate("/#"),
+      onClick: () => navigate("/activity"),
       notify: true,
       icon: Icons.activity,
       title: "Активности",

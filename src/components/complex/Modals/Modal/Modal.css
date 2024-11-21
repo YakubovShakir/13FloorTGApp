@@ -1,50 +1,88 @@
 .Modal {
   position: absolute;
-  z-index: 5;
-  border: 1px solid var(--border-color);
-  background-color: #2c1402e9;
-  border-radius: 30px;
-  padding: 0% 2%;
-  padding-bottom: 3%;
+  background: var(--main-black);
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  border-top: 1px solid gray;
+  z-index: 2;
+  container-type: size;
+  color: white;
+  padding: 5% 0;
+}
+.Modal img {
+  max-width: 100%;
+}
+.ModalTitle {
+  text-align: center;
+  opacity: 0.8;
+  font-size: 5cqw;
+  height: 10%;
+}
+
+.ModalLogo {
+  text-align: center;
+  height: 40%;
+}
+.ModalLogo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.ModalBody img {
+  width: 10%;
+}
+
+.ModalBody {
+  height: 40%;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  container-type: size;
-}
-.Modal::before {
-  content: '';
-  position: absolute;
-  position: fixed;
-  top: calc(-100vh);
-  left: calc(-100vw);
-  width: 200vw;
-  height: 200vh;
-  background-color: rgba(23, 21, 15, 0.58);
-  z-index: -1;
-
-}
-.ModalTitle{
-  font-size: 6cqw;
-  color: white;
-  font-weight: bold;
-  width: 100%;
-  max-height: 20%;
-  padding: 6% 0;
-  display: flex;
   justify-content: center;
+  gap: 5%;
   align-items: center;
-  position: relative;
 }
-.ModalTitle button {
+.ModalBodyBlock {
+  background-color: #3b3537;
+  border-radius: 5px;
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 2% 5%;
+  width: 80%;
+  font-size: 3.5cqw;
+  z-index: 0;
+}
+.ModalBodyBlock img {
+  vertical-align: middle;
+}
+.ModalFooter {
+  height: 15%;
+  display: flex;
+  font-size: 2cqw;
+
+  justify-content: center;
+}
+.ModalFooter .Button span {
+  font-size: 9cqw;
+}
+.progressFill {
   position: absolute;
-  width: 20%;
-  right: 0;
+  left: 0;
+  top: 0;
+  height: 100%;
+  background: rgb(233, 78, 27);
+  background: linear-gradient(
+    90deg,
+    rgba(233, 78, 27, 1) 0%,
+    rgba(243, 117, 0, 1) 50%
+  );
+  border-radius: 5px;
+  z-index: -1;
 }
-.ModalData {
-  width: 100%;
-  max-width: 100%;
-  max-height: 100%;
-  border-radius: 25px;
-  height: 88%;
-  position: relative;
+
+.ModalClose {
+  position: absolute;
+  right: 5%;
+  width: 5%;
+  z-index: 1;
 }

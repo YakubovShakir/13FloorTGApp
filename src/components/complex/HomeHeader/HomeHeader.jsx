@@ -1,19 +1,26 @@
-import { React, useState } from "react"
+import { React, useEffect, useState, useContext} from "react"
 import PlayerLogo from "../PlayerLogo/PlayerLogo"
 import PlayerIndicators from "../PlayerIndicators/PlayerIndicators"
 import IconButton from "../../simple/IconButton/IconButton"
 import Assets from "../../../assets"
 import { SwiperSlide, Swiper } from "swiper/react"
 import { Pagination } from "swiper/modules"
+import { getParameters } from "../../../api/user"
+
 import "./HomeHeader.css"
 import "swiper/css"
 import "swiper/css/pagination"
+import UserContext from "../../../UserContext"
 
 const HomeHeader = ({ screenHeader }) => {
-  const { Icons } = Assets
+  const {user, userParameters} = useContext(UserContext)
 
+  const { Icons } = Assets
+  
+  const userId =790629329
+  
   const player = {
-    level: 1,
+    level: 2,
     balance: 100000,
     income: 100,
     experience: 500,
@@ -21,23 +28,8 @@ const HomeHeader = ({ screenHeader }) => {
     respect: 134344,
   }
 
-  const indicators = [
-    {
-      icon: Icons.energy,
-      percentFill: 55,
-      width: "30%",
-    },
-    {
-      icon: Icons.hungry,
-      percentFill: 45,
-      width: "30%",
-    },
-    {
-      icon: Icons.happiness,
-      percentFill: 90,
-      width: "30%",
-    },
-  ]
+
+  useEffect(()=> console.log(userParameters), [userParameters])
   return (
     <div className="HomeHeader" style={{ borderRadius: screenHeader && "0" }}>
       <Swiper
@@ -46,24 +38,38 @@ const HomeHeader = ({ screenHeader }) => {
         className="HomeHeaderSwiper"
       >
         <SwiperSlide className="HomeHeaderSlide" style={{ display: "flex" }}>
-          <PlayerIndicators indicators={indicators} />
+          <PlayerIndicators indicators={[ {
+      icon: Icons.energy,
+      percentFill: (userParameters?.energy / userParameters?.energy_capacity) * 100,
+      width: "30%",
+    },
+    {
+      icon: Icons.hungry,
+      percentFill: (userParameters?.hungry),
+      width: "30%",
+    },
+    {
+      icon: Icons.happiness,
+      percentFill: (userParameters?.mood),
+      width: "30%",
+    },]} />
           <div className="HomeHeaderIncome">
             <div>
               <img src={Icons.balance} alt="Coin" />
             </div>
             <div>
-              <span>{player.balance}</span>
+              <span>{userParameters?.coins}</span>
               <span>{player.income}/ч</span>
             </div>
           </div>
           <div className="HomeHeaderLevel">
-            <span>{player.level}</span>
+            <span>{userParameters?.level}</span>
             <span>Уровень</span>
             <div
               className="HomeHeaderLevelCapacity"
               style={{
                 height:
-                  (player.experience / player.experienceNextLevel) * 100 + "%",
+                  (userParameters?.experience / player.experienceNextLevel) * 100 + "%",
               }}
             />
           </div>{" "}
@@ -71,12 +77,12 @@ const HomeHeader = ({ screenHeader }) => {
         <SwiperSlide className="HomeHeaderSlide" style={{ display: "flex" }}>
           <div className="HomeHeaderRespect">
             <img src={Icons.respect} alt="RespectIcon" />
-            <span>{player.respect}</span>
+            <span>{userParameters?.respect}</span>
           </div>
           <div className="HomeHeaderExperience">
-            <span>{player.level} уровень</span>
+            <span>{userParameters?.level} уровень</span>
             <span>
-              {player.experience} / {player.experienceNextLevel}
+              {userParameters?.experience} / {player.experienceNextLevel}
             </span>
           </div>
         </SwiperSlide>

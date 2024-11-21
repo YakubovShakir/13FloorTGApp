@@ -6,7 +6,6 @@
   box-shadow: 0px 10px 5px -5px rgba(3, 7, 10, 0.6);
   height: 10%;
   overflow-x: hidden;
-
 }
 
 .HomeHeaderSettings img {
@@ -24,7 +23,7 @@
   width: 30%;
   background-color: var(--main-lightblack);
   border-radius: 5px;
-  padding: 1% 2%;
+  padding: 2% 2%;
   letter-spacing: 1px;
 }
 
@@ -119,6 +118,7 @@
   letter-spacing: 1px;
 }
 .HomeHeaderRespect span {
+  text-align: center;
   width: 60%;
 }
 .HomeHeaderRespect img {
@@ -131,6 +131,7 @@
   width: 50%;
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
   border-radius: 5px;
   background-color: #3b3537;
   text-align: center;
