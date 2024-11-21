@@ -1,6 +1,7 @@
 import useTelegram from "./hooks/useTelegram";
 import React, { createContext, useState, useEffect } from "react";
 import { getParameters } from "./api/user";
+import useTelegram from "./hooks/useTelegram";
 // создаем контекст
 const UserContext = createContext();
 
@@ -11,8 +12,8 @@ export const UserProvider = ({ children }) => {
   const [userId, setUserId] = useState(null)
 
   useEffect(()=> {
-    setUserId(790629329)
-    getParameters(790629329).then((parameters) => setUserParameters(parameters))
+    setUserId(useTelegram?.getUserId)
+    getParameters(useTelegram?.getUserId).then((parameters) => setUserParameters(parameters))
     updateInformation()
   }, [])
 
@@ -21,7 +22,7 @@ export const UserProvider = ({ children }) => {
         setInterval(()=> {
             console.log("Обновляю параметры пользователя")
 
-            getParameters(790629329).then((parameters) => setUserParameters(parameters)) 
+            getParameters(useTelegram?.getUserId).then((parameters) => setUserParameters(parameters)) 
         }, 30000)
     }
     catch (e) {

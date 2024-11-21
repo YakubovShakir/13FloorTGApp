@@ -7,6 +7,8 @@ const useTelegram = {
     Telegram.BackButton.onClick(callback)
     Telegram.BackButton.show()
   },
+  getUserId: Telegram?.initDataUnsafe?.user?.id,
+
   hideBackButton: () => {
     Telegram.BackButton.show()
     Telegram.BackButton.hide()
