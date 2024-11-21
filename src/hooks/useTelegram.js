@@ -1,7 +1,7 @@
 const Telegram = window.Telegram.WebApp
 
 const useTelegram = {
-  waitReady: () => Telegram.ready(),
+  setReady: () => Telegram?.ready(),
   setFullScreen: () => Telegram.expand(),
   setBackButton: (callback) => {
     Telegram.BackButton.onClick(callback)

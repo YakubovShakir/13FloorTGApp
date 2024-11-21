@@ -10,7 +10,6 @@ import { UserProvider } from "./UserContext"
 
 function App() {
   useEffect(() => {
-    useTelegram.waitReady(),
       useTelegram.setFullScreen(),
       useTelegram.setHeaderColor("#2F292B")
   }, [])

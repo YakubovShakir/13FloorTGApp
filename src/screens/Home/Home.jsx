@@ -13,7 +13,11 @@ const Home = () => {
   const [visibleWindow, setVisibleWindow] = useState(false)
   const [inventoryEdit, setInventoryEdit] = useState(false)
   
-  useEffect(()=> useTelegram.hideBackButton(), [])
+  useEffect(()=>{ 
+    useTelegram.hideBackButton()
+    useTelegram?.setReady()
+  }
+  , [])
   return (
     <div
       className="Home"

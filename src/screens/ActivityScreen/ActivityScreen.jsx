@@ -90,31 +90,37 @@ const ActivityScreen = () => {
   }
 
   const switchWorklOnClick = (work) => {
-    if (work?.coins_price < userParameters?.coins) return () => {
-      if (!visibleModal) {
-        setModalData(setWorkModalData(work))
-        setVisibleModal(true)
+    // if (work?.coins_price < userParameters?.coins) return () => {
+    //   if (!visibleModal) {
+    //     setModalData(setWorkModalData(work))
+    //     setVisibleModal(true)
 
-      }
-    }
-    if (work?.coins_price < userParameters?.coins)return () => {
-      if (!visibleModal) {
-        setModalData(setWorkModalData(work))
-        setVisibleModal(true)
+    //   }
+    // }
+    // if (work?.coins_price < userParameters?.coins)return () => {
+    //   if (!visibleModal) {
+    //     setModalData(setWorkModalData(work))
+    //     setVisibleModal(true)
 
-      }
-    }
-    if (work?.skill_id_required) {
-      if (work?.coins_price < userParameters?.coins) return  () => {
+    //   }
+    // }
+    // if (work?.skill_id_required) {
+    //   if (work?.coins_price < userParameters?.coins) return  () => {
+    //     if (!visibleModal) {
+    //       setModalData(setWorkModalData(work))
+    //       setVisibleModal(true)
+
+    //     }
+    //   }
+    //   }
+    // return () => handleBuySkill(skill?.skill_id)
+    // return () => console.log("Покупка работы")
+    return () => {
         if (!visibleModal) {
           setModalData(setWorkModalData(work))
           setVisibleModal(true)
-
         }
       }
-      }
-    // return () => handleBuySkill(skill?.skill_id)
-    return () => console.log("Покупка работы")
   }
 
   const switchSkillOnClick = (skill) => {
