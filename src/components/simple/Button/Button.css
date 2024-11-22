@@ -9,8 +9,8 @@
   position: relative;
 }
 .Button span {
-  font-size: 15cqw;
-  letter-spacing: 1px;
+  font-size: 19cqw;
+  font-family: ActayWide;
   font-weight: bold;
 }
 .Button img {
@@ -19,6 +19,4 @@
   margin-right: 5%;
 }
 
-.Button:active {
-  translate: -0px 5px;
-}
+

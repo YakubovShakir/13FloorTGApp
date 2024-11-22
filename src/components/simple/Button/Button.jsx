@@ -1,5 +1,6 @@
-import "./Button.css"
-import { useState } from "react"
+import "./Button.css";
+import { useState } from "react";
+
 const Button = ({
   width,
   height,
@@ -11,30 +12,24 @@ const Button = ({
   active = true,
   shadowColor,
 }) => {
-  const [boxShadow, setBoxShadow] = useState({
+  const [isPressed, setIsPressed] = useState(false);
+
+  const boxShadow = {
     color: active ? shadowColor || "#0E3228" : "#453D3F",
-    x: 0,
-    y: 5,
+    y: isPressed ? 2 : 4, // Тень уменьшается при нажатии
     blur: 0,
-    scale: -3,
-  })
+  };
+
   return (
     <button
       onClick={() => {
-        onClick && onClick()
+        onClick && onClick();
       }}
-      onMouseDown={() => {
-        setBoxShadow({ ...boxShadow, y: boxShadow.y - 2 })
-      }}
-      onMouseUp={() => {
-        setBoxShadow({ ...boxShadow, y: boxShadow.y + 2 })
-      }}
-      onTouchStart={() => {
-        setBoxShadow({ ...boxShadow, y: boxShadow.y - 2 })
-      }}
-      onTouchEnd={() => {
-        setBoxShadow({ ...boxShadow, y: boxShadow.y + 2 })
-      }}
+      onMouseDown={() => setIsPressed(true)}
+      onMouseUp={() => setIsPressed(false)}
+      onMouseLeave={() => setIsPressed(false)} // Возврат в исходное состояние
+      onTouchStart={() => setIsPressed(true)}
+      onTouchEnd={() => setIsPressed(false)}
       className="Button"
       style={{
         width: width,
@@ -45,13 +40,15 @@ const Button = ({
             ? bgColor
             : "linear-gradient(180deg, rgba(46,199,115,1) 0%, rgba(9,98,78,1) 100%)"
           : "linear-gradient(180deg, rgba(79,71,74,1) 5%, rgba(89,82,84,1) 65%)",
-        boxShadow: `${boxShadow.x}px ${boxShadow.y}px ${boxShadow.blur}px ${boxShadow.scale}px ${boxShadow.color}`,
+        boxShadow: `0px ${boxShadow.y}px ${boxShadow.blur}px ${boxShadow.color}`,
+        transform: isPressed ? "translateY(2px)" : "translateY(0px)", // Одноразовое смещение
+        transition: "box-shadow 0.1s ease, transform 0.1s ease", // Плавный переход
       }}
     >
       {icon && <img src={icon} alt="Button" />}
       <span>{text}</span>
     </button>
-  )
-}
+  );
+};
 
-export default Button
+export default Button;
