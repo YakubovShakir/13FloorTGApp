@@ -9,7 +9,7 @@ const ItemCard = ({
   ItemParamsBlocks,
   ItemButtons,
   ItemIndex,
-  ItemDescription
+  ItemDescription,
 }) => {
   return (
     <motion.div
@@ -17,61 +17,70 @@ const ItemCard = ({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.15 * (ItemIndex + 1) }}
       className="ItemCard"
+      style={{ display: "flex", flexDirection: "column", width: "100%" }}
     >
-      {/* ItemIcon Section */}
-      <div style={{ width: "25%", display: "flex", alignItems: "center" }}>
-        <img loading="lazy" src={ItemIcon} alt="ItemIcon" />
+      {/* ItemTitle Section */}
+      <div style={{ textAlign: "center", width: "100%", fontSize: "5.5cqw",  }}>
+        {ItemTitle}
       </div>
 
-      {/* ItemParams Section */}
-      <div style={{ width: "60%" }}>
-        <div style={{ textAlign: "center", height: "20%", fontSize: "3.5cqw" }}>
-          {ItemTitle}
+      {/* Main Content Section */}
+      <div style={{ display: "flex", width: "100%" }}>
+        {/* ItemIcon Section */}
+        <div style={{ width: "25%", display: "flex", alignItems: "center", justifyContent: "center", padding: "10px"}}>
+          <img loading="lazy" src={ItemIcon} alt="ItemIcon" />
         </div>
-        <div className="ItemCardParams">
+
+        {/* ItemParams Section */}
+        <div style={{ width: "50%", textAlign: "center", paddingRight: "10px", alignContent: "center" }}>
           {ItemDescription && (
-            <span style={{ fontSize: "3cqw", textAlign: "center"}}>
+            <div style={{ fontSize: "5,5cqw", marginBottom: "1px" }}>
               {ItemDescription}
-            </span>
-          )}
-          {ItemParamsBlocks.map((param, index) => (
-            <div key={index} className="ItemCardParam">
-              {param.map((block, blockIndex) => (
-                <span
-                  className="ItemCardParamBlock"
-                  key={blockIndex}
-                  style={{ width: `${90 / param.length}%` }}
-                >
-                  {block?.fillPercent && <span style={{width: block?.fillPercent+ "%"}}></span>}
-                  <img src={block.icon} alt="paramIcon" />
-                  <p style={{fontSize: "3cqw"}}>{block.value}</p>
-                </span>
-              ))}
             </div>
+          )}
+          <div className="ItemCardParams"
+          style={{  }}>
+            {ItemParamsBlocks.map((param, index) => (
+              <div key={index} className="ItemCardParam" style={{ display: "flex",  }}>
+                {param.map((block, blockIndex) => (
+                  <span
+                    key={blockIndex}
+                    className="ItemCardParamBlock"
+                    style={{  width: `${100 / param.length}%` }}
+                  >
+                    {block?.fillPercent && (
+                      <span style={{ display: "block", width: block?.fillPercent + "%" }}></span>
+                    )}
+                    <img src={block.icon} alt="paramIcon" />
+                    <p style={{ fontSize: "11px", textAlign: "center" , flex: "1", paddingRight: "10%"  }}>{block.value}</p>
+                  </span>
+                ))}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* ItemButtons Section */}
+        <div style={{ width: "25%", display: "flex", flexDirection: "column", justifyContent: "center" }}>
+          {ItemButtons.map((ItemButton, index) => (
+            <Button
+              key={index}
+              width="90%"
+              min-height="20px"
+              height= "51px"
+              onClick={ItemButton?.onClick && (() => ItemButton?.onClick())}
+              active={ItemButton.active}
+              text={ItemButton.text}
+              icon={ItemButton.icon}
+              bgColor={ItemButton?.bg}
+              ownColor={ItemButton?.bg}
+              shadowColor={ItemButton?.shadowColor}
+            />
           ))}
         </div>
       </div>
-
-      {/* ItemButtons Section */}
-      <div className="ItemCardButtons">
-        {ItemButtons.map((ItemButton, index) => (
-          <Button
-      
-            key={index}
-            width="90%"
-            height={`33%`}
-            onClick={ItemButton?.onClick && (() => ItemButton?.onClick())}
-            active={ItemButton.active}
-            text={ItemButton.text}
-            icon={ItemButton.icon}
-            bgColor={ItemButton?.bg}
-            ownColor={ItemButton?.bg}
-            shadowColor={ItemButton?.shadowColor}
-          />
-        ))}
-      </div>
     </motion.div>
-  )
-}
+  );
+};
 
-export default ItemCard
+export default ItemCard;

@@ -15,7 +15,7 @@ const ScreenTabs = ({ tabs }) => {
             handleSwitchTab(index, tab.callback)
           }}
           key={index}
-          style={{ width: `${100 / tabs.length - 5}%` }}
+          style={{ width: `${100 / tabs.length - 3}%` }}
           className={
             activeTab === index ? "ScreenActiveTab ScreenTab" : "ScreenTab"
           }

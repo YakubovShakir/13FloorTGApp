@@ -11,8 +11,8 @@ export const UserProvider = ({ children }) => {
   const [userId, setUserId] = useState(null)
 
   useEffect(()=> {
-    setUserId(useTelegram?.getUserId)
-    getParameters(useTelegram?.getUserId).then((parameters) => setUserParameters(parameters))
+    setUserId(790629329)
+    getParameters(790629329).then((parameters) => setUserParameters(parameters))
     updateInformation()
   }, [])
 
@@ -21,7 +21,7 @@ export const UserProvider = ({ children }) => {
         setInterval(()=> {
             console.log("Обновляю параметры пользователя")
 
-            getParameters(useTelegram?.getUserId).then((parameters) => setUserParameters(parameters)) 
+            getParameters(790629329).then((parameters) => setUserParameters(parameters)) 
         }, 30000)
     }
     catch (e) {
