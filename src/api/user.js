@@ -16,6 +16,23 @@ export const getParameters = async (id) => {
   }
 }
 
+export const getCurrentProcess = async (id) => {
+  try {
+    let curentProcess
+
+    curentProcess = await instance
+      .get(`/users/process/${id}`)
+      .then((response) => (parameters = response.data.parameters))
+      .catch((error) => {
+        console.log("Some error on /parameters/id", error)
+      }) 
+
+    return curentProcess
+  } catch(e) {
+    console.log("Error while fetch parameters ", e)
+  }
+}
+
 export const getTrainingParameters = async (id) => {
   try {
     let parameters
