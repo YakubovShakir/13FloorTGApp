@@ -25,10 +25,10 @@ export const getCurrentProcess = async (id) => {
       .then((response) => (parameters = response.data.parameters))
       .catch((error) => {
         console.log("Some error on /parameters/id", error)
-      })
+      }) 
 
     return curentProcess
-  } catch (e) {
+  } catch(e) {
     console.log("Error while fetch parameters ", e)
   }
 }

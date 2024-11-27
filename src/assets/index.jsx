@@ -172,6 +172,9 @@ const Assets = {
   Layers: {
     cover,
   },
+  Layers: {
+    cover
+  },
   Icons: {
     accessory: {
       flowerPot,
@@ -187,6 +190,8 @@ const Assets = {
     workTabIcon,
     skillTabIcon,
     sleep,
+    sleep,
+    balancex45,
     boss,
     modalClose,
     boosterArrow,
