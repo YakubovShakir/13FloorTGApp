@@ -13,11 +13,10 @@ import "swiper/css/pagination"
 import UserContext from "../../../UserContext"
 
 const HomeHeader = ({ screenHeader }) => {
-  const {user, userParameters} = useContext(UserContext)
+  const {userId, userParameters} = useContext(UserContext)
 
   const { Icons } = Assets
   
-  const userId =790629329
   
   const player = {
     level: 2,
@@ -29,7 +28,7 @@ const HomeHeader = ({ screenHeader }) => {
   }
 
 
-  useEffect(()=> console.log(userParameters), [userParameters])
+  useEffect(()=> console.log("userpa",userParameters), [userParameters])
   return (
     <div className="HomeHeader" style={{ borderRadius: screenHeader && "0" }}>
       <Swiper

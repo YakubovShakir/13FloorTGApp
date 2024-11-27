@@ -20,7 +20,6 @@ import respect from "./IMG/icons/respect.png"
 import book from "./IMG/icons/book.png"
 import phone from "./IMG/icons/phone.png"
 import boss from "./IMG/icons/boss.png"
-import balancex45 from './IMG/icons/balancex45.png'
 
 import trainingCardBG from "./IMG/bg/trainingCard.png"
 import trainScreenBG from "./IMG/bg/trainScreenBG.png"
@@ -175,7 +174,6 @@ const Assets = {
       patCat,
     },
     sleep,
-    balancex45,
     boss,
     modalClose,
     boosterArrow,

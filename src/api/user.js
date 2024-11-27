@@ -67,6 +67,16 @@ export const getUserProcesses = async (userId, procType) => {
   }
 }
 
+export const getUserActiveProcess = async (userId) => {
+  try {
+    const response = await instance.get(`/users/user/${userId}/process/active`)
+    return response
+  } catch (e) {
+    console.log("Some error on getUserActiveProcesses:", e)
+    return null
+  }
+}
+
 export const startTraining = async (id) => {
   try {
     let status
