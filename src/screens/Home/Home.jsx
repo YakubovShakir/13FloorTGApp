@@ -15,9 +15,9 @@ import ProcessProgressBar from "../../components/simple/ProcessProgessBar/Proces
 const getBgByCurrentProcess = (processType) => {
   const { BG } = Assets
   const typeToBgMap = {
-    work: BG.workScreenBG,
-    sleep: BG.sleepScreenBG,
-    training: BG.trainScreenBG,
+    'work': BG.workScreenBG,
+    'sleep': BG.sleepScreenBG,
+    'training': BG.trainScreenBG
   }
 
   const bg = typeToBgMap[processType]
@@ -55,7 +55,7 @@ const Home = () => {
   //   return () => clearInterval(ticker);
   // }, [visibleWindow])
 
-  if (currentProcess === 'working') {
+  if (currentProcess === 'work') {
     return (
       <div
         className="Home"
@@ -105,7 +105,7 @@ const Home = () => {
     )
   }
 
-  if (currentProcess === 'sleeping') {
+  if (currentProcess === 'sleep') {
     return (
       <div
         className="Home"
