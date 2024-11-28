@@ -19,8 +19,14 @@ import cancel from "./IMG/icons/cancel.png"
 import respect from "./IMG/icons/respect.png"
 import book from "./IMG/icons/book.png"
 import phone from "./IMG/icons/phone.png"
+import boss from "./IMG/icons/boss.png"
+
 import trainingCardBG from "./IMG/bg/trainingCard.png"
+import trainScreenBG from "./IMG/bg/trainScreenBG.png"
+import sleepScreenBG from "./IMG/bg/sleepScreenBG.png"
+
 import workCardBG from "./IMG/bg/workCard.png"
+import workScreenBG from "./IMG/bg/workScreenBG.png"
 import organizer from "./IMG/icons/organizer.png"
 
 import cleaner from "./IMG/icons/cleaner.png"
@@ -76,6 +82,9 @@ import play from "./IMG/icons/play.png"
 import barber from "./IMG/icons/barber.png"
 import calc from "./IMG/icons/calc.png"
 import coffeeShop from "./IMG/icons/coffeeShop.png"
+
+import cover from './IMG/layers/cover.png'
+import sleep from './IMG/icons/sleepIcon.png'
 
 import brownPlus from "./IMG/icons/brownPlus.png"
 
@@ -153,14 +162,19 @@ const Assets = {
     hair,
     afro
   },
+  Layers: {
+    cover
+  },
   Icons: {
     accessory : {
       flowerPot,
       flowerVase,
       framedPhoto,
       goldenCat,
-      patCat
+      patCat,
     },
+    sleep,
+    boss,
     modalClose,
     boosterArrow,
     lockedIcon,
@@ -256,7 +270,9 @@ const Assets = {
     backgroundSun,
     homeBackground,
     StartCustomizeBG,
-
+    workScreenBG,
+    trainScreenBG,
+    sleepScreenBG
   },
 }
 

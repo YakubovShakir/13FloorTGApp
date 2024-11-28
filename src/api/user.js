@@ -16,6 +16,23 @@ export const getParameters = async (id) => {
   }
 }
 
+export const getCurrentProcess = async (id) => {
+  try {
+    let curentProcess
+
+    curentProcess = await instance
+      .get(`/users/process/${id}`)
+      .then((response) => (parameters = response.data.parameters))
+      .catch((error) => {
+        console.log("Some error on /parameters/id", error)
+      })
+
+    return curentProcess
+  } catch (e) {
+    console.log("Error while fetch parameters ", e)
+  }
+}
+
 export const getTrainingParameters = async (id) => {
   try {
     let parameters
@@ -47,6 +64,16 @@ export const getUserProcesses = async (userId, procType) => {
     return processes
   } catch (error) {
     console.log("getUserProcesses catch error - ", e)
+  }
+}
+
+export const getUserActiveProcess = async (userId) => {
+  try {
+    const response = await instance.get(`/users/user/${userId}/process/active`)
+    return response
+  } catch (e) {
+    console.log("Some error on getUserActiveProcesses:", e)
+    return null
   }
 }
 
