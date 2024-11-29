@@ -6,7 +6,9 @@ import Home from "./screens/Home/Home"
 import useTelegram from "./hooks/useTelegram"
 import CareScreen from "./screens/CareScreen/CareScreen"
 import ActivityScreen from "./screens/ActivityScreen/ActivityScreen"
+import PersonageCreationScreen from './screens/PersonageCreation/PersonageCreation'
 import { UserProvider } from "./UserContext"
+import StartCustomize from './screens/StartCustomize/StartCustomize'
 
 function App() {
   useEffect(() => {
@@ -23,7 +25,6 @@ function App() {
           <Route index element={<Home />} />
           <Route path="/care" element={<CareScreen />} />
           <Route path="/activity" element={<ActivityScreen />} />
-
         </Routes>
       </MemoryRouter>
       </UserProvider>

@@ -118,12 +118,12 @@ import head from "./IMG/icons/head.png"
 import body from "./IMG/icons/body.png"
 import access from "./IMG/icons/accessory.png"
 
+import personageCreationBg from './IMG/bg/personageCreationBg.png'
+
 import afro from "./IMG/avatars/girls/clothes/head/afro.png"
 
 import StartCustomizeBG from "./IMG/bg/StartCustomizeBG.png"
 
-import male from "./IMG/icons/StartCustomize/male.png"
-import female from "./IMG/icons/StartCustomize/female.png"
 import femaleBlack from "./IMG/icons/StartCustomize/black.png"
 import femaleAzia from "./IMG/icons/StartCustomize/azia.png"
 import femaleEurope from "./IMG/icons/StartCustomize/europe.png"
@@ -153,6 +153,9 @@ import moodDecrease from "./IMG/icons/moodDecrease.png"
 import hungryDecrease from "./IMG/icons/hungryDecrease.png"
 
 import starsIcon from "./IMG/icons/starsIcon.png"
+import male from './IMG/icons/male.png'
+import female from './IMG/icons/female.png'
+
 export function getImgUrl(name) {
   return new URL(`${name}`, import.meta.url).href
 }
@@ -191,7 +194,6 @@ const Assets = {
     skillTabIcon,
     sleep,
     sleep,
-    balancex45,
     boss,
     modalClose,
     boosterArrow,
@@ -291,6 +293,7 @@ const Assets = {
     workScreenBG,
     trainScreenBG,
     sleepScreenBG,
+    personageCreationBg
   },
 }
 

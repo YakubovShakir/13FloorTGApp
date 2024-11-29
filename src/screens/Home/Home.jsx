@@ -28,7 +28,7 @@ const getBgByCurrentProcess = (processType) => {
 const Home = () => {
   const { Icons, BG } = Assets
   const [currentWindow, setCurrentWindow] = useState(null)
-  const [currentProcess, setCurrentProcess] = useState('working')
+  const [currentProcess, setCurrentProcess] = useState('work')
   const [visibleWindow, setVisibleWindow] = useState(false)
   const [inventoryEdit, setInventoryEdit] = useState(false)
 
@@ -37,8 +37,7 @@ const Home = () => {
     useTelegram?.setReady()
 
     // Здесь получаем активный процесс при первой загрузке
-  }
-    , [])
+  }, [])
 
   // Здесь используем вызов на бэк ручки и получаем активный процесс при рендере компонента вместо мока по таймерам
   // useEffect(() => {
@@ -65,7 +64,7 @@ const Home = () => {
         <HomeHeader
           onClick={() => setVisibleSettingsModal(!visibleSettingsModal)}
         />
-        <Player width="43%" left={"9%"} top={"34%"} />
+        <Player width="45%" left={"9%"} top={"30%"} />
         <ProcessProgressBar activeProcess={currentProcess}/>
         <Menu />
         {visibleWindow && (
@@ -90,7 +89,7 @@ const Home = () => {
         <HomeHeader
           onClick={() => setVisibleSettingsModal(!visibleSettingsModal)}
         />
-        <Player width="40%" left={"9%"} top={"35%"} />
+        <Player width="45%" left={"9%"} top={"30%"} />
         <ProcessProgressBar activeProcess={currentProcess} rate={'20/с'}/>
         <Menu />
         {visibleWindow && (
