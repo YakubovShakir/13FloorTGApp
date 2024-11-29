@@ -119,12 +119,12 @@ import head from "./IMG/icons/head.png"
 import body from "./IMG/icons/body.png"
 import access from "./IMG/icons/accessory.png"
 
+import personageCreationBg from './IMG/bg/personageCreationBg.png'
+
 import afro from "./IMG/avatars/girls/clothes/head/afro.png"
 
 import StartCustomizeBG from "./IMG/bg/StartCustomizeBG.png"
 
-import male from "./IMG/icons/StartCustomize/male.png"
-import female from "./IMG/icons/StartCustomize/female.png"
 import femaleBlack from "./IMG/icons/StartCustomize/black.png"
 import femaleAzia from "./IMG/icons/StartCustomize/azia.png"
 import femaleEurope from './IMG/icons/StartCustomize/europe.png'
@@ -146,6 +146,9 @@ import lockedIcon from "./IMG/icons/lockedIcon.png"
 import unlockedIcon from "./IMG/icons/unlockedIcon.png"
 
 import modalClose from "./IMG/icons/modalClose.png"
+
+import male from './IMG/icons/male.png'
+import female from './IMG/icons/female.png'
 
 export function getImgUrl(name) {
   return new URL(`${name}`, import.meta.url).href
@@ -274,7 +277,8 @@ const Assets = {
     StartCustomizeBG,
     workScreenBG,
     trainScreenBG,
-    sleepScreenBG
+    sleepScreenBG,
+    personageCreationBg
   },
 }
 
