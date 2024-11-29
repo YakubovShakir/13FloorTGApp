@@ -33,36 +33,99 @@ const Home = () => {
   const { userId, appReady } = useContext(UserContext)
   useEffect(() => {
     useTelegram.hideBackButton()
+
     if (appReady) {
-      console.log("userId", userId, appReady)
-      getUserActiveProcess(userId).then((process) => {
-
-        setCurrentProcess(process.data.process)
-      }
-      )
-      useTelegram?.setReady()
-
+      getUserActiveProcess(userId)
+        .then(process => {
+          setCurrentProcess(process)
+          useTelegram?.setReady()
+        })
       // Здесь получаем активный процесс при первой загрузке
     }
-  }, [appReady])
+  }, [])
 
-  useEffect(() => {
-    console.log(currentProcess)
-  }, ["currentProcess", currentProcess])
-  // Здесь используем вызов на бэк ручки и получаем активный процесс при рендере компонента вместо мока по таймерам
-  // useEffect(() => {
-  //   console.log('render')
-  //   const ticker = setInterval(() => {
-  //     if (currentProcess === 'sleep')
-  //       setCurrentProcess('work')
-  //     if (currentProcess == 'work')
-  //       setCurrentProcess('training')
-  //     if (currentProcess == 'training')
-  //       setCurrentProcess('sleeping')
-  //   }, 2000)
-
-  //   return () => clearInterval(ticker);
-  // }, [visibleWindow])
+  if(currentProcess === null) {
+    return (
+      <div className="Home" style={{ background: `url(${Assets.BG.homeBackground})`, backgroundSize: 'cover' }}>
+        <HomeHeader
+          onClick={() => setVisibleSettingsModal(!visibleSettingsModal)}
+        />
+        <Player width="40%" left={"9%"} top={"35%"} />
+        {!currentProcess && (
+          <img className="HomePatImg" src={Icons.accessory.patCat} alt="Pat" />
+        )}
+  
+        <Menu />
+        {!currentProcess && (
+          <div className="HomeInventory">
+            <div className="HomeInventoryHigh">
+              <InventoryCell
+                active={inventoryEdit}
+                aspectRatio={"1"}
+                width={"30%"}
+                icon={Icons.accessory.flowerPot}
+              />
+              <InventoryCell
+                active={inventoryEdit}
+                aspectRatio={"1"}
+                width={"30%"}
+              />
+              <InventoryCell
+                active={inventoryEdit}
+                aspectRatio={"1"}
+                width={"30%"}
+                icon={Icons.accessory.framedPhoto}
+              />
+              <InventoryCell
+                active={inventoryEdit}
+                aspectRatio={"1"}
+                width={"30%"}
+              />
+              <InventoryCell
+                active={inventoryEdit}
+                aspectRatio={"1"}
+                width={"30%"}
+                icon={Icons.accessory.flowerVase}
+              />
+              <InventoryCell
+                active={inventoryEdit}
+                aspectRatio={"1"}
+                width={"30%"}
+              />
+            </div>
+            <div className="HomeInventoryBottom">
+              <InventoryCell
+                active={inventoryEdit}
+                aspectRatio={"0.6"}
+                width={"46%"}
+              />
+  
+              <InventoryCell
+                active={inventoryEdit}
+                aspectRatio={"0.6"}
+                width={"46%"}
+                icon={Icons.accessory.goldenCat}
+              />
+            </div>
+          </div>
+        )}
+        {visibleWindow && (
+          <Window
+            title={currentWindow.title}
+            data={currentWindow.data}
+            tabs={currentWindow.tabs}
+            onClose={setVisibleWindow}
+          />
+        )}
+        {/* 
+      <HomeHeader/> 
+      <Player/>
+      <PlayerProcessBar/>
+      <BottomMenu/>
+          */}
+      </div>
+    )
+  }
 
   if (currentProcess?.type === "work") {
     return (
@@ -98,7 +161,13 @@ const Home = () => {
           onClick={() => setVisibleSettingsModal(!visibleSettingsModal)}
         />
         <Player width="40%" left={"9%"} top={"35%"} />
-        <ProcessProgressBar activeProcess={currentProcess.type}  value={currentProcess.duration} max={currentProcess.duration} reverse rate={"20m/c"} />
+        <ProcessProgressBar
+          activeProcess={currentProcess.type}
+          value={currentProcess.duration}
+          max={currentProcess.duration}
+          reverse
+          rate={"20m/c"}
+        />
         <Menu />
         {visibleWindow && (
           <Window
@@ -146,86 +215,5 @@ const Home = () => {
       </div>
     )
   }
-
-  return (
-    <div className="Home" style={{ backgroundImage: Assets.BG.homeBackground }}>
-      <HomeHeader
-        onClick={() => setVisibleSettingsModal(!visibleSettingsModal)}
-      />
-      <Player width="40%" left={"9%"} top={"35%"} />
-      {!currentProcess && (
-        <img className="HomePatImg" src={Icons.accessory.patCat} alt="Pat" />
-      )}
-
-      <Menu />
-      {!currentProcess && (
-        <div className="HomeInventory">
-          <div className="HomeInventoryHigh">
-            <InventoryCell
-              active={inventoryEdit}
-              aspectRatio={"1"}
-              width={"30%"}
-              icon={Icons.accessory.flowerPot}
-            />
-            <InventoryCell
-              active={inventoryEdit}
-              aspectRatio={"1"}
-              width={"30%"}
-            />
-            <InventoryCell
-              active={inventoryEdit}
-              aspectRatio={"1"}
-              width={"30%"}
-              icon={Icons.accessory.framedPhoto}
-            />
-            <InventoryCell
-              active={inventoryEdit}
-              aspectRatio={"1"}
-              width={"30%"}
-            />
-            <InventoryCell
-              active={inventoryEdit}
-              aspectRatio={"1"}
-              width={"30%"}
-              icon={Icons.accessory.flowerVase}
-            />
-            <InventoryCell
-              active={inventoryEdit}
-              aspectRatio={"1"}
-              width={"30%"}
-            />
-          </div>
-          <div className="HomeInventoryBottom">
-            <InventoryCell
-              active={inventoryEdit}
-              aspectRatio={"0.6"}
-              width={"46%"}
-            />
-
-            <InventoryCell
-              active={inventoryEdit}
-              aspectRatio={"0.6"}
-              width={"46%"}
-              icon={Icons.accessory.goldenCat}
-            />
-          </div>
-        </div>
-      )}
-      {visibleWindow && (
-        <Window
-          title={currentWindow.title}
-          data={currentWindow.data}
-          tabs={currentWindow.tabs}
-          onClose={setVisibleWindow}
-        />
-      )}
-      {/* 
-    <HomeHeader/> 
-    <Player/>
-    <PlayerProcessBar/>
-    <BottomMenu/>
-        */}
-    </div>
-  )
 }
 export default Home
