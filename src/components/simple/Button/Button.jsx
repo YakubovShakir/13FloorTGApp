@@ -11,6 +11,8 @@ const Button = ({
   ownColor = false,
   active = true,
   shadowColor,
+  fontSize,
+  paddingTop
 }) => {
   const [isPressed, setIsPressed] = useState(false);
 
@@ -42,11 +44,11 @@ const Button = ({
           : "linear-gradient(180deg, rgba(79,71,74,1) 5%, rgba(89,82,84,1) 65%)",
         boxShadow: `0px ${boxShadow.y}px ${boxShadow.blur}px ${boxShadow.color}`,
         transform: isPressed ? "translateY(2px)" : "translateY(0px)", // Одноразовое смещение
-        transition: "box-shadow 0.1s ease, transform 0.1s ease", // Плавный переход
+        transition: "box-shadow 0.1s ease, transform 0.1s ease", // Плавный переход,
       }}
     >
       {icon && <img src={icon} alt="Button" />}
-      <span>{text}</span>
+      <span style={{ fontSize, paddingTop }}>{text}</span>
     </button>
   );
 };

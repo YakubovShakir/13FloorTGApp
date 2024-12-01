@@ -20,7 +20,8 @@ import respect from "./IMG/icons/respect.png"
 import book from "./IMG/icons/book.png"
 import phone from "./IMG/icons/phone.png"
 import boss from "./IMG/icons/boss.png"
-import balancex45 from './IMG/icons/balancex45.png'
+import missingGirl from './IMG/missingGirl.png'
+import squareButtonShadow from "./IMG/layers/squareButtonShadow.png"
 
 import trainingCardBG from "./IMG/bg/trainingCard.png"
 import trainScreenBG from "./IMG/bg/trainScreenBG.png"
@@ -150,6 +151,10 @@ import modalClose from "./IMG/icons/modalClose.png"
 import male from './IMG/icons/male.png'
 import female from './IMG/icons/female.png'
 
+import femaleWhiteIcon from './IMG/icons/femaleWhite.png'
+import femaleBlackIcon from './IMG/icons/femaleBlack.png'
+import femaleAsianIcon from './IMG/icons/femaleAsian.png'
+
 export function getImgUrl(name) {
   return new URL(`${name}`, import.meta.url).href
 }
@@ -164,10 +169,12 @@ const Assets = {
     miniSkirt,
     hightHeels,
     hair,
-    afro
+    afro,
+    missingGirl
   },
   Layers: {
-    cover
+    cover,
+    squareButtonShadow
   },
   Icons: {
     accessory : {
@@ -177,8 +184,10 @@ const Assets = {
       goldenCat,
       patCat,
     },
+    femaleAsianIcon,
+    femaleBlackIcon,
+    femaleWhiteIcon,
     sleep,
-    balancex45,
     boss,
     modalClose,
     boosterArrow,
