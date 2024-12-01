@@ -20,6 +20,8 @@ import respect from "./IMG/icons/respect.png"
 import book from "./IMG/icons/book.png"
 import phone from "./IMG/icons/phone.png"
 import boss from "./IMG/icons/boss.png"
+import missingGirl from './IMG/missingGirl.png'
+import squareButtonShadow from "./IMG/layers/squareButtonShadow.png"
 
 import trainingCardBG from "./IMG/bg/trainingCard.png"
 import trainScreenBG from "./IMG/bg/trainScreenBG.png"
@@ -156,6 +158,10 @@ import starsIcon from "./IMG/icons/starsIcon.png"
 import male from './IMG/icons/male.png'
 import female from './IMG/icons/female.png'
 
+import femaleWhiteIcon from './IMG/icons/femaleWhite.png'
+import femaleBlackIcon from './IMG/icons/femaleBlack.png'
+import femaleAsianIcon from './IMG/icons/femaleAsian.png'
+
 export function getImgUrl(name) {
   return new URL(`${name}`, import.meta.url).href
 }
@@ -174,9 +180,11 @@ const Assets = {
   },
   Layers: {
     cover,
+    missingGirl
   },
   Layers: {
-    cover
+    cover,
+    squareButtonShadow
   },
   Icons: {
     accessory: {
@@ -193,6 +201,9 @@ const Assets = {
     workTabIcon,
     skillTabIcon,
     sleep,
+    femaleAsianIcon,
+    femaleBlackIcon,
+    femaleWhiteIcon,
     sleep,
     boss,
     modalClose,

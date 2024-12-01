@@ -1,10 +1,17 @@
 import "./Player.css"
 import Assets from "../../../assets"
 
-const Player = ({ width, left, top, type }) => {
+const Player = ({ width, left, top, type = true }) => {
   const { Images } = Assets
   if(type === null) {
-    
+    return (
+      <div
+        className="Player"
+        style={{ width: `${width}`, aspectRatio: "0.3", left: left, top: top }}
+      >
+        <img className="PlayerAvatar" src={Images.missingGirl} alt="avatar" />
+    </div>
+    )
   } else {
     return (
       <div
