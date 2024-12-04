@@ -22,7 +22,8 @@ function App() {
       <MemoryRouter>
         <Routes>
           {/* <Route index element={<StartCustomize />} /> */}
-          <Route index element={<PersonageCreationScreen />} />
+          <Route index element={<Home/>}/>
+          <Route path="/personage-create" element={<PersonageCreationScreen />} />
           <Route path="/care" element={<CareScreen />} />
           <Route path="/activity" element={<ActivityScreen />} />
         </Routes>
