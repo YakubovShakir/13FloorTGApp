@@ -1,6 +1,7 @@
-import React from "react"
+import React, { useEffect, useState } from "react"
 import "./ProcessProgressBar.css"
 import Assets from "../../../assets"
+import { getActiveProcess } from "../../../services/process/process"
 
 const getIcons = (processType) => {
   const typeToIconsMap = {
@@ -43,16 +44,35 @@ const getLabels = (processType, rate) => {
 
 const ProcessProgressBar = ({
   activeProcess = "working",
-  value = 60,
-  max = 100,
+  value,
+  max,
   reverse = false,
   rate,
 }) => {
-  const percentage = (value / max) * 100
-
   const [iconLeft, iconRight] = getIcons(activeProcess)
   const [labelLeft, labelRight] = getLabels(activeProcess, rate)
+  const [percentage, setPercentage] = useState(
+    value && max ? (value / max) * 100 : 100
+  )
 
+  const updatePercentage = () => {
+    console.log("comme", percentage)
+    if (percentage === 0) setPercentage(100)
+    else {
+      setPercentage((prevPercentage) => prevPercentage - 2)
+    }
+  }
+  useEffect(() => {
+    if (!value) {
+      updatePercentage()
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!value) setTimeout(() => updatePercentage(), 1000)
+  }, [percentage])
+
+  useEffect(() => console.log(percentage), [percentage])
   return (
     <div className="progress-bar-container-fixed-top">
       <div className="progress-bar-container">

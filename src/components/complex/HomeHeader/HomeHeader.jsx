@@ -80,7 +80,7 @@ const HomeHeader = ({ screenHeader }) => {
             </div>
             <div>
               <span>{userParameters?.coins}</span>
-              <span>{player.income}/ч</span>
+              {/* <span>{player.income}/ч</span> */}
             </div>
           </div>
           <div className="HomeHeaderLevel">

@@ -79,4 +79,5 @@
 .progress-bar-fill {
   background: linear-gradient(to right, #f7b733, #fc4a1a);
   height: 13px;
+  transition: width 500ms linear;
 }

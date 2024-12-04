@@ -152,6 +152,7 @@ import energyDecrease from "./IMG/icons/energyDecrease.png"
 import moodDecrease from "./IMG/icons/moodDecrease.png"
 import hungryDecrease from "./IMG/icons/hungryDecrease.png"
 
+import starsIcon from "./IMG/icons/starsIcon.png"
 export function getImgUrl(name) {
   return new URL(`${name}`, import.meta.url).href
 }
@@ -179,6 +180,7 @@ const Assets = {
       goldenCat,
       patCat,
     },
+    starsIcon,
     energyDecrease,
     moodDecrease,
     hungryDecrease,
