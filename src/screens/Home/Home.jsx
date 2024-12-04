@@ -8,7 +8,7 @@ import InventoryCell from "../../components/simple/InventoryCell/InventoryCell"
 import Assets from "../../assets/index"
 import useTelegram from "../../hooks/useTelegram"
 import ProcessProgressBar from "../../components/simple/ProcessProgressBar/ProcessProgressBar"
-import { getUserActiveProcess } from "../../api/user"
+import { getUserActiveProcess } from "../../services/user/user"
 import UserContext from "../../UserContext"
 
 const getBgByCurrentProcess = (processType) => {
@@ -35,18 +35,23 @@ const Home = () => {
     useTelegram.hideBackButton()
 
     if (appReady) {
-      getUserActiveProcess(userId)
-        .then(process => {
-          setCurrentProcess(process)
-          useTelegram?.setReady()
-        })
+      getUserActiveProcess(userId).then((process) => {
+        setCurrentProcess(process)
+        useTelegram?.setReady()
+      })
       // Здесь получаем активный процесс при первой загрузке
     }
   }, [])
 
-  if(currentProcess === null) {
+  if (currentProcess === null) {
     return (
-      <div className="Home" style={{ background: `url(${Assets.BG.homeBackground})`, backgroundSize: 'cover' }}>
+      <div
+        className="Home"
+        style={{
+          background: `url(${Assets.BG.homeBackground})`,
+          backgroundSize: "cover",
+        }}
+      >
         <HomeHeader
           onClick={() => setVisibleSettingsModal(!visibleSettingsModal)}
         />
@@ -54,7 +59,7 @@ const Home = () => {
         {!currentProcess && (
           <img className="HomePatImg" src={Icons.accessory.patCat} alt="Pat" />
         )}
-  
+
         <Menu />
         {!currentProcess && (
           <div className="HomeInventory">
@@ -99,7 +104,7 @@ const Home = () => {
                 aspectRatio={"0.6"}
                 width={"46%"}
               />
-  
+
               <InventoryCell
                 active={inventoryEdit}
                 aspectRatio={"0.6"}

@@ -9,7 +9,7 @@ const ItemCard = ({
   ItemParamsBlocks,
   ItemButtons,
   ItemIndex,
-  ItemDescription
+  ItemDescription,
 }) => {
   return (
     <motion.div
@@ -30,7 +30,7 @@ const ItemCard = ({
         </div>
         <div className="ItemCardParams">
           {ItemDescription && (
-            <span style={{ fontSize: "3cqw", textAlign: "center"}}>
+            <span style={{ fontSize: "3cqw", textAlign: "center" }}>
               {ItemDescription}
             </span>
           )}
@@ -42,9 +42,18 @@ const ItemCard = ({
                   key={blockIndex}
                   style={{ width: `${90 / param.length}%` }}
                 >
-                  {block?.fillPercent && <span style={{width: block?.fillPercent+ "%"}}></span>}
+                  {block?.fillPercent && (
+                    <span
+                      style={{
+                        width: block?.fillPercent + "%",
+                        background:
+                          block?.fillBackground ||
+                          "linear-gradient(90deg, rgba(233, 78, 27, 1) 0%, rgba(243, 117, 0, 1) 50%)",
+                      }}
+                    ></span>
+                  )}
                   <img src={block.icon} alt="paramIcon" />
-                  <p style={{fontSize: "3cqw"}}>{block.value}</p>
+                  <p style={{ fontSize: "3cqw" }}>{block.value}</p>
                 </span>
               ))}
             </div>
@@ -56,7 +65,6 @@ const ItemCard = ({
       <div className="ItemCardButtons">
         {ItemButtons.map((ItemButton, index) => (
           <Button
-      
             key={index}
             width="90%"
             height={`33%`}

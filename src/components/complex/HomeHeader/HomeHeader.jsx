@@ -1,24 +1,19 @@
-import { React, useEffect, useState, useContext} from "react"
-import PlayerLogo from "../PlayerLogo/PlayerLogo"
+import { React, useEffect, useState, useContext } from "react"
 import PlayerIndicators from "../PlayerIndicators/PlayerIndicators"
-import IconButton from "../../simple/IconButton/IconButton"
 import Assets from "../../../assets"
 import { SwiperSlide, Swiper } from "swiper/react"
 import { Pagination } from "swiper/modules"
-import { getParameters } from "../../../api/user"
-
+import { getLevels } from "../../../services/levels/levels"
 import "./HomeHeader.css"
 import "swiper/css"
 import "swiper/css/pagination"
 import UserContext from "../../../UserContext"
 
 const HomeHeader = ({ screenHeader }) => {
-  const {user, userParameters} = useContext(UserContext)
-
+  const { userId, userParameters } = useContext(UserContext)
+  const [levels, setLevels] = useState()
   const { Icons } = Assets
-  
-  const userId =790629329
-  
+
   const player = {
     level: 2,
     balance: 100000,
@@ -27,9 +22,29 @@ const HomeHeader = ({ screenHeader }) => {
     experienceNextLevel: 1000,
     respect: 134344,
   }
-
-
-  useEffect(()=> console.log(userParameters), [userParameters])
+  const getLevelByNumber = (number) => {
+    return levels?.find((level) => level?.level === number)
+  }
+  const getUserLevelProgress = () => {
+    if (userParameters?.level === 15) {
+      return (
+        getLevelByNumber(15)?.required_earned +
+        " / " +
+        getLevelByNumber(15)?.required_earned
+      )
+    }
+    return (
+      userParameters?.total_earned +
+      " / " +
+      getLevelByNumber(userParameters?.level + 1)?.required_earned
+    )
+  }
+  useEffect(() => {
+    getLevels().then((levels) => setLevels(levels))
+  }, [])
+  useEffect(() => {
+    console.log(levels)
+  }, [levels])
   return (
     <div className="HomeHeader" style={{ borderRadius: screenHeader && "0" }}>
       <Swiper
@@ -38,21 +53,27 @@ const HomeHeader = ({ screenHeader }) => {
         className="HomeHeaderSwiper"
       >
         <SwiperSlide className="HomeHeaderSlide" style={{ display: "flex" }}>
-          <PlayerIndicators indicators={[ {
-      icon: Icons.energy,
-      percentFill: (userParameters?.energy / userParameters?.energy_capacity) * 100,
-      width: "30%",
-    },
-    {
-      icon: Icons.hungry,
-      percentFill: (userParameters?.hungry),
-      width: "30%",
-    },
-    {
-      icon: Icons.happiness,
-      percentFill: (userParameters?.mood),
-      width: "30%",
-    },]} />
+          <PlayerIndicators
+            indicators={[
+              {
+                icon: Icons.energy,
+                percentFill:
+                  (userParameters?.energy / userParameters?.energy_capacity) *
+                  100,
+                width: "30%",
+              },
+              {
+                icon: Icons.hungry,
+                percentFill: userParameters?.hungry,
+                width: "30%",
+              },
+              {
+                icon: Icons.happiness,
+                percentFill: userParameters?.mood,
+                width: "30%",
+              },
+            ]}
+          />
           <div className="HomeHeaderIncome">
             <div>
               <img src={Icons.balance} alt="Coin" />
@@ -69,7 +90,12 @@ const HomeHeader = ({ screenHeader }) => {
               className="HomeHeaderLevelCapacity"
               style={{
                 height:
-                  (userParameters?.experience / player.experienceNextLevel) * 100 + "%",
+                  (userParameters?.total_earned /
+                    levels?.find(
+                      (level) => level?.level === userParameters?.level + 1
+                    )?.required_earned) *
+                    100 +
+                  "%",
               }}
             />
           </div>{" "}
@@ -79,12 +105,12 @@ const HomeHeader = ({ screenHeader }) => {
             <img src={Icons.respect} alt="RespectIcon" />
             <span>{userParameters?.respect}</span>
           </div>
-          <div className="HomeHeaderExperience">
-            <span>{userParameters?.level} уровень</span>
-            <span>
-              {userParameters?.experience} / {player.experienceNextLevel}
-            </span>
-          </div>
+          {levels && (
+            <div className="HomeHeaderExperience">
+              <span>{userParameters?.level} уровень</span>
+              <span>{getUserLevelProgress()}</span>
+            </div>
+          )}
         </SwiperSlide>
       </Swiper>
     </div>
