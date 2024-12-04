@@ -9,32 +9,32 @@ const Menu = ({ screenMenu, activeName }) => {
   const tabs = {
     care: {
       onClick: () => navigate("/care"),
-      notify: true,
+      notify: false,
       icon: Icons.care,
       title: "Забота",
     },
     investment: {
       onClick: () => navigate("/#"),
-      notify: true,
-      icon: Icons.InWorkIcon,
-      title: "Инвестиции",
+      notify: false,
+      icon: Icons.shopIcon,
+      title: "Магазин",
     },
     activity: {
       onClick: () => navigate("/activity"),
-      notify: true,
+      notify: false,
       icon: Icons.activity,
       title: "Активности",
     },
     tasks: {
       onClick: () => navigate("/care"),
-      notify: true,
-      icon: Icons.InWorkIcon,
+      notify: false,
+      icon: Icons.tasks,
       title: "Задания",
     },
     community: {
       onClick: () => navigate("/care"),
-      notify: true,
-      icon: Icons.InWorkIcon,
+      notify: false,
+      icon: Icons.contacts,
       title: "Сообщество",
     },
   }

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useState, useContext } from "react"
 import "./Home.css"
 import HomeHeader from "../../components/complex/HomeHeader/HomeHeader"
 import Player from "../../components/complex/Player/Player"
@@ -7,17 +7,19 @@ import Window from "../../components/complex/Windows/Window/Window"
 import InventoryCell from "../../components/simple/InventoryCell/InventoryCell"
 import Assets from "../../assets/index"
 import useTelegram from "../../hooks/useTelegram"
-import ProcessProgressBar from "../../components/simple/ProcessProgessBar/ProcessProgressBas"
+import ProcessProgressBar from "../../components/simple/ProcessProgressBar/ProcessProgressBar"
+import { getUserActiveProcess } from "../../api/user"
+import UserContext from "../../UserContext"
 
 const getBgByCurrentProcess = (processType) => {
   const { BG } = Assets
   const typeToBgMap = {
-    'work': BG.workScreenBG,
-    'sleep': BG.sleepScreenBG,
-    'training': BG.trainScreenBG
+    work: BG.workScreenBG,
+    sleep: BG.sleepScreenBG,
+    training: BG.trainScreenBG,
   }
 
-  const bg = typeToBgMap[processType];
+  const bg = typeToBgMap[processType]
 
   return `url(${bg || BG.homeBackground})`
 }
@@ -28,41 +30,115 @@ const Home = () => {
   const [currentProcess, setCurrentProcess] = useState(null)
   const [visibleWindow, setVisibleWindow] = useState(false)
   const [inventoryEdit, setInventoryEdit] = useState(false)
-
+  const { userId, appReady } = useContext(UserContext)
   useEffect(() => {
     useTelegram.hideBackButton()
-    useTelegram?.setReady()
 
-    // Здесь получаем активный процесс при первой загрузке
+    if (appReady) {
+      getUserActiveProcess(userId)
+        .then(process => {
+          console.log(process)
+          setCurrentProcess(process)
+          useTelegram?.setReady()
+        })
+      // Здесь получаем активный процесс при первой загрузке
+    }
   }, [])
 
-  // Здесь используем вызов на бэк ручки и получаем активный процесс при рендере компонента вместо мока по таймерам
-  // useEffect(() => {
-  //   console.log('render')
-  //   const ticker = setInterval(() => {
-  //     if (currentProcess === 'sleeping')
-  //       setCurrentProcess('working')
-  //     if (currentProcess == 'working')
-  //       setCurrentProcess('training')
-  //     if (currentProcess == 'training')
-  //       setCurrentProcess('sleeping')
-  //   }, 2000)
-
-  //   return () => clearInterval(ticker);
-  // }, [visibleWindow])
-
-  if (currentProcess === 'work') {
+  if(currentProcess === null) {
     return (
-      <div
-        className="Home"
-        style={{ backgroundImage: getBgByCurrentProcess(currentProcess) }}
-      >
-
+      <div className="Home" style={{ background: `url(${Assets.BG.homeBackground})`, backgroundSize: 'cover' }}>
         <HomeHeader
           onClick={() => setVisibleSettingsModal(!visibleSettingsModal)}
         />
-        <Player width="45%" left={"9%"} top={"30%"} />
-        <ProcessProgressBar activeProcess={currentProcess}/>
+        <Player width="40%" left={"9%"} top={"35%"} />
+        {!currentProcess && (
+          <img className="HomePatImg" src={Icons.accessory.patCat} alt="Pat" />
+        )}
+  
+        <Menu />
+        {!currentProcess && (
+          <div className="HomeInventory">
+            <div className="HomeInventoryHigh">
+              <InventoryCell
+                active={inventoryEdit}
+                aspectRatio={"1"}
+                width={"30%"}
+                icon={Icons.accessory.flowerPot}
+              />
+              <InventoryCell
+                active={inventoryEdit}
+                aspectRatio={"1"}
+                width={"30%"}
+              />
+              <InventoryCell
+                active={inventoryEdit}
+                aspectRatio={"1"}
+                width={"30%"}
+                icon={Icons.accessory.framedPhoto}
+              />
+              <InventoryCell
+                active={inventoryEdit}
+                aspectRatio={"1"}
+                width={"30%"}
+              />
+              <InventoryCell
+                active={inventoryEdit}
+                aspectRatio={"1"}
+                width={"30%"}
+                icon={Icons.accessory.flowerVase}
+              />
+              <InventoryCell
+                active={inventoryEdit}
+                aspectRatio={"1"}
+                width={"30%"}
+              />
+            </div>
+            <div className="HomeInventoryBottom">
+              <InventoryCell
+                active={inventoryEdit}
+                aspectRatio={"0.6"}
+                width={"46%"}
+              />
+  
+              <InventoryCell
+                active={inventoryEdit}
+                aspectRatio={"0.6"}
+                width={"46%"}
+                icon={Icons.accessory.goldenCat}
+              />
+            </div>
+          </div>
+        )}
+        {visibleWindow && (
+          <Window
+            title={currentWindow.title}
+            data={currentWindow.data}
+            tabs={currentWindow.tabs}
+            onClose={setVisibleWindow}
+          />
+        )}
+        {/* 
+      <HomeHeader/> 
+      <Player/>
+      <PlayerProcessBar/>
+      <BottomMenu/>
+          */}
+      </div>
+    )
+  }
+
+  if (currentProcess?.type === "work") {
+    return (
+      <div
+        className="Home"
+        style={{ backgroundImage: getBgByCurrentProcess(currentProcess.type) }}
+      >
+        <HomeHeader
+          onClick={() => setVisibleSettingsModal(!visibleSettingsModal)}
+        />
+        <Player width="43%" left={"9%"} top={"34%"} />
+        <ProcessProgressBar activeProcess={currentProcess.type} />
         <Menu />
         {visibleWindow && (
           <Window
@@ -76,18 +152,23 @@ const Home = () => {
     )
   }
 
-  if (currentProcess === 'training') {
+  if (currentProcess?.type === "training") {
     return (
       <div
         className="Home"
-        style={{ backgroundImage: getBgByCurrentProcess(currentProcess) }}
+        style={{ backgroundImage: getBgByCurrentProcess(currentProcess.type) }}
       >
-
         <HomeHeader
           onClick={() => setVisibleSettingsModal(!visibleSettingsModal)}
         />
-        <Player width="45%" left={"9%"} top={"30%"} />
-        <ProcessProgressBar activeProcess={currentProcess} rate={'20/с'}/>
+        <Player width="40%" left={"9%"} top={"35%"} />
+        <ProcessProgressBar
+          activeProcess={currentProcess.type}
+          value={currentProcess.duration}
+          max={currentProcess.duration}
+          reverse
+          rate={"20m/c"}
+        />
         <Menu />
         {visibleWindow && (
           <Window
@@ -101,20 +182,28 @@ const Home = () => {
     )
   }
 
-  if (currentProcess === 'sleep') {
+  if (currentProcess?.type === "sleep") {
     return (
       <div
         className="Home"
-        style={{ backgroundImage: getBgByCurrentProcess(currentProcess) }}
+        style={{ backgroundImage: getBgByCurrentProcess(currentProcess.type) }}
       >
-
         <HomeHeader
           onClick={() => setVisibleSettingsModal(!visibleSettingsModal)}
         />
         <Player width="80%" left={"9%"} top={"45%"} />
-        <img src={Assets.Layers.cover} style={{ position: 'absolute', width: '100%', height: '110%', bottom: 0, zIndex: 2 }} />
+        <img
+          src={Assets.Layers.cover}
+          style={{
+            position: "absolute",
+            width: "100%",
+            height: "110%",
+            bottom: 0,
+            zIndex: 2,
+          }}
+        />
         {/* проп reverse отвечает на направление прогресс-бара */}
-        <ProcessProgressBar activeProcess={currentProcess} rate={'20/с'}/>
+        <ProcessProgressBar activeProcess={currentProcess.type} rate={"20/с"} />
         <Menu />
         {visibleWindow && (
           <Window
@@ -127,59 +216,5 @@ const Home = () => {
       </div>
     )
   }
-
-  return (
-    <div
-      className="Home"
-      style={{ backgroundImage: Assets.BG.homeBackground }}
-    >
-
-      <HomeHeader
-        onClick={() => setVisibleSettingsModal(!visibleSettingsModal)}
-      />
-      <Player width="40%" left={"9%"} top={"35%"} />
-      {
-        !currentProcess
-        &&
-        <img className="HomePatImg" src={Icons.accessory.patCat} alt="Pat" />
-      }
-
-
-      <Menu />
-      {
-        !currentProcess
-        &&
-        <div className="HomeInventory">
-          <div className="HomeInventoryHigh">
-            <InventoryCell active={inventoryEdit} aspectRatio={"1"} width={"30%"} icon={Icons.accessory.flowerPot} />
-            <InventoryCell active={inventoryEdit} aspectRatio={"1"} width={"30%"} />
-            <InventoryCell active={inventoryEdit} aspectRatio={"1"} width={"30%"} icon={Icons.accessory.framedPhoto} />
-            <InventoryCell active={inventoryEdit} aspectRatio={"1"} width={"30%"} />
-            <InventoryCell active={inventoryEdit} aspectRatio={"1"} width={"30%"} icon={Icons.accessory.flowerVase} />
-            <InventoryCell active={inventoryEdit} aspectRatio={"1"} width={"30%"} />
-          </div>
-          <div className="HomeInventoryBottom">
-            <InventoryCell active={inventoryEdit} aspectRatio={"0.6"} width={"46%"} />
-
-            <InventoryCell active={inventoryEdit} aspectRatio={"0.6"} width={"46%"} icon={Icons.accessory.goldenCat} />
-          </div>
-        </div>
-      }
-      {visibleWindow && (
-        <Window
-          title={currentWindow.title}
-          data={currentWindow.data}
-          tabs={currentWindow.tabs}
-          onClose={setVisibleWindow}
-        />
-      )}
-      {/* 
-    <HomeHeader/> 
-    <Player/>
-    <PlayerProcessBar/>
-    <BottomMenu/>
-        */}
-    </div>
-  )
 }
 export default Home

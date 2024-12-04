@@ -16,7 +16,7 @@ const IconButton = ({
       className="IconButton"
     >
       {notify && <img src={Icons.notify} className="IconButtonNotify" />}
-      <img src={icon} style={{ backgroundColor: bgTextColor}} className="IconButtonImg" />
+      <img src={icon} style={{ backgroundColor: bgTextColor }} className="IconButtonImg" />
       {title && <span style={{ backgroundColor: bgTextColor, color: `${color}` }}>{title}</span>}
     </button>
   )

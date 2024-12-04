@@ -157,6 +157,9 @@ import femaleAsianIcon from './IMG/icons/femaleAsian.png'
 
 import nameUnderline from './IMG/nameUnderline.png'
 
+import inventoryIcon from './IMG/icons/inventoryIcon.png'
+import shopIcon from './IMG/icons/shopIcon.png'
+
 export function getImgUrl(name) {
   return new URL(`${name}`, import.meta.url).href
 }
@@ -178,6 +181,9 @@ const Assets = {
     cover,
     squareButtonShadow
   },
+  Layers: {
+    cover
+  },
   Icons: {
     accessory : {
       flowerPot,
@@ -187,6 +193,7 @@ const Assets = {
       patCat,
     },
     femaleAsianIcon,
+    shopIcon,
     femaleBlackIcon,
     femaleWhiteIcon,
     sleep,
@@ -278,7 +285,8 @@ const Assets = {
     broom,
     cap,
     filter,
-    jeans
+    jeans,
+    inventoryIcon
   },
   BG: {
     trainingCardBG,

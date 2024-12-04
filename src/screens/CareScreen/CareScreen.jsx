@@ -33,7 +33,7 @@ const CareScreen = () => {
   const tabs = [
     { icon: foodTab, callback: () => setActiveTab("foods") },
     { icon: boost, callback: () => setActiveTab("boosts") },
-    { icon: Icons.InWorkIcon, callback: () => setActiveTab(null) },
+    { icon: Icons.inventoryIcon, callback: () => setActiveTab(null) },
   ]
 
   const handleBuyFood = async (foodId) => {
