@@ -155,6 +155,8 @@ import femaleWhiteIcon from './IMG/icons/femaleWhite.png'
 import femaleBlackIcon from './IMG/icons/femaleBlack.png'
 import femaleAsianIcon from './IMG/icons/femaleAsian.png'
 
+import nameUnderline from './IMG/nameUnderline.png'
+
 export function getImgUrl(name) {
   return new URL(`${name}`, import.meta.url).href
 }
@@ -289,6 +291,7 @@ const Assets = {
     sleepScreenBG,
     personageCreationBg
   },
+  nameUnderline,
 }
 
 // export const getIcon = (name) => (

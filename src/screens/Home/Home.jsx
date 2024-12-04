@@ -25,7 +25,7 @@ const getBgByCurrentProcess = (processType) => {
 const Home = () => {
   const { Icons, BG } = Assets
   const [currentWindow, setCurrentWindow] = useState(null)
-  const [currentProcess, setCurrentProcess] = useState('work')
+  const [currentProcess, setCurrentProcess] = useState(null)
   const [visibleWindow, setVisibleWindow] = useState(false)
   const [inventoryEdit, setInventoryEdit] = useState(false)
 
