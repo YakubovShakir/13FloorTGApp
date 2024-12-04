@@ -1,10 +1,10 @@
-import { instance } from "./instance"
+import { instance } from "../instance"
 
 export const getSkills = async () => {
   try {
     let skills
     await instance
-      .get(`/skills/all`)
+      .get(`/skill/getAll`)
       .then((response) => (skills = response.data.skills))
       .catch((error) => {
         console.log("Some error on /skills/all:", error)
@@ -15,28 +15,12 @@ export const getSkills = async () => {
   }
 }
 
-export const buySkill = async (userId, skillId) => {
-  try {
-    let status
-    await instance
-      .post(`/skills/buy`, null, {
-        params: { userId: userId, skillId: skillId },
-      })
-      .then((response) => console.log(response.status))
-      .catch((error) => {
-        console.log("Some error on /skills/buy:", error)
-      })
-    return status === 200 ? true : false
-  } catch (error) {
-    console.log("api /skills/buy catch error - ", e)
-  }
-}
 
 export const getUserSkills = async (userId) => {
   try {
     let skills
     await instance
-      .get(`/skills/user/${userId}`)
+      .get(`/skill/user/${userId}`)
       .then((response) => (skills = response.data.skills))
       .catch((error) => {
         console.log("Some error on getUserSkills:", error)

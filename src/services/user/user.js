@@ -1,4 +1,4 @@
-import { instance } from "./instance"
+import { instance } from "../instance"
 
 export const getParameters = async (id) => {
   try {
@@ -51,21 +51,7 @@ export const getTrainingParameters = async (id) => {
   }
 }
 
-export const getUserProcesses = async (userId, procType) => {
-  try {
-    let processes
-    await instance
-      .get(`/users/user/${userId}/processes/${procType}`)
-      .then((response) => (processes = response.data.processes))
-      .catch((error) => {
-        processes = null
-        console.log("Some error on getUserProcesses:", error)
-      })
-    return processes
-  } catch (error) {
-    console.log("getUserProcesses catch error - ", e)
-  }
-}
+
 
 export const getUserActiveProcess = async (userId) => {
   try {

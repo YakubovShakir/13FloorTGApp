@@ -85,8 +85,8 @@ import barber from "./IMG/icons/barber.png"
 import calc from "./IMG/icons/calc.png"
 import coffeeShop from "./IMG/icons/coffeeShop.png"
 
-import cover from './IMG/layers/cover.png'
-import sleep from './IMG/icons/sleepIcon.png'
+import cover from "./IMG/layers/cover.png"
+import sleep from "./IMG/icons/sleepIcon.png"
 
 import brownPlus from "./IMG/icons/brownPlus.png"
 
@@ -128,8 +128,7 @@ import StartCustomizeBG from "./IMG/bg/StartCustomizeBG.png"
 
 import femaleBlack from "./IMG/icons/StartCustomize/black.png"
 import femaleAzia from "./IMG/icons/StartCustomize/azia.png"
-import femaleEurope from './IMG/icons/StartCustomize/europe.png'
-
+import femaleEurope from "./IMG/icons/StartCustomize/europe.png"
 
 import flowerPot from "./IMG/icons/accessory/flowerPot.png"
 import flowerVase from "./IMG/icons/accessory/flowerVase.png"
@@ -159,6 +158,12 @@ import nameUnderline from './IMG/nameUnderline.png'
 
 import inventoryIcon from './IMG/icons/inventoryIcon.png'
 import shopIcon from './IMG/icons/shopIcon.png'
+import workTabIcon from "./IMG/icons/workTab.png"
+import skillTabIcon from "./IMG/icons/skillTab.png"
+
+import energyDecrease from "./IMG/icons/energyDecrease.png"
+import moodDecrease from "./IMG/icons/moodDecrease.png"
+import hungryDecrease from "./IMG/icons/hungryDecrease.png"
 
 export function getImgUrl(name) {
   return new URL(`${name}`, import.meta.url).href
@@ -182,10 +187,10 @@ const Assets = {
     squareButtonShadow
   },
   Layers: {
-    cover
+    cover,
   },
   Icons: {
-    accessory : {
+    accessory: {
       flowerPot,
       flowerVase,
       framedPhoto,
@@ -196,6 +201,11 @@ const Assets = {
     shopIcon,
     femaleBlackIcon,
     femaleWhiteIcon,
+    energyDecrease,
+    moodDecrease,
+    hungryDecrease,
+    workTabIcon,
+    skillTabIcon,
     sleep,
     boss,
     modalClose,

@@ -64,12 +64,6 @@
   left: 0;
   top: 0;
   height: 100%;
-  background: rgb(233, 78, 27);
-  background: linear-gradient(
-    90deg,
-    rgba(233, 78, 27, 1) 0%,
-    rgba(243, 117, 0, 1) 50%
-  );
   border-radius: 5px;
   z-index: -1;
 }

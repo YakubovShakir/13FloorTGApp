@@ -34,8 +34,32 @@ const ItemCard = ({
         {/* ItemParams Section */}
         <div style={{ width: "50%", textAlign: "center", paddingRight: "10px", alignContent: "center" }}>
           {ItemDescription && (
-            <div style={{ fontSize: "5,5cqw", marginBottom: "1px" }}>
+            <span style={{ fontSize: "3cqw", textAlign: "center" }}>
               {ItemDescription}
+            </span>
+          )}
+          {ItemParamsBlocks.map((param, index) => (
+            <div key={index} className="ItemCardParam">
+              {param.map((block, blockIndex) => (
+                <span
+                  className="ItemCardParamBlock"
+                  key={blockIndex}
+                  style={{ width: `${90 / param.length}%` }}
+                >
+                  {block?.fillPercent && (
+                    <span
+                      style={{
+                        width: block?.fillPercent + "%",
+                        background:
+                          block?.fillBackground ||
+                          "linear-gradient(90deg, rgba(233, 78, 27, 1) 0%, rgba(243, 117, 0, 1) 50%)",
+                      }}
+                    ></span>
+                  )}
+                  <img src={block.icon} alt="paramIcon" />
+                  <p style={{ fontSize: "3cqw" }}>{block.value}</p>
+                </span>
+              ))}
             </div>
           )}
           <div className="ItemCardParams"
@@ -79,6 +103,27 @@ const ItemCard = ({
           ))}
         </div>
       </div>
+<<<<<<< HEAD
+=======
+
+      {/* ItemButtons Section */}
+      <div className="ItemCardButtons">
+        {ItemButtons.map((ItemButton, index) => (
+          <Button
+            key={index}
+            width="90%"
+            height={`33%`}
+            onClick={ItemButton?.onClick && (() => ItemButton?.onClick())}
+            active={ItemButton.active}
+            text={ItemButton.text}
+            icon={ItemButton.icon}
+            bgColor={ItemButton?.bg}
+            ownColor={ItemButton?.bg}
+            shadowColor={ItemButton?.shadowColor}
+          />
+        ))}
+      </div>
+>>>>>>> main
     </motion.div>
   );
 };
