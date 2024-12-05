@@ -3,7 +3,7 @@ import "./PersonageCreation.css"
 import Assets from "../../assets"
 import Player from "../../components/complex/Player/Player"
 import Button from "../../components/simple/Button/Button"
-import { personageCreate } from "../../api/user"
+import { personageCreate } from "../../services/user/user"
 import UserContext from "../../UserContext"
 import { useNavigate } from "react-router-dom"
 
