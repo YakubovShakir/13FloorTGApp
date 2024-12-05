@@ -12,6 +12,9 @@ import {
 import { getParameters } from "../../../services/user/user"
 import { getLevels } from "../../../services/levels/levels"
 import { getBoosts } from "../../../services/boost/boost"
+import { updateProcessTimers } from "../../../utils/updateTimers"
+import formatTime from "../../../utils/formatTime"
+import countPercentage from "../../../utils/countPercentage"
 
 const BoostTab = ({ userId, userParameters, setUserParameters }) => {
   const [boosts, setBoosts] = useState(null)
@@ -39,10 +42,16 @@ const BoostTab = ({ userId, userParameters, setUserParameters }) => {
       [
         {
           icon: Icons.clock,
-          value: userSleepDuration,
+          value:
+            activeProcess?.type === "sleep" && (activeProcess?.duration || activeProcess?.seconds)
+              ? formatTime(activeProcess?.duration, activeProcess?.seconds)
+              : userSleepDuration,
           fillPercent:
-            activeProcess?.type === "sleep"
-              ? (activeProcess?.duration / userSleepDuration) * 100
+            activeProcess?.type === "sleep" && activeProcess?.duration
+              ? countPercentage(
+                  activeProcess?.duration * 60,
+                  userSleepDuration * 60
+                )
               : null,
         },
       ],
@@ -77,6 +86,14 @@ const BoostTab = ({ userId, userParameters, setUserParameters }) => {
     getActiveProcess(userId).then((process) => setActiveProcess(process))
     getLevels().then((levels) => setLevels(levels))
   }, [])
+
+  useEffect(() => {
+    if (activeProcess?.type === "sleep") {
+      const updater = updateProcessTimers(activeProcess, setActiveProcess)
+
+      return () => clearInterval(updater)
+    }
+  }, [activeProcess])
   return (
     <ScreenContainer withTab>
       <ItemCard

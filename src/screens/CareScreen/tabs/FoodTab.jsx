@@ -6,10 +6,13 @@ import { getFoods } from "../../../services/food/food"
 import { getProcesses, startProcess } from "../../../services/process/process"
 import { getParameters } from "../../../services/user/user"
 import formatTime from "../../../utils/formatTime"
+import countPercentage from "../../../utils/countPercentage"
+import { updateProcessesTimers } from "../../../utils/updateTimers"
+
 const FoodTab = ({ userId, userParameters, setUserParameters }) => {
   const [userEatingFoods, setUserEatingFoods] = useState(null)
   const [foods, setFoods] = useState(null)
-
+  // const [hasUpdatedTimers, setHasUpdatedTimers] = useState(false)
   const { Icons } = Assets
   // Buy food
   const handleBuyFood = async (foodId) => {
@@ -43,6 +46,7 @@ const FoodTab = ({ userId, userParameters, setUserParameters }) => {
     const longHungryRestore = food?.long_hungry_restore
     const longMoodRestore = food?.long_mood_restore
 
+    const eatingFood = checkFoodIsEating(food)
     return [
       [
         instantHungryRestore && {
@@ -86,11 +90,17 @@ const FoodTab = ({ userId, userParameters, setUserParameters }) => {
       [
         {
           icon: Icons.clock,
-          value: formatTime(
-            checkFoodIsEating(food)?.duration || food?.duration
-          ),
+          value:
+            eatingFood?.duration || eatingFood?.seconds
+              ? formatTime(eatingFood?.duration, eatingFood?.seconds)
+              : formatTime(food?.duration),
           fillPercent:
-            (checkFoodIsEating(food)?.duration / food?.duration) * 100 || false,
+            eatingFood?.duration || eatingFood?.seconds
+              ? countPercentage(
+                  eatingFood?.duration * 60 + eatingFood?.seconds,
+                  food?.duration * 60
+                )
+              : null,
         },
       ],
     ]
@@ -109,9 +119,17 @@ const FoodTab = ({ userId, userParameters, setUserParameters }) => {
       },
     ]
   }
+
+  useEffect(() => {
+
+    const updater = updateProcessesTimers(userEatingFoods, setUserEatingFoods)
+    return () => clearInterval(updater)
+  }, [userEatingFoods])
+
   useEffect(() => {
     getFoods().then((r) => setFoods(r))
     getProcesses("food", userId).then((r) => setUserEatingFoods(r))
+
     updateInformation()
   }, [])
 
