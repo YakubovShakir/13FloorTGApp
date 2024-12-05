@@ -44,32 +44,29 @@ const getLabels = (processType, rate) => {
 
 const ProcessProgressBar = ({
   activeProcess = "working",
-  value,
-  max,
+  inputPercentage = null,
   reverse = false,
   rate,
 }) => {
   const [iconLeft, iconRight] = getIcons(activeProcess)
   const [labelLeft, labelRight] = getLabels(activeProcess, rate)
-  const [percentage, setPercentage] = useState(
-    value && max ? (value / max) * 100 : 100
-  )
+  const [percentage, setPercentage] = useState(100)
 
   const updatePercentage = () => {
-    console.log("comme", percentage)
     if (percentage === 0) setPercentage(100)
     else {
       setPercentage((prevPercentage) => prevPercentage - 2)
     }
   }
   useEffect(() => {
-    if (!value) {
+    if (!inputPercentage) {
       updatePercentage()
     }
   }, [])
 
   useEffect(() => {
-    if (!value) setTimeout(() => updatePercentage(), 1000)
+    if (!inputPercentage) setTimeout(() => updatePercentage(), 1000)
+      console.log(percentage, "get perc")
   }, [percentage])
 
   useEffect(() => console.log(percentage), [percentage])
@@ -92,7 +89,7 @@ const ProcessProgressBar = ({
             <div
               className="progress-bar-fill"
               style={{
-                width: `${percentage}%`,
+                width: `${inputPercentage || percentage}%`,
                 marginLeft: reverse ? `${100 - percentage}%` : "0",
               }}
             />

@@ -2,6 +2,7 @@ import "./ItemCard.css"
 import { motion } from "framer-motion"
 import Button from "../Button/Button"
 import { span } from "framer-motion/client"
+import { useEffect, useState } from "react"
 
 const ItemCard = ({
   ItemIcon,

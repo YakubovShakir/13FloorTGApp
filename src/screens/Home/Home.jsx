@@ -8,9 +8,14 @@ import InventoryCell from "../../components/simple/InventoryCell/InventoryCell"
 import Assets from "../../assets/index"
 import useTelegram from "../../hooks/useTelegram"
 import ProcessProgressBar from "../../components/simple/ProcessProgressBar/ProcessProgressBar"
-import { getUserActiveProcess } from "../../services/user/user"
+import {
+  getTrainingParameters,
+  getUserActiveProcess,
+} from "../../services/user/user"
 import UserContext from "../../UserContext"
-
+import countPercentage from "../../utils/countPercentage"
+import { updateProcessTimers } from "../../utils/updateTimers"
+import { getLevels } from "../../services/levels/levels"
 const getBgByCurrentProcess = (processType) => {
   const { BG } = Assets
   const typeToBgMap = {
@@ -30,7 +35,23 @@ const Home = () => {
   const [currentProcess, setCurrentProcess] = useState(null)
   const [visibleWindow, setVisibleWindow] = useState(false)
   const [inventoryEdit, setInventoryEdit] = useState(false)
-  const { userId, appReady } = useContext(UserContext)
+  const [trainingParamters, setTrainingParameters] = useState(null)
+  const [levels, setLevels] = useState(null)
+
+  const { userId, userParameters, appReady } = useContext(UserContext)
+
+  const getUserSleepDuration = () => {
+    const duration = levels?.find(
+      (level) => level?.level === userParameters?.level
+    )?.sleep_duration
+    console.log(
+      duration,
+      "leel",
+      currentProcess?.duration,
+      currentProcess?.seconds
+    )
+    return duration
+  }
   useEffect(() => {
     useTelegram.hideBackButton()
 
@@ -39,9 +60,18 @@ const Home = () => {
         setCurrentProcess(process)
         useTelegram?.setReady()
       })
+      getTrainingParameters(userId).then((r) => setTrainingParameters(r)) // Get user training parameters
+      getLevels().then((levels) => setLevels(levels))
       // Здесь получаем активный процесс при первой загрузке
     }
   }, [])
+  useEffect(() => {
+    if (currentProcess?.active) {
+      console.log(currentProcess)
+      const updater = updateProcessTimers(currentProcess, setCurrentProcess)
+      return () => clearInterval(updater)
+    }
+  }, [currentProcess])
 
   if (currentProcess === null) {
     return (
@@ -156,7 +186,7 @@ const Home = () => {
     )
   }
 
-  if (currentProcess?.type === "training") {
+  if (currentProcess?.type === "training" && trainingParamters) {
     return (
       <div
         className="Home"
@@ -168,10 +198,11 @@ const Home = () => {
         <Player width="40%" left={"9%"} top={"35%"} />
         <ProcessProgressBar
           activeProcess={currentProcess.type}
-          value={currentProcess.duration}
-          max={currentProcess.duration}
-          reverse
-          rate={"20m/c"}
+          inputPercentage={countPercentage(
+            currentProcess?.duration * 60 + currentProcess?.seconds,
+            trainingParamters?.duration * 60
+          )}
+          rate={trainingParamters?.mood_profit}
         />
         <Menu />
         {visibleWindow && (
@@ -207,7 +238,15 @@ const Home = () => {
           }}
         />
         {/* проп reverse отвечает на направление прогресс-бара */}
-        <ProcessProgressBar activeProcess={currentProcess.type} rate={"20/с"} />
+        <ProcessProgressBar
+          inputPercentage={countPercentage(
+            (currentProcess?.duration * 60 + currentProcess?.seconds) ,
+              getUserSleepDuration() *
+              60
+          )}
+          activeProcess={currentProcess.type}
+          rate={"Full Recovery Energy"}
+        />
         <Menu />
         {visibleWindow && (
           <Window
