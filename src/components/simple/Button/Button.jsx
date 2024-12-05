@@ -11,7 +11,9 @@ const Button = ({
   active = true,
   shadowColor,
   fontSize,
-  paddingTop
+  paddingTop,
+  fontFamily,
+  fontWeight
 }) => {
   const [boxShadow, setBoxShadow] = useState({
     color: active ? shadowColor || "#0E3228" : "#453D3F",
@@ -53,7 +55,7 @@ const Button = ({
       }}
     >
       {icon && <img src={icon} alt="Button" />}
-      <span style={{ fontSize, paddingTop }}>{text}</span>
+      <span style={{ fontSize, paddingTop, fontFamily, fontWeight }}>{text}</span>
     </button>
   )
 }
