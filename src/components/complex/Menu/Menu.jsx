@@ -1,11 +1,13 @@
 import IconButton from "../../simple/IconButton/IconButton"
 import "./Menu.css"
 import { useNavigate } from "react-router-dom"
+import { useState } from "react"
 import Assets from "../../../assets"
 
 const Menu = ({ screenMenu, activeName }) => {
   const { Icons } = Assets
   const navigate = useNavigate()
+  const [currentTab, setCurrentTab] = useState()
   const tabs = {
     care: {
       onClick: () => navigate("/care"),
@@ -39,7 +41,7 @@ const Menu = ({ screenMenu, activeName }) => {
     },
   }
   return (
-    <div className={screenMenu ? "screenMenu Menu" : "Menu" }>
+    <div className={screenMenu ? "screenMenu Menu" : "Menu" } style={{ width: '100vw' }} >
       {Object.keys(tabs).map((tab, index) => (
         <IconButton
           color={activeName && (activeName === tab ? "white" : "rgba(255, 255, 255, 0.4)")}
@@ -48,6 +50,7 @@ const Menu = ({ screenMenu, activeName }) => {
           notify={tabs[tab].notify}
           icon={tabs[tab].icon}
           title={tabs[tab].title}
+          size={45}
         />
       ))}
     </div>

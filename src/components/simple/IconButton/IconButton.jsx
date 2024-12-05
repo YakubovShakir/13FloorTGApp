@@ -8,6 +8,7 @@ const IconButton = ({
   notify = false,
   onClick,
   bgTextColor = "transparent",
+  size,
 }) => {
   const { Icons } = Assets
   return (
@@ -16,7 +17,7 @@ const IconButton = ({
       className="IconButton"
     >
       {notify && <img src={Icons.notify} className="IconButtonNotify" />}
-      <img src={icon} style={{ backgroundColor: bgTextColor }} className="IconButtonImg" />
+      <img src={icon} style={{ backgroundColor: bgTextColor, height: size ? size : undefined, width:  size ? size : undefined }} className="IconButtonImg" />
       {title && <span style={{ backgroundColor: bgTextColor, color: `${color}` }}>{title}</span>}
     </button>
   )
