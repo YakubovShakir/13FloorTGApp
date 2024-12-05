@@ -9,6 +9,7 @@ import ActivityScreen from "./screens/ActivityScreen/ActivityScreen"
 import PersonageCreationScreen from './screens/PersonageCreation/PersonageCreation'
 import { UserProvider } from "./UserContext"
 import StartCustomize from './screens/StartCustomize/StartCustomize'
+import ShopScreen from './screens/ShopScreen/ShopScreen'
 
 function App() {
   useEffect(() => {
@@ -24,7 +25,9 @@ function App() {
           {/* <Route index element={<StartCustomize />} /> */}
           <Route index element={<Home/>}/>
           <Route path="/personage-create" element={<PersonageCreationScreen />} />
+          {/* <Route index element={<PersonageCreationScreen />} /> */}
           <Route path="/care" element={<CareScreen />} />
+          <Route path="/shop" element={<ShopScreen />} />
           <Route path="/activity" element={<ActivityScreen />} />
         </Routes>
       </MemoryRouter>

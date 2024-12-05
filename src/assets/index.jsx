@@ -19,7 +19,6 @@ import cancel from "./IMG/icons/cancel.png"
 import respect from "./IMG/icons/respect.png"
 import book from "./IMG/icons/book.png"
 import phone from "./IMG/icons/phone.png"
-import boss from "./IMG/icons/boss.png"
 import missingGirl from './IMG/missingGirl.png'
 import squareButtonShadow from "./IMG/layers/squareButtonShadow.png"
 
@@ -166,6 +165,18 @@ import moodDecrease from "./IMG/icons/moodDecrease.png"
 import hungryDecrease from "./IMG/icons/hungryDecrease.png"
 
 import starsIcon from "./IMG/icons/starsIcon.png"
+
+import accIcon from './IMG/icons/accIcon.png'
+import bodyIcon from './IMG/icons/bodyIcon.png'
+import hairIcon from './IMG/icons/hairIcon.png'
+import homeIcon from './IMG/icons/homeIcon.png'
+import legsIcon from './IMG/icons/legsIcon.png'
+import settingsIcon from './IMG/icons/settingsIcon.png'
+import shoesIcon from './IMG/icons/shoesIcon.png'
+import boss from './IMG/icons/boss.png'
+
+import arrowIcon from './IMG/icons/arrowIcon.png'
+
 export function getImgUrl(name) {
   return new URL(`${name}`, import.meta.url).href
 }
@@ -187,9 +198,6 @@ const Assets = {
     cover,
     squareButtonShadow
   },
-  Layers: {
-    cover,
-  },
   Icons: {
     accessory: {
       flowerPot,
@@ -198,6 +206,7 @@ const Assets = {
       goldenCat,
       patCat,
     },
+    arrowIcon,
     starsIcon,
     femaleAsianIcon,
     shopIcon,
@@ -298,7 +307,14 @@ const Assets = {
     cap,
     filter,
     jeans,
-    inventoryIcon
+    inventoryIcon,
+    accIcon,
+    bodyIcon,
+    hairIcon,
+    homeIcon,
+    legsIcon,
+    settingsIcon,
+    shoesIcon,
   },
   BG: {
     trainingCardBG,

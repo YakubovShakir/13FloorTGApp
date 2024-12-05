@@ -15,8 +15,8 @@ const Menu = ({ screenMenu, activeName }) => {
       icon: Icons.care,
       title: "Забота",
     },
-    investment: {
-      onClick: () => navigate("/#"),
+    shop: {
+      onClick: () => navigate("/shop"),
       notify: false,
       icon: Icons.shopIcon,
       title: "Магазин",
@@ -41,7 +41,7 @@ const Menu = ({ screenMenu, activeName }) => {
     },
   }
   return (
-    <div className={screenMenu ? "screenMenu Menu" : "Menu" } style={{ width: '100vw' }} >
+    <div className={screenMenu ? "screenMenu Menu" : "Menu" } style={{ width: '100vw', border: 'solid rgba(255,255,255, 0.15) .005px'}} >
       {Object.keys(tabs).map((tab, index) => (
         <IconButton
           color={activeName && (activeName === tab ? "white" : "rgba(255, 255, 255, 0.4)")}
