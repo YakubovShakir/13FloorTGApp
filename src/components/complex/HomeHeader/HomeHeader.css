@@ -17,14 +17,14 @@
 }
 
 .HomeHeaderIncome {
+  max-height: 50px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  width: 30%;
+  width: 37%;
   background-color: var(--main-lightblack);
   border-radius: 5px;
   padding: 2% 2%;
-  letter-spacing: 1px;
 }
 
 .HomeHeaderIncome div:nth-child(1) {
@@ -58,6 +58,7 @@
   color: white;
   position: relative;
   z-index: 0;
+  max-height: 46px;
 }
 
 .HomeHeaderLevelCapacity {
@@ -76,12 +77,16 @@
   transition: height 1s;
 }
 .HomeHeaderLevel span:nth-child(1) {
+  max-height: 50px;
   font-size: 5cqw;
-  font-weight: bold;
+ 
 }
 .HomeHeaderLevel span:nth-child(2) {
-  font-size: 3cqw;
+  font-size: 2cqw;
 }
+
+
+
 .HomeHeaderSlide {
   display: block;
   width: 100%;
@@ -103,48 +108,76 @@
 .HomeHeaderSwiper .swiper-pagination-bullet-active {
   background: white;
 }
+.swiper-backface-hidden .swiper-slide {
+  padding: 0px 20px 0px 20px;
+}
+
+.HomeHeaderSlide {
+  display: flex; /* Flexbox для контейнера */
+  justify-content: space-between; /* Элементы на равном расстоянии */
+  align-items: center; /* Центрируем элементы по вертикали */
+  gap: 10px; /* Отступ между блоками */
+  height: 50px; /* Общая высота контейнера */
+}
+
 
 .HomeHeaderRespect {
-  display: flex;
-  align-items: center;
-  justify-content: space-evenly;
+  max-height: 46px;
+  display: flex; 
+  align-items: center; 
+  justify-content: start; 
   border-radius: 5px;
   background-color: #3b3537;
   color: white;
-  max-height: 80%;
-  height: 80%;
-  padding: 2% 0;
-  font-size: 5cqw;
-  letter-spacing: 1px;
-}
-.HomeHeaderRespect span {
-  text-align: center;
-  width: 60%;
-}
-.HomeHeaderRespect img {
-  max-width: 100%;
-  width: 25%;
+  width: calc(50% - 5px); 
+  height: 50px; 
+  box-sizing: border-box; 
+  padding-left: 5px; 
+  gap: 10px; 
+  text-align: center; 
 }
 
+.HomeHeaderRespect img {
+  max-width: 20%; 
+  max-height: 90%; 
+  width: auto; 
+  height: auto; 
+  object-fit: contain; 
+}
+
+.HomeHeaderRespect span {
+  padding-right: 20px;
+  flex: 1; 
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+}
+
+
 .HomeHeaderExperience {
-  color: white;
-  width: 50%;
+  max-height: 46px;
   display: flex;
-  flex-direction: column;
-  justify-content: space-between;
+  flex-direction: column; 
+  align-items: center; 
+  justify-content: center; 
   border-radius: 5px;
   background-color: #3b3537;
-  text-align: center;
-  max-height: 80%;
-  height: 80%;
-  padding: 1% 0;
-  letter-spacing: 1px;
+  color: white;
+  width: calc(50% - 5px); 
+  height: 50px; 
+  box-sizing: border-box; 
+  text-align: center; 
+}
+
+.HomeHeaderExperience span {
+  font-size: 3cqw;
+  line-height: 1; /* Убираем лишние отступы между строками */
 }
 
 .HomeHeaderExperience span:nth-child(1) {
-  font-size: 3cqw;
+  margin-bottom: 5px; /* Отступ снизу для первого текста */
 }
 
 .HomeHeaderExperience span:nth-child(2) {
-  font-size: 4cqw;
+  font-size: 4cqw; /* Размер текста больше для второго элемента */
 }

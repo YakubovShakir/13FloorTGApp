@@ -35,10 +35,12 @@ const Home = () => {
     useTelegram.hideBackButton()
 
     if (appReady) {
-      getUserActiveProcess(userId).then((process) => {
-        setCurrentProcess(process)
-        useTelegram?.setReady()
-      })
+      getUserActiveProcess(userId)
+        .then(process => {
+          console.log(process)
+          setCurrentProcess(process)
+          useTelegram?.setReady()
+        })
       // Здесь получаем активный процесс при первой загрузке
     }
   }, [])
