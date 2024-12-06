@@ -11,6 +11,7 @@ const ItemCard = ({
   ItemButtons,
   ItemIndex,
   ItemDescription,
+  ItemAmount = undefined
 }) => {
   return (
     <motion.div
@@ -19,6 +20,11 @@ const ItemCard = ({
       transition={{ duration: 0.15 * (ItemIndex + 1) }}
       className="ItemCard"
     >
+    
+      {ItemAmount !== undefined && (
+         <div className="ItemCardAmount">{ItemAmount}</div>
+      )} 
+    
       {/* ItemIcon Section */}
       <div style={{ width: "25%", display: "flex", alignItems: "center" }}>
         <img loading="lazy" src={ItemIcon} alt="ItemIcon" />

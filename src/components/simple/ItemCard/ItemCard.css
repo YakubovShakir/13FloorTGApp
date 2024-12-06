@@ -5,14 +5,33 @@
   width: 90%;
   margin: auto;
   color: #ffffff;
-  border-bottom: 2px solid #453d3f;
+  border-bottom: 2px solid #a08d92;
   margin-bottom: 5%;
+  position: relative;
+  container-type: size;
 }
 .ItemCard img {
   max-width: 100%;
   object-fit: contain;
 }
 
+.ItemCardAmount {
+  position: absolute;
+  top: 0;
+  left: 2%;
+  width: 10%;
+  font-size: 3cqw;
+  background: rgb(111, 73, 129);
+  background: linear-gradient(
+    180deg,
+    rgba(111, 73, 129, 1) 0%,
+    rgba(160, 122, 236, 1) 50%
+  );
+  box-shadow: 0px 3px 0px 0px #442851;
+  padding: 0.7% 0;
+  text-align: center;
+  border-radius: 5px;
+}
 .ItemCardParams {
   display: flex;
   flex-wrap: wrap;
