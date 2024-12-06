@@ -1,24 +1,25 @@
-import useTelegram from "./hooks/useTelegram"
 import React, { createContext, useState, useEffect } from "react"
 import { getParameters } from "./services/user/user"
-// создаем контекст
+
 const UserContext = createContext()
 
-// создаем провайдер контекста
 export const UserProvider = ({ children }) => {
   //states
   const [userParameters, setUserParameters] = useState(null)
   const [userPersonage, setUserPersonage] = useState(null)
   const [userClothing, setUserClothing] = useState(null)
-  const [userShelf, setUserShelf] = useState(null)
 
   const [userId, setUserId] = useState(null)
   const [appReady, setAppReady] = useState(false)
 
   useEffect(() => {
-    setUserId(790629329)
+    // Check if running in Telegram WebApp
+    const tg = window.Telegram?.WebApp
+    const actualUserId = tg?.initDataUnsafe?.user?.id || 790629329
 
-    getParameters(790629329)
+    setUserId(actualUserId)
+
+    getParameters(actualUserId)
       .then((parameters) => {
         console.log('@@@', parameters)
         setUserParameters(parameters.parameters)
@@ -26,13 +27,16 @@ export const UserProvider = ({ children }) => {
         setUserClothing(parameters.clothing)
         setAppReady(true)
       }).catch(err => console.log('@', err))
-    updateInformation()
+    updateInformation(actualUserId)
   }, [])
 
   const fetchParams = async () => {
+    const tg = window.Telegram?.WebApp
+    const actualUserId = tg?.initDataUnsafe?.user?.id || 790629329
+
     setAppReady(false)
     console.log('FETCHING PARAMS')
-    getParameters(790629329)
+    getParameters(actualUserId)
       .then((parameters) => {
         console.log('@@@', parameters)
         setUserParameters(parameters.parameters)
@@ -42,15 +46,15 @@ export const UserProvider = ({ children }) => {
       }).catch(err => console.log('@', err))
   }
 
-  const updateInformation = () => {
+  const updateInformation = (userId) => {
     try {
       setInterval(() => {
-        getParameters(790629329).then((parameters) =>
+        getParameters(userId).then((parameters) =>
           setUserParameters(parameters.parameters)
         )
       }, 30000)
     } catch (e) {
-      console.log("Error when updateInfromation", e)
+      console.log("Error when updateInformation", e)
     }
   }
 

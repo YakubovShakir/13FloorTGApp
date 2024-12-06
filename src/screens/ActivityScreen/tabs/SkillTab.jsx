@@ -4,6 +4,10 @@ import Assets from "../../../assets"
 import { useEffect, useState } from "react"
 import { getSkills, getUserSkills } from "../../../services/skill/skill"
 import {
+  updateProcessTimers,
+  updateProcessesTimers,
+} from "../../../utils/updateTimers"
+import {
   getTrainingParameters,
   getParameters,
 } from "../../../services/user/user"
@@ -13,6 +17,7 @@ import {
   getActiveProcess,
 } from "../../../services/process/process"
 import formatTime from "../../../utils/formatTime"
+import countPercentage from "../../../utils/countPercentage.js"
 
 const SkillTab = ({
   modalData,
@@ -112,9 +117,17 @@ const SkillTab = ({
         {
           icon: Icons.clock,
           text: null,
-          value: formatTime(learning?.duration || skill?.duration),
           fillPercent:
-            (learning?.duration / skill?.duration) * 100 + "%" || false,
+            learning?.duration || learning?.seconds
+              ? countPercentage(
+                  learning?.duration * 60 + learning?.seconds,
+                  skill?.duration * 60
+                )
+              : false,
+          value:
+            learning?.duration || learning?.seconds
+              ? formatTime(learning?.duration, learning?.seconds)
+              : formatTime(skill?.duration),
         },
         skill?.skill_id_required && {
           icon: skills?.find((sk) => sk?.skill_id === skill?.skill_id_required)
@@ -159,10 +172,17 @@ const SkillTab = ({
     )
     const timerBar = {
       icon: Icons.clock,
-      fillPercent: learning
-        ? (learning?.duration / skill?.duration) * 100
-        : false,
-      value: formatTime(learning ? learning.duration : skill?.duration),
+      fillPercent:
+        learning?.duration || learning?.seconds
+          ? countPercentage(
+              learning?.duration * 60 + learning?.seconds,
+              skill?.duration * 60
+            )
+          : false,
+      value:
+        learning?.duration || learning?.seconds
+          ? formatTime(learning?.duration, learning?.seconds)
+          : formatTime(skill?.duration),
     }
 
     let accessStatus = userParameters?.coins >= skill?.coins_price
@@ -217,14 +237,19 @@ const SkillTab = ({
       [
         {
           icon: Icons.clock,
-          value: formatTime(
-            (activeTraining && activeProcess?.duration) ||
-              trainingParamters?.duration
-          ),
+          value:
+            activeTraining &&
+            (activeProcess?.duration || activeProcess?.seconds)
+              ? formatTime(activeProcess?.duration, activeProcess?.seconds)
+              : formatTime(trainingParamters?.duration),
           fillPercent:
-            (activeTraining &&
-              activeProcess?.duration / trainingParamters?.duration) * 100 ||
-            false,
+            activeTraining &&
+            (activeProcess?.duration || activeProcess?.seconds)
+              ? countPercentage(
+                  activeProcess?.duration * 60 + activeProcess?.seconds,
+                  trainingParamters?.duration * 60
+                )
+              : false,
         },
       ],
       [
@@ -267,7 +292,21 @@ const SkillTab = ({
       console.log("Error when updateInfromation", e)
     }
   }
+  useEffect(() => {
+    const updater = updateProcessesTimers(
+      userLearningSkills,
+      setUserLearningSkills
+    )
+    getUserSkills(userId).then((r) => setUserLearnedSkills(r)) // Get list of user skills
 
+    return () => clearInterval(updater)
+  }, [userLearningSkills])
+  useEffect(() => {
+    if (activeProcess?.type === "training") {
+      const updater = updateProcessTimers(activeProcess, setActiveProcess)
+      return () => clearInterval(updater)
+    }
+  }, [activeProcess])
   useEffect(() => {
     getSkills().then((r) => setSkills(r)) // Get list of skills
     getProcesses("skill", userId).then((r) => setUserLearningSkills(r)) // Get current learning skills
