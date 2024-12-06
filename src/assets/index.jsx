@@ -161,8 +161,6 @@ import hungryDecrease from "./IMG/icons/hungryDecrease.png"
 import starsIcon from "./IMG/icons/starsIcon.png"
 import male from './IMG/icons/male.png'
 import female from './IMG/icons/female.png'
-import female from './IMG/icons/male.png'
-import male from './IMG/icons/female.png'
 
 import femaleWhiteIcon from './IMG/icons/femaleWhite.png'
 import femaleBlackIcon from './IMG/icons/femaleBlack.png'
@@ -172,14 +170,6 @@ import nameUnderline from './IMG/nameUnderline.png'
 
 import inventoryIcon from './IMG/icons/inventoryIcon.png'
 import shopIcon from './IMG/icons/shopIcon.png'
-import workTabIcon from "./IMG/icons/workTab.png"
-import skillTabIcon from "./IMG/icons/skillTab.png"
-
-import energyDecrease from "./IMG/icons/energyDecrease.png"
-import moodDecrease from "./IMG/icons/moodDecrease.png"
-import hungryDecrease from "./IMG/icons/hungryDecrease.png"
-
-import starsIcon from "./IMG/icons/starsIcon.png"
 
 import accIcon from './IMG/icons/accIcon.png'
 import bodyIcon from './IMG/icons/bodyIcon.png'
@@ -192,7 +182,6 @@ import boss from './IMG/icons/boss.png'
 
 import arrowIcon from './IMG/icons/arrowIcon.png'
 import inventoryActiveShadow from './IMG/inventoryActiveShadow.png'
-
 
 export function getImgUrl(name) {
   return new URL(`${name}`, import.meta.url).href
@@ -216,12 +205,9 @@ const Assets = {
   },
   Layers: {
     cover,
-    missingGirl
-  },
-  Layers: {
-    cover,
     squareButtonShadow,
-    inventoryActiveShadow
+    inventoryActiveShadow,
+    missingGirl
   },
   Icons: {
     accessory: {
@@ -242,7 +228,6 @@ const Assets = {
     femaleAsianIcon,
     femaleBlackIcon,
     femaleWhiteIcon,
-    sleep,
     boss,
     modalClose,
     boosterArrow,
@@ -333,6 +318,7 @@ const Assets = {
     filter,
     jeans,
     inventoryIcon,
+    shopIcon,
     accIcon,
     bodyIcon,
     hairIcon,
@@ -354,9 +340,5 @@ const Assets = {
   },
   nameUnderline,
 }
-
-// export const getIcon = (name) => (
-//   <img src={require(`./IMG/icons/${name}.png`)} alt={`${name}Icon`} />
-// )
 
 export default Assets
