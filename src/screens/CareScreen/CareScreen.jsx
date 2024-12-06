@@ -12,6 +12,7 @@ import { useNavigate } from "react-router-dom"
 import UserContext from "../../UserContext"
 import FoodTab from "./tabs/FoodTab"
 import BoostTab from "./tabs/BoostTab"
+import InventoryTab from "./tabs/InventoryTab"
 
 const CareScreen = () => {
   const [activeTab, setActiveTab] = useState("foods")
@@ -22,7 +23,7 @@ const CareScreen = () => {
   const tabs = [
     { icon: foodTab, callback: () => setActiveTab("foods") },
     { icon: boost, callback: () => setActiveTab("boosts") },
-    { icon: Icons.inventoryIcon, callback: () => setActiveTab(null) },
+    { icon: Icons.inventoryIcon, callback: () => setActiveTab("inventory") },
   ]
 
   useEffect(() => {
@@ -51,6 +52,14 @@ const CareScreen = () => {
             userParameters={userParameters}
             setUserParameters={setUserParameters}
           />
+        )}
+
+        {activeTab === "inventory" && (
+           <InventoryTab
+            userId={userId}
+            userParameters={userParameters}
+            setUserParameters={setUserParameters}
+         />
         )}
         {/* Store Data */}
       </ScreenBody>

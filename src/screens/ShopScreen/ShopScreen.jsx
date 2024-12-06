@@ -12,17 +12,18 @@ import { useNavigate } from "react-router-dom"
 import UserContext from "../../UserContext"
 import CoinsTab from "./tabs/CoinsTab"
 import BoostTab from "./tabs/BoostTab"
+import StarsTab from "./tabs/StarsTab"
 
 const ShopScreen = () => {
-  const [activeTab, setActiveTab] = useState("foods")
+  const [activeTab, setActiveTab] = useState("coins")
 
   const { userParameters, setUserParameters, userId } = useContext(UserContext)
   const navigate = useNavigate()
   const { Icons } = Assets
   const tabs = [
-    { icon: Icons.balance, callback: () => setActiveTab("foods") },
-    { icon: Icons.starsIcon, callback: () => setActiveTab("boosts") },
-    { icon: Assets.Icons.arrowIcon, callback: () => setActiveTab("stars"), w: 100, h: 100 },
+    { icon: Icons.balance, callback: () => setActiveTab("coins") },
+    { icon: Icons.starsIcon, callback: () => setActiveTab("stars") },
+    { icon: Assets.Icons.arrowIcon, callback: () => setActiveTab("boosts"), w: 100, h: 100 },
   ]
 
   useEffect(() => {
@@ -36,7 +37,7 @@ const ShopScreen = () => {
         <ScreenTabs tabs={tabs} />
 
         {/* Food Tab */}
-        {activeTab === "foods" && (
+        {activeTab === "coins" && (
           <CoinsTab
             userId={userId}
             userParameters={userParameters}
@@ -45,7 +46,7 @@ const ShopScreen = () => {
         )}
 
         {activeTab === "stars" && (
-          <CoinsTab
+          <StarsTab
             userId={userId}
             userParameters={userParameters}
             setUserParameters={setUserParameters}

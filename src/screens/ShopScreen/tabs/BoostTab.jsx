@@ -14,64 +14,7 @@ import { getLevels } from "../../../services/levels/levels"
 import { getBoosts } from "../../../services/boost/boost"
 
 const BoostTab = ({ userId, userParameters, setUserParameters }) => {
-  const [boosts, setBoosts] = useState(null)
-  const [levels, setLevels] = useState(null)
-  const [activeProcess, setActiveProcess] = useState(null)
-
-  const { Icons } = Assets
-
-  const handleStartSleep = async () => {
-    await startProcess("sleep", userId)
-
-    const sleepProcess = await getActiveProcess(userId)
-    setActiveProcess(sleepProcess)
-  }
-  const handleStopSleep = async () => {
-    await stopProcess(userId)
-    setActiveProcess(null)
-  }
-
-  const getItemSleepParams = () => {
-    const userSleepDuration = levels?.find(
-      (level) => level?.level === userParameters?.level
-    )?.sleep_duration
-    return [
-      [
-        {
-          icon: Icons.clock,
-          value: userSleepDuration,
-          fillPercent:
-            activeProcess?.type === "sleep"
-              ? (activeProcess?.duration / userSleepDuration) * 100
-              : null,
-        },
-      ],
-      [
-        {
-          icon: Icons.boosterArrow,
-          value: "Усилений нет",
-        },
-      ],
-    ]
-  }
-
-  const getItemSleepButton = () => {
-    return [
-      {
-        text: activeProcess?.type === "sleep" ? "Стоп" : "Начать",
-        active: true,
-        bg:
-          activeProcess?.type === "sleep"
-            ? "linear-gradient(90deg, rgba(233,27,27,1) 0%, rgba(119,1,1,1) 100%)"
-            : "linear-gradient(180deg, rgba(233,78,27,1) 0%, rgba(243,117,0,1) 100%)",
-        shadowColor: "#AF370F",
-        onClick:
-          activeProcess?.type === "sleep"
-            ? () => handleStopSleep()
-            : () => handleStartSleep(),
-      },
-    ]
-  }
+  
   useEffect(() => {
     getBoosts().then((r) => setBoosts(r))
     getActiveProcess(userId).then((process) => setActiveProcess(process))
@@ -79,41 +22,7 @@ const BoostTab = ({ userId, userParameters, setUserParameters }) => {
   }, [])
   return (
     <ScreenContainer withTab>
-      <ItemCard
-        ItemIcon={sleepIcon}
-        ItemTitle={"Долгий сон"}
-        ItemParamsBlocks={getItemSleepParams()}
-        ItemButtons={getItemSleepButton()}
-        ItemIndex={0}
-      />
-      {boosts?.map((boost, index) => (
-        <ItemCard
-          key={index}
-          ItemIcon={boost?.link}
-          ItemTitle={boost.name}
-          ItemDescription={boost?.description}
-          ItemParamsBlocks={[
-            [
-              boost["duration"] !== null && {
-                icon: Icons.clock,
-                value: boost.duration,
-              },
-            ].filter(Boolean),
-          ]}
-          ItemButtons={[
-            {
-              text: boost.stars_price,
-              active: true,
-              icon: Icons.starsIcon,
-            },
-            {
-              text: "Принять",
-              active: false,
-            },
-          ]}
-          ItemIndex={index + 1}
-        />
-      ))}
+     
     </ScreenContainer>
   )
 }

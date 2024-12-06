@@ -106,8 +106,13 @@ import jacket from "./IMG/icons/jacket.png"
 import filter from "./IMG/icons/filter.png"
 import jeans from "./IMG/icons/jeans.png"
 
-import manAsia from "./IMG/avatars/mans/manAsia.png"
+import asianMan from "./IMG/avatars/mans/asian.png"
+import euMan from "./IMG/avatars/mans/europe.png"
+import blackMan from "./IMG/avatars/mans/afro.png"
 import euGirl from "./IMG/avatars/girls/europe.png"
+import asianGirl from "./IMG/avatars/girls/asian.png"
+import blackGirl from "./IMG/avatars/girls/afro.png"
+
 import blackSkin from "./IMG/avatars/girls/clothes/top/blackSkin.png"
 import miniSkirt from "./IMG/avatars/girls/clothes/legs/mini.png"
 import hightHeels from "./IMG/avatars/girls/clothes/feet/HighHeels.png"
@@ -146,8 +151,8 @@ import unlockedIcon from "./IMG/icons/unlockedIcon.png"
 
 import modalClose from "./IMG/icons/modalClose.png"
 
-import male from './IMG/icons/male.png'
-import female from './IMG/icons/female.png'
+import female from './IMG/icons/male.png'
+import male from './IMG/icons/female.png'
 
 import femaleWhiteIcon from './IMG/icons/femaleWhite.png'
 import femaleBlackIcon from './IMG/icons/femaleBlack.png'
@@ -176,6 +181,8 @@ import shoesIcon from './IMG/icons/shoesIcon.png'
 import boss from './IMG/icons/boss.png'
 
 import arrowIcon from './IMG/icons/arrowIcon.png'
+import inventoryActiveShadow from './IMG/inventoryActiveShadow.png'
+
 
 export function getImgUrl(name) {
   return new URL(`${name}`, import.meta.url).href
@@ -185,8 +192,12 @@ const Assets = {
   Images: {
     homeBackgroundImage,
     avatar,
-    manAsia,
+    euMan,
+    asianMan,
+    blackMan,
     euGirl,
+    asianGirl,
+    blackGirl,
     blackSkin,
     miniSkirt,
     hightHeels,
@@ -196,7 +207,8 @@ const Assets = {
   },
   Layers: {
     cover,
-    squareButtonShadow
+    squareButtonShadow,
+    inventoryActiveShadow
   },
   Icons: {
     accessory: {
