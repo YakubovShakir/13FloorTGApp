@@ -16,6 +16,8 @@ import UserContext from "../../UserContext"
 import { motion } from 'framer-motion'
 import { useNavigate } from "react-router-dom"
 
+import SheepJumpGame from "./Game";
+
 export const FullScreenSpinner = ({ color = "#E94E1B", size = 70 }) => {
   // Generate 60 steps of opacity transition from transparent to #2F292B
   const backgroundFrames = Array.from({ length: 60 }, (_, i) => {
@@ -73,8 +75,6 @@ export const FullScreenSpinner = ({ color = "#E94E1B", size = 70 }) => {
     </motion.div>
   );
 };
-
-
 
 const getBgByCurrentProcess = (processType) => {
   const { BG } = Assets

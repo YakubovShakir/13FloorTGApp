@@ -9,6 +9,8 @@
 }
 .Player {
   position: relative;
+  animation: breathe 2.5s ease-in-out infinite;
+  transform-origin: bottom center;
 }
 
 .PlayerAvatar {
@@ -23,4 +25,13 @@
 }
 .PlayerFeet {
   z-index: 0;
+}
+
+@keyframes breathe {
+  0%, 100% {
+    transform: scaleY(1);
+  }
+  50% {
+    transform: scaleY(1.005); /* Slight vertical stretch */
+  }
 }

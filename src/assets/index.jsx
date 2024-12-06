@@ -158,6 +158,10 @@ import femaleWhiteIcon from './IMG/icons/femaleWhite.png'
 import femaleBlackIcon from './IMG/icons/femaleBlack.png'
 import femaleAsianIcon from './IMG/icons/femaleAsian.png'
 
+import maleWhiteIcon from './IMG/icons/white.png'
+import maleWAsianIcon from './IMG/icons/asian.png'
+import maleWAfroIcon from './IMG/icons/afro.png'
+
 import nameUnderline from './IMG/nameUnderline.png'
 
 import inventoryIcon from './IMG/icons/inventoryIcon.png'
@@ -218,6 +222,9 @@ const Assets = {
       goldenCat,
       patCat,
     },
+    maleWAfroIcon,
+    maleWAsianIcon,
+    maleWhiteIcon,
     arrowIcon,
     starsIcon,
     femaleAsianIcon,

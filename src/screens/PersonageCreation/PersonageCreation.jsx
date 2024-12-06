@@ -127,9 +127,9 @@ const femaleRaceToIconMap = {
 }
 
 const maleRaceToIconMap = {
-  [RACES.WHITE]: Assets.Icons.femaleWhiteIcon,
-  [RACES.BLACK]: Assets.Icons.femaleBlackIcon,
-  [RACES.ASIAN]: Assets.Icons.femaleAsianIcon,
+  [RACES.WHITE]: Assets.Icons.maleWhiteIcon,
+  [RACES.BLACK]: Assets.Icons.maleWAfroIcon,
+  [RACES.ASIAN]: Assets.Icons.maleWAsianIcon,
 }
 
 const getGenderIcon = (gender, race) => {
