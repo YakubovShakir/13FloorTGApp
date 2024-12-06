@@ -32,7 +32,7 @@ export const UserProvider = ({ children }) => {
   const fetchParams = async () => {
     setAppReady(false)
     console.log('FETCHING PARAMS')
-    getParameters(790629329)
+    getParameters(7669966893)
       .then((parameters) => {
         console.log('@@@', parameters)
         setUserParameters(parameters.parameters)
@@ -45,7 +45,7 @@ export const UserProvider = ({ children }) => {
   const updateInformation = () => {
     try {
       setInterval(() => {
-        getParameters(790629329).then((parameters) =>
+        getParameters(7669966893).then((parameters) =>
           setUserParameters(parameters.parameters)
         )
       }, 30000)

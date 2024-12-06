@@ -311,7 +311,8 @@ const Home = () => {
         <HomeHeader
           onClick={() => setVisibleSettingsModal(!visibleSettingsModal)}
         />
-        <Player width="43%" left={"9%"} top={"34%"} />
+        <Player width="43%" left={"9%"} top={"34%"}     personage={userPersonage}
+          clothing={userClothing} />
         <ProcessProgressBar activeProcess={currentProcess.type} />
         <Menu />
         {visibleWindow && (
@@ -333,7 +334,8 @@ const Home = () => {
         <HomeHeader
           onClick={() => setVisibleSettingsModal(!visibleSettingsModal)}
         />
-        <Player width="40%" left={"9%"} top={"35%"} />
+        <Player width="40%" left={"9%"} top={"35%"}     personage={userPersonage}
+          clothing={userClothing}/>
         <ProcessProgressBar
           activeProcess={currentProcess.type}
           inputPercentage={countPercentage(
@@ -362,7 +364,8 @@ const Home = () => {
         <HomeHeader
           onClick={() => setVisibleSettingsModal(!visibleSettingsModal)}
         />
-        <Player width="80%" left={"9%"} top={"45%"} />
+        <Player width="80%" left={"9%"} top={"45%"}     personage={userPersonage}
+          clothing={userClothing}/>
         <motion.img
           src={Assets.Layers.cover}
           initial={{ opacity: 0 }}

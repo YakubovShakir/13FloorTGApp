@@ -54,6 +54,7 @@ const SkillTab = ({
     await startProcess("skill", userId, skill?.skill_id)
     const userParameters = await getParameters(userId)
     const userLearningSkills = await getProcesses("skill", userId)
+    console.log(userLearningSkills)
 
     setUserParameters(userParameters)
     setUserLearningSkills(userLearningSkills)
