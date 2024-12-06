@@ -22,10 +22,14 @@ const Button = ({
     blur: 0,
     scale: -3,
   })
+  const [isPressed, setIsPressed] = useState(false)
   return (
     <button
       onClick={() => {
-        onClick && onClick()
+        setIsPressed(true)
+        if(onClick) {
+          onClick()
+        }
       }}
       onMouseDown={() => {
         setBoxShadow({ ...boxShadow, y: boxShadow.y - 2 })
