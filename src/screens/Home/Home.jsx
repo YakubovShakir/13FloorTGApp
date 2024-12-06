@@ -16,12 +16,75 @@ import UserContext from "../../UserContext"
 import countPercentage from "../../utils/countPercentage"
 import { updateProcessTimers } from "../../utils/updateTimers"
 import { getLevels } from "../../services/levels/levels"
+import { motion } from 'framer-motion'
+import { useNavigate } from "react-router-dom"
+
+import SheepJumpGame from "./Game";
+
+export const FullScreenSpinner = ({ color = "#E94E1B", size = 70 }) => {
+  // Generate 60 steps of opacity transition from transparent to #2F292B
+  const backgroundFrames = Array.from({ length: 60 }, (_, i) => {
+    const opacity = (i + 1) / 60;
+    return `rgba(47, 41, 43, ${opacity})`;
+  });
+
+  return (
+    <motion.div 
+      initial={{ 
+        opacity: 0,
+        backgroundColor: "transparent"
+      }}
+      animate={{ 
+        opacity: 1,
+        backgroundColor: backgroundFrames
+      }}
+      transition={{ 
+        duration: 1,
+        ease: "easeInOut"
+      }}
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        zIndex: 9999,
+      }}
+    >
+      <motion.div
+        initial={{ scale: 0.7, opacity: 0 }}
+        animate={{ 
+          rotate: 360,
+          scale: [0.7, 1, 0.7],
+          opacity: 1
+        }}
+        transition={{
+          duration: 1.5,
+          repeat: Infinity,
+          ease: "easeInOut",
+          times: [0, 0.5, 1],
+        }}
+        style={{
+          width: size,
+          height: size,
+          border: `5px solid ${color}`,
+          borderTop: `5px solid transparent`,
+          borderRadius: '50%',
+        }}
+      />
+    </motion.div>
+  );
+};
+
 const getBgByCurrentProcess = (processType) => {
   const { BG } = Assets
   const typeToBgMap = {
-    work: BG.workScreenBG,
-    sleep: BG.sleepScreenBG,
-    training: BG.trainScreenBG,
+    'work': BG.workScreenBG,
+    'sleep': BG.sleepScreenBG,
+    'training': BG.trainScreenBG
   }
 
   const bg = typeToBgMap[processType]
@@ -38,7 +101,7 @@ const Home = () => {
   const [trainingParamters, setTrainingParameters] = useState(null)
   const [levels, setLevels] = useState(null)
 
-  const { userId, userParameters, appReady } = useContext(UserContext)
+  const { userId, userParameters, appReady, userPersonage, userClothing, fetchParams } = useContext(UserContext)
 
   const getUserSleepDuration = () => {
     const duration = levels?.find(
@@ -52,19 +115,29 @@ const Home = () => {
     )
     return duration
   }
+
+  const [isLoading, setIsLoading] = useState(true)
+  const navigate = useNavigate()
+
   useEffect(() => {
     useTelegram.hideBackButton()
-
-    if (appReady) {
-      getUserActiveProcess(userId).then((process) => {
-        setCurrentProcess(process)
-        useTelegram?.setReady()
-      })
-      getTrainingParameters(userId).then((r) => setTrainingParameters(r)) // Get user training parameters
-      getLevels().then((levels) => setLevels(levels))
-      // Здесь получаем активный процесс при первой загрузке
-    }
+    fetchParams().then(() => {
+      if (appReady) {
+        console.log('Clothing', userPersonage)
+        if(userPersonage === null || JSON.stringify(userPersonage) === JSON.stringify({}) || !userPersonage) {
+          return navigate('/personage-create')
+        }
+        getUserActiveProcess(userId)
+          .then(process => {
+            setCurrentProcess(process)
+            useTelegram?.setReady()
+          })
+          getTrainingParameters(userId).then((r) => setTrainingParameters(r)) // Get user training parameters
+          getLevels().then((levels) => setLevels(levels))
+      }
+    })
   }, [])
+
   useEffect(() => {
     if (currentProcess?.active) {
       console.log(currentProcess)
@@ -73,77 +146,152 @@ const Home = () => {
     }
   }, [currentProcess])
 
+  useEffect(() => {
+    if (currentProcess?.active) {
+      console.log(currentProcess)
+      const updater = updateProcessTimers(currentProcess, setCurrentProcess)
+      return () => clearInterval(updater)
+    }
+  }, [currentProcess])
+
+  useEffect(() => {
+    setTimeout(() => {
+      setIsLoading(false)
+    }, 1500)
+  }, [appReady])
+
+  // Transition variants for scene changes
+  const pageVariants = {
+    initial: { opacity: 0, scale: 0.95 },
+    in: { 
+      opacity: 1, 
+      scale: 1,
+      transition: {
+        duration: 0.3,
+        type: "tween"
+      }
+    },
+    out: { 
+      opacity: 0, 
+      scale: 1.05,
+      transition: {
+        duration: 0.3,
+        type: "tween"
+      }
+    }
+  }
+
+  // Render different scenes with consistent animation
+  const renderScene = (content) => (
+    <motion.div
+      className="Home"
+      key={currentProcess?.type || 'default'}
+      initial="initial"
+      animate="in"
+      exit="out"
+      variants={pageVariants}
+      style={{
+        position: 'absolute',
+        width: '100%',
+        height: '100%',
+        backgroundImage: currentProcess?.type 
+          ? getBgByCurrentProcess(currentProcess.type)
+          : `url(${Assets.BG.homeBackground})`,
+        backgroundSize: "cover"
+      }}
+    >
+      {content}
+    </motion.div>
+  )
+
+  if(isLoading) {
+    return <FullScreenSpinner/>
+  }
+
   if (currentProcess === null) {
-    return (
-      <div
-        className="Home"
-        style={{
-          background: `url(${Assets.BG.homeBackground})`,
-          backgroundSize: "cover",
-        }}
-      >
+    return renderScene(
+      <>
         <HomeHeader
           onClick={() => setVisibleSettingsModal(!visibleSettingsModal)}
         />
-        <Player width="40%" left={"9%"} top={"35%"} />
-        {!currentProcess && (
-          <img className="HomePatImg" src={Icons.accessory.patCat} alt="Pat" />
-        )}
+        <Player 
+          width="40vw" 
+          left={"9vw"} 
+          top={"35vh"} 
+          personage={userPersonage}
+          clothing={userClothing}
+        />
+        {/* {!currentProcess && (
+          <motion.img 
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.3 }}
+            className="HomePatImg" 
+            src={Icons.accessory.patCat} 
+            alt="Pat" 
+          />
+        )} */}
 
         <Menu />
         {!currentProcess && (
-          <div className="HomeInventory">
-            <div className="HomeInventoryHigh">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: 0.2 }}
+            className="HomeInventory"
+          >
+            {/* <div className="HomeInventoryHigh">
               <InventoryCell
-                active={inventoryEdit}
-                aspectRatio={"1"}
-                width={"30%"}
-                icon={Icons.accessory.flowerPot}
-              />
-              <InventoryCell
-                active={inventoryEdit}
-                aspectRatio={"1"}
-                width={"30%"}
-              />
-              <InventoryCell
-                active={inventoryEdit}
-                aspectRatio={"1"}
-                width={"30%"}
-                icon={Icons.accessory.framedPhoto}
-              />
-              <InventoryCell
-                active={inventoryEdit}
-                aspectRatio={"1"}
-                width={"30%"}
-              />
-              <InventoryCell
-                active={inventoryEdit}
-                aspectRatio={"1"}
-                width={"30%"}
-                icon={Icons.accessory.flowerVase}
-              />
-              <InventoryCell
-                active={inventoryEdit}
-                aspectRatio={"1"}
-                width={"30%"}
-              />
-            </div>
-            <div className="HomeInventoryBottom">
-              <InventoryCell
-                active={inventoryEdit}
-                aspectRatio={"0.6"}
-                width={"46%"}
-              />
-
-              <InventoryCell
-                active={inventoryEdit}
-                aspectRatio={"0.6"}
-                width={"46%"}
-                icon={Icons.accessory.goldenCat}
-              />
-            </div>
-          </div>
+                  active={inventoryEdit}
+                  aspectRatio={"1"}
+                  width={"30%"}
+                  icon={Icons.accessory.flowerPot}
+                />
+                <InventoryCell
+                  active={inventoryEdit}
+                  aspectRatio={"1"}
+                  width={"30%"}
+                />
+                <InventoryCell
+                  active={inventoryEdit}
+                  aspectRatio={"1"}
+                  width={"30%"}
+                  icon={Icons.accessory.framedPhoto}
+                />
+                <InventoryCell
+                  active={inventoryEdit}
+                  aspectRatio={"1"}
+                  width={"30%"}
+                />
+                <InventoryCell
+                  active={inventoryEdit}
+                  aspectRatio={"1"}
+                  width={"30%"}
+                  icon={Icons.accessory.flowerVase}
+                />
+                <InventoryCell
+                  active={inventoryEdit}
+                  aspectRatio={"1"}
+                  width={"30%"}
+                />
+              </div>
+              <div className="HomeInventoryBottom">
+                <InventoryCell
+                  active={inventoryEdit}
+                  aspectRatio={"0.6"}
+                  width={"46%"}
+                />
+  
+                <InventoryCell
+                  active={inventoryEdit}
+                  aspectRatio={"0.6"}
+                  width={"46%"}
+                  icon={Icons.accessory.goldenCat}
+                />
+            </div> */}
+          </motion.div>
         )}
+        
         {visibleWindow && (
           <Window
             title={currentWindow.title}
@@ -152,22 +300,14 @@ const Home = () => {
             onClose={setVisibleWindow}
           />
         )}
-        {/* 
-      <HomeHeader/> 
-      <Player/>
-      <PlayerProcessBar/>
-      <BottomMenu/>
-          */}
-      </div>
+      </>
     )
   }
 
+  // // Work process scene
   if (currentProcess?.type === "work") {
-    return (
-      <div
-        className="Home"
-        style={{ backgroundImage: getBgByCurrentProcess(currentProcess.type) }}
-      >
+    return renderScene(
+      <>
         <HomeHeader
           onClick={() => setVisibleSettingsModal(!visibleSettingsModal)}
         />
@@ -182,16 +322,14 @@ const Home = () => {
             onClose={setVisibleWindow}
           />
         )}
-      </div>
+      </>
     )
   }
 
-  if (currentProcess?.type === "training" && trainingParamters) {
-    return (
-      <div
-        className="Home"
-        style={{ backgroundImage: getBgByCurrentProcess(currentProcess.type) }}
-      >
+  // Training process scene
+  if (currentProcess?.type === "training") {
+    return renderScene(
+      <>
         <HomeHeader
           onClick={() => setVisibleSettingsModal(!visibleSettingsModal)}
         />
@@ -213,22 +351,23 @@ const Home = () => {
             onClose={setVisibleWindow}
           />
         )}
-      </div>
+      </>
     )
   }
 
+  // Sleep process scene
   if (currentProcess?.type === "sleep") {
-    return (
-      <div
-        className="Home"
-        style={{ backgroundImage: getBgByCurrentProcess(currentProcess.type) }}
-      >
+    return renderScene(
+      <>
         <HomeHeader
           onClick={() => setVisibleSettingsModal(!visibleSettingsModal)}
         />
         <Player width="80%" left={"9%"} top={"45%"} />
-        <img
+        <motion.img
           src={Assets.Layers.cover}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.3 }}
           style={{
             position: "absolute",
             width: "100%",
@@ -256,8 +395,9 @@ const Home = () => {
             onClose={setVisibleWindow}
           />
         )}
-      </div>
+      </>
     )
   }
 }
+
 export default Home

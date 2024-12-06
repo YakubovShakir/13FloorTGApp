@@ -19,7 +19,8 @@ import cancel from "./IMG/icons/cancel.png"
 import respect from "./IMG/icons/respect.png"
 import book from "./IMG/icons/book.png"
 import phone from "./IMG/icons/phone.png"
-import boss from "./IMG/icons/boss.png"
+import missingGirl from './IMG/missingGirl.png'
+import squareButtonShadow from "./IMG/layers/squareButtonShadow.png"
 
 import trainingCardBG from "./IMG/bg/trainingCard.png"
 import trainScreenBG from "./IMG/bg/trainScreenBG.png"
@@ -105,8 +106,13 @@ import jacket from "./IMG/icons/jacket.png"
 import filter from "./IMG/icons/filter.png"
 import jeans from "./IMG/icons/jeans.png"
 
-import manAsia from "./IMG/avatars/mans/manAsia.png"
+import asianMan from "./IMG/avatars/mans/asian.png"
+import euMan from "./IMG/avatars/mans/europe.png"
+import blackMan from "./IMG/avatars/mans/afro.png"
 import euGirl from "./IMG/avatars/girls/europe.png"
+import asianGirl from "./IMG/avatars/girls/asian.png"
+import blackGirl from "./IMG/avatars/girls/afro.png"
+
 import blackSkin from "./IMG/avatars/girls/clothes/top/blackSkin.png"
 import miniSkirt from "./IMG/avatars/girls/clothes/legs/mini.png"
 import hightHeels from "./IMG/avatars/girls/clothes/feet/HighHeels.png"
@@ -118,12 +124,12 @@ import head from "./IMG/icons/head.png"
 import body from "./IMG/icons/body.png"
 import access from "./IMG/icons/accessory.png"
 
+import personageCreationBg from './IMG/bg/personageCreationBg.png'
+
 import afro from "./IMG/avatars/girls/clothes/head/afro.png"
 
 import StartCustomizeBG from "./IMG/bg/StartCustomizeBG.png"
 
-import male from "./IMG/icons/StartCustomize/male.png"
-import female from "./IMG/icons/StartCustomize/female.png"
 import femaleBlack from "./IMG/icons/StartCustomize/black.png"
 import femaleAzia from "./IMG/icons/StartCustomize/azia.png"
 import femaleEurope from "./IMG/icons/StartCustomize/europe.png"
@@ -145,6 +151,21 @@ import unlockedIcon from "./IMG/icons/unlockedIcon.png"
 
 import modalClose from "./IMG/icons/modalClose.png"
 
+import female from './IMG/icons/male.png'
+import male from './IMG/icons/female.png'
+
+import femaleWhiteIcon from './IMG/icons/femaleWhite.png'
+import femaleBlackIcon from './IMG/icons/femaleBlack.png'
+import femaleAsianIcon from './IMG/icons/femaleAsian.png'
+
+import maleWhiteIcon from './IMG/icons/white.png'
+import maleWAsianIcon from './IMG/icons/asian.png'
+import maleWAfroIcon from './IMG/icons/afro.png'
+
+import nameUnderline from './IMG/nameUnderline.png'
+
+import inventoryIcon from './IMG/icons/inventoryIcon.png'
+import shopIcon from './IMG/icons/shopIcon.png'
 import workTabIcon from "./IMG/icons/workTab.png"
 import skillTabIcon from "./IMG/icons/skillTab.png"
 
@@ -153,6 +174,20 @@ import moodDecrease from "./IMG/icons/moodDecrease.png"
 import hungryDecrease from "./IMG/icons/hungryDecrease.png"
 
 import starsIcon from "./IMG/icons/starsIcon.png"
+
+import accIcon from './IMG/icons/accIcon.png'
+import bodyIcon from './IMG/icons/bodyIcon.png'
+import hairIcon from './IMG/icons/hairIcon.png'
+import homeIcon from './IMG/icons/homeIcon.png'
+import legsIcon from './IMG/icons/legsIcon.png'
+import settingsIcon from './IMG/icons/settingsIcon.png'
+import shoesIcon from './IMG/icons/shoesIcon.png'
+import boss from './IMG/icons/boss.png'
+
+import arrowIcon from './IMG/icons/arrowIcon.png'
+import inventoryActiveShadow from './IMG/inventoryActiveShadow.png'
+
+
 export function getImgUrl(name) {
   return new URL(`${name}`, import.meta.url).href
 }
@@ -161,16 +196,23 @@ const Assets = {
   Images: {
     homeBackgroundImage,
     avatar,
-    manAsia,
+    euMan,
+    asianMan,
+    blackMan,
     euGirl,
+    asianGirl,
+    blackGirl,
     blackSkin,
     miniSkirt,
     hightHeels,
     hair,
     afro,
+    missingGirl
   },
   Layers: {
     cover,
+    squareButtonShadow,
+    inventoryActiveShadow
   },
   Icons: {
     accessory: {
@@ -180,7 +222,15 @@ const Assets = {
       goldenCat,
       patCat,
     },
+    maleWAfroIcon,
+    maleWAsianIcon,
+    maleWhiteIcon,
+    arrowIcon,
     starsIcon,
+    femaleAsianIcon,
+    shopIcon,
+    femaleBlackIcon,
+    femaleWhiteIcon,
     energyDecrease,
     moodDecrease,
     hungryDecrease,
@@ -276,6 +326,14 @@ const Assets = {
     cap,
     filter,
     jeans,
+    inventoryIcon,
+    accIcon,
+    bodyIcon,
+    hairIcon,
+    homeIcon,
+    legsIcon,
+    settingsIcon,
+    shoesIcon,
   },
   BG: {
     trainingCardBG,
@@ -286,7 +344,9 @@ const Assets = {
     workScreenBG,
     trainScreenBG,
     sleepScreenBG,
+    personageCreationBg
   },
+  nameUnderline,
 }
 
 // export const getIcon = (name) => (

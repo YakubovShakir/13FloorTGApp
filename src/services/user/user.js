@@ -2,10 +2,9 @@ import { instance } from "../instance"
 
 export const getParameters = async (id) => {
   try {
-    let parameters
-    await instance
+    const parameters = await instance
       .get(`/users/parameters/${id}`)
-      .then((response) => (parameters = response.data.parameters))
+      .then((response) => response.data)
       .catch((error) => {
         console.log("Some error on /parameters/id", error)
       })
@@ -25,10 +24,10 @@ export const getCurrentProcess = async (id) => {
       .then((response) => (parameters = response.data.parameters))
       .catch((error) => {
         console.log("Some error on /parameters/id", error)
-      })
+      }) 
 
     return curentProcess
-  } catch (e) {
+  } catch(e) {
     console.log("Error while fetch parameters ", e)
   }
 }
@@ -79,4 +78,51 @@ export const startTraining = async (id) => {
   } catch (e) {
     console.log("Error while fetch getTrainingParameters ", e)
   }
+}
+
+export const personageCreate = async (id, race, gender, name) => {
+  try {
+    await instance.post(`/users/personage/create/${id}`, {
+      race,
+      gender,
+      name
+    })
+  } catch (e) {
+    console.log("Error while fetch getTrainingParameters ", e)
+  }
+}
+
+export const getShopItems = async (id) => {
+  try {
+    const { data } = await instance.get(`/users/${id}/shop/get-items`)
+    console.log('Shop data', data)
+    return data
+  } catch(err) {
+    console.log("Error while fetching shop items", err)
+  }
+}
+
+export const getInventoryItems = async (id) => {
+  try {
+    const { data } = await instance.get(`/users/${id}/inventory/get-items`)
+    console.log('Inventory', data)
+    return data
+  } catch(err) {
+    console.log("Error while fetching shop items", err)
+  }
+}
+
+export const handleClothesUnequip = async(id, clothing_id, type) => {
+    await instance.post(`/users/${id}/inventory/c-unequip`, {
+      clothing_id,
+      type
+    })
+}
+
+export const handleClothesEquip = async (id, clothing_id, type) => {
+  console.log('Some')
+    await instance.post(`/users/${id}/inventory/c-equip`, {
+      clothing_id,
+      type
+    })
 }

@@ -8,20 +8,45 @@ const UserContext = createContext()
 export const UserProvider = ({ children }) => {
   //states
   const [userParameters, setUserParameters] = useState(null)
+  const [userPersonage, setUserPersonage] = useState(null)
+  const [userClothing, setUserClothing] = useState(null)
+  const [userShelf, setUserShelf] = useState(null)
+
   const [userId, setUserId] = useState(null)
-  const [appReady, setAppReady] = useState(null)
+  const [appReady, setAppReady] = useState(false)
+
   useEffect(() => {
-    setUserId(790629329)
-    getParameters(790629329).then((parameters) => setUserParameters(parameters))
-    setAppReady(true)
+    setUserId(7669966893)
+
+    getParameters(7669966893)
+      .then((parameters) => {
+        console.log('@@@', parameters)
+        setUserParameters(parameters.parameters)
+        setUserPersonage(parameters.personage)
+        setUserClothing(parameters.clothing)
+        setAppReady(true)
+      }).catch(err => console.log('@', err))
     updateInformation()
   }, [])
+
+  const fetchParams = async () => {
+    setAppReady(false)
+    console.log('FETCHING PARAMS')
+    getParameters(790629329)
+      .then((parameters) => {
+        console.log('@@@', parameters)
+        setUserParameters(parameters.parameters)
+        setUserPersonage(parameters.personage)
+        setUserClothing(parameters.clothing)
+        setAppReady(true)
+      }).catch(err => console.log('@', err))
+  }
 
   const updateInformation = () => {
     try {
       setInterval(() => {
         getParameters(790629329).then((parameters) =>
-          setUserParameters(parameters)
+          setUserParameters(parameters.parameters)
         )
       }, 30000)
     } catch (e) {
@@ -36,6 +61,10 @@ export const UserProvider = ({ children }) => {
         userId,
         userParameters,
         setUserParameters,
+        userPersonage,
+        setUserPersonage,
+        userClothing,
+        fetchParams
       }}
     >
       {children}

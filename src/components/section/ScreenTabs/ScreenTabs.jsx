@@ -15,7 +15,7 @@ const ScreenTabs = ({ tabs }) => {
             handleSwitchTab(index, tab.callback)
           }}
           key={index}
-          style={{ width: `${100 / tabs.length - 5}%` }}
+          style={{ width: `${100 / tabs.length - 3}%`, alignItems: 'center', display: 'flex', justifyContent: 'center' }}
           className={
             activeTab === index ? "ScreenActiveTab ScreenTab" : "ScreenTab"
           }
@@ -24,6 +24,7 @@ const ScreenTabs = ({ tabs }) => {
             className={activeTab === index ? "scaleUpAnimation" : "grayscale-1"}
             src={tab.icon}
             alt="#"
+            style={{ height: '80%' }}
           />
         </div>
       ))}
