@@ -121,6 +121,7 @@ const Home = () => {
           getLevels().then((levels) => setLevels(levels))
       }
     })
+  }, [])
   const [trainingParamters, setTrainingParameters] = useState(null)
   const [levels, setLevels] = useState(null)
 
@@ -137,7 +138,6 @@ const Home = () => {
     return duration
   }
 
-  }, [])
   useEffect(() => {
     if (currentProcess?.active) {
       console.log(currentProcess)
@@ -391,4 +391,5 @@ const Home = () => {
     )
   }
 }
+
 export default Home
