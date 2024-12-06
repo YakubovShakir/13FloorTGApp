@@ -1,17 +1,15 @@
-import { useEffect, useState } from "react"
-import { Route, Routes, MemoryRouter, BrowserRouter } from "react-router-dom"
+import { useContext, useEffect } from "react"
+import { Route, Routes, MemoryRouter, useNavigate } from "react-router-dom"
 import "./App.css"
 import Home from "./screens/Home/Home"
-
 import useTelegram from "./hooks/useTelegram"
 import CareScreen from "./screens/CareScreen/CareScreen"
 import ActivityScreen from "./screens/ActivityScreen/ActivityScreen"
 import PersonageCreationScreen from './screens/PersonageCreation/PersonageCreation'
-import { UserProvider } from "./UserContext"
-import StartCustomize from './screens/StartCustomize/StartCustomize'
+import UserContext, { UserProvider } from "./UserContext"
 import ShopScreen from './screens/ShopScreen/ShopScreen'
 
-function App() {
+function App() {  
   useEffect(() => {
       useTelegram.setFullScreen(),
       useTelegram.setHeaderColor("#2F292B")
@@ -19,7 +17,6 @@ function App() {
 
   return (
     <>
-    <UserProvider>
       <MemoryRouter>
         <Routes>
           {/* <Route index element={<StartCustomize />} /> */}
@@ -31,7 +28,6 @@ function App() {
           <Route path="/activity" element={<ActivityScreen />} />
         </Routes>
       </MemoryRouter>
-      </UserProvider>
     </>
   )
 }
