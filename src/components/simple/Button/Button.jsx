@@ -8,7 +8,7 @@ const Button = ({
   onClick,
   bgColor,
   ownColor = false,
-  active = true,
+  active = false,
   shadowColor,
   fontSize,
   paddingTop,

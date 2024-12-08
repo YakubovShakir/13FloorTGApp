@@ -57,7 +57,7 @@ export const WorkTab = ({
   const handleBuyWork = async (workId) => {
     await buyWork(userId, workId)
     const userParameters = await getParameters(userId)
-    setUserParameters(userParameters)
+    setUserParameters(userParameters.parameters)
     setVisibleModal(false)
   }
 
@@ -65,11 +65,13 @@ export const WorkTab = ({
     const requiredRespect = userParameters?.respect >= work?.respect_required
     const requiredLevel = userParameters?.level >= work?.work_id
     const isNextLevelWork = work?.work_id === userParameters?.work_id + 1
+    const requiredSkill = work?.skill_id_required ? checkLearnedSkill(work?.skill_id_required) : true
+
     const enoughBalance = userParameters?.coins >= work?.coins_price
 
     const buyStatus =
       requiredRespect &&
-      checkLearnedSkill(work?.skill_id_required) &&
+      requiredSkill &&
       requiredLevel &&
       isNextLevelWork &&
       enoughBalance
@@ -200,7 +202,7 @@ export const WorkTab = ({
     const currentWork = getWorkById(userParameters?.work_id)
     const activeWork = activeProcess?.type === "work"
     const requiredRespect = userParameters?.respect >= work?.respect_required
-    const requiredSkill = checkLearnedSkill(work?.skill_id_required)
+    const requiredSkill = work?.skill_id_required ? checkLearnedSkill(work?.skill_id_required) : true
     const requiredLevel = userParameters?.level >= work?.work_id
     const isNextLevelWork = workId === userParameters?.work_id + 1
     const enoughBalance = userParameters?.coins >= work?.coins_price
@@ -211,7 +213,7 @@ export const WorkTab = ({
       requiredLevel &&
       isNextLevelWork &&
       enoughBalance
-
+    console.log("but Status", buyStatus, work?.name,requiredRespect, requiredLevel, requiredSkill, isNextLevelWork, enoughBalance )
     if (currentWork?.work_id === workId) {
       return [
         {
@@ -228,6 +230,7 @@ export const WorkTab = ({
         },
       ]
     }
+
     return [
       {
         text: buyStatus ? work?.coins_price : "Инфо",
@@ -236,7 +239,7 @@ export const WorkTab = ({
           setVisibleModal(true)
         },
         icon: buyStatus && Icons.balance,
-        active: buyStatus,
+        active: buyStatus ,
         shadowColor: buyStatus && "#0E3228",
       },
     ]

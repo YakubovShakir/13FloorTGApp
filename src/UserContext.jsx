@@ -16,9 +16,9 @@ export const UserProvider = ({ children }) => {
   const [appReady, setAppReady] = useState(false)
 
   useEffect(() => {
-    setUserId(7669966893)
+    setUserId(790629329)
 
-    getParameters(7669966893)
+    getParameters(790629329)
       .then((parameters) => {
         console.log('@@@', parameters)
         setUserParameters(parameters.parameters)
@@ -34,7 +34,7 @@ export const UserProvider = ({ children }) => {
     console.log('FETCHING PARAMS')
     getParameters(790629329)
       .then((parameters) => {
-        console.log('@@@', parameters)
+        console.log('FFF@@@', parameters)
         setUserParameters(parameters.parameters)
         setUserPersonage(parameters.personage)
         setUserClothing(parameters.clothing)

@@ -19,7 +19,7 @@ const FoodTab = ({ userId, userParameters, setUserParameters }) => {
     await startProcess("food", userId, foodId)
     const userParameters = await getParameters(userId)
     const userEatingFoods = await getProcesses("food", userId)
-    setUserParameters(userParameters)
+    setUserParameters(userParameters.parameters)
     setUserEatingFoods(userEatingFoods)
   }
 

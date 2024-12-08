@@ -100,7 +100,7 @@ const Home = () => {
   const [inventoryEdit, setInventoryEdit] = useState(false)
   const [trainingParamters, setTrainingParameters] = useState(null)
   const [levels, setLevels] = useState(null)
-
+  
   const { userId, userParameters, appReady, userPersonage, userClothing, fetchParams } = useContext(UserContext)
 
   const getUserSleepDuration = () => {
@@ -121,20 +121,10 @@ const Home = () => {
 
   useEffect(() => {
     useTelegram.hideBackButton()
+    
     fetchParams().then(() => {
-      if (appReady) {
-        console.log('Clothing', userPersonage)
-        if(userPersonage === null || JSON.stringify(userPersonage) === JSON.stringify({}) || !userPersonage) {
-          return navigate('/personage-create')
-        }
-        getUserActiveProcess(userId)
-          .then(process => {
-            setCurrentProcess(process)
-            useTelegram?.setReady()
-          })
-          getTrainingParameters(userId).then((r) => setTrainingParameters(r)) // Get user training parameters
-          getLevels().then((levels) => setLevels(levels))
-      }
+      console.log("Fetching from home")
+      
     })
   }, [])
 
@@ -155,6 +145,20 @@ const Home = () => {
   }, [currentProcess])
 
   useEffect(() => {
+    if (appReady) {
+      console.log('Clothing', userPersonage)
+      if(userPersonage === null || JSON.stringify(userPersonage) === JSON.stringify({}) || !userPersonage) {
+        return navigate('/personage-create')
+      }
+      getUserActiveProcess(userId)
+        .then(process => {
+          setCurrentProcess(process)
+          useTelegram?.setReady()
+        })
+        getTrainingParameters(userId).then((r) => setTrainingParameters(r)) // Get user training parameters
+        getLevels().then((levels) => setLevels(levels))
+    }
+    
     setTimeout(() => {
       setIsLoading(false)
     }, 1500)
@@ -311,8 +315,12 @@ const Home = () => {
         <HomeHeader
           onClick={() => setVisibleSettingsModal(!visibleSettingsModal)}
         />
-        <Player width="43%" left={"9%"} top={"34%"} />
-        <ProcessProgressBar activeProcess={currentProcess.type} />
+        <Player       width="40vw" 
+          left={"9vw"} 
+          top={"35vh"} 
+          personage={userPersonage}
+          clothing={userClothing} />
+        <ProcessProgressBar activeProcess={currentProcess} />
         <Menu />
         {visibleWindow && (
           <Window
@@ -333,9 +341,13 @@ const Home = () => {
         <HomeHeader
           onClick={() => setVisibleSettingsModal(!visibleSettingsModal)}
         />
-        <Player width="40%" left={"9%"} top={"35%"} />
+        <Player        width="40vw" 
+          left={"9vw"} 
+          top={"35vh"} 
+          personage={userPersonage}
+          clothing={userClothing} />
         <ProcessProgressBar
-          activeProcess={currentProcess.type}
+          activeProcess={currentProcess}
           inputPercentage={countPercentage(
             currentProcess?.duration * 60 + currentProcess?.seconds,
             trainingParamters?.duration * 60
@@ -362,7 +374,11 @@ const Home = () => {
         <HomeHeader
           onClick={() => setVisibleSettingsModal(!visibleSettingsModal)}
         />
-        <Player width="80%" left={"9%"} top={"45%"} />
+        <Player       width="40vw" 
+          left={"9vw"} 
+          top={"35vh"} 
+          personage={userPersonage}
+          clothing={userClothing}/>
         <motion.img
           src={Assets.Layers.cover}
           initial={{ opacity: 0 }}
@@ -383,7 +399,7 @@ const Home = () => {
               getUserSleepDuration() *
               60
           )}
-          activeProcess={currentProcess.type}
+          activeProcess={currentProcess}
           rate={"Full Recovery Energy"}
         />
         <Menu />

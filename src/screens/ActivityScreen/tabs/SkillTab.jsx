@@ -263,7 +263,6 @@ const SkillTab = ({
 
   // Get button for static training card
   const getItemTrainingButton = () => {
-    console.log("active training", activeProcess)
     return [
       {
         text: activeProcess?.type === "training" ? "В процессе" : "Начать",

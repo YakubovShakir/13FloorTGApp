@@ -96,7 +96,8 @@ const BoostTab = ({ userId, userParameters, setUserParameters }) => {
   const handleBuyBoost = async (boostId) => {
     await buyBoost(userId, boostId)
     const userParameters = await getParameters(userId)
-    setUserParameters(userParameters)
+
+    setUserParameters(userParameters.parameters)
     const userBoosts = await getUserBoosts(userId)
     setUserBoosts(userBoosts)
   }
@@ -107,7 +108,7 @@ const BoostTab = ({ userId, userParameters, setUserParameters }) => {
     const parameters = await getParameters(userId)
 
     setUserBoosts(userBoosts)
-    setUserParameters(parameters)
+    setUserParameters(parameters.parameters)
   }
   const checkUserHaveBoost = (boostId) => {
     return userBoosts?.find((boost) => boost?.boost_id === boostId) || false
@@ -117,7 +118,6 @@ const BoostTab = ({ userId, userParameters, setUserParameters }) => {
     const starsPrice =  boost.stars_price
     const buyBoostStatus = userParameters?.coins >= starsPrice
     const useBoostStatus = checkUserHaveBoost(boost?.boost_id)
-    console.log(boost, useBoostStatus)
    return [
       {
         text: boost.stars_price,

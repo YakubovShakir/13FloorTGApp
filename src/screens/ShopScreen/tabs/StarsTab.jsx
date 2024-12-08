@@ -121,7 +121,7 @@ const GridItem = ({ icon, title, price, available = true, respect = 100 }) => {
       }}>
     <div>
           <div style={{ height: 40, width: '100%', display: 'flex', justifyContent: 'center'}}>
-            <p style={{ color: 'white', textAlign: 'center', fontWeight: '100', fontFamily: 'Roboto', width: '80%', textAlign: 'center' }}>{title}</p>
+            <p style={{ color: 'white',  fontWeight: '100', fontFamily: 'Roboto', width: '80%',  }}>{title}</p>
           </div>
           <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: 10 }}>
             <img src={Assets.Icons.respect} height={13} />

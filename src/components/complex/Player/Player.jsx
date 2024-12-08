@@ -64,11 +64,11 @@ const Player = ({
 
     // Collect all image URLs to preload
     const imagesToPreload = [
-      getBases(personage.race, personage.gender),
-      ...(clothing?.hat ? [pullGenderedClothingImage(personage.gender, clothing.hat)] : []),
-      ...(clothing?.top ? [pullGenderedClothingImage(personage.gender, clothing.top)] : []),
-      ...(clothing?.pants ? [pullGenderedClothingImage(personage.gender, clothing.pants)] : []),
-      ...(clothing?.shoes ? [pullGenderedClothingImage(personage.gender, clothing.shoes)] : [])
+      getBases(personage?.race, personage?.gender),
+      ...(clothing?.hat ? [pullGenderedClothingImage(personage?.gender, clothing?.hat)] : []),
+      ...(clothing?.top ? [pullGenderedClothingImage(personage?.gender, clothing?.top)] : []),
+      ...(clothing?.pants ? [pullGenderedClothingImage(personage?.gender, clothing?.pants)] : []),
+      ...(clothing?.shoes ? [pullGenderedClothingImage(personage?.gender, clothing?.shoes)] : [])
     ].filter(Boolean) // Remove any undefined URLs
 
     // Preload images
@@ -102,7 +102,7 @@ const Player = ({
     >
       <img
         className="PlayerAvatar"
-        src={getBases(personage.race, personage.gender)}
+        src={getBases(personage?.race, personage?.gender)}
         alt="avatar"
       />
       {clothing && (
@@ -111,28 +111,28 @@ const Player = ({
             <img
               className="PlayerHead"
               style={{ zIndex: "3" }}
-              src={pullGenderedClothingImage(personage.gender, clothing.hat)}
+              src={pullGenderedClothingImage(personage?.gender, clothing?.hat)}
               alt="Head"
             />
           )}
           {clothing.top && (
             <img 
               className="PlayerTop" 
-              src={pullGenderedClothingImage(personage.gender, clothing.top)} 
+              src={pullGenderedClothingImage(personage?.gender, clothing.top)} 
               alt="Top" 
             />
           )}
           {clothing.pants && (
             <img 
               className="PlayerLegs" 
-              src={pullGenderedClothingImage(personage.gender, clothing.pants)} 
+              src={pullGenderedClothingImage(personage?.gender, clothing.pants)} 
               alt="Legs" 
             />
           )}
           {clothing.shoes && (
             <img 
               className="PlayerFeet" 
-              src={pullGenderedClothingImage(personage.gender, clothing.shoes)} 
+              src={pullGenderedClothingImage(personage?.gender, clothing.shoes)} 
               alt="Feet" 
             />
           )}
