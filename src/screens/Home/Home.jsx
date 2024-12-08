@@ -317,7 +317,8 @@ const Home = () => {
         />
         <Player       width="40vw" 
           left={"9vw"} 
-          top={"35vh"} 
+          top={"35vh"}     personage={userPersonage}
+          clothing={userClothing} 
           personage={userPersonage}
           clothing={userClothing} />
         <ProcessProgressBar activeProcess={currentProcess} />
@@ -345,7 +346,8 @@ const Home = () => {
           left={"9vw"} 
           top={"35vh"} 
           personage={userPersonage}
-          clothing={userClothing} />
+          clothing={userClothing}     personage={userPersonage}
+          clothing={userClothing}/>
         <ProcessProgressBar
           activeProcess={currentProcess}
           inputPercentage={countPercentage(
@@ -378,6 +380,7 @@ const Home = () => {
           left={"9vw"} 
           top={"35vh"} 
           personage={userPersonage}
+          clothing={userClothing}    personage={userPersonage}
           clothing={userClothing}/>
         <motion.img
           src={Assets.Layers.cover}
