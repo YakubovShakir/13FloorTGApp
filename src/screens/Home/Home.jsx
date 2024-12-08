@@ -107,12 +107,7 @@ const Home = () => {
     const duration = levels?.find(
       (level) => level?.level === userParameters?.level
     )?.sleep_duration
-    console.log(
-      duration,
-      "leel",
-      currentProcess?.duration,
-      currentProcess?.seconds
-    )
+
     return duration
   }
 
@@ -130,15 +125,7 @@ const Home = () => {
 
   useEffect(() => {
     if (currentProcess?.active) {
-      console.log(currentProcess)
-      const updater = updateProcessTimers(currentProcess, setCurrentProcess)
-      return () => clearInterval(updater)
-    }
-  }, [currentProcess])
-
-  useEffect(() => {
-    if (currentProcess?.active) {
-      console.log(currentProcess)
+      console.log("cureent",currentProcess)
       const updater = updateProcessTimers(currentProcess, setCurrentProcess)
       return () => clearInterval(updater)
     }
@@ -310,6 +297,7 @@ const Home = () => {
 
   // // Work process scene
   if (currentProcess?.type === "work") {
+    console.log("WORKRKRK")
     return renderScene(
       <>
         <HomeHeader
@@ -317,11 +305,11 @@ const Home = () => {
         />
         <Player       width="40vw" 
           left={"9vw"} 
-          top={"35vh"}     personage={userPersonage}
+          top={"35vh"}    
           clothing={userClothing} 
           personage={userPersonage}
-          clothing={userClothing} />
-        <ProcessProgressBar activeProcess={currentProcess} />
+/>  
+      <ProcessProgressBar activeProcess={currentProcess} />
         <Menu />
         {visibleWindow && (
           <Window
@@ -346,8 +334,7 @@ const Home = () => {
           left={"9vw"} 
           top={"35vh"} 
           personage={userPersonage}
-          clothing={userClothing}     personage={userPersonage}
-          clothing={userClothing}/>
+          clothing={userClothing}   />
         <ProcessProgressBar
           activeProcess={currentProcess}
           inputPercentage={countPercentage(
@@ -380,8 +367,7 @@ const Home = () => {
           left={"9vw"} 
           top={"35vh"} 
           personage={userPersonage}
-          clothing={userClothing}    personage={userPersonage}
-          clothing={userClothing}/>
+          clothing={userClothing}   />
         <motion.img
           src={Assets.Layers.cover}
           initial={{ opacity: 0 }}

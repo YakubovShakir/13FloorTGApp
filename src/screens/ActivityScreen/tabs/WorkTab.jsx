@@ -12,6 +12,7 @@ import {
   startProcess,
 } from "../../../services/process/process"
 import { getSkills } from "../../../services/skill/skill"
+import { a } from "framer-motion/client"
 export const WorkTab = ({
   modalData,
   setModalData,
@@ -213,13 +214,12 @@ export const WorkTab = ({
       requiredLevel &&
       isNextLevelWork &&
       enoughBalance
-    console.log("but Status", buyStatus, work?.name,requiredRespect, requiredLevel, requiredSkill, isNextLevelWork, enoughBalance )
     if (currentWork?.work_id === workId) {
       return [
         {
           text: activeWork ? "Стоп" : "Начать",
           onClick:
-            activeProcess?.type === "work"
+            activeWork
               ? async () => await handleStopWork()
               : async () => await handleStartWork(),
           icon: buyStatus && Icons.balance,
@@ -227,6 +227,8 @@ export const WorkTab = ({
           bg: activeWork
             ? "linear-gradient(90deg, rgba(233,27,27,1) 0%, rgba(119,1,1,1) 100%)"
             : "linear-gradient(180deg, rgba(233,78,27,1) 0%, rgba(243,117,0,1) 100%)",
+          shadowColor: activeWork ? "#4E1010" : "#AF370F",
+
         },
       ]
     }
