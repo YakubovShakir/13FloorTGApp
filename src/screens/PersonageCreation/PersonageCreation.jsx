@@ -155,10 +155,11 @@ const PersonageCreationScreen = () => {
 
   const handlePersonageCreation = async () => {
     try {
-      if(personageName && personageName.length > 5) {
-        await setUserPersonage({ race, name: personageName, gender })
-        await personageCreate(userId, race, gender, personageName)
+      if(personageName && personageName?.length > 5) {
 
+        await setUserPersonage({ race, name: personageName, gender })
+
+        await personageCreate(userId, race, gender, personageName)
         navigate("/#")
       }
     } catch (err) {

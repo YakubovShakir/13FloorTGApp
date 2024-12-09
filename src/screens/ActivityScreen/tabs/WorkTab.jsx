@@ -261,7 +261,7 @@ export const WorkTab = ({
     <ScreenContainer withTab>
       {/* User main work card*/}
 
-      {userParameters?.work_id && <ItemCard
+      {userParameters?.work_id !== 0 && <ItemCard
         ItemIcon={getWorkById(userParameters?.work_id)?.link}
         ItemTitle={getWorkById(userParameters?.work_id)?.name}
         ItemParamsBlocks={getItemWorkParams(userParameters?.work_id)}
