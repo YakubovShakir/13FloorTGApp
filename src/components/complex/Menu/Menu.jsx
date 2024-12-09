@@ -54,7 +54,7 @@ const Menu = ({ screenMenu, activeName }) => {
         if (currentTab === 'tasks') {
           navigate('/#');
         } else {
-          navigate("/care");
+          navigate("/tasks");
           setCurrentTab('tasks');
         }
       },

@@ -125,7 +125,6 @@ const Home = () => {
 
   useEffect(() => {
     if (currentProcess?.active) {
-      console.log("cureent",currentProcess)
       const updater = updateProcessTimers(currentProcess, setCurrentProcess)
       return () => clearInterval(updater)
     }
@@ -297,7 +296,6 @@ const Home = () => {
 
   // // Work process scene
   if (currentProcess?.type === "work") {
-    console.log("WORKRKRK")
     return renderScene(
       <>
         <HomeHeader

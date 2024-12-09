@@ -8,7 +8,7 @@ import ActivityScreen from "./screens/ActivityScreen/ActivityScreen"
 import PersonageCreationScreen from './screens/PersonageCreation/PersonageCreation'
 import UserContext, { UserProvider } from "./UserContext"
 import ShopScreen from './screens/ShopScreen/ShopScreen'
-
+import TaskScreen from "./screens/TaskScreen/TaskScreen"
 function App() {  
   useEffect(() => {
       useTelegram.setFullScreen(),
@@ -26,6 +26,8 @@ function App() {
           <Route path="/care" element={<CareScreen />} />
           <Route path="/shop" element={<ShopScreen />} />
           <Route path="/activity" element={<ActivityScreen />} />
+          <Route path="/tasks" element={<TaskScreen />} />
+
         </Routes>
       </MemoryRouter>
     </>

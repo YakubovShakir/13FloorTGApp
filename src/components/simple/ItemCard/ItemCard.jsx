@@ -24,24 +24,27 @@ const ItemCard = ({
       {ItemAmount !== undefined && (
          <div className="ItemCardAmount">{ItemAmount}</div>
       )} 
-    
-      {/* ItemIcon Section */}
-      <div style={{ width: "25%", display: "flex", alignItems: "center" }}>
+      {/* {ItemTitle Section} */}
+      <div className="ItemTitle">
+        {ItemTitle}
+      </div>
+
+      <div className="ItemData">
+ {/* ItemIcon Section */}
+ <div style={{ width: "25%", display: "flex", alignItems: "center" }}>
         <img loading="lazy" src={ItemIcon} alt="ItemIcon" />
       </div>
 
       {/* ItemParams Section */}
       <div style={{ width: "60%" }}>
-        <div style={{ textAlign: "center", height: "20%", fontSize: "3.5cqw" }}>
-          {ItemTitle}
-        </div>
+     
         <div className="ItemCardParams">
           {ItemDescription && (
-            <span style={{ fontSize: "3cqw", textAlign: "center" }}>
+            <span style={{ fontSize: "3.5cqw", textAlign: "center", padding: "0 5%" }}>
               {ItemDescription}
             </span>
           )}
-          {ItemParamsBlocks.map((param, index) => (
+          {ItemParamsBlocks?.map((param, index) => (
             <div key={index} className="ItemCardParam">
               {param.map((block, blockIndex) => (
                 <span
@@ -57,7 +60,7 @@ const ItemCard = ({
                           block?.fillBackground ||
                           "linear-gradient(90deg, rgba(233, 78, 27, 1) 0%, rgba(243, 117, 0, 1) 50%)",
                       }}
-                    ></span>
+                    />
                   )}
                   <img src={block.icon} alt="paramIcon" />
                   <p style={{ fontSize: "3cqw" }}>{block.value}</p>
@@ -85,6 +88,8 @@ const ItemCard = ({
           />
         ))}
       </div>
+      </div>
+     
     </motion.div>
   )
 }

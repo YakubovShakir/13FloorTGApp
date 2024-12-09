@@ -103,7 +103,7 @@ const FoodTab = ({ userId, userParameters, setUserParameters }) => {
               : null,
         },
       ],
-    ]
+    ].filter((param) => param.length > 0)
   }
   const getItemFoodButton = (food) => {
     const price = food?.coins_price
