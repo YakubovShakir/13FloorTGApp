@@ -2,6 +2,7 @@ import { instance } from "../instance"
 
 export const getParameters = async (id) => {
   try {
+    console.log('in fetch ', id)
     const parameters = await instance
       .get(`/users/parameters/${id}`)
       .then((response) => response.data)

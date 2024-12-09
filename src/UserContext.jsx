@@ -12,15 +12,12 @@ export const UserProvider = ({ children }) => {
   const [userClothing, setUserClothing] = useState(null)
   const [userShelf, setUserShelf] = useState(null)
 
-  const [userId, setUserId] = useState(null)
+  const [userId, setUserId] = useState(window.Telegram?.WebApp?.initDataUnsafe?.user?.id || 6390374875)
   const [appReady, setAppReady] = useState(false)
 
   useEffect(() => {
-    setUserId(790629329)
-
-    getParameters(790629329)
+    getParameters(userId)
       .then((parameters) => {
-        console.log('@@@', parameters)
         setUserParameters(parameters.parameters)
         setUserPersonage(parameters.personage)
         setUserClothing(parameters.clothing)
@@ -31,21 +28,23 @@ export const UserProvider = ({ children }) => {
 
   const fetchParams = async () => {
     setAppReady(false)
-    console.log('FETCHING PARAMS')
-    getParameters(790629329)
-      .then((parameters) => {
-        console.log('FFF@@@', parameters)
-        setUserParameters(parameters.parameters)
-        setUserPersonage(parameters.personage)
-        setUserClothing(parameters.clothing)
-        setAppReady(true)
-      }).catch(err => console.log('@', err))
+    
+    let parameters
+    try {
+      parameters = await getParameters(userId)
+      setUserParameters(parameters.parameters)
+      setUserPersonage(parameters.personage)
+      setUserClothing(parameters.clothing)
+      setAppReady(true)
+    } catch(err) {
+      console.log(err)
+    }
   }
 
   const updateInformation = () => {
     try {
       setInterval(() => {
-        getParameters(790629329).then((parameters) =>
+        getParameters(userId).then((parameters) =>
           setUserParameters(parameters.parameters)
         )
       }, 30000)

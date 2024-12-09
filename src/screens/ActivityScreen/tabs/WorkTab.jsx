@@ -247,7 +247,10 @@ export const WorkTab = ({
     ]
   }
   useEffect(() => {
-    getWorks().then((r) => setWorks(r))
+    getWorks().then((r) => {
+      console.log('works', r[0])
+      setWorks(r)
+    })
     getSkills().then((r) => setSkills(r)) // Get list of skills
     getActiveProcess(userId).then((r) => setActiveProcess(r))
     getUserSkills(userId).then((r) => setUserLearnedSkills(r)) // Get list of user skills
@@ -258,13 +261,13 @@ export const WorkTab = ({
     <ScreenContainer withTab>
       {/* User main work card*/}
 
-      <ItemCard
+      {userParameters?.work_id && <ItemCard
         ItemIcon={getWorkById(userParameters?.work_id)?.link}
         ItemTitle={getWorkById(userParameters?.work_id)?.name}
         ItemParamsBlocks={getItemWorkParams(userParameters?.work_id)}
         ItemButtons={getItemWorkButton(userParameters?.work_id)}
         ItemIndex={0}
-      />
+      />}
 
       {works?.slice(userParameters?.work_id).map((work, index) => (
         <ItemCard

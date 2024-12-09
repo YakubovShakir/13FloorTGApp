@@ -39,6 +39,7 @@ const SkillTab = ({
     const learned = userLearnedSkills?.find(
       (skill) => skill?.skill_id === skillId
     )
+    console.log('learned', userLearnedSkills)
     return learned && skills?.find((skill) => skill?.skill_id === skillId)
   }
   // Return skill if it in study
@@ -188,7 +189,7 @@ const SkillTab = ({
 
     let accessStatus = userParameters?.coins >= skill?.coins_price
 
-    if (requiredSkill) accessStatus &&= checkLearnedSkill(requiredSkill)
+    if (requiredSkill) accessStatus && checkLearnedSkill(requiredSkill)
 
     const accessBar = {
       icon: accessStatus ? Icons.unlockedIcon : Icons.lockedIcon,
@@ -308,7 +309,9 @@ const SkillTab = ({
     }
   }, [activeProcess])
   useEffect(() => {
-    getSkills().then((r) => setSkills(r)) // Get list of skills
+    getSkills().then((r) => {
+      setSkills(r)
+    }) // Get list of skills
     getProcesses("skill", userId).then((r) => setUserLearningSkills(r)) // Get current learning skills
     getActiveProcess(userId).then((r) => setActiveProcess(r)) // Get active training if exist
     getUserSkills(userId).then((r) => setUserLearnedSkills(r)) // Get list of user skills

@@ -1,11 +1,12 @@
 .ItemCard {
   display: flex;
   margin-bottom: 10px;
-  height: 26%;
+  min-height: 200px;
   width: 90%;
   margin: auto;
   color: #ffffff;
   border-bottom: 2px solid #a08d92;
+  border-image: linear-gradient(to right, transparent, #a08d92, transparent) 1;
   margin-bottom: 5%;
   position: relative;
   container-type: size;
@@ -17,7 +18,7 @@
 
 .ItemCardAmount {
   position: absolute;
-  top: 0;
+  top: 0.7%;
   left: 2%;
   width: 10%;
   font-size: 3cqw;
@@ -64,12 +65,18 @@
   height: 100%;
   border-radius: 5px;
   z-index: -1;
+  text-align: center;
+}
+
+.ItemCardParamBlock p {
+  text-align: center;
+  padding-left: 10px;
 }
 
 .ItemCardParamBlock img {
   position: absolute;
-  left: -3%;
-  width: 29%;
+  left: 10px;
+  width: 50;
   top: -1%;
   max-height: 100%;
 }

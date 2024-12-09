@@ -186,7 +186,7 @@ import boss from './IMG/icons/boss.png'
 
 import arrowIcon from './IMG/icons/arrowIcon.png'
 import inventoryActiveShadow from './IMG/inventoryActiveShadow.png'
-
+import filterModalBG from './IMG/bg/filterModalBackground.png'
 
 export function getImgUrl(name) {
   return new URL(`${name}`, import.meta.url).href
@@ -344,7 +344,8 @@ const Assets = {
     workScreenBG,
     trainScreenBG,
     sleepScreenBG,
-    personageCreationBg
+    personageCreationBg,
+    filterModalBG
   },
   nameUnderline,
 }

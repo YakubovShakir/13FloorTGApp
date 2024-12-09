@@ -1,5 +1,6 @@
 import "./ScreenTabs.css"
 import { useEffect, useState } from "react"
+
 const ScreenTabs = ({ tabs }) => {
   const [activeTab, setActiveTab] = useState(0)
 
@@ -15,7 +16,14 @@ const ScreenTabs = ({ tabs }) => {
             handleSwitchTab(index, tab.callback)
           }}
           key={index}
-          style={{ width: `${100 / tabs.length - 3}%`, alignItems: 'center', display: 'flex', justifyContent: 'center' }}
+          style={{
+            width: `${100 / tabs.length - 3}%`,
+            alignItems: 'center',
+            display: 'flex',
+            justifyContent: 'center',
+            borderBottomWidth: activeTab === index ? '0' : '2px',
+            borderBottomStyle: 'solid',
+          }}
           className={
             activeTab === index ? "ScreenActiveTab ScreenTab" : "ScreenTab"
           }
@@ -26,6 +34,9 @@ const ScreenTabs = ({ tabs }) => {
             alt="#"
             style={{ height: '80%' }}
           />
+          <div>
+            
+          </div>
         </div>
       ))}
     </div>

@@ -9,7 +9,7 @@ import PersonageCreationScreen from './screens/PersonageCreation/PersonageCreati
 import UserContext, { UserProvider } from "./UserContext"
 import ShopScreen from './screens/ShopScreen/ShopScreen'
 
-function App() {  
+function App() {
   useEffect(() => {
       useTelegram.setFullScreen(),
       useTelegram.setHeaderColor("#2F292B")

@@ -188,7 +188,8 @@ const Home = () => {
         backgroundImage: currentProcess?.type 
           ? getBgByCurrentProcess(currentProcess.type)
           : `url(${Assets.BG.homeBackground})`,
-        backgroundSize: "cover"
+        backgroundSize: "cover",
+        backgroundPositionY: window.innerHeight < 668 ? -(window.innerHeight - 668) : 0,
       }}
     >
       {content}
@@ -363,9 +364,10 @@ const Home = () => {
         <HomeHeader
           onClick={() => setVisibleSettingsModal(!visibleSettingsModal)}
         />
-        <Player       width="40vw" 
-          left={"9vw"} 
-          top={"35vh"} 
+        <Player       
+          width="90vw"
+          left={"5vw"} 
+          top={"55vmax"} 
           personage={userPersonage}
           clothing={userClothing}   />
         <motion.img
@@ -376,7 +378,7 @@ const Home = () => {
           style={{
             position: "absolute",
             width: "100%",
-            height: "110%",
+            height: "80%",
             bottom: 0,
             zIndex: 2,
           }}
