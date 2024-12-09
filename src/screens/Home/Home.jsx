@@ -195,7 +195,6 @@ const Home = () => {
           ? getBgByCurrentProcess(currentProcess.type)
           : `url(${Assets.BG.homeBackground})`,
         backgroundSize: "contain",
-        backgroundPositionY: window.innerHeight < 668 ? -(window.innerHeight - 668) : 0,
       }}
     >
       {content}
