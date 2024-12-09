@@ -40,6 +40,7 @@ const TaskTab = ({ userId, userParameters, setUserParameters }) => {
             text: "Проверить",
             onClick: () => console.log("CHECK sub"),
             active: true,
+            fontSize: "10px"
           },
         ],
       },

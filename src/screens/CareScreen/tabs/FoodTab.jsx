@@ -57,9 +57,6 @@ const FoodTab = ({ userId, userParameters, setUserParameters }) => {
           icon: Icons.hungryUp,
           value: longHungryRestore?.value + "%" + "  / h",
         },
-      ].filter(Boolean),
-
-      [
         instantEnergyRestore && {
           icon: Icons.energy,
           value: instantEnergyRestore?.value + "%",
@@ -71,9 +68,6 @@ const FoodTab = ({ userId, userParameters, setUserParameters }) => {
             (longEnergyRestore?.percent && "%") +
             "  / h",
         },
-      ].filter(Boolean),
-
-      [
         instantMoodRestore && {
           icon: Icons.happiness,
           value: instantMoodRestore?.value + "%",
@@ -86,6 +80,34 @@ const FoodTab = ({ userId, userParameters, setUserParameters }) => {
             "  / h",
         },
       ].filter(Boolean),
+
+      // [
+      //   instantEnergyRestore && {
+      //     icon: Icons.energy,
+      //     value: instantEnergyRestore?.value + "%",
+      //   },
+      //   longEnergyRestore && {
+      //     icon: Icons.energyUp,
+      //     value:
+      //       longEnergyRestore?.value +
+      //       (longEnergyRestore?.percent && "%") +
+      //       "  / h",
+      //   },
+      // ].filter(Boolean),
+
+      // [
+      //   instantMoodRestore && {
+      //     icon: Icons.happiness,
+      //     value: instantMoodRestore?.value + "%",
+      //   },
+      //   longMoodRestore && {
+      //     icon: Icons.moodUp,
+      //     value:
+      //       longMoodRestore?.value +
+      //       (longMoodRestore?.percent && "%") +
+      //       "  / h",
+      //   },
+      // ].filter(Boolean),
 
       [
         {

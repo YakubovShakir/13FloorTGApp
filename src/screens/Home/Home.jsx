@@ -9,6 +9,7 @@ import Assets from "../../assets/index"
 import useTelegram from "../../hooks/useTelegram"
 import ProcessProgressBar from "../../components/simple/ProcessProgressBar/ProcessProgressBar"
 import {
+  getParameters,
   getTrainingParameters,
   getUserActiveProcess,
 } from "../../services/user/user"
@@ -101,7 +102,7 @@ const Home = () => {
   const [trainingParamters, setTrainingParameters] = useState(null)
   const [levels, setLevels] = useState(null)
   
-  const { userId, userParameters, appReady, userPersonage, userClothing, fetchParams } = useContext(UserContext)
+  const { userId, userParameters, appReady, userPersonage, userClothing, fetchParams, setUserParameters } = useContext(UserContext)
 
   const getUserSleepDuration = () => {
     const duration = levels?.find(
@@ -125,7 +126,13 @@ const Home = () => {
 
   useEffect(() => {
     if (currentProcess?.active) {
-      const updater = updateProcessTimers(currentProcess, setCurrentProcess)
+      console.log(currentProcess?.seconds)
+      const updateParametersFunction = async () => {
+        const parameters = await getParameters(userId)
+        setUserParameters(parameters.parameters)
+      }
+
+      const updater = updateProcessTimers(currentProcess, setCurrentProcess, currentProcess?.type === "work", updateParametersFunction)
       return () => clearInterval(updater)
     }
   }, [currentProcess])
@@ -187,7 +194,8 @@ const Home = () => {
         backgroundImage: currentProcess?.type 
           ? getBgByCurrentProcess(currentProcess.type)
           : `url(${Assets.BG.homeBackground})`,
-        backgroundSize: "cover"
+        backgroundSize: "cover",
+        backgroundPositionY: window.innerHeight < 668 ? -(window.innerHeight - 668) : 0,
       }}
     >
       {content}
@@ -307,7 +315,7 @@ const Home = () => {
           clothing={userClothing} 
           personage={userPersonage}
 />  
-      <ProcessProgressBar activeProcess={currentProcess} />
+      <ProcessProgressBar activeProcess={currentProcess} inputPercentage={countPercentage(currentProcess?.seconds, 60)} />
         <Menu />
         {visibleWindow && (
           <Window
@@ -361,9 +369,10 @@ const Home = () => {
         <HomeHeader
           onClick={() => setVisibleSettingsModal(!visibleSettingsModal)}
         />
-        <Player       width="40vw" 
-          left={"9vw"} 
-          top={"35vh"} 
+        <Player       
+          width="90vw"
+          left={"5vw"} 
+          top={"55vmax"} 
           personage={userPersonage}
           clothing={userClothing}   />
         <motion.img
@@ -374,7 +383,7 @@ const Home = () => {
           style={{
             position: "absolute",
             width: "100%",
-            height: "110%",
+            height: "80%",
             bottom: 0,
             zIndex: 2,
           }}

@@ -26,15 +26,25 @@ export const updateProcessesTimers = (stateOfProcess, setState) => {
   return inervalId
 }
 
-export const updateProcessTimers = (stateOfProcess, setState) => {
+export const updateProcessTimers = (
+  stateOfProcess,
+  setState,
+  infinity,
+  endFunction
+) => {
   const inervalId = setInterval(() => {
     const newState = { ...stateOfProcess }
     const minuts = newState?.duration
     const seconds = newState?.seconds
 
-    if (!(seconds - 1 > 0) && !minuts) {
-      setState(null)
-      return inervalId
+    if (!seconds && !minuts) {
+      if (infinity) {
+        newState.seconds = 59
+      } else {
+        setState(null)
+        return inervalId
+      }
+      endFunction()
     }
 
     if (minuts) {

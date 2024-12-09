@@ -2,6 +2,7 @@ import { useState, useEffect, useContext } from "react"
 import Assets from "../../../assets"
 import ScreenContainer from "../../../components/section/ScreenContainer/ScreenContainer"
 import ItemCard from "../../../components/simple/ItemCard/ItemCard"
+import ActionCard from "../../../components/complex/ActionCard/ActionCard"
 import { getFoods } from "../../../services/food/food"
 import { getProcesses, startProcess } from "../../../services/process/process"
 import {
@@ -14,9 +15,10 @@ import {
 import formatTime from "../../../utils/formatTime"
 import Button from "../../../components/simple/Button/Button"
 import Modal from "../../../components/complex/Modals/Modal/Modal"
-import { motion, AnimatePresence } from "framer-motion"
+import { motion, AnimatePresence, complex } from "framer-motion"
 import UserContext from "../../../UserContext"
 import { FullScreenSpinner } from "../../Home/Home"
+import FilterModal from "../../../components/complex/FilterModal/FilterModal"
 
 const SquareButton = ({
   handlePress,
@@ -158,7 +160,6 @@ const GridItem = ({
                 fontWeight: "100",
                 fontFamily: "Roboto",
                 width: "80%",
-                textAlign: "center",
               }}
             >
               {title}
@@ -231,8 +232,8 @@ const GridItem = ({
             width={109}
             height={44}
             active={equipped}
-            fontFamily={"Roboto"}
-            fontWeight={"300"}
+            fontFamily={'Roboto'} 
+            fontWeight={'300'}
             text={"Используется"}
             fontSize={14}
             paddingTop={1}
@@ -245,8 +246,8 @@ const GridItem = ({
             width={109}
             height={44}
             active={true}
-            fontFamily={"Roboto"}
-            fontWeight={"300"}
+            fontFamily={'Roboto'} 
+            fontWeight={'300'}
             text={"Выбрать"}
             fontSize={14}
             paddingTop={1}
@@ -255,6 +256,7 @@ const GridItem = ({
             onClick={() => clothesEquip(clothingId, type)}
           />
         )}
+
       </div>
     </div>
   )
@@ -315,25 +317,29 @@ const loadClothesFromData = (data, userPersonage) => {
   }))
 }
 
+const BaseFilters = {
+  // Uses Clothing
+  Hat: "Hat",
+  Top: "Top",
+  Pants: "Pants",
+  Shoes: "Shoes",
+  Accessories: "Accessory",
+  // Uses ShelfItems
+  Shelf: "Shelf",
+  Complex: "Complex",
+}
+
 const InventoryTab = ({ userId }) => {
-  const [filterTypeInUse, setFilterTypeInUse] = useState(null)
+  const [filterTypeInUse, setFilterTypeInUse] = useState(BaseFilters.Complex)
   const [currentItem, setCurrentItem] = useState(null)
   const [clothesItems, setClothesItems] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
-
+  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false)
+  const [currentComplexFilters, setCurrentComplexFilters] = useState([])
+  console.log('sss', currentComplexFilters)
   const { userPersonage, userParameters } = useContext(UserContext)
 
-  const BaseFilters = {
-    // Uses Clothing
-    Hat: "Hat",
-    Top: "Top",
-    Pants: "Pants",
-    Shoes: "Shoes",
-    Accessories: "Accessory",
-    // Uses ShelfItems
-    Shelf: "Shelf",
-    Complex: "Complex",
-  }
+ 
 
   const TierFilters = [0, 1, 2, 3, 4, 5]
 
@@ -390,14 +396,49 @@ const InventoryTab = ({ userId }) => {
     }
   }
 
+  const addComplexFilter = ({ filteredValue, filteredField }) => {
+    console.log('filters', currentComplexFilters)
+    setCurrentComplexFilters([...currentComplexFilters, { filteredField, filteredValue }]);
+  };
+  
+  const removeComplexFilter = ({ filteredValue, filteredField }) => {
+    setCurrentComplexFilters(
+      currentComplexFilters.filter(
+        (filter) => filter.filteredField !== filteredField || filter.filteredValue !== filteredValue
+      )
+    );
+  };
+
 
   const applyFilter = (items) => {
     if (
       !filterTypeInUse ||
-      filterTypeInUse === BaseFilters.Complex ||
       filterTypeInUse === BaseFilters.Shelf
     ) {
       return items
+    }
+
+    if(filterTypeInUse === BaseFilters.Complex) {
+      if(!currentComplexFilters || currentComplexFilters.length === 0) {
+        return items
+      }
+
+      const tags = currentComplexFilters.filter(filter => filter.filteredField === 'tag').map(filter => filter.filteredValue)
+      const tiers = currentComplexFilters.filter(filter => filter.filteredField === 'tier').map(filter => filter.filteredValue)
+
+      const filtered = items.filter(item => {
+        let shouldTake = false
+        const isCorrectByTier = tiers.length > 0 ? tiers.includes(item.tier) : true
+        const isCorrectByTags = tags.length > 0 ? item.tags.some(tag => tags.includes(tag)) : true
+
+        if(isCorrectByTier && isCorrectByTags){
+          shouldTake = true
+        }
+
+        return shouldTake
+      })
+
+      return filtered
     }
 
     if (filterTypeInUse === BaseFilters.Hat) {
@@ -419,10 +460,6 @@ const InventoryTab = ({ userId }) => {
     if (filterTypeInUse === BaseFilters.Accessories) {
       return items.filter((item) => item.category === "Accessory")
     }
-
-    // if(filterTypeInUse === BaseFilters.Shelf) {
-    //   return items.filter(item => item.category === 'Shelf')
-    // }
   }
 
   if (isLoading) {
@@ -431,6 +468,7 @@ const InventoryTab = ({ userId }) => {
 
   return (
     <ScreenContainer withTab>
+      {isFilterModalOpen && <FilterModal baseStyles={{ position: 'fixed', height: '100vh', width: '100vw', backgroundColor: 'black', zIndex: 10, top: 0, left: 0 }} addComplexFilter={addComplexFilter} removeComplexFilter={removeComplexFilter} setIsFilterModalOpen={setIsFilterModalOpen} currentComplexFilters={currentComplexFilters} />}
       <div
         style={{ width: "100vw", display: "flex", justifyContent: "center" }}
       >
@@ -445,13 +483,12 @@ const InventoryTab = ({ userId }) => {
             size={42}
             imageH={35}
             imageSrc={Assets.Icons.settingsIcon}
-            assignedValue={BaseFilters.Complex}
-            selectedValue={filterTypeInUse}
-            handlePress={() =>
-              filterTypeInUse === BaseFilters.Complex
-                ? setFilterTypeInUse(null)
-                : setFilterTypeInUse(BaseFilters.Complex)
-            }
+            assignedValue={true}
+            selectedValue={currentComplexFilters.length > 0}
+            handlePress={() => {
+              setFilterTypeInUse(BaseFilters.Complex)
+              setIsFilterModalOpen(true)
+            }}
           />
           <SquareButton
             size={42}

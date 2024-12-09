@@ -4,6 +4,7 @@ import Assets from "../../../assets"
 import { SwiperSlide, Swiper } from "swiper/react"
 import { Pagination } from "swiper/modules"
 import { getLevels } from "../../../services/levels/levels"
+import { getUserActiveProcess } from "../../../services/user/user"
 import "./HomeHeader.css"
 import "swiper/css"
 import "swiper/css/pagination"
@@ -12,6 +13,7 @@ import UserContext from "../../../UserContext"
 const HomeHeader = ({ screenHeader }) => {
   const { userId, userParameters } = useContext(UserContext)
   const [levels, setLevels] = useState()
+  const [activeProcess, setActiveProcess] = useState()
   const { Icons } = Assets
 
   const player = {
@@ -41,10 +43,14 @@ const HomeHeader = ({ screenHeader }) => {
   }
   useEffect(() => {
     getLevels().then((levels) => setLevels(levels))
+    getUserActiveProcess(userId).then((activeProcess) => setActiveProcess(activeProcess))
   }, [])
   useEffect(() => {
     console.log(levels)
   }, [levels])
+  useEffect(() => {
+    console.log(activeProcess)
+  }, [activeProcess])
   return (
     <div className="HomeHeader" style={{ borderRadius: screenHeader && "0" }}>
       <Swiper
@@ -74,18 +80,18 @@ const HomeHeader = ({ screenHeader }) => {
               },
             ]}
           />
-          <div className="HomeHeaderIncome">
+          <div className="HomeHeaderIncome" style={{ height: 48 }}>
             <div>
               <img src={Icons.balance} alt="Coin" />
             </div>
-            <div>
-              <span>{userParameters?.coins}</span>
-              {/* <span>{player.income}/ч</span> */}
+            <div style={{ display: 'flex', alignItems: 'flex-start', marginLeft: 10 }}>
+              <span style={{ fontSize: 20, paddingTop: 2, fontFamily: 'Roboto', fontWeight: 'lighter' }}>{userParameters?.coins}</span>
+              {activeProcess?.coins_in_hour && <span style={{ fontSize: 17, paddingTop: 2, fontFamily: 'Roboto', fontWeight: '300', marginTop: -4 }}>+ {activeProcess?.coins_in_hour}/ч</span>}
             </div>
           </div>
           <div className="HomeHeaderLevel">
-            <span>{userParameters?.level}</span>
-            <span>Уровень</span>
+            <span style={{ fontFamily: 'Roboto', fontWeight: '100' }}>{userParameters?.level}</span>
+            <span style={{ fontFamily: 'Roboto', fontWeight: '100' }}>Уровень</span>
             <div
               className="HomeHeaderLevelCapacity"
               style={{

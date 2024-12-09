@@ -11,6 +11,7 @@ import Modal from "../../../components/complex/Modals/Modal/Modal"
 import { motion, AnimatePresence } from 'framer-motion';
 import UserContext from "../../../UserContext"
 import { FullScreenSpinner } from "../../Home/Home"
+import FilterModal from "../../../components/complex/FilterModal/FilterModal"
 
 const SquareButton = ({
   handlePress,
@@ -121,7 +122,7 @@ const GridItem = ({ icon, title, price, available = true, respect = 100 }) => {
       }}>
     <div>
           <div style={{ height: 40, width: '100%', display: 'flex', justifyContent: 'center'}}>
-            <p style={{ color: 'white', textAlign: 'center', fontWeight: '100', fontFamily: 'Roboto', width: '80%',  }}>{title}</p>
+            <p style={{ color: 'white', textAlign: 'center', fontWeight: '100', fontFamily: 'Roboto', width: '100%',  }}>{title}</p>
           </div>
           <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: 10 }}>
             <img src={Assets.Icons.respect} height={13} />
@@ -172,6 +173,8 @@ const CoinsTab = ({ userId }) => {
   const [currentItem, setCurrentItem] = useState(null)
   const [clothesItems, setClothesItems] = useState(null)
   const [shelfItems, setShelfItems] = useState(null)
+  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false)
+  const [currentComplexFilters, setCurrentComplexFilters] = useState([])
   const [isLoading, setIsLoading] = useState(true)
 
   const { userPersonage, userParameters } = useContext(UserContext)
@@ -203,34 +206,69 @@ const CoinsTab = ({ userId }) => {
     // updateInformation()
   }, [])
 
+  const addComplexFilter = ({ filteredValue, filteredField }) => {
+    console.log('filters', currentComplexFilters)
+    setCurrentComplexFilters([...currentComplexFilters, { filteredField, filteredValue }]);
+  };
+  
+  const removeComplexFilter = ({ filteredValue, filteredField }) => {
+    setCurrentComplexFilters(
+      currentComplexFilters.filter(
+        (filter) => filter.filteredField !== filteredField || filter.filteredValue !== filteredValue
+      )
+    );
+  };
+
   const applyFilter = (items) => {
-    if(!filterTypeInUse || filterTypeInUse === BaseFilters.Complex || filterTypeInUse === BaseFilters.Shelf) {
+    if (
+      !filterTypeInUse ||
+      filterTypeInUse === BaseFilters.Shelf
+    ) {
       return items
     }
 
-    if(filterTypeInUse === BaseFilters.Hat) {
-      return items.filter(item => item.category === 'Hat')
+    if(filterTypeInUse === BaseFilters.Complex) {
+      if(!currentComplexFilters || currentComplexFilters.length === 0) {
+        return items
+      }
+
+      const tags = currentComplexFilters.filter(filter => filter.filteredField === 'tag').map(filter => filter.filteredValue)
+      const tiers = currentComplexFilters.filter(filter => filter.filteredField === 'tier').map(filter => filter.filteredValue)
+
+      const filtered = items.filter(item => {
+        let shouldTake = false
+        const isCorrectByTier = tiers.length > 0 ? tiers.includes(item.tier) : true
+        const isCorrectByTags = tags.length > 0 ? item.tags?.some(tag => tags.includes(tag)) : true
+
+        if(isCorrectByTier && isCorrectByTags){
+          shouldTake = true
+        }
+
+        return shouldTake
+      })
+
+      return filtered
     }
 
-    if(filterTypeInUse === BaseFilters.Top) {
-      return items.filter(item => item.category === 'Top')
+    if (filterTypeInUse === BaseFilters.Hat) {
+      return items.filter((item) => item.category === "Hat")
     }
 
-    if(filterTypeInUse === BaseFilters.Pants) {
-      return items.filter(item => item.category === 'Pants')
+    if (filterTypeInUse === BaseFilters.Top) {
+      return items.filter((item) => item.category === "Top")
     }
 
-    if(filterTypeInUse === BaseFilters.Shoes) {
-      return items.filter(item => item.category === 'Pants')
+    if (filterTypeInUse === BaseFilters.Pants) {
+      return items.filter((item) => item.category === "Pants")
     }
 
-    if(filterTypeInUse === BaseFilters.Accessories) {
-      return items.filter(item => item.category === 'Accessory')
+    if (filterTypeInUse === BaseFilters.Shoes) {
+      return items.filter((item) => item.category === "Shoes")
     }
 
-    // if(filterTypeInUse === BaseFilters.Shelf) {
-    //   return items.filter(item => item.category === 'Shelf')
-    // }
+    if (filterTypeInUse === BaseFilters.Accessories) {
+      return items.filter((item) => item.category === "Accessory")
+    }
   }
 
   if(isLoading) {
@@ -239,16 +277,19 @@ const CoinsTab = ({ userId }) => {
 
   return (
     <ScreenContainer withTab>
-      <div style={{ width: '100vw', display: 'flex', justifyContent: 'center' }}>
+      {isFilterModalOpen && <FilterModal baseStyles={{ position: 'fixed', height: '100vh', width: '100vw', backgroundColor: 'black', zIndex: 10, top: 0, left: 0 }} addComplexFilter={addComplexFilter} removeComplexFilter={removeComplexFilter} setIsFilterModalOpen={setIsFilterModalOpen} currentComplexFilters={currentComplexFilters}/>}      <div style={{ width: '100vw', display: 'flex', justifyContent: 'center' }}>
         <div style={{ width: '95vw', display: 'flex', justifyContent: 'space-around' }}>
           <SquareButton
-            size={42}
-            imageH={35}
-            imageSrc={Assets.Icons.settingsIcon}
-            assignedValue={BaseFilters.Complex}
-            selectedValue={filterTypeInUse}
-            handlePress={() => filterTypeInUse === BaseFilters.Complex ? setFilterTypeInUse(null) : setFilterTypeInUse(BaseFilters.Complex)}
-          />
+         size={42}
+         imageH={35}
+         imageSrc={Assets.Icons.settingsIcon}
+         assignedValue={true}
+         selectedValue={currentComplexFilters.length > 0}
+         handlePress={() => {
+           setFilterTypeInUse(BaseFilters.Complex)
+           setIsFilterModalOpen(true)
+         }}
+       />
           <SquareButton
             size={42}
             imageSize={42}
