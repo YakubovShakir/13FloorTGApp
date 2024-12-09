@@ -194,7 +194,7 @@ const Home = () => {
         backgroundImage: currentProcess?.type 
           ? getBgByCurrentProcess(currentProcess.type)
           : `url(${Assets.BG.homeBackground})`,
-        backgroundSize: "contain",
+        backgroundSize: "cover",
       }}
     >
       {content}
