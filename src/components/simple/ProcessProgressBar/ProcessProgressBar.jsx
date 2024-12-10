@@ -35,8 +35,8 @@ const ProcessProgressBar = ({
     const works = await getWorks()
     const typeToIconsMap = {
       work: [
-        <img height={45} width={45} src={works?.find((work) => work?.work_id === activeProcess?.type_id)?.link} />,
-        <img height={35} width={35} src={Assets.Icons.balance} />,
+        <img height={55} width={55} src={works?.find((work) => work?.work_id === activeProcess?.type_id)?.link} />,
+        <img height={45} width={45} src={Assets.Icons.balance} />,
       ],
       training: [
         <img

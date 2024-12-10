@@ -28,12 +28,12 @@ const ItemCard = ({
 
       <div className="ItemData">
         {/* ItemIcon Section */}
-        <div style={{ width: "25%", display: "flex", alignItems: "center" }}>
+        <div style={{ width: "20%", display: "flex", alignItems: "center" }}>
           <img loading="lazy" src={ItemIcon} alt="ItemIcon" />
         </div>
 
         {/* ItemParams Section */}
-        <div style={{ width: "60%" }}>
+        <div style={{ width: "70%" }}>
           <div className="ItemCardParams">
             {ItemDescription && (
               <span
@@ -52,7 +52,7 @@ const ItemCard = ({
                   <span
                     className="ItemCardParamBlock"
                     key={blockIndex}
-                    style={{ width: param.length > 1 ? 75 : 180, marginTop: 5 }}
+                    style={{ width: param.length > 1 ? "50%" : "100%", marginTop: 5 }}
                   >
                     {block?.fillPercent && (
                       <span
@@ -67,7 +67,7 @@ const ItemCard = ({
                     <img src={block.icon} alt="paramIcon" />
                     <p
                       style={{
-                        fontSize: "3cqw",
+                        fontSize: "4cqw",
                         fontFamily: "Roboto",
                         fontWeight: 300,
                       }}
@@ -86,11 +86,11 @@ const ItemCard = ({
           {ItemButtons.map((ItemButton, index) => (
             <Button
               key={index}
-              width="90%"
+              width="100%"
               height={44}
-              fontSize={11}
-              fontFamily={"Roboto"}
-              fontWeight={300}
+              fontSize={16}
+              fontFamily={"Muller"}
+              
               onClick={ItemButton?.onClick && (() => ItemButton?.onClick())}
               active={ItemButton.active}
               text={ItemButton.text}

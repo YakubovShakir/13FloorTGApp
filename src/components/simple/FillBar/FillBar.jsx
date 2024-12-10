@@ -16,7 +16,7 @@ const FillBar = ({ icon, width, percentFill }) => {
           background: color,
           width: "100%",
           height: `${percentFill}%`,
-          borderRadius: "5px"
+          
         }}
       ></div>
     </div>

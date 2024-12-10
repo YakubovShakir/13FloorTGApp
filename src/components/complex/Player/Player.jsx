@@ -68,7 +68,7 @@ const Player = ({
       ...(clothing?.hat ? [pullGenderedClothingImage(personage?.gender, clothing?.hat)] : []),
       ...(clothing?.top ? [pullGenderedClothingImage(personage?.gender, clothing?.top)] : []),
       ...(clothing?.pants ? [pullGenderedClothingImage(personage?.gender, clothing?.pants)] : []),
-      ...(clothing?.shoes ? [pullGenderedClothingImage(personage?.gender, clothing?.shoes)] : [])
+      ...(clothing?.shoes ? [pullGenderedClothingImage(personage?.gender, clothing?.shoes)] : []),
     ].filter(Boolean) // Remove any undefined URLs
 
     // Preload images
@@ -98,7 +98,14 @@ const Player = ({
   return (
     <div
       className="Player"
-      style={{ width: `${width}`, aspectRatio: "0.3", left: left, top: top }}
+      style={{
+        width: `${width}`,
+        aspectRatio: "0.3",
+        left: left,
+        top: top,
+        position: 'absolute',
+        transform: 'translate(-50%, -50%)', // Центрируем персонажа относительно заданной позиции
+      }}
     >
       <img
         className="PlayerAvatar"

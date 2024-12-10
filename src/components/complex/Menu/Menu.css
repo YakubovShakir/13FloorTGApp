@@ -6,11 +6,11 @@
   bottom: 0;
   z-index: 3;
   height: 10%;
-  padding-bottom: 2%;
+  margin-bottom: 3%;
 }
 
 .screenMenu {
   background-color: #2f292b;
-  padding-top: 10px;
+ 
 }
 
