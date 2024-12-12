@@ -233,7 +233,7 @@ const Home = () => {
           />
         )} */}
 
-        <Menu />
+        <Menu hasBg={false}/>
         {!currentProcess && (
           <motion.div 
             initial={{ opacity: 0, y: 20 }}

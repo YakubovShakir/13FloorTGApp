@@ -33,7 +33,7 @@ const ShopScreen = () => {
   return (
     <Screen>
       <HomeHeader screenHeader />
-      <ScreenBody>
+      <ScreenBody activity={'Магазин'}>
         <ScreenTabs tabs={tabs} />
 
         {/* Food Tab */}

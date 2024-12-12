@@ -49,7 +49,7 @@ const ActivityScreen = () => {
   return (
     <Screen>
       <HomeHeader screenHeader />
-      <ScreenBody>
+      <ScreenBody activity={'Активности'}>
         {visibleModal && (
           <Modal
             onClose={() => setVisibleModal(false)}

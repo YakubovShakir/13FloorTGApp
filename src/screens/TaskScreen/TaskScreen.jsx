@@ -32,10 +32,10 @@ const TaskScreen = () => {
   return (
     <Screen>
       <HomeHeader screenHeader />
-      <ScreenBody>
+      <ScreenBody activity={'Задания'}>
         <ScreenTabs tabs={tabs} />
-
         {/* Task Tab */}
+
         {activeTab === "task" && (
           <TaskTab
             userId={userId}
