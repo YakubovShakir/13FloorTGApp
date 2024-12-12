@@ -77,11 +77,14 @@
 }
 
 .HomeHeaderRespect span {
+  padding-top: 4px;
   text-align: center;
   width: 100%;
+   text-shadow: 1px 1px 0px #2f292b, -1px -1px 0px #2f292b, 1px -1px 0px #2f292b, -1px 1px 0px #2f292b;
 }
 
 .HomeHeaderRespect img {
+  
   margin-left: -12px;
   max-width: 100%;
   width: 27%;
