@@ -21,8 +21,8 @@ const ScreenTabs = ({ tabs }) => {
             alignItems: 'center',
             display: 'flex',
             justifyContent: 'center',
-            borderBottomWidth: activeTab === index ? '0' : '2px',
-            borderBottomStyle: 'solid',
+            
+           
           }}
           className={
             activeTab === index ? "ScreenActiveTab ScreenTab" : "ScreenTab"

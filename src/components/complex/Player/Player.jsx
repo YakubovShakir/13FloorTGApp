@@ -102,7 +102,7 @@ const Player = ({
         width: `${width}`,
         aspectRatio: "0.3",
         left: left,
-        top: top,
+        top: `calc(${top} - 10%)`,
         position: 'absolute',
         transform: 'translate(-50%, -50%)', // Центрируем персонажа относительно заданной позиции
       }}

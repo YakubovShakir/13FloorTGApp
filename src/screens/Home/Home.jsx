@@ -195,7 +195,7 @@ const Home = () => {
           ? getBgByCurrentProcess(currentProcess.type)
           : `url(${Assets.BG.homeBackground})`,
         backgroundSize: "cover",
-        backgroundPosition: "center", // Центрирование фона
+        backgroundPosition: "bottom", // Центрирование фона
         maxWidth: "100vw", // Ограничение ширины фона
         maxHeight: "100vh", // Ограничение высоты фона
       }}

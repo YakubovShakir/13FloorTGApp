@@ -1,27 +1,26 @@
 .ItemCard {
   display: flex;
+  flex-direction: column;  /* Выравнивание по вертикали */
+  justify-content: center;  /* Центрирование содержимого по вертикали */
+  align-items: center;  /* Центрирование содержимого по горизонтали */
   margin-bottom: 10px;
-  min-height: 35%;
-  height: 35%;
   width: 90%;
   margin: auto;
   color: #ffffff;
   border-bottom: 2px solid #a08d92;
   border-image: linear-gradient(to right, transparent, #a08d92, transparent) 1;
-  margin-bottom: 5%;
   position: relative;
-  container-type: size;
-  flex-direction: column;
   text-align: center;
+  min-height: 35%;  /* Адаптивная минимальная высота */
 }
 
 .ItemTitle {
+  margin: 10px 0px 10px 0px;
+  font-size: 20px;
   height: 10%;
 }
-.ItemData {
-  height: 90%;
-  display: flex;
-}
+
+
 .ItemCard img {
   max-width: 100%;
   object-fit: contain;
@@ -44,15 +43,7 @@
   text-align: center;
   border-radius: 5px;
 }
-.ItemCardParams {
-  padding-left: 25px;
-  display: flex;
-  flex-wrap: wrap;
-  align-content: center;
-  gap: 5%;
-  max-height: 100%;
-  height: 100%;
-}
+
 
 .ItemCardParam {
   display: flex;
@@ -65,15 +56,19 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 26px;
-  margin-right: 15px;
+  height: 22px;
+  margin-left: 13px;
   background-color: #3b3537;
-  padding: 4% 0;
+  
   position: relative;
   text-align: center;
   border-radius: 5px;
   z-index: 0;
-  
+  overflow: visible;
+
+  font-family: 'Roboto';
+  font-size: clamp(12px, 2vw, 20px); 
+  text-transform: uppercase;
 }
 
 .ItemCardParamBlock span {
@@ -87,27 +82,77 @@
   text-align: center;
 }
 
-.ItemCardParamBlock p {
-  
-  padding-left: 10px;
- 
-  
-  text-align: center; 
-  
-}
+
 
 .ItemCardParamBlock img {
   position: absolute;
-  left: -12px;
-    display: flex;
-  top: -10%;
-  max-height: 125%;
+  left: -6px;
+  display: flex;
+  top: -3%;
+  max-height: 110%;
+  z-index: 1;
+}
+
+
+
+.Button img {
+  padding-bottom: 3px;
+  width: 10%; /* Зависит от ширины кнопки */
+  height: auto; /* Сохраняет пропорции */
+  max-width: 24px; /* Максимальный размер */
+  min-width: 16px; /* Минимальный размер */
+  object-fit: contain; /* Сохраняет пропорции изображения */
+}
+
+
+
+.ItemData {
+  margin-bottom: 22px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+  width: 100%;
+  align-items: center; 
+}
+
+.ItemIconContainer {
+  width: 40%; /* Задаем ширину для иконки */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ItemIconContainer img {
+  max-width: 100%;
+  object-fit: contain;
+  padding-right: 15px;
+}
+
+.ItemDetailsContainer {
+  display: flex;
+  flex-direction: column;
+  width: 60%; /* Правая часть занимает 70% */
+  gap: 15px;
+}
+
+.ItemCardParams {
+  display: flex;
+  flex-direction: column;
+  gap: 6px; /* Отступы между параметрами */
+}
+
+.ItemDescription {
+  font-family: "Roboto";
+  font-size: 3cqw;
+  text-align: center;
+  padding: 0 5%;
 }
 
 .ItemCardButtons {
-  width: 25%;
+  margin-left: 13px;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: space-evenly;
+  gap: 10px; /* Отступы между кнопками */
+ 
 }

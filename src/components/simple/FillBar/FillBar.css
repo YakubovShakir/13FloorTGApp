@@ -1,24 +1,26 @@
 .FillBar img {
     max-width: 100%;
-    width: 60%;
-}
-.FillBar {
+    width: 20%;
+  }
+  
+  .FillBar {
     position: relative;
-    aspect-ratio: 1;
+    
     z-index: 1;
     display: flex;
-    justify-content: center;
+  
     align-items: center;
     border-radius: 5px;
     overflow: hidden;
-}
-
-.FillBar div {
+  }
+  
+  .FillBar div {
     position: absolute;
-    bottom: 0;
+    left: 0; /* Начало заполнения слева */
     z-index: -1;
-    transition: background-color 1s, height 1s;
-    border-bottom-left-radius: 5px;
-    border-bottom-right-radius: 5px;
-
-}
+    transition: background-color 1s, width 1s; /* Анимация ширины */
+    border-top-left-radius: 5px; /* Скругление верхнего левого угла */
+    border-bottom-left-radius: 5px; /* Скругление нижнего левого угла */
+    height: 100%; /* Заполнение всей высоты */
+  }
+  

@@ -5,6 +5,7 @@ const FillBar = ({ icon, width, percentFill }) => {
     percentFill > 50
       ? "linear-gradient(180deg, rgba(46,199,115,1) 0%, rgba(9,98,78,1) 100%)"
       : "#E94E1B"
+
   return (
     <div
       className="FillBar"
@@ -14,9 +15,8 @@ const FillBar = ({ icon, width, percentFill }) => {
       <div
         style={{
           background: color,
-          width: "100%",
-          height: `${percentFill}%`,
-          
+          width: `${percentFill}%`, // Управляем шириной
+          height: "100%", // Полная высота
         }}
       ></div>
     </div>
