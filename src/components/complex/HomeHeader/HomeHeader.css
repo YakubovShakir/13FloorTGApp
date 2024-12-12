@@ -19,18 +19,18 @@
   margin-bottom: 2%;
 }
 
+.HomeHeaderIncome img {
+  margin-left: -20px;
+  max-width: 80%;
+}
+
 .HomeHeaderIncome {
   display: flex;
-  justify-content: space-between;
+  justify-content: space-between;  /* Распределяем элементы по бокам */
   align-items: center;
   width: 40%;
   background-color: var(--main-lightblack);
   border-radius: 5px;
- 
-}
-
-.HomeHeaderIncome img {
-  max-width: 80%;
 }
 
 .HomeHeaderIncome div:nth-child(1) {
@@ -41,10 +41,15 @@
 }
 
 .HomeHeaderIncome div:nth-child(2) {
+  
+  font-family: "Muller";
+  justify-content: center;
+  text-shadow: 1px 1px 0px #2f292b, -1px -1px 0px #2f292b, 1px -1px 0px #2f292b, -1px 1px 0px #2f292b;
   width: 70%;
   font-size: 4cqw;
-  display: flex;
-  flex-direction: column;
+  
+ 
+    padding-right: 35px;
 }
 
 .HomeHeaderIncome div:nth-child(2) span:nth-child(1) {
@@ -54,6 +59,8 @@
 .HomeHeaderIncome div:nth-child(2) span:nth-child(2) {
   color: var(--main-orange);
 }
+
+
 
 .HomeHeaderRespect {
   display: flex;
@@ -71,19 +78,20 @@
 
 .HomeHeaderRespect span {
   text-align: center;
-  width: 60%;
+  width: 100%;
 }
 
 .HomeHeaderRespect img {
+  margin-left: -12px;
   max-width: 100%;
-  width: 25%;
+  width: 27%;
 }
 
 .HomeHeaderLevel {
   width: 20%;
   
   display: flex;
-
+  text-shadow: 1px 1px 0px #2f292b, -1px -1px 0px #2f292b, 1px -1px 0px #2f292b, -1px 1px 0px #2f292b;
   align-items: center;
   justify-content: center;
   background-color: var(--main-lightblack);
@@ -116,6 +124,7 @@
 }
 
 .HomeHeaderLevel span:nth-child(2) {
+  margin-left: 5px;
   font-size: 3cqw;
 }
 
@@ -123,10 +132,11 @@
   display: flex;
   justify-content: space-evenly;
   width: 100%;
-  padding: 2% 0;
+  padding-bottom: 1.5%;
 }
 
 .HomeHeaderTopRow{
+ margin-left: 7px;
  margin-bottom: 5px;
  display: flex;
  justify-content: space-between;

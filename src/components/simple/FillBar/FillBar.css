@@ -1,26 +1,46 @@
+.FillBar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
 .FillBar img {
-    max-width: 100%;
-    width: 20%;
-  }
-  
-  .FillBar {
-    position: relative;
-    
-    z-index: 1;
-    display: flex;
-  
-    align-items: center;
-    border-radius: 5px;
-    overflow: hidden;
-  }
-  
-  .FillBar div {
-    position: absolute;
-    left: 0; /* Начало заполнения слева */
-    z-index: -1;
-    transition: background-color 1s, width 1s; /* Анимация ширины */
-    border-top-left-radius: 5px; /* Скругление верхнего левого угла */
-    border-bottom-left-radius: 5px; /* Скругление нижнего левого угла */
-    height: 100%; /* Заполнение всей высоты */
-  }
-  
+  width: 27px;
+  height: 27px;
+  margin-right: -20px;
+  z-index: 1;
+}
+
+.FillBarProgress {
+  flex-grow: 1;
+  height: 20px;
+  position: relative;
+  background-color: #3b3537;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.FillBarProgress div {
+  height: 100%;
+  width: 0;
+  background: linear-gradient(180deg, rgba(46, 199, 115, 1) 0%, rgba(9, 98, 78, 1) 100%);
+ 
+  transition: width 0.5s ease;
+}
+
+.FillBarText {
+  position: absolute;
+  top: 66%;  /* Вертикальное центрирование */
+  left: 40%;  /* Горизонтальное центрирование */
+  transform: translate(-50%, -50%);  /* Для точного центрирования */
+  color: white;
+  font-weight: bold;
+  font-size: 14px;
+  z-index: 2;
+  text-align: center; /* Выравнивание текста по горизонтали */
+  text-shadow: 1px 1px 0px #2f292b, -1px -1px 0px #2f292b, 1px -1px 0px #2f292b, -1px 1px 0px #2f292b;
+}
+
