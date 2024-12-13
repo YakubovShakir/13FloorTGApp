@@ -9,6 +9,8 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  box-shadow: 0px -8px 5px -5px rgb(33 29 30 / 39%) inset;
+    border-bottom: 1px solid #3B3537;
 }
 
 .HomeHeaderRow {

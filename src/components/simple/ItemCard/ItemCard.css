@@ -1,14 +1,16 @@
 .ItemCard {
+  border-radius: 10px;
+    box-shadow: 0px -8px 5px -5px rgb(33 29 30 / 39%) inset;
+    border: 1px solid #3B3537;
   display: flex;
   flex-direction: column;  /* Выравнивание по вертикали */
   justify-content: center;  /* Центрирование содержимого по вертикали */
   align-items: center;  /* Центрирование содержимого по горизонтали */
   margin-bottom: 10px;
   width: 90%;
-  margin: auto;
+  margin: auto auto 10px auto;
   color: #ffffff;
-  border-bottom: 2px solid #a08d92;
-  border-image: linear-gradient(to right, transparent, #a08d92, transparent) 1;
+  
   position: relative;
   text-align: center;
   min-height: 35%;  /* Адаптивная минимальная высота */
@@ -121,15 +123,17 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  
 }
 
 .ItemIconContainer img {
   max-width: 100%;
   object-fit: contain;
-  padding-right: 15px;
+  padding-left: 15px;
 }
 
 .ItemDetailsContainer {
+  margin-right: 10px;
   display: flex;
   flex-direction: column;
   width: 60%; /* Правая часть занимает 70% */
@@ -155,4 +159,20 @@
   flex-direction: column;
   gap: 10px; /* Отступы между кнопками */
  
+}
+
+/* Стили для изображения в контейнере ItemIconContainer */
+.ItemIconContainer img,
+.ItemCard img {
+  transition: all 0.3s ease;
+}
+
+/* Стили для неактивных состояний */
+.ItemCard img.inactive,
+.ItemIconContainer img.inactive {
+  filter: grayscale(100%) opacity(0.5); /* Обезцвечивание и полупрозрачность */
+}
+
+.inactive {
+  filter: grayscale(100%) opacity(0.5);
 }

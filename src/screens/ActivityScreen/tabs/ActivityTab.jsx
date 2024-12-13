@@ -109,6 +109,39 @@ export const CareScreen = ({ userId, userParameters }) => {
     ]
   }
 
+
+              
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
   // Кнопки для работы
   const getItemWorkButton = (workId) => {
     const activeWork = activeWorkProcess === "work" // Проверяем активен ли процесс работы
@@ -179,6 +212,7 @@ export const CareScreen = ({ userId, userParameters }) => {
       {userParameters?.work_id !== 0 && (
         <ItemCard
           ItemIcon={getWorkById(userParameters?.work_id)?.link}
+          ItemDescription="Отправляйся на работу, что бы заработать монет!"
           ItemTitle={getWorkById(userParameters?.work_id)?.name}
           ItemParamsBlocks={getItemWorkParams(userParameters?.work_id)}
           ItemButtons={getItemWorkButton(userParameters?.work_id)}
@@ -190,6 +224,7 @@ export const CareScreen = ({ userId, userParameters }) => {
       <ItemCard
         ItemIcon={Icons.training}
         ItemTitle="Тренировка"
+        ItemDescription="Хорошая тренировка поднимает настроение!"
         ItemParamsBlocks={getItemTrainingParams()}
         ItemButtons={getItemTrainingButton()}
         ItemIndex={1}
@@ -199,6 +234,7 @@ export const CareScreen = ({ userId, userParameters }) => {
       <ItemCard
         ItemIcon={Icons.sleep}
         ItemTitle="Сон"
+        ItemDescription="Сон поможет восстановить энергию!"
         ItemParamsBlocks={getItemSleepParams()}
         ItemButtons={getItemSleepButton()}
         ItemIndex={2}

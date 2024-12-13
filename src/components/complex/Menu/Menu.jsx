@@ -77,7 +77,7 @@ const Menu = ({ screenMenu, activeName, hasBg = true }) => {
     },
   };
   return (
-    <div className={screenMenu ? "screenMenu Menu" : "Menu"} style={{ width: '100vw', background: hasBg ? '#2F292B' : 'transparent', zIndex: 99999 }} >
+    <div className={screenMenu ? "screenMenu Menu" : "Menu"} style={{ width: '100vw',  zIndex: 99999 }} >
       {Object.keys(tabs).map((tab, index) => (
         <IconButton
           color={activeName && (activeName === tab ? "white" : "rgba(255, 255, 255, 0.4)")}
