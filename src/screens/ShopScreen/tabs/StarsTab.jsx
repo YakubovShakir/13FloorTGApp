@@ -181,10 +181,11 @@ const StarsTab = ({ userId }) => {
       WebApp.openInvoice(response, (status) => {
         setIsLoading(true)
         if(status === "paid") {}
-
       })
     } catch (err) {
       console.error(err)
+    } finally {
+      setIsLoading(false)
     }
   }
 
