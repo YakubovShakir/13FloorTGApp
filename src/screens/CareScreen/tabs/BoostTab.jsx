@@ -3,6 +3,7 @@ import ScreenContainer from "../../../components/section/ScreenContainer/ScreenC
 import Assets from "../../../assets"
 import ItemCard from "../../../components/simple/ItemCard/ItemCard"
 import sleepIcon from "./../../../assets/IMG/icons/sleepIcon.png"
+import { instance } from "../../../services/instance"
 import {
   getProcesses,
   startProcess,
