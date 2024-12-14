@@ -153,7 +153,7 @@ const BoostTab = ({ userId, userParameters, setUserParameters }) => {
     } catch (err) {
       console.error(err)
     }
-  })
+  }
 
   useEffect(() => {
     if (activeProcess?.type === "sleep") {
