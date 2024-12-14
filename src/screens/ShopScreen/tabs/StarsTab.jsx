@@ -178,7 +178,7 @@ const StarsTab = ({ userId }) => {
           productType: 'clothes',
           id: item.id
       }).then(res => res.data.invoiceLink)
-      WebApp.openInvoiceLink(response, (status) => {
+      WebApp.openInvoice(response, (status) => {
         setIsLoading(true)
         if(status === "paid") {}
 
