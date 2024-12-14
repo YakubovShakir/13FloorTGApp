@@ -63,7 +63,6 @@ const CareScreen = () => {
         )}
         {/* Store Data */}
       </ScreenBody>
-      <Menu screenMenu activeName={"care"} />
     </Screen>
   )
 }

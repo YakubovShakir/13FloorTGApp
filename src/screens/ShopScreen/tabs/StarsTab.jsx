@@ -181,11 +181,10 @@ const StarsTab = ({ userId }) => {
       WebApp.openInvoice(response, (status) => {
         setIsLoading(true)
         if(status === "paid") {}
+        setIsLoading(false)
       })
     } catch (err) {
       console.error(err)
-    } finally {
-      setIsLoading(false)
     }
   }
 
@@ -215,7 +214,7 @@ const StarsTab = ({ userId }) => {
     // getFoods().then((r) => setFoods(r))
     // getProcesses("food", userId).then((r) => setUserEatingFoods(r))
     // updateInformation()
-  }, [])
+  }, [isLoading])
 
   const applyFilter = (items) => {
     if(!filterTypeInUse || filterTypeInUse === BaseFilters.Complex || filterTypeInUse === BaseFilters.Shelf) {

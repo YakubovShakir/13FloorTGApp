@@ -2,6 +2,7 @@ import "./ItemCard.css"
 import { motion } from "framer-motion"
 import Button from "../Button/Button"
 import { useEffect, useState } from "react"
+import Assets from "../../../assets"
 
 const ItemCard = ({
   ItemIcon,
@@ -12,6 +13,7 @@ const ItemCard = ({
   ItemDescription,
   ItemAmount = undefined,
   isWaiting = false, // Это флаг ожидания
+  handleStarsBuy
 }) => {
   // Определяем, активна ли хотя бы одна кнопка
   const isAnyButtonActive = ItemButtons.some(button => button.active);
@@ -94,7 +96,10 @@ const ItemCard = ({
                 height={44}
                 fontSize={16}
                 fontFamily={"Muller"}
-                onClick={ItemButton?.onClick && (() => ItemButton?.onClick())}
+                onClick={() => {
+                  if(ItemButton.icon === Assets.Icons.starsIcon)
+                  ItemButton?.onClick && (() => ItemButton?.onClick())
+                }}
                 active={ItemButton.active}
                 text={ItemButton.text}
                 icon={ItemButton.icon}

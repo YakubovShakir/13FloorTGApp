@@ -44,7 +44,6 @@ const TaskScreen = () => {
           />
         )}
       </ScreenBody>
-      <Menu screenMenu activeName={"tasks"} />
     </Screen>
   )
 }

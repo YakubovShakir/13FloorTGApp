@@ -63,7 +63,6 @@ const ShopScreen = () => {
         )}
         {/* Store Data */}
       </ScreenBody>
-      <Menu screenMenu activeName={"shop"} />
     </Screen>
   )
 }

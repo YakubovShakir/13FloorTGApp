@@ -139,6 +139,22 @@ const BoostTab = ({ userId, userParameters, setUserParameters }) => {
     getUserBoosts(userId).then((boosts) => setUserBoosts(boosts) )
   }, [])
 
+  const handleStarsBuy = async (item) => {
+    try {
+      const response = await instance.post('/users/request-stars-invoice-link', {
+          productType: 'clothes',
+          id: item.id
+      }).then(res => res.data.invoiceLink)
+      WebApp.openInvoice(response, (status) => {
+        setIsLoading(true)
+        if(status === "paid") {}
+        setIsLoading(false)
+      })
+    } catch (err) {
+      console.error(err)
+    }
+  })
+
   useEffect(() => {
     if (activeProcess?.type === "sleep") {
       const updater = updateProcessTimers(activeProcess, setActiveProcess)
@@ -146,9 +162,7 @@ const BoostTab = ({ userId, userParameters, setUserParameters }) => {
       return () => clearInterval(updater)
     }
   }, [activeProcess])
-  useEffect(()=> {
-    console.log(userBoosts)
-  }, [userBoosts])
+
   return (
     <ScreenContainer withTab>
       <ItemCard
@@ -169,6 +183,7 @@ const BoostTab = ({ userId, userParameters, setUserParameters }) => {
           ItemButtons={getItemBoostButton(boost)}
           ItemAmount={getUserBoostAmount(boost?.boost_id)}
           ItemIndex={index + 1}
+          handleStarsBuy={() => handleStarsBuy({ id: boost.boost_id, processType: 'boosts' })}
         />
       ))}
     </ScreenContainer>

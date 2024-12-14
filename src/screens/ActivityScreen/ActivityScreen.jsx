@@ -112,7 +112,6 @@ const ActivityScreen = () => {
         )}
         {/* Store Data */}
       </ScreenBody>
-      <Menu screenMenu activeName={"activity"} />
     </Screen>
   );
 };
