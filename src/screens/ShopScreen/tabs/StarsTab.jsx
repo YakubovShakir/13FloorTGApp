@@ -11,6 +11,8 @@ import Modal from "../../../components/complex/Modals/Modal/Modal"
 import { motion, AnimatePresence } from 'framer-motion';
 import UserContext from "../../../UserContext"
 import { FullScreenSpinner } from "../../Home/Home"
+import { instance } from "../../../services/instance"
+import WebApp from "@twa-dev/sdk"
 
 const SquareButton = ({
   handlePress,
@@ -107,7 +109,7 @@ const SquareButton = ({
   );
 };
 
-const GridItem = ({ icon, title, price, available = true, respect = 100 }) => {
+const GridItem = ({ icon, title, price, available = true, respect = 100, handleStarsBuy, id }) => {
   return (
 
     <div style={{
@@ -145,19 +147,19 @@ const GridItem = ({ icon, title, price, available = true, respect = 100 }) => {
             <img src={icon} alt={title} style={{ width: 109, height: 109 }} />
           </div>
         </motion.div>
-        <Button width={109} height={44} active={available} icon={available ? Assets.Icons.starsIcon : null} fontFamily={'Roboto'} fontWeight={'300'} text={available ? price : 'Недоступно'} fontSize={14} paddingTop={1} />
+        <Button width={109} height={44} active={available} icon={available ? Assets.Icons.starsIcon : null} fontFamily={'Roboto'} fontWeight={'300'} text={available ? price : 'Недоступно'} fontSize={14} paddingTop={1} onClick={() => handleStarsBuy({ id })}/>
       </div>
     </div>
 
   );
 };
 
-const GridLayout = ({ setCurrentItem, items }) => {
+const GridLayout = ({ setCurrentItem, items, handleStarsBuy }) => {
   return (
     <div style={{ width: '100vw', display: 'flex', justifyContent: 'center', paddingTop: 12 }}>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem', width: '95vw' }}>
         {items.map((item, index) => (
-          <GridItem key={index} icon={item.image} title={item.name} price={item.price} respect={item.respect} available={item.available} />
+          <GridItem key={index} icon={item.image} title={item.name} price={item.price} respect={item.respect} available={item.available} handleStarsBuy={handleStarsBuy} id={item.id}/>
         ))}
       </div>
     </div>
@@ -165,16 +167,28 @@ const GridLayout = ({ setCurrentItem, items }) => {
 };
 
 const StarsTab = ({ userId }) => {
-  const [userEatingFoods, setUserEatingFoods] = useState(null)
-  const [foods, setFoods] = useState(null)
-  const [shopItems, setShopItems] = useState(null)
   const [filterTypeInUse, setFilterTypeInUse] = useState(null)
   const [currentItem, setCurrentItem] = useState(null)
   const [clothesItems, setClothesItems] = useState(null)
-  const [shelfItems, setShelfItems] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
 
-  const { userPersonage, userParameters } = useContext(UserContext)
+  const handleStarsBuy = async (item) => {
+    try {
+      const response = await instance.post('/users/request-stars-invoice-link', {
+          productType: 'clothes',
+          id: item.id
+      }).then(res => res.data.invoiceLink)
+      WebApp.openInvoiceLink(response, (status) => {
+        setIsLoading(true)
+        if(status === "paid") {}
+
+      })
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
+  const { userPersonage } = useContext(UserContext)
 
   const BaseFilters = {
     // Uses Clothing
@@ -193,9 +207,9 @@ const StarsTab = ({ userId }) => {
   useEffect(() => {
     getShopItems(userId).then(data => {
       // TODO: localize
-      const loadedClothesItems = data.clothing.map(item => ({ name: item.name['ru'], image: userPersonage.gender === 'male' ? item.male_icon : item.female_icon, price: item.price, respect: item.respect, tier: item.tier, tags: item.tag, category: item.type, available: true }))
+      const loadedClothesItems = data.clothing.map(item => ({ name: item.name['ru'], image: userPersonage.gender === 'male' ? item.male_icon : item.female_icon, price: item.price, respect: item.respect, tier: item.tier, tags: item.tag, category: item.type, available: true , id: item.clothing_id}))
       setClothesItems(loadedClothesItems)
-      console.log('Clothes Items', clothesItems)
+      console.log('Clothes Items', loadedClothesItems)
     }).finally(() => setIsLoading(false))
     // getFoods().then((r) => setFoods(r))
     // getProcesses("food", userId).then((r) => setUserEatingFoods(r))
@@ -298,7 +312,7 @@ const StarsTab = ({ userId }) => {
           />
         </div>
       </div>
-      <GridLayout setCurrentItem={setCurrentItem} items={applyFilter(clothesItems)}/>
+      <GridLayout setCurrentItem={setCurrentItem} items={applyFilter(clothesItems)} handleStarsBuy={handleStarsBuy}/>
       {currentItem && <Modal width={'100vw'} bottom={'-25vh'} height={'100vh'} data={{ title: 'Lol' }} />}
       {/* {foods?.map((food, index) => (
         <ItemCard
