@@ -21,13 +21,13 @@ import formatTime from "../../utils/formatTime"
 import ActivityTab from "./tabs/ActivityTab"
 import SkillTab from "./tabs/SkillTab"
 import WorkTab from "./tabs/WorkTab"
-const ActivityScreen = () => {
+const ActionScreen = () => {
   // Active tab
-  const [activeTab, setActiveTab] = useState("works");
+  const [activeTab, setActiveTab] = useState("activities");
 
   // Object with titles for each tab
   const tabTitles = {
-    
+    activities: "Активности",  // Новая вкладка
     works: "Карьера",
     skills: "Обучение",
   };
@@ -48,8 +48,7 @@ const ActivityScreen = () => {
 
   const tabs = [
     { icon: Icons.activityTabIcon, callback: () => setActiveTab("activities") },  // Вкладка "Активности"
-    { icon: Icons.workTabIcon, callback: () => setActiveTab("works") },
-    { icon: Icons.skillTabIcon, callback: () => setActiveTab("skills") },
+    
   ];
   
 
@@ -88,33 +87,11 @@ const ActivityScreen = () => {
         />
         )}
 
-        {/* Works Data */}
-        {activeTab === "works" && (
-          <WorkTab
-            modalData={modalData}
-            setModalData={setModalData}
-            setUserParameters={setUserParameters}
-            setVisibleModal={setVisibleModal}
-            userParameters={userParameters}
-            userId={userId}
-          />
-        )}
-        {/* Skills Data */}
-        {activeTab === "skills" && (
-          <SkillTab
-            modalData={modalData}
-            setModalData={setModalData}
-            setUserParameters={setUserParameters}
-            setVisibleModal={setVisibleModal}
-            userParameters={userParameters}
-            userId={userId}
-          />
-        )}
-        {/* Store Data */}
+       
       </ScreenBody>
     </Screen>
   );
 };
 
 
-export default ActivityScreen
+export default ActionScreen

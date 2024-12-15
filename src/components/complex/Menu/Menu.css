@@ -1,12 +1,45 @@
 .Menu {
   display: flex;
-  justify-content: space-around;
-  align-items: center;
+  flex-direction: column; /* Горизонтальное выравнивание по вертикали */
+  justify-content: flex-start; /* Элементы выравниваются сверху */
+  align-items: center; /* Центрируем элементы по горизонтали */
   position: absolute;
-  bottom: 0;
+  bottom: 2%;
   z-index: 3;
-  height: 10%;
-  margin-bottom: 3%;
+  width: 100%;
+  height: auto;
 }
 
+.MenuButtonContainer {
+ 
+  bottom: 15%; /* Убираем кнопку еще выше на 10% */
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 4;
+}
 
+.BigButton {
+  width: 200px; /* Ширина кнопки */
+  height: 60px; /* Высота кнопки */
+  background-color: #ff5722; /* Цвет кнопки */
+  color: white; /* Цвет текста */
+  font-size: 18px; /* Размер шрифта */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 30px; /* Скругленные углы */
+  cursor: pointer;
+  margin-bottom: 20px; /* Отступ снизу, чтобы разделить с ButtonMenu */
+}
+
+.ButtonMenu {
+  padding: 0 5px;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  width: 100%;
+  max-width: 400px;
+  flex-direction: row;
+}

@@ -22,7 +22,7 @@ const CareScreen = () => {
   const { Icons } = Assets
   const tabs = [
     { icon: foodTab, callback: () => setActiveTab("foods") },
-    { icon: boost, callback: () => setActiveTab("boosts") },
+   
     { icon: Icons.inventoryIcon, callback: () => setActiveTab("inventory") },
   ]
 
@@ -33,7 +33,7 @@ const CareScreen = () => {
   return (
     <Screen>
       <HomeHeader screenHeader />
-      <ScreenBody activity={'Забота'}>
+      <ScreenBody activity={'Еда'}>
         <ScreenTabs tabs={tabs} />
 
         {/* Food Tab */}
@@ -45,14 +45,7 @@ const CareScreen = () => {
           />
         )}
 
-        {/* Boosts Tab  */}
-        {activeTab === "boosts" && (
-          <BoostTab
-            userId={userId}
-            userParameters={userParameters}
-            setUserParameters={setUserParameters}
-          />
-        )}
+        
 
         {activeTab === "inventory" && (
            <InventoryTab

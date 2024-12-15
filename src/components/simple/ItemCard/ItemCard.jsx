@@ -97,8 +97,11 @@ const ItemCard = ({
                 fontSize={16}
                 fontFamily={"Muller"}
                 onClick={() => {
-                  if(ItemButton.icon === Assets.Icons.starsIcon)
-                  ItemButton?.onClick && (() => ItemButton?.onClick())
+                  if (ItemButton.icon === Assets.Icons.starsIcon) {
+                    ItemButton?.onClick && ItemButton.onClick();
+                  } else {                   
+                    ItemButton?.onClick && ItemButton.onClick();
+                  }
                 }}
                 active={ItemButton.active}
                 text={ItemButton.text}

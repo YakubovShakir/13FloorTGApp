@@ -7,7 +7,7 @@ import Assets from "../../../assets"
 const Menu = ({ screenMenu, activeName, hasBg = true }) => {
   const { Icons } = Assets
   const navigate = useNavigate()
-  const[currentTab, setCurrentTab] = useState();
+  const [currentTab, setCurrentTab] = useState();
 
   const tabs = {
     care: {
@@ -20,8 +20,8 @@ const Menu = ({ screenMenu, activeName, hasBg = true }) => {
         }
       },
       notify: false,
-      icon: Icons.care,
-      title: "Забота",
+      icon: Icons.hungry,
+      title: "Еда",
     },
     shop: {
       onClick: () => {
@@ -34,7 +34,7 @@ const Menu = ({ screenMenu, activeName, hasBg = true }) => {
       },
       notify: false,
       icon: Icons.shopIcon,
-      title: "Магазин",
+      title: "Одежда",
     },
     activity: {
       onClick: () => {
@@ -76,19 +76,31 @@ const Menu = ({ screenMenu, activeName, hasBg = true }) => {
       title: "Сообщество",
     },
   };
+
   return (
-    <div className={screenMenu ? "screenMenu Menu" : "Menu"} style={{ width: '100vw',  zIndex: 99999 }} >
-      {Object.keys(tabs).map((tab, index) => (
-        <IconButton
-          color={activeName && (activeName === tab ? "white" : "rgba(255, 255, 255, 0.4)")}
-          key={index}
-          onClick={tabs[tab].onClick}
-          notify={tabs[tab].notify}
-          icon={tabs[tab].icon}
-          title={tabs[tab].title}
-          size={45}
-        />
-      ))}
+    <div className={screenMenu ? "screenMenu Menu" : "Menu"} style={{ width: '100vw', zIndex: 99999 }}>
+      
+      {/* Контейнер для кнопки BigButton */}
+      <div className="MenuButtonContainer">
+        <div className="BigButton" onClick={() => navigate("/activity")}>
+          Начать
+        </div>
+      </div>
+
+      {/* Контейнер с иконками кнопок */}
+      <div className="ButtonMenu">
+        {Object.keys(tabs).map((tab, index) => (
+          <IconButton
+            color={activeName && (activeName === tab ? "white" : "rgba(255, 255, 255, 0.4)")}
+            key={index}
+            onClick={tabs[tab].onClick}
+            notify={tabs[tab].notify}
+            icon={tabs[tab].icon}
+            title={tabs[tab].title}
+            size={45}
+          />
+        ))}
+      </div>
     </div>
   )
 }

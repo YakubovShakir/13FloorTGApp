@@ -1,15 +1,38 @@
+import { useNavigate } from 'react-router-dom';
 import "./ScreenBody.css"
 
 const ScreenBody = ({ children, activity }) => {
+    const navigate = useNavigate(); // для навигации на главный экран
+
+    const handleClose = () => {
+        navigate('/'); // перенаправление на главную страницу
+    };
+
     return (
         <div className="ScreenBody">
-         <div className="HomeHeaderBottomRow" style={{ height: 55, display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100vw', color: 'white', fontFamily: 'Muller', fontWeight: '200' }}>
-             <div>
-                <p>{activity}</p>
-             </div>
-        </div>
+            <div className="HomeHeaderBottomName" style={{ height: 55, display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100vw', color: 'white', fontFamily: 'Muller', fontWeight: '200' }}>
+                <div>
+                    <p>{activity}</p>
+                </div>
+                <button 
+                    onClick={handleClose} 
+                    style={{
+                        position: 'absolute',
+                        top: 10,
+                        right: 10,
+                        background: 'transparent',
+                        border: 'none',
+                        color: 'white',
+                        fontSize: '16px',
+                        cursor: 'pointer'
+                    }}
+                >
+                    Закрыть
+                </button>
+            </div>
             {children}
         </div>
-    )
-}
-export default ScreenBody
+    );
+};
+
+export default ScreenBody;

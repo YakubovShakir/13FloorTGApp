@@ -13,6 +13,7 @@ import UserContext from "../../UserContext"
 import CoinsTab from "./tabs/CoinsTab"
 import BoostTab from "./tabs/BoostTab"
 import StarsTab from "./tabs/StarsTab"
+import InventoryTab from "./tabs/InventoryTab"
 
 const ShopScreen = () => {
   const [activeTab, setActiveTab] = useState("coins")
@@ -21,9 +22,10 @@ const ShopScreen = () => {
   const navigate = useNavigate()
   const { Icons } = Assets
   const tabs = [
+    { icon: Icons.inventoryIcon, callback: () => setActiveTab("inventory") },
     { icon: Icons.balance, callback: () => setActiveTab("coins") },
     { icon: Icons.starsIcon, callback: () => setActiveTab("stars") },
-    { icon: Assets.Icons.arrowIcon, callback: () => setActiveTab("boosts"), w: 100, h: 100 },
+    
   ]
 
   useEffect(() => {
@@ -33,8 +35,16 @@ const ShopScreen = () => {
   return (
     <Screen>
       <HomeHeader screenHeader />
-      <ScreenBody activity={'Магазин'}>
+      <ScreenBody activity={'Одежда'}>
         <ScreenTabs tabs={tabs} />
+
+        {activeTab === "inventory" && (
+           <InventoryTab
+            userId={userId}
+            userParameters={userParameters}
+            setUserParameters={setUserParameters}
+         />
+        )}
 
         {/* Food Tab */}
         {activeTab === "coins" && (

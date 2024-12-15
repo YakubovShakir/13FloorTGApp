@@ -5,7 +5,7 @@
   position: absolute;
   top: 0;
   left: 0;
-  z-index: 1;
+  
 }
 .Player {
   position: relative;
@@ -17,11 +17,11 @@
   z-index: 0;
 }
 .PlayerTop {
-  z-index: 2;
+  z-index: 4;
 }
 
 .PlayerLegs {
-  z-index: 1;
+  z-index: 3;
 }
 .PlayerFeet {
   z-index: 0;
