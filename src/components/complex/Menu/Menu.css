@@ -3,7 +3,7 @@
   flex-direction: column; /* Горизонтальное выравнивание по вертикали */
   justify-content: flex-start; /* Элементы выравниваются сверху */
   align-items: center; /* Центрируем элементы по горизонтали */
-  position: absolute;
+  position: fixed;
   bottom: 2%;
   z-index: 3;
   width: 100%;

@@ -26,8 +26,8 @@ const FilterButton = ({
         height: 33,
         width: 69,
         background: isActive
-          ? "linear-gradient(to right, #E94E1B, #F37500)"
-          : "#50484A",
+          ? "rgb(243, 117, 0)"
+          : "linear-gradient(rgb(243 117 0 / 18%) 0%, rgba(243, 117, 0, 0.2) 100%)",
         borderRadius: 6,
         display: "flex",
         justifyContent: "center",
@@ -121,8 +121,9 @@ export default ({
     >
       <div
         style={{
+          border: "1px solid rgb(57, 57, 57)",
           position: "absolute",
-          background: `url(${Assets.BG.filterModalBG})`,
+          background: "rgb(16 16 16)",
           zIndex: 6,
           height: 281,
           width: 320,

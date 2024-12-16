@@ -29,25 +29,27 @@ const SquareButton = ({
   imageSize = 40,
 }) => {
   const isSelected =
-    assignedValue && selectedValue && assignedValue === selectedValue
+    assignedValue && selectedValue && assignedValue === selectedValue;
 
   return (
     <motion.div
+      className="button-wrapper" // Основной контейнер кнопки
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.95 }}
       transition={{ type: "spring", stiffness: 300, damping: 10 }}
       style={{
-        backgroundColor: isSelected ? "#E94E1B" : "#453D3F",
+        backgroundColor: isSelected ? "#E94E1B" : "rgb(57, 57, 57)",
         height: size + 5,
         width: size,
         borderRadius: 8,
-        position: "relative", // Ensure proper stacking
+        position: "relative", // Чтобы корректно отображать слои
       }}
       onClick={handlePress}
     >
-      {/* Persistent Shadow */}
+      {/* Тень кнопки */}
       {isSelected && (
         <motion.div
+          className="button-shadow" // Контейнер тени
           transition={{ type: "spring", stiffness: 300, damping: 10 }}
         >
           <img
@@ -61,17 +63,20 @@ const SquareButton = ({
               zIndex: 5,
               borderBottomLeftRadius: 8,
               borderBottomRightRadius: 8,
+              
             }}
           />
         </motion.div>
       )}
 
       <motion.div
+        className="button-body" // Внутренний блок кнопки
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{
           opacity: 1,
           scale: 1,
-          backgroundColor: "#595254",
+          backgroundColor: "rgb(18, 18, 18)",
+          border: "1px solid rgb(57, 57, 57)",
         }}
         transition={{
           duration: 0.3,
@@ -93,10 +98,12 @@ const SquareButton = ({
         }}
       >
         <motion.img
+          className="button-icon" // Иконка внутри кнопки
           src={imageSrc}
           width={imageSize}
           height={imageSize}
           animate={{
+            padding: "3px",
             opacity: 1,
             rotate: 0,
             scale: isSelected ? 0.9 : 1,
@@ -115,8 +122,9 @@ const SquareButton = ({
         />
       </motion.div>
     </motion.div>
-  )
-}
+  );
+};
+
 
 const GridItem = ({
   icon,
@@ -132,135 +140,191 @@ const GridItem = ({
 }) => {
   return (
     <div
+      className="clothing-item-container" // Основной контейнер элемента одежды
       style={{
-        padding: "1rem",
+        padding: "0rem",
       }}
     >
       <div
+        className="clothing-item-top" // Верхний блок: Заголовок, Иконка и Тень
         style={{
           display: "flex",
           alignItems: "center",
           gap: "1rem",
           flexDirection: "column",
+          overflow: "hidden",
+          border: "solid 1px rgb(243, 117, 0)",
+          margin: "7px 0px 7px 0px",
+          borderRadius: "7px",
+          backgroundImage: "repeating-linear-gradient(to right, transparent, transparent 19px, rgba(243, 117, 0, 0.3) 20px), repeating-linear-gradient(to bottom, transparent, transparent 19px, rgba(243, 117, 0, 0.3) 20px)",
+          justifyContent: "center",
+
+          
         }}
       >
-        <div>
+        {/* Заголовок и Иконка */}
+        <div className="clothing-item-header">
           <div
+           
+          >
+           
+          </div>
+          {/* Иконка одежды и Тень активной одежды */}
+          <motion.div
+            className="clothing-item-icon-wrapper"
             style={{
-              height: 40,
+              
               width: "100%",
               display: "flex",
               justifyContent: "center",
             }}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
           >
-            <p
+            <div
+              className="clothing-item-icon-container"
               style={{
+                height: "100%",
+                width: "100%",
+                borderRadius: "0.5rem",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+               
+                marginTop: -5.5,
+                position: "relative",
+              }}
+            >
+              {/* Тень активной одежды */}
+              {equipped && (
+                <img
+                  className="clothing-item-shadow"
+                  src={Assets.Layers.inventoryActiveShadow}
+                  style={{
+                    position: "absolute",
+                    height: "100%",
+                    width: "100%",
+                    top: 0,
+                    left: 0,
+                    zIndex: 1,
+                    borderRadius: "0.5rem",
+                  }}
+                />
+              )}
+              <img
+                className="clothing-item-icon"
+                src={icon}
+                alt={title}
+                style={{
+                  height: "100%",
+                  width: "100%",
+                  position: "relative",
+                  zIndex: 2,
+                }}
+              />
+            </div>
+          </motion.div>
+        </div>
+      </div>
+
+      <div
+        className="clothing-item-bottom" // Нижний блок: Уровень уважения и Кнопки
+        style={{
+          paddingBottom: "12px",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+         
+          borderRight: "solid 1px rgb(243 117 0 / 18%)",
+          borderLeft: "solid 1px rgb(243 117 0 / 18%)",
+          borderTop: "solid 1px rgb(243 117 0 / 18%)",
+          borderRadius: "7px",
+          backgroundColor: "#2508047a",
+        }}
+      >
+
+<p
+              style={{
+                paddingTop: "10px",
+                height: "45px",
                 color: "white",
                 textAlign: "center",
                 fontWeight: "100",
                 fontFamily: "Roboto",
-                width: "80%",
+                width: "100%",
               }}
             >
               {title}
             </p>
-          </div>
-          <div
+        {/* Уровень уважения */}
+        <div
+          className="clothing-item-respect"
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            marginTop: 10,
+            marginBottom: 10,
+          }}
+        >
+          <img src={Assets.Icons.respect} height={22} />
+          <p
             style={{
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              marginTop: 10,
+              color: "white",
+              textAlign: "center",
+              fontWeight: "100",
+              fontFamily: "Roboto",
+              paddingLeft: 8,
+              fontSize: "20px",
             }}
           >
-            <img src={Assets.Icons.respect} height={13} />
-            <p
-              style={{
-                color: "white",
-                textAlign: "center",
-                fontWeight: "100",
-                fontFamily: "Roboto",
-                paddingLeft: 8,
-              }}
-            >
-              {respect}
-            </p>
-          </div>
+            {respect}
+          </p>
         </div>
-        <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-          <div
-            style={{
-              height: "109px",
-              width: "109px",
-              borderRadius: "0.5rem",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              backgroundColor: "#534B4E",
-              marginTop: -5.5,
-              position: "relative", // Add relative positioning to the container
-            }}
-          >
-            {equipped && (
-              <img
-                src={Assets.Layers.inventoryActiveShadow}
-                style={{
-                  position: "absolute",
-                  width: 109,
-                  height: 109,
-                  top: 0,
-                  left: 0,
-                  zIndex: 1,
-                  borderRadius: "0.5rem",
-                }}
-              />
-            )}
-            <img
-              src={icon}
-              alt={title}
-              style={{
-                width: 109,
-                height: 109,
-                position: "relative", // Ensure it's on top of the owned indicator
-                zIndex: 2,
-              }}
-            />
-          </div>
-        </motion.div>
-        {equipped && (
+
+        {/* Кнопки действий */}
+        {equipped ? (
           <Button
-            width={109}
+            className="clothing-item-unequip-button"
+            shadowColor={"#22c7a3"}
+            width={"88%"}
+            marginBottom={"5"}
             height={44}
             active={equipped}
-            fontFamily={'Roboto'} 
-            fontWeight={'300'}
+            fontFamily={"Roboto"}
+            fontWeight={"300"}
             text={"Используется"}
             fontSize={14}
             paddingTop={1}
+            borderColor={"rgb(34, 199, 163)"}
+            ownColor={"linear-gradient(to bottom, rgb(34 199 163 / 0%), rgb(34 199 163 / 24%))"}
+            bgColor={"linear-gradient(to bottom, rgb(34 199 163 / 0%), rgb(34 199 163 / 24%))"}
             onClick={() => clothesUnequip(clothingId, type)}
           />
-        )}
-        {!equipped && (
+        ) : (
           <Button
+            className="clothing-item-equip-button"
             shadowColor={"#AF370F"}
-            width={109}
+            width={"88%"}
+            marginBottom={"5"}
             height={44}
             active={true}
-            fontFamily={'Roboto'} 
-            fontWeight={'300'}
+            fontFamily={"Roboto"}
+            fontWeight={"300"}
             text={"Выбрать"}
             fontSize={14}
             paddingTop={1}
-            ownColor={"linear-gradient(to right, #E94E1B, #F37500)"}
-            bgColor={"linear-gradient(to right, #E94E1B, #F37500)"}
+            ownColor={"linear-gradient(rgb(18, 4, 2) 0%, rgba(243, 117, 0, 0.2) 100%)"}
+            bgColor={"linear-gradient(rgb(18, 4, 2) 0%, rgba(243, 117, 0, 0.2) 100%)"}
             onClick={() => clothesEquip(clothingId, type)}
           />
         )}
-
       </div>
     </div>
-  )
-}
+  );
+};
+
+
 
 const GridLayout = ({ setCurrentItem, items, clothesUnequip, clothesEquip }) => {
   return (
@@ -277,7 +341,7 @@ const GridLayout = ({ setCurrentItem, items, clothesUnequip, clothesEquip }) => 
           display: "grid",
           gridTemplateColumns: "repeat(2, 1fr)",
           gap: "1rem",
-          width: "95vw",
+          width: "90vw",
         }}
       >
         {items.map((item, index) => (
@@ -474,7 +538,7 @@ const InventoryTab = ({ userId }) => {
       >
         <div
           style={{
-            width: "95vw",
+            width: "90vw",
             display: "flex",
             justifyContent: "space-around",
           }}
