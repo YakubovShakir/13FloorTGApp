@@ -1,8 +1,8 @@
-import "./ItemCard.css"
-import { motion } from "framer-motion"
-import Button from "../Button/Button"
-import { useEffect, useState } from "react"
-import Assets from "../../../assets"
+import "./ItemCard.css";
+import { motion } from "framer-motion";
+import Button from "../Button/Button";
+import { useEffect, useState } from "react";
+import Assets from "../../../assets";
 
 const ItemCard = ({
   ItemIcon,
@@ -18,14 +18,26 @@ const ItemCard = ({
   // Определяем, активна ли хотя бы одна кнопка
   const isAnyButtonActive = ItemButtons.some(button => button.active);
 
-  // Логика для установки обводки
-  let borderStyle = "1px solid #3B3537"; // Стандартный цвет обводки (неактивная кнопка)
-  
-  if (isWaiting) {
-    borderStyle = "1px solid rgb(46, 199, 115)"; // Если в ожидании, зелёная обводка
-  } else if (isAnyButtonActive) {
-    borderStyle = "1px solid #f37500"; // Если хотя бы одна кнопка активна, оранжевая обводка
-  }
+// Логика для установки обводки
+let borderStyle = ""; // Стандартный цвет обводки (неактивная кнопка)
+let backgroundImageStyle = ""; // Стиль фона
+let backgroundColor = ""; // Цвет фона по умолчанию
+
+if (isWaiting) {
+  borderStyle = "1px solid rgb(46, 199, 115)"; // Если в ожидании, зелёная обводка
+  backgroundImageStyle = ""; // Если в ожидании, не применяем фоновый стиль
+} else if (isAnyButtonActive) {
+  borderStyle = ""; // Если хотя бы одна кнопка активна, оранжевая обводка
+  backgroundImageStyle = ""; // Если кнопка активна, не применяем фоновый стиль
+} else {
+  // При обесцвечивании (когда кнопка неактивна)
+  borderStyle = "1px solid rgb(57, 57, 57)"; // Стиль обводки для обесцвеченного состояния
+  backgroundImageStyle = "repeating-linear-gradient(to right, transparent, transparent 19px, rgb(99 89 80 / 30%) 20px), repeating-linear-gradient(to bottom, transparent, transparent 19px, rgb(103 93 84 / 30%) 20px)"; // Стиль фона при обесцвечивании
+  backgroundColor = "#2525257a"
+}
+
+// Логика для обесцвечивания изображений
+const isImageGrayscale = !isAnyButtonActive; // Если кнопка неактивна, изображение будет обесцвечено
 
   return (
     <motion.div
@@ -33,27 +45,35 @@ const ItemCard = ({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.15 * (ItemIndex + 1) }}
       className="ItemCard"
-      style={{ border: borderStyle }} // Применяем обводку в зависимости от состояния
+       // Применяем обводку в зависимости от состояния
     >
       {ItemAmount !== undefined && (
         <div className="ItemCardAmount">{ItemAmount}</div>
       )}
-      {/* {ItemTitle Section} */}
-      <div className="ItemTitle">{ItemTitle}</div>
 
       <div className="ItemData">
+        <div className="WireframeGrid"></div> {/* Добавлено сюда */}
         {/* ItemIcon Section */}
-        <div className="ItemIconContainer">
+        <div className="ItemIconContainer"
+        style={{ border: borderStyle, backgroundImage: backgroundImageStyle }}
+        >
+          {/* {ItemTitle Section} */}
+          <div className="ItemTitle">{ItemTitle}</div>
           <img
             loading="lazy"
             src={ItemIcon}
             alt="ItemIcon"
-            className={isAnyButtonActive ? '' : 'inactive'}  // Применяем 'inactive' только если кнопка неактивна
+            className={isImageGrayscale ? 'inactive' : ''}  // Применяем 'inactive' если кнопка неактивна
           />
         </div>
 
         {/* Right Section: ItemParams + ItemButtons */}
-        <div className="ItemDetailsContainer">
+        <div className="ItemDetailsContainer"
+        style={{ border: borderStyle,backgroundColor: backgroundColor }}
+
+        
+        >
+          
           {/* ItemParams Section */}
           <div className="ItemCardParams">
             {ItemDescription && (
@@ -66,8 +86,10 @@ const ItemCard = ({
                 {param.map((block, blockIndex) => (
                   <span
                     className="ItemCardParamBlock"
+                    
                     key={blockIndex}
-                    style={{ width: param.length > 1 ? "50%" : "100%", marginTop: 5 }}
+                    style={{ width: param.length > 1 ? "50%" : "100%", marginTop: 5 ,backgroundColor: backgroundColor}}
+                    
                   >
                     {block?.fillPercent && (
                       <span
@@ -99,7 +121,7 @@ const ItemCard = ({
                 onClick={() => {
                   if (ItemButton.icon === Assets.Icons.starsIcon) {
                     ItemButton?.onClick && ItemButton.onClick();
-                  } else {                   
+                  } else {
                     ItemButton?.onClick && ItemButton.onClick();
                   }
                 }}
@@ -116,6 +138,6 @@ const ItemCard = ({
       </div>
     </motion.div>
   );
-}
+};
 
 export default ItemCard;

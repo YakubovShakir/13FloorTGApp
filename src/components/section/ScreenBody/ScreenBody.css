@@ -6,23 +6,37 @@
   top: 10%;
   padding-top: 4%;
 }
+
 .HomeHeaderBottomName {
-  box-shadow: 
-    inset 0 5px 5px -5px #F37500, 
-    inset 0 -5px 5px -5px #F37500;
-  border-top: solid 1px #F37500;
-  border-bottom: solid 1px #F37500;
-  animation: pulseBackground 6s infinite; /* Применяем пульсацию */
+  margin-bottom: 15px;
+  position: relative; /* Для псевдоэлементов */
+  background: linear-gradient(90deg, rgba(34,199,163,0) 20%, rgba(21,110,90,0.47102591036414565) 50%, rgba(21,110,90,0) 80%);
+  animation: pulseLinearGradient 6s infinite ease-in-out; /* Плавная анимация для фона */
 }
 
-@keyframes pulseBackground {
-  0% {
-    background-color: #f3750010; /* Начальный цвет */
-  }
-  50% {
-    background-color: #f3750023; /* Более насыщенный цвет */
-  }
-  100% {
-    background-color: #f3750021; /* Возврат к начальному цвету */
-  }
+.HomeHeaderBottomName::before,
+.HomeHeaderBottomName::after {
+  content: ""; /* Создаём пустой элемент */
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px; /* Толщина границы */
+  background: radial-gradient(circle, #22c7a3 0%, transparent 70%); /* Градиент для псевдоэлементов */
+  
 }
+
+.HomeHeaderBottomName::before {
+  top: 0; /* Имитация border-top */
+}
+
+.HomeHeaderBottomName::after {
+  bottom: 0; /* Имитация border-bottom */
+}
+
+
+
+
+
+
+
+

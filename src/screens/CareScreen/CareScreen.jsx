@@ -21,9 +21,7 @@ const CareScreen = () => {
   const navigate = useNavigate()
   const { Icons } = Assets
   const tabs = [
-    { icon: foodTab, callback: () => setActiveTab("foods") },
-   
-    { icon: Icons.inventoryIcon, callback: () => setActiveTab("inventory") },
+    
   ]
 
   useEffect(() => {
@@ -47,13 +45,7 @@ const CareScreen = () => {
 
         
 
-        {activeTab === "inventory" && (
-           <InventoryTab
-            userId={userId}
-            userParameters={userParameters}
-            setUserParameters={setUserParameters}
-         />
-        )}
+       
         {/* Store Data */}
       </ScreenBody>
     </Screen>
