@@ -32,7 +32,7 @@ const CareScreen = () => {
     <Screen>
       <HomeHeader screenHeader />
       <ScreenBody activity={'Еда'}>
-        <ScreenTabs tabs={tabs} />
+       
 
         {/* Food Tab */}
         {activeTab === "foods" && (

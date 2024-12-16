@@ -30,7 +30,8 @@
   justify-content: space-between;  /* Распределяем элементы по бокам */
   align-items: center;
   width: 40%;
-  background-color: var(--main-lightblack);
+  backdrop-filter: blur(10px);
+  background-color: #00000099;
   border-radius: 5px;
 }
 

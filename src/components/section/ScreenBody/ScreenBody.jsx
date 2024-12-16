@@ -18,16 +18,21 @@ const ScreenBody = ({ children, activity }) => {
                     onClick={handleClose} 
                     style={{
                         position: 'absolute',
-                        top: 10,
-                        right: 10,
+                        
+                        left: 10,
                         background: 'transparent',
                         border: 'none',
-                        color: 'white',
-                        fontSize: '16px',
+                        padding: 0,
                         cursor: 'pointer'
                     }}
                 >
-                    Закрыть
+                    <div style={{
+                       width: 0,
+                       height: 0,
+                       borderTop: '10px solid transparent', // Прозрачная верхняя граница
+                       borderBottom: '10px solid transparent', // Прозрачная нижняя граница
+                       borderRight: '20px solid rgba(34, 199, 163, 1)', // Левая граница — зеленая
+                    }} />
                 </button>
             </div>
             {children}

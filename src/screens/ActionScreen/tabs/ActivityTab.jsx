@@ -152,7 +152,7 @@ export const CareScreen = ({ userId, userParameters }) => {
         icon: Icons.balance,
         active: true,
         bg: activeWork
-          ? "linear-gradient(90deg, rgba(233,27,27,1) 0%, rgba(119,1,1,1) 100%)"
+          ? "linear-gradient(180deg, rgba(233,27,27,1) 0%, rgba(119,1,1,1) 100%)"
           : "linear-gradient(180deg, rgba(233,78,27,1) 0%, rgba(243,117,0,1) 100%)",
         shadowColor: activeWork ? "#4E1010" : "#AF370F",
       },
@@ -169,7 +169,7 @@ export const CareScreen = ({ userId, userParameters }) => {
         icon: Icons.sleep,
         active: true,
         bg: activeSleep
-          ? "linear-gradient(90deg, rgba(233,27,27,1) 0%, rgba(119,1,1,1) 100%)"
+          ? "linear-gradient(rgb(18, 4, 2) 0%, rgba(233, 27, 27, 0.12) 100%)"
           : "linear-gradient(180deg, rgba(233,78,27,1) 0%, rgba(243,117,0,1) 100%)",
         shadowColor: activeSleep ? "#4E1010" : "#AF370F",
       },
@@ -186,7 +186,7 @@ export const CareScreen = ({ userId, userParameters }) => {
         icon: Icons.training,
         active: true,
         bg: activeTraining
-          ? "linear-gradient(90deg, rgba(233,27,27,1) 0%, rgba(119,1,1,1) 100%)"
+          ? "linear-gradient(rgb(18, 4, 2) 0%, rgba(233, 27, 27, 0.12) 100%)"
           : "linear-gradient(180deg, rgba(233,78,27,1) 0%, rgba(243,117,0,1) 100%)",
         shadowColor: activeTraining ? "#4E1010" : "#AF370F",
       },

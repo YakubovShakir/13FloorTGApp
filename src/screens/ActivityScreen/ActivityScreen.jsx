@@ -47,9 +47,8 @@ const ActivityScreen = () => {
   const { Icons } = Assets;
 
   const tabs = [
-    { icon: Icons.activityTabIcon, callback: () => setActiveTab("activities") },  // Вкладка "Активности"
-    { icon: Icons.workTabIcon, callback: () => setActiveTab("works") },
-    { icon: Icons.skillTabIcon, callback: () => setActiveTab("skills") },
+    { icon: Icons.workTabIcon, label: "Карьера", callback: () => setActiveTab("works") },
+    { icon: Icons.skillTabIcon, label: "Обучение", callback: () => setActiveTab("skills") },
   ];
   
 
@@ -63,8 +62,9 @@ const ActivityScreen = () => {
       <HomeHeader>{tabTitles[activeTab]}</HomeHeader>
 
       
-
-      <ScreenBody activity={tabTitles[activeTab]}>
+      <ScreenBody activity={'Развитие'}>
+      
+        
         {visibleModal && (
           <Modal
             onClose={() => setVisibleModal(false)}
