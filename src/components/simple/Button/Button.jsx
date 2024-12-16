@@ -12,7 +12,9 @@ const Button = ({
   active = true,
   shadowColor,
   fontSize,
-  paddingTop
+  paddingTop,
+  fontFamily,
+  fontWeight
 }) => {
   const [isPressed, setIsPressed] = useState(false);
 
@@ -48,7 +50,7 @@ const Button = ({
       }}
     >
       {icon && <img src={icon} alt="Button" />}
-      <span style={{ fontSize, paddingTop }}>{text}</span>
+      <span style={{ fontSize, paddingTop, fontFamily, fontWeight }}>{text}</span>
     </button>
   );
 };

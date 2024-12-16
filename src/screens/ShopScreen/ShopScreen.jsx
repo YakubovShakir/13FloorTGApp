@@ -10,20 +10,20 @@ import ScreenTabs from "../../components/section/ScreenTabs/ScreenTabs"
 import useTelegram from "../../hooks/useTelegram"
 import { useNavigate } from "react-router-dom"
 import UserContext from "../../UserContext"
-import FoodTab from "./tabs/FoodTab"
+import CoinsTab from "./tabs/CoinsTab"
 import BoostTab from "./tabs/BoostTab"
-import InventoryTab from "./tabs/InventoryTab"
+import StarsTab from "./tabs/StarsTab"
 
-const CareScreen = () => {
-  const [activeTab, setActiveTab] = useState("foods")
+const ShopScreen = () => {
+  const [activeTab, setActiveTab] = useState("coins")
 
   const { userParameters, setUserParameters, userId } = useContext(UserContext)
   const navigate = useNavigate()
   const { Icons } = Assets
   const tabs = [
-    { icon: foodTab, callback: () => setActiveTab("foods") },
-    { icon: boost, callback: () => setActiveTab("boosts") },
-    { icon: Icons.inventoryIcon, callback: () => setActiveTab("inventory") },
+    { icon: Icons.balance, callback: () => setActiveTab("coins") },
+    { icon: Icons.starsIcon, callback: () => setActiveTab("stars") },
+    { icon: Assets.Icons.arrowIcon, callback: () => setActiveTab("boosts"), w: 100, h: 100 },
   ]
 
   useEffect(() => {
@@ -37,8 +37,16 @@ const CareScreen = () => {
         <ScreenTabs tabs={tabs} />
 
         {/* Food Tab */}
-        {activeTab === "foods" && (
-          <FoodTab
+        {activeTab === "coins" && (
+          <CoinsTab
+            userId={userId}
+            userParameters={userParameters}
+            setUserParameters={setUserParameters}
+          />
+        )}
+
+        {activeTab === "stars" && (
+          <StarsTab
             userId={userId}
             userParameters={userParameters}
             setUserParameters={setUserParameters}
@@ -53,19 +61,11 @@ const CareScreen = () => {
             setUserParameters={setUserParameters}
           />
         )}
-
-        {activeTab === "inventory" && (
-           <InventoryTab
-            userId={userId}
-            userParameters={userParameters}
-            setUserParameters={setUserParameters}
-         />
-        )}
         {/* Store Data */}
       </ScreenBody>
-      <Menu screenMenu activeName={"care"} />
+      <Menu screenMenu activeName={"shop"} />
     </Screen>
   )
 }
 
-export default CareScreen
+export default ShopScreen;

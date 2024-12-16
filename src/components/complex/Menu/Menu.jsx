@@ -7,41 +7,77 @@ import Assets from "../../../assets"
 const Menu = ({ screenMenu, activeName }) => {
   const { Icons } = Assets
   const navigate = useNavigate()
-  const [currentTab, setCurrentTab] = useState()
+  const[currentTab, setCurrentTab] = useState();
+
   const tabs = {
     care: {
-      onClick: () => navigate("/care"),
+      onClick: () => {
+        if (currentTab === 'care') {
+          navigate('/#');
+        } else {
+          navigate("/care");
+          setCurrentTab('care');
+        }
+      },
       notify: false,
       icon: Icons.care,
       title: "Забота",
     },
-    investment: {
-      onClick: () => navigate("/#"),
+    shop: {
+      onClick: () => {
+        if (currentTab === 'shop') {
+          navigate('/#');
+        } else {
+          navigate("/shop");
+          setCurrentTab('shop');
+        }
+      },
       notify: false,
       icon: Icons.shopIcon,
       title: "Магазин",
     },
     activity: {
-      onClick: () => navigate("/activity"),
+      onClick: () => {
+        if (currentTab === 'activity') {
+          navigate('/#');
+        } else {
+          navigate("/activity");
+          setCurrentTab('activity');
+        }
+      },
       notify: false,
       icon: Icons.activity,
       title: "Активности",
     },
     tasks: {
-      onClick: () => navigate("/care"),
+      onClick: () => {
+        if (currentTab === 'tasks') {
+          navigate('/#');
+        } else {
+          navigate("/care");
+          setCurrentTab('tasks');
+        }
+      },
       notify: false,
       icon: Icons.tasks,
       title: "Задания",
     },
     community: {
-      onClick: () => navigate("/care"),
+      onClick: () => {
+        if (currentTab === 'community') {
+          navigate('/#');
+        } else {
+          navigate("/care");
+          setCurrentTab('community');
+        }
+      },
       notify: false,
       icon: Icons.contacts,
       title: "Сообщество",
     },
-  }
+  };
   return (
-    <div className={screenMenu ? "screenMenu Menu" : "Menu" } style={{ width: '100vw' }} >
+    <div className={screenMenu ? "screenMenu Menu" : "Menu"} style={{ width: '100vw', border: 'solid rgba(255,255,255, 0.15) .005px' }} >
       {Object.keys(tabs).map((tab, index) => (
         <IconButton
           color={activeName && (activeName === tab ? "white" : "rgba(255, 255, 255, 0.4)")}

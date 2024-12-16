@@ -9,8 +9,9 @@ const Modal = ({ bottom, left, width, height, data, onClose }) => {
       initial={{ opacity: 0, y: 100 }}
       animate={{ opacity: 1, y: 0 }}
       className="Modal"
-      style={{ bottom: bottom, left: left, width: width, height: height }}
+      style={{ bottom: bottom, left: left, width: width, height: height, zIndex: 10 }}
     >
+      
       <img
         className="ModalClose"
         onClick={() => onClose()}
