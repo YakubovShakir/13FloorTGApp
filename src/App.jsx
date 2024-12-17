@@ -12,11 +12,19 @@ import ShopScreen from './screens/ShopScreen/ShopScreen'
 import TaskScreen from "./screens/TaskScreen/TaskScreen"
 function App() {
   useEffect(() => {
-      if(isMobile) {
-        useTelegram.setFullScreen()
-      }
-      useTelegram.setHeaderColor("#2F292B")
-  }, [])
+    if (isMobile) {
+      useTelegram.setFullScreen();
+    }
+    useTelegram.setHeaderColor("#2F292B");
+
+    screen.orientation.lock('portrait')
+      .then(() => {
+        console.log('Screen orientation locked successfully');
+      })
+      .catch((error) => {
+        console.error('Failed to lock screen orientation:', error);
+      });
+  }, []);
 
   return (
     <>
