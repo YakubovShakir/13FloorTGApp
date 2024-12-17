@@ -1,11 +1,42 @@
 .ScreenBody {
-  background-color: #2f292b;
+  
   position: absolute;
-  height: 80%;
+  height: 83%;
   width: 100%;
   top: 10%;
   padding-top: 4%;
 }
-.HomeHeaderBottomRow{
+
+.HomeHeaderBottomName {
+ 
+  position: relative; /* Для псевдоэлементов */
+  background: linear-gradient(90deg, rgba(34,199,163,0) 20%, rgba(21,110,90,0.47102591036414565) 50%, rgba(21,110,90,0) 80%);
+  animation: pulseLinearGradient 6s infinite ease-in-out; /* Плавная анимация для фона */
+}
+
+.HomeHeaderBottomName::before,
+.HomeHeaderBottomName::after {
+  content: ""; /* Создаём пустой элемент */
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px; /* Толщина границы */
+  background: radial-gradient(circle, #22c7a3 0%, transparent 70%); /* Градиент для псевдоэлементов */
   
 }
+
+.HomeHeaderBottomName::before {
+  top: 0; /* Имитация border-top */
+}
+
+.HomeHeaderBottomName::after {
+  bottom: 0; /* Имитация border-bottom */
+}
+
+
+
+
+
+
+
+

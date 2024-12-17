@@ -1,16 +1,15 @@
 .HomeHeader {
   width: 100%;
-  position: absolute;
+  position: fixed;
   padding-top: 3%;
-  background-color: var(--main-black);
+  
   height: auto;
   overflow-x: hidden;
   z-index: 3;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  box-shadow: 0px -8px 5px -5px rgb(33 29 30 / 39%) inset;
-    border-bottom: 1px solid #3B3537;
+  
 }
 
 .HomeHeaderRow {
@@ -31,7 +30,9 @@
   justify-content: space-between;  /* Распределяем элементы по бокам */
   align-items: center;
   width: 40%;
-  background-color: var(--main-lightblack);
+  border: solid 1px rgb(243, 117, 0);
+    backdrop-filter: blur(5px);
+    background-color: #2508047a;
   border-radius: 5px;
 }
 
@@ -69,13 +70,16 @@
   align-items: center;
   justify-content: space-evenly;
   border-radius: 5px;
-  background-color: #3b3537;
+  
   color: white;
 
   
   font-size: 5cqw;
   letter-spacing: 1px;
   width: 30%;
+  border: solid 1px rgb(243, 117, 0);
+    backdrop-filter: blur(5px);
+    background-color: #2508047a;
 }
 
 .HomeHeaderRespect span {
@@ -99,12 +103,16 @@
   text-shadow: 1px 1px 0px #2f292b, -1px -1px 0px #2f292b, 1px -1px 0px #2f292b, -1px 1px 0px #2f292b;
   align-items: center;
   justify-content: center;
-  background-color: var(--main-lightblack);
+  
   border-radius: 5px;
   color: white;
   position: relative;
   z-index: 0;
   overflow: hidden;
+
+  border: solid 1px #22c7a3;
+    backdrop-filter: blur(5px);
+    background-color: #22c7a32d;
 }
 
 .HomeHeaderLevelCapacity {
@@ -116,11 +124,11 @@
   border-radius: 5px 0 0 5px;  /* Скругление снизу */
   background: linear-gradient(
     to right, /* Градиент направлен слева направо */
-    rgba(111, 73, 129, 1) 5%,
-    rgba(160, 122, 236, 1) 65%
+    #22c7a31a,
+    #22c7a3
   );
   z-index: -1;
-  transition: width 1s; /* Анимация изменения ширины */
+  
 }
 
 .HomeHeaderLevel span:nth-child(1) {

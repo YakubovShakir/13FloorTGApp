@@ -189,15 +189,14 @@ const Home = () => {
       variants={pageVariants}
       style={{
         position: 'absolute',
-        width: '100%',
         height: '100%',
+    width: '100%',
         backgroundImage: currentProcess?.type 
           ? getBgByCurrentProcess(currentProcess.type)
           : `url(${Assets.BG.homeBackground})`,
         backgroundSize: "cover",
-        backgroundPosition: "bottom", // Центрирование фона
-        maxWidth: "100vw", // Ограничение ширины фона
-        maxHeight: "100vh", // Ограничение высоты фона
+        backgroundPosition: "bottom right", // Центрирование фона
+        
       }}
     
     >

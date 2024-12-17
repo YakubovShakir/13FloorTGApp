@@ -15,22 +15,76 @@
   transition: filter 1s;
 }
 
-.ScreenTab {
-  border: 1px solid var(--border-color);
-  border-top-left-radius: 10px;
-  border-top-right-radius: 10px;
+.tab-label-active{
+  margin-top: 10px;
+  font-size: 17px;
+}
+.tab-label{
+  margin-top: 10px;
+  font-size: 17px;
+  color: #ff8800;
+  margin-top: 10px;
+}
 
-  background-color: #2f292b;
+
+.ScreenTab {
+  
+  
+  
+  
   text-align: center;
-  padding: 3px 0;
+  padding: 15px 0;
+  
+  /* Эффект 3D-преобразования для вкладки */
+  perspective: 200px;
+  display: inline-block;
+  
+  position: relative; /* для псевдо-элемента */
+}
+
+.ScreenTab:before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  
+  transform: rotateX(40deg); /* 3D-преобразование */
+  transform-origin: 50% 100%;
+  border-radius: 10px 10px 0 0;
+  background-color: rgb(243 117 0 / 18%);
+  z-index: -1;
 }
 
 .ScreenActiveTab {
-  background: linear-gradient(180deg, rgba(243, 117, 0, 0.391) 1%, #2f292b 61%);
   border-bottom: none;
-  z-index: 1;
-  border-color: #f37500;
+  z-index: 2;
+  
   position: relative;
+  
+  font-weight: bold;
+  font-size: 14px;
+  
+  padding: 10px 20px;
+  text-align: center;
+  
+  
+}
+
+.ScreenActiveTab:before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  
+  transform: rotateX(40deg); /* 3D-преобразование */
+  transform-origin: 50% 100%;
+  border-radius: 10px 10px 0 0;
+  background-color: #ff8800; /* Цвет фона активной вкладки */
+  z-index: -1;
 }
 
 .ScreenActiveTab::after {
@@ -40,6 +94,6 @@
   left: 0;
   width: 100%;
   height: 100%;
-  border-bottom: 1px solid #2f292b;
+  
   z-index: -1;
 }

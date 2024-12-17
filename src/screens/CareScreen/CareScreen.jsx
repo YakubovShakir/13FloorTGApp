@@ -21,9 +21,7 @@ const CareScreen = () => {
   const navigate = useNavigate()
   const { Icons } = Assets
   const tabs = [
-    { icon: foodTab, callback: () => setActiveTab("foods") },
-    { icon: boost, callback: () => setActiveTab("boosts") },
-    { icon: Icons.inventoryIcon, callback: () => setActiveTab("inventory") },
+    
   ]
 
   useEffect(() => {
@@ -33,8 +31,8 @@ const CareScreen = () => {
   return (
     <Screen>
       <HomeHeader screenHeader />
-      <ScreenBody activity={'Забота'}>
-        <ScreenTabs tabs={tabs} />
+      <ScreenBody activity={'Еда'}>
+       
 
         {/* Food Tab */}
         {activeTab === "foods" && (
@@ -45,22 +43,9 @@ const CareScreen = () => {
           />
         )}
 
-        {/* Boosts Tab  */}
-        {activeTab === "boosts" && (
-          <BoostTab
-            userId={userId}
-            userParameters={userParameters}
-            setUserParameters={setUserParameters}
-          />
-        )}
+        
 
-        {activeTab === "inventory" && (
-           <InventoryTab
-            userId={userId}
-            userParameters={userParameters}
-            setUserParameters={setUserParameters}
-         />
-        )}
+       
         {/* Store Data */}
       </ScreenBody>
     </Screen>

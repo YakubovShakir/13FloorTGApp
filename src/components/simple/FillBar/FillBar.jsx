@@ -5,7 +5,7 @@ const FillBar = ({ icon, width, percentFill }) => {
 
   const color =
     roundedPercent > 50
-      ? "linear-gradient(180deg, rgba(46,199,115,1) 0%, rgba(9,98,78,1) 100%)"
+      ? ""
       : "#E94E1B";
 
   return (
