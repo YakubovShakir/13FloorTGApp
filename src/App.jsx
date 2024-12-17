@@ -1,5 +1,6 @@
 import { useContext, useEffect } from "react"
 import { Route, Routes, MemoryRouter, useNavigate } from "react-router-dom"
+import { isMobile } from 'react-device-detect';
 import "./App.css"
 import Home from "./screens/Home/Home"
 import useTelegram from "./hooks/useTelegram"
@@ -11,7 +12,9 @@ import ShopScreen from './screens/ShopScreen/ShopScreen'
 import TaskScreen from "./screens/TaskScreen/TaskScreen"
 function App() {
   useEffect(() => {
-      useTelegram.setFullScreen(),
+      if(isMobile) {
+        useTelegram.setFullScreen()
+      }
       useTelegram.setHeaderColor("#2F292B")
   }, [])
 
