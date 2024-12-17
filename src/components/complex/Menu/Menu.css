@@ -11,13 +11,14 @@
 }
 
 .MenuButtonContainer {
- 
-  bottom: 15%; /* Убираем кнопку еще выше на 10% */
-  width: 100%;
+  width: 100vh;
+  height: 10vh;
+  position: absolute;
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 4;
+  bottom: 12.5vh;
 }
 
 .BigButton {

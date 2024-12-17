@@ -172,21 +172,7 @@ const StarsTab = ({ userId }) => {
   const [clothesItems, setClothesItems] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
 
-  const handleStarsBuy = async (item) => {
-    try {
-      const response = await instance.post('/users/request-stars-invoice-link', {
-          productType: 'clothes',
-          id: item.id
-      }).then(res => res.data.invoiceLink)
-      WebApp.openInvoice(response, (status) => {
-        setIsLoading(true)
-        if(status === "paid") {}
-        setIsLoading(false)
-      })
-    } catch (err) {
-      console.error(err)
-    }
-  }
+
 
   const { userPersonage } = useContext(UserContext)
 

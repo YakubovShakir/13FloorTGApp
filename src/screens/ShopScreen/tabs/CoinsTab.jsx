@@ -1,169 +1,470 @@
 import { useState, useEffect, useContext } from "react"
 import Assets from "../../../assets"
 import ScreenContainer from "../../../components/section/ScreenContainer/ScreenContainer"
-import ItemCard from "../../../components/simple/ItemCard/ItemCard"
-import { getFoods } from "../../../services/food/food"
-import { getProcesses, startProcess } from "../../../services/process/process"
-import { getParameters, getShopItems } from "../../../services/user/user"
-import formatTime from "../../../utils/formatTime"
+import { getShopItems } from "../../../services/user/user"
 import Button from "../../../components/simple/Button/Button"
 import Modal from "../../../components/complex/Modals/Modal/Modal"
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from "framer-motion"
 import UserContext from "../../../UserContext"
 import { FullScreenSpinner } from "../../Home/Home"
 import FilterModal from "../../../components/complex/FilterModal/FilterModal"
+import { SquareButton } from "../../../components/simple/SquareButton/SquareButton"
+import { instance } from "../../../services/instance"
+import { buyItemsForCoins } from '../../../services/user/user'
+import WebApp from "@twa-dev/sdk"
 
-const SquareButton = ({
-  handlePress,
-  assignedValue,
-  selectedValue,
-  imageSrc,
-  size = 60,
-  imageSize = 40
+const GridItem = ({
+  id,
+  productType,
+  icon,
+  title,
+  price,
+  available = true,
+  respect = 100,
+  equipped,
+  clothesUnequip,
+  clothesEquip,
+  clothingId,
+  type,
+  isPrem = false,
+  handleCoinsBuy,
+  handleStarsBuy
 }) => {
-  const isSelected =
-    assignedValue && selectedValue && assignedValue === selectedValue;
-
   return (
-    <motion.div
-      whileHover={{ scale: 1.05 }}
-      whileTap={{ scale: 0.95 }}
-      transition={{ type: "spring", stiffness: 300, damping: 10 }}
+    <div
+      className="clothing-item-container" // Основной контейнер элемента одежды
       style={{
-        backgroundColor: isSelected ? "#E94E1B" : "#453D3F",
-        height: size + 5,
-        width: size,
-        borderRadius: 8,
-        position: 'relative', // Ensure proper stacking
+        padding: "0rem",
       }}
-      onClick={handlePress}
     >
-      {/* Persistent Shadow */}
-      {isSelected &&
-        <motion.div transition={{ type: "spring", stiffness: 300, damping: 10 }}>
-          <img
-            src={Assets.Layers.squareButtonShadow}
-            width={42}
-            height={42}
-            style={{
-              position: 'absolute',
-              bottom: 0,
-              left: -1,
-              zIndex: 5,
-              borderBottomLeftRadius: 8,
-              borderBottomRightRadius: 8
-            }}
-          />
-        </motion.div>}
-
-      <motion.div
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{
-          opacity: 1,
-          scale: 1,
-          backgroundColor: "#595254"
-        }}
-        transition={{
-          duration: 0.3,
-          type: "spring",
-          stiffness: 300,
-          damping: 20
-        }}
+      <div
+        className="clothing-item-top" // Верхний блок: Заголовок, Иконка и Тень
         style={{
-          height: size + 2,
-          width: size + 2,
-          marginLeft: -2,
-          marginTop: -2,
-          borderRadius: 8,
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          position: 'relative',
-          zIndex: 2,
+          display: "flex",
+          alignItems: "center",
+          gap: "1rem",
+          flexDirection: "column",
+          overflow: "hidden",
+          border: "solid 1px rgb(243, 117, 0)",
+          margin: "7px 0px 7px 0px",
+          borderRadius: "7px",
+          backgroundImage:
+            "repeating-linear-gradient(to right, transparent, transparent 19px, rgba(243, 117, 0, 0.3) 20px), repeating-linear-gradient(to bottom, transparent, transparent 19px, rgba(243, 117, 0, 0.3) 20px)",
+          justifyContent: "center",
         }}
       >
-        <motion.img
-          src={imageSrc}
-          width={imageSize}
-          height={imageSize}
-          animate={{
-            opacity: 1,
-            rotate: 0,
-            scale: isSelected ? 0.9 : 1,
-            filter: isSelected ? 'brightness(0.8)' : 'brightness(1)'
-          }}
-          transition={{
-            duration: 0.3,
-            type: "spring",
-            stiffness: 300,
-            damping: 20
-          }}
-          style={{
-            position: 'relative',
-            zIndex: 3
-          }}
-        />
-      </motion.div>
-    </motion.div>
-  );
-};
+        {/* Заголовок и Иконка */}
+        <div className="clothing-item-header">
+          <div></div>
+          {/* Иконка одежды и Тень активной одежды */}
+          <motion.div
+            className="clothing-item-icon-wrapper"
+            style={{
+              width: "100%",
+              display: "flex",
+              justifyContent: "center",
+            }}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <div
+              className="clothing-item-icon-container"
+              style={{
+                height: "100%",
+                width: "100%",
+                borderRadius: "0.5rem",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
 
-const GridItem = ({ icon, title, price, available = true, respect = 100 }) => {
-  return (
-
-    <div style={{
-      padding: '1rem',
-    }}>
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: '1rem',
-        flexDirection: 'column',
-      }}>
-    <div>
-          <div style={{ height: 40, width: '100%', display: 'flex', justifyContent: 'center'}}>
-            <p style={{ color: 'white', textAlign: 'center', fontWeight: '100', fontFamily: 'Roboto', width: '100%',  }}>{title}</p>
-          </div>
-          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: 10 }}>
-            <img src={Assets.Icons.respect} height={13} />
-            <p style={{ color: 'white', textAlign: 'center', fontWeight: '100', fontFamily: 'Roboto', paddingLeft: 8 }}>{respect}</p>
-          </div>
+                marginTop: -5.5,
+                position: "relative",
+              }}
+            >
+              {/* Тень активной одежды */}
+              {equipped && (
+                <img
+                  className="clothing-item-shadow"
+                  src={Assets.Layers.inventoryActiveShadow}
+                  style={{
+                    position: "absolute",
+                    height: "100%",
+                    width: "100%",
+                    top: 0,
+                    left: 0,
+                    zIndex: 1,
+                    borderRadius: "0.5rem",
+                  }}
+                />
+              )}
+              <img
+                className="clothing-item-icon"
+                src={icon}
+                alt={title}
+                style={{
+                  height: "100%",
+                  width: "100%",
+                  position: "relative",
+                  zIndex: 2,
+                }}
+              />
+            </div>
+          </motion.div>
         </div>
-        <motion.div
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
+      </div>
+
+      <div
+        className="clothing-item-bottom" // Нижний блок: Уровень уважения и Кнопки
+        style={{
+          paddingBottom: "12px",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+
+          borderRight: "solid 1px rgb(243 117 0 / 18%)",
+          borderLeft: "solid 1px rgb(243 117 0 / 18%)",
+          borderTop: "solid 1px rgb(243 117 0 / 18%)",
+          borderRadius: "7px",
+          backgroundColor: "#2508047a",
+        }}
+      >
+        <p
+          style={{
+            paddingTop: "10px",
+            height: "45px",
+            color: "white",
+            textAlign: "center",
+            fontWeight: "100",
+            fontFamily: "Roboto",
+            width: "100%",
+          }}
         >
-          <div style={{
-            height: '109px',
-            width: '109px',
-            borderRadius: '0.5rem',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            backgroundColor: '#534B4E',
-            marginTop: -5.5
-          }}>
-            <img src={icon} alt={title} style={{ width: 109, height: 109 }} />
-          </div>
-        </motion.div>
-        <Button width={109} height={44} active={available} icon={available ? Assets.Icons.balance : null} fontFamily={'Roboto'} fontWeight={'300'} text={available ? price : 'Недоступно'} fontSize={14} paddingTop={1} />
+          {title}
+        </p>
+        {/* Уровень уважения */}
+        <div
+          className="clothing-item-respect"
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            marginTop: 10,
+            marginBottom: 10,
+          }}
+        >
+          <img src={Assets.Icons.respect} height={22} />
+          <p
+            style={{
+              color: "white",
+              textAlign: "center",
+              fontWeight: "100",
+              fontFamily: "Roboto",
+              paddingLeft: 8,
+              fontSize: "20px",
+            }}
+          >
+            {respect}
+          </p>
+        </div>
+
+        {/* Кнопки действий */}
+        {isPrem ? (
+          <Button
+            className="clothing-item-unequip-button"
+            shadowColor={"#22c7a3"}
+            width={"88%"}
+            marginBottom={"5"}
+            height={44}
+            fontFamily={"Roboto"}
+            fontWeight={"300"}
+            text={price}
+            icon={Assets.Icons.starsIcon}
+            fontSize={14}
+            borderColor={"rgb(34, 199, 163)"}
+            ownColor={
+              "linear-gradient(to bottom, rgb(34 199 163 / 0%), rgb(34 199 163 / 24%))"
+            }
+            bgColor={
+              "linear-gradient(to bottom, rgb(34 199 163 / 0%), rgb(34 199 163 / 24%))"
+            }
+            onClick={() => handleStarsBuy({ id, productType })}
+          />
+        ) : (
+          <Button
+            className="clothing-item-equip-button"
+            shadowColor={"#AF370F"}
+            width={"88%"}
+            marginBottom={"5"}
+            height={44}
+            active={available}
+            fontFamily={"Roboto"}
+            fontWeight={"300"}
+            icon={price > 0 ? Assets.Icons.balance : undefined}
+            text={price === 0 ? 'Забрать' : price}
+            fontSize={14}
+            ownColor={
+              "linear-gradient(rgb(18, 4, 2) 0%, rgba(243, 117, 0, 0.2) 100%)"
+            }
+            bgColor={
+              "linear-gradient(rgb(18, 4, 2) 0%, rgba(243, 117, 0, 0.2) 100%)"
+            }
+            onClick={() => handleCoinsBuy({ id, productType })}
+          />
+        )}
       </div>
     </div>
+  )
+}
 
-  );
-};
-
-const GridLayout = ({ setCurrentItem, items }) => {
+const GridItemShelf = ({
+  id,
+  productType,
+  icon,
+  title,
+  isPrem,
+  price,
+  starsPrice,
+  available = true,
+  respect = 100,
+  equipped,
+  handleCoinsBuy,
+  handleStarsBuy,
+  clothingId,
+  type,
+  description
+}) => {
   return (
-    <div style={{ width: '100vw', display: 'flex', justifyContent: 'center', paddingTop: 12 }}>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem', width: '95vw' }}>
-        {items.map((item, index) => (
-          <GridItem key={index} icon={item.image} title={item.name} price={item.price} respect={item.respect} available={item.available} />
-        ))}
+    <div
+      className="clothing-item-container" // Основной контейнер элемента одежды
+      style={{
+        padding: "0rem",
+      }}
+    >
+      <div
+        className="clothing-item-top" // Верхний блок: Заголовок, Иконка и Тень
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "1rem",
+          flexDirection: "column",
+          overflow: "hidden",
+          border: "solid 1px rgb(243, 117, 0)",
+          margin: "7px 0px 7px 0px",
+          borderRadius: "7px",
+          backgroundImage:
+            "repeating-linear-gradient(to right, transparent, transparent 19px, rgba(243, 117, 0, 0.3) 20px), repeating-linear-gradient(to bottom, transparent, transparent 19px, rgba(243, 117, 0, 0.3) 20px)",
+          justifyContent: "center",
+        }}
+      >
+        {/* Заголовок и Иконка */}
+        <div className="clothing-item-header">
+          <div></div>
+          {/* Иконка одежды и Тень активной одежды */}
+          <motion.div
+            className="clothing-item-icon-wrapper"
+            style={{
+              width: "100%",
+              display: "flex",
+              justifyContent: "center",
+            }}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <div
+              className="clothing-item-icon-container"
+              style={{
+                height: "100%",
+                width: "100%",
+                borderRadius: "0.5rem",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+
+                marginTop: -5.5,
+                position: "relative",
+              }}
+            >
+              {/* Тень активной одежды */}
+
+              <img
+                src={icon}
+                alt={title}
+                style={{
+                  maxHeight: 160,
+                  width: "100%",
+                  position: "relative",
+                  zIndex: 2,
+                }}
+              />
+            </div>
+          </motion.div>
+        </div>
+      </div>
+
+      <div
+        className="clothing-item-bottom" // Нижний блок: Уровень уважения и Кнопки
+        style={{
+          paddingBottom: "12px",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          borderRight: "solid 1px rgb(243 117 0 / 18%)",
+          borderLeft: "solid 1px rgb(243 117 0 / 18%)",
+          borderTop: "solid 1px rgb(243 117 0 / 18%)",
+          borderRadius: "7px",
+          backgroundColor: "#2508047a",
+        }}
+      >
+        <p
+          style={{
+            paddingTop: "10px",
+            height: "45px",
+            color: "white",
+            textAlign: "center",
+            fontWeight: "100",
+            fontFamily: "Roboto",
+            width: "90%",
+          }}
+        >
+          {title}
+        </p>
+        <div
+          className="clothing-item-respect"
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            marginTop: 10,
+            marginBottom: 25,
+            width: '90%'
+          }}
+        >
+          {/* <p
+            style={{
+              color: "white",
+              textAlign: "center",
+              fontWeight: "300",
+              fontFamily: "Roboto",
+              fontSize: "14px",
+            }}
+          >
+            {description}
+          </p> */}
+        </div>
+
+        {/* Кнопки действий */}
+        {isPrem ? (
+          <Button
+            className="clothing-item-equip-button"
+            shadowColor={"#AF370F"}
+            width={"88%"}
+            marginBottom={"5"}
+            height={44}
+            fontFamily={"Roboto"}
+            fontWeight={"300"}
+            text={price}
+            icon={Assets.Icons.starsIcon}
+            fontSize={14}
+            borderColor={"rgb(34, 199, 163)"}
+            ownColor={
+              "linear-gradient(to bottom, rgb(34 199 163 / 0%), rgb(34 199 163 / 24%))"
+            }
+            bgColor={
+              "linear-gradient(to bottom, rgb(34 199 163 / 0%), rgb(34 199 163 / 24%))"
+            }
+            onClick={() => handleStarsBuy({ id, productType })}
+          />
+        ) : (
+          <Button
+            className="clothing-item-equip-button"
+            shadowColor={"#AF370F"}
+            width={"88%"}
+            marginBottom={"5"}
+            height={44}
+            active={available || price === 0}
+            fontFamily={"Roboto"}
+            fontWeight={"300"}
+            icon={price > 0 ? Assets.Icons.balance : undefined}
+            text={price === 0 ? 'Забрать' : price}
+            fontSize={14}
+            ownColor={
+              "linear-gradient(rgb(18, 4, 2) 0%, rgba(243, 117, 0, 0.2) 100%)"
+            }
+            bgColor={
+              "linear-gradient(rgb(18, 4, 2) 0%, rgba(243, 117, 0, 0.2) 100%)"
+            }
+            onClick={() => handleCoinsBuy({ id, productType })}
+          />
+        )}
       </div>
     </div>
-  );
-};
+  )
+}
+
+const GridLayout = ({ items, handleCoinsBuy, handleStarsBuy }) => {
+  return (
+    <div
+      style={{
+        width: "100vw",
+        display: "flex",
+        justifyContent: "center",
+        paddingTop: 12,
+      }}
+    >
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(2, 1fr)",
+          gap: "1rem",
+          width: "90vw",
+        }}
+      >
+        {items.map((item, index) => {
+          if (item.category === "Shelf") {
+            console.log('shelf item', item)
+            return (
+              <GridItemShelf
+                key={index}
+                icon={item.image}
+                title={item.name}
+                price={item.price}
+                respect={item.respect}
+                equipped={item.equipped}
+                available={item.available}
+                handleCoinsBuy={handleCoinsBuy}
+                handleStarsBuy={handleStarsBuy}
+                clothingId={item.clothing_id}
+                type={item.category}
+                isPrem={item.isPrem}
+                description={item.description}
+                id={item.id}
+                productType={item.productType}
+              />
+            )
+          } else {
+            return (
+              <GridItem
+                key={index}
+                icon={item.image}
+                title={item.name}
+                price={item.price}
+                respect={item.respect}
+                equipped={item.equipped}
+                available={item.available}
+                handleCoinsBuy={handleCoinsBuy}
+                handleStarsBuy={handleStarsBuy}
+                clothingId={item.clothing_id}
+                type={item.category}
+                id={item.id}
+                productType={item.productType}
+              />
+            )
+          }
+        })}
+      </div>
+    </div>
+  )
+}
 
 const CoinsTab = ({ userId }) => {
   const [userEatingFoods, setUserEatingFoods] = useState(null)
@@ -181,66 +482,100 @@ const CoinsTab = ({ userId }) => {
 
   const BaseFilters = {
     // Uses Clothing
-    Hat: 'Hat',
-    Top: 'Top',
-    Pants: 'Pants',
-    Shoes: 'Shoes',
-    Accessories: 'Accessory',
+    Hat: "Hat",
+    Top: "Top",
+    Pants: "Pants",
+    Shoes: "Shoes",
+    Accessories: "Accessory",
     // Uses ShelfItems
-    Shelf: 'Shelf',
-    Complex: 'Complex'
+    Shelf: "Shelf",
+    Complex: "Complex",
   }
 
   const TierFilters = [0, 1, 2, 3, 4, 5]
-
+  
   useEffect(() => {
-    console.log('Inside Coins tab')
-    getShopItems(userId).then(data => {
-      // TODO: localize
-      const loadedClothesItems = data.clothing.map(item => ({ name: item.name['ru'], image: userPersonage.gender === 'male' ? item.male_icon : item.female_icon, price: item.price, respect: item.respect, tier: item.tier, tags: item.tag, category: item.type, available: userParameters.balance >= item.price }))
-      setClothesItems(loadedClothesItems)
-      console.log('Clothes Items', clothesItems)
-    }).finally(() => setIsLoading(false))
+    console.log("Inside Coins tab")
+    getShopItems(userId)
+      .then((data) => {
+        // TODO: localize
+        const loadedClothesItems = data.clothing.map((item) => ({
+          id: item.clothing_id,
+          name: item.name["ru"],
+          productType: 'clothes',
+          image:
+            userPersonage.gender === "male" ? item.male_icon : item.female_icon,
+          price: item.price,
+          respect: item.respect,
+          tier: item.tier,
+          tags: item.tag,
+          category: item.type,
+          available: userParameters.coins >= item.price,
+        }))
+        const loadedShelfItems = data.shelf.map((item) => ({
+          id: item.id,
+          productType: 'shelf',
+          name: item.name["ru"],
+          image: item.link,
+          price: item.cost.stars || item.cost.coins,
+          category: "Shelf",
+          isPrem: item.cost.stars > 0,
+          available: item.cost.stars > 0 || item.cost.coins === 0 || userParameters.coins >= item.cost.coins,
+          description: item.description['ru']
+        }))
+        setClothesItems(loadedClothesItems)
+        setShelfItems(loadedShelfItems)
+        console.log("Clothes Items", clothesItems)
+      })
+      .finally(() => setIsLoading(false))
     // getFoods().then((r) => setFoods(r))
     // getProcesses("food", userId).then((r) => setUserEatingFoods(r))
     // updateInformation()
   }, [])
 
   const addComplexFilter = ({ filteredValue, filteredField }) => {
-    console.log('filters', currentComplexFilters)
-    setCurrentComplexFilters([...currentComplexFilters, { filteredField, filteredValue }]);
-  };
-  
+    console.log("filters", currentComplexFilters)
+    setCurrentComplexFilters([
+      ...currentComplexFilters,
+      { filteredField, filteredValue },
+    ])
+  }
+
   const removeComplexFilter = ({ filteredValue, filteredField }) => {
     setCurrentComplexFilters(
       currentComplexFilters.filter(
-        (filter) => filter.filteredField !== filteredField || filter.filteredValue !== filteredValue
+        (filter) =>
+          filter.filteredField !== filteredField ||
+          filter.filteredValue !== filteredValue
       )
-    );
-  };
+    )
+  }
 
   const applyFilter = (items) => {
-    if (
-      !filterTypeInUse ||
-      filterTypeInUse === BaseFilters.Shelf
-    ) {
+    if (!filterTypeInUse) {
       return items
     }
 
-    if(filterTypeInUse === BaseFilters.Complex) {
-      if(!currentComplexFilters || currentComplexFilters.length === 0) {
+    if (filterTypeInUse === BaseFilters.Complex) {
+      if (!currentComplexFilters || currentComplexFilters.length === 0) {
         return items
       }
 
-      const tags = currentComplexFilters.filter(filter => filter.filteredField === 'tag').map(filter => filter.filteredValue)
-      const tiers = currentComplexFilters.filter(filter => filter.filteredField === 'tier').map(filter => filter.filteredValue)
+      const tags = currentComplexFilters
+        .filter((filter) => filter.filteredField === "tag")
+        .map((filter) => filter.filteredValue)
+      const tiers = currentComplexFilters
+        .filter((filter) => filter.filteredField === "tier")
+        .map((filter) => filter.filteredValue)
 
-      const filtered = items.filter(item => {
+      const filtered = items.filter((item) => {
         let shouldTake = false
-        const isCorrectByTier = tiers.length > 0 ? tiers.includes(item.tier) : true
-        const isCorrectByTags = tags.length > 0 ? item.tags?.some(tag => tags.includes(tag)) : true
+        const isCorrectByTier =
+          tiers.length > 0 ? tiers.includes(item.tier) : true
+        const isCorrectByTags =
+          tags.length > 0 ? item.tags?.some((tag) => tags.includes(tag)) : true
 
-        if(isCorrectByTier && isCorrectByTags){
+        if (isCorrectByTier && isCorrectByTags) {
           shouldTake = true
         }
 
@@ -269,34 +604,130 @@ const CoinsTab = ({ userId }) => {
     if (filterTypeInUse === BaseFilters.Accessories) {
       return items.filter((item) => item.category === "Accessory")
     }
+
+    if (filterTypeInUse === BaseFilters.Shelf) {
+      return items.filter((item) => item.productType === "shelf")
+    }
   }
 
-  if(isLoading) {
-    return <FullScreenSpinner/>
+  const handleStarsBuy = async (item) => {
+    try {
+      setIsLoading(true)
+      const response = await instance.post('/users/request-stars-invoice-link', {
+          productType: item.productType,
+          id: item.id
+      })
+
+      WebApp.openInvoice(response.data.invoiceLink, (status) => {
+        // Можно вызвать попап или анимацию успеха/фейла
+        if(status === "paid") {}
+        if(status === "cancelled") {}
+        if(status === 'pending') {}
+        if(status === 'failed') {}
+      })
+    } catch (err) {
+      console.error(err)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+  
+  const handleCoinsBuy = async (item) => {
+    try {
+      setIsLoading(true)
+      await buyItemsForCoins(userId, item.id, item.productType)
+      getShopItems(userId)
+      .then((data) => {
+        // TODO: localize
+        const loadedClothesItems = data.clothing.map((item) => ({
+          id: item.clothing_id,
+          name: item.name["ru"],
+          productType: 'clothes',
+          image:
+            userPersonage.gender === "male" ? item.male_icon : item.female_icon,
+          price: item.price,
+          respect: item.respect,
+          tier: item.tier,
+          tags: item.tag,
+          category: item.type,
+          available: userParameters.coins >= item.price,
+        }))
+        const loadedShelfItems = data.shelf.map((item) => ({
+          id: item.id,
+          productType: 'shelf',
+          name: item.name["ru"],
+          image: item.link,
+          price: item.cost.stars || item.cost.coins,
+          category: "Shelf",
+          isPrem: item.cost.stars > 0,
+          available: item.cost.stars > 0 || item.cost.coins === 0 || userParameters.coins >= item.cost.coins,
+          description: item.description['ru']
+        }))
+        setClothesItems(loadedClothesItems)
+        setShelfItems(loadedShelfItems)
+        console.log("Clothes Items", clothesItems)
+      })
+      .finally(() => setIsLoading(false))
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
+  if (isLoading) {
+    return <FullScreenSpinner />
   }
 
   return (
     <ScreenContainer withTab>
-      {isFilterModalOpen && <FilterModal baseStyles={{ position: 'fixed', height: '100vh', width: '100vw', backgroundColor: 'black', zIndex: 10, top: 0, left: 0 }} addComplexFilter={addComplexFilter} removeComplexFilter={removeComplexFilter} setIsFilterModalOpen={setIsFilterModalOpen} currentComplexFilters={currentComplexFilters}/>}      <div style={{ width: '100vw', display: 'flex', justifyContent: 'center' }}>
-        <div style={{ width: '95vw', display: 'flex', justifyContent: 'space-around' }}>
+      {isFilterModalOpen && (
+        <FilterModal
+          baseStyles={{
+            position: "fixed",
+            height: "100vh",
+            width: "100vw",
+            backgroundColor: "black",
+            zIndex: 10,
+            top: 0,
+            left: 0,
+          }}
+          addComplexFilter={addComplexFilter}
+          removeComplexFilter={removeComplexFilter}
+          setIsFilterModalOpen={setIsFilterModalOpen}
+          currentComplexFilters={currentComplexFilters}
+        />
+      )}{" "}
+      <div
+        style={{ width: "100vw", display: "flex", justifyContent: "center" }}
+      >
+        <div
+          style={{
+            width: "95vw",
+            display: "flex",
+            justifyContent: "space-around",
+          }}
+        >
           <SquareButton
-         size={42}
-         imageH={35}
-         imageSrc={Assets.Icons.settingsIcon}
-         assignedValue={true}
-         selectedValue={currentComplexFilters.length > 0}
-         handlePress={() => {
-           setFilterTypeInUse(BaseFilters.Complex)
-           setIsFilterModalOpen(true)
-         }}
-       />
+            size={42}
+            imageH={35}
+            imageSrc={Assets.Icons.settingsIcon}
+            assignedValue={true}
+            selectedValue={currentComplexFilters.length > 0}
+            handlePress={() => {
+              setFilterTypeInUse(BaseFilters.Complex)
+              setIsFilterModalOpen(true)
+            }}
+          />
           <SquareButton
             size={42}
             imageSize={42}
             imageSrc={Assets.Icons.hairIcon}
             selectedValue={filterTypeInUse}
             assignedValue={BaseFilters.Hat}
-            handlePress={() => filterTypeInUse === BaseFilters.Hat ? setFilterTypeInUse(null) : setFilterTypeInUse(BaseFilters.Hat)}
+            handlePress={() =>
+              filterTypeInUse === BaseFilters.Hat
+                ? setFilterTypeInUse(null)
+                : setFilterTypeInUse(BaseFilters.Hat)
+            }
           />
           <SquareButton
             size={42}
@@ -304,7 +735,11 @@ const CoinsTab = ({ userId }) => {
             imageSrc={Assets.Icons.bodyIcon}
             selectedValue={filterTypeInUse}
             assignedValue={BaseFilters.Top}
-            handlePress={() => filterTypeInUse === BaseFilters.Top ? setFilterTypeInUse(null) : setFilterTypeInUse(BaseFilters.Top)}
+            handlePress={() =>
+              filterTypeInUse === BaseFilters.Top
+                ? setFilterTypeInUse(null)
+                : setFilterTypeInUse(BaseFilters.Top)
+            }
           />
           <SquareButton
             size={42}
@@ -312,7 +747,11 @@ const CoinsTab = ({ userId }) => {
             imageSrc={Assets.Icons.legsIcon}
             selectedValue={filterTypeInUse}
             assignedValue={BaseFilters.Pants}
-            handlePress={() => filterTypeInUse === BaseFilters.Pants ? setFilterTypeInUse(null) : setFilterTypeInUse(BaseFilters.Pants)}
+            handlePress={() =>
+              filterTypeInUse === BaseFilters.Pants
+                ? setFilterTypeInUse(null)
+                : setFilterTypeInUse(BaseFilters.Pants)
+            }
           />
           <SquareButton
             size={42}
@@ -320,7 +759,11 @@ const CoinsTab = ({ userId }) => {
             imageSrc={Assets.Icons.shoesIcon}
             assignedValue={BaseFilters.Shoes}
             selectedValue={filterTypeInUse}
-            handlePress={() => filterTypeInUse === BaseFilters.Shoes ? setFilterTypeInUse(null) : setFilterTypeInUse(BaseFilters.Shoes)}
+            handlePress={() =>
+              filterTypeInUse === BaseFilters.Shoes
+                ? setFilterTypeInUse(null)
+                : setFilterTypeInUse(BaseFilters.Shoes)
+            }
           />
           <SquareButton
             size={42}
@@ -328,7 +771,11 @@ const CoinsTab = ({ userId }) => {
             imageSrc={Assets.Icons.accIcon}
             selectedValue={filterTypeInUse}
             assignedValue={BaseFilters.Accessories}
-            handlePress={() => filterTypeInUse === BaseFilters.Accessories ? setFilterTypeInUse(null) : setFilterTypeInUse(BaseFilters.Accessories)}
+            handlePress={() =>
+              filterTypeInUse === BaseFilters.Accessories
+                ? setFilterTypeInUse(null)
+                : setFilterTypeInUse(BaseFilters.Accessories)
+            }
           />
           <SquareButton
             size={42}
@@ -336,12 +783,31 @@ const CoinsTab = ({ userId }) => {
             imageSrc={Assets.Icons.homeIcon}
             selectedValue={filterTypeInUse}
             assignedValue={BaseFilters.Shelf}
-            handlePress={() => filterTypeInUse === BaseFilters.Shelf ? setFilterTypeInUse(null) : setFilterTypeInUse(BaseFilters.Shelf)}
+            handlePress={() =>
+              {
+                setCurrentComplexFilters([])
+                filterTypeInUse === BaseFilters.Shelf
+                  ? setFilterTypeInUse(null)
+                  : setFilterTypeInUse(BaseFilters.Shelf)
+              }
+            }
           />
         </div>
       </div>
-      <GridLayout setCurrentItem={setCurrentItem} items={applyFilter(clothesItems)}/>
-      {currentItem && <Modal width={'100vw'} bottom={'-25vh'} height={'100vh'} data={{ title: 'Lol' }} />}
+      <GridLayout
+        setCurrentItem={setCurrentItem}
+        items={applyFilter([...clothesItems, ...shelfItems])}
+        handleCoinsBuy={handleCoinsBuy}
+        handleStarsBuy={handleStarsBuy}
+      />
+      {currentItem && (
+        <Modal
+          width={"100vw"}
+          bottom={"-25vh"}
+          height={"100vh"}
+          data={{ title: "Lol" }}
+        />
+      )}
       {/* {foods?.map((food, index) => (
         <ItemCard
           key={index}

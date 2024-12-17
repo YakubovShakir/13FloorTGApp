@@ -7,7 +7,7 @@ import ScreenBody from "../../components/section/ScreenBody/ScreenBody"
 import ScreenTabs from "../../components/section/ScreenTabs/ScreenTabs"
 import ScreenContainer from "../../components/section/ScreenContainer/ScreenContainer"
 import useTelegram from "../../hooks/useTelegram"
-import { useNavigate } from "react-router-dom"
+import { useNavigate, useParams } from "react-router-dom"
 import ItemCard from "../../components/simple/ItemCard/ItemCard"
 import skillsTab from "./assets/skillsTab.png"
 
@@ -22,12 +22,9 @@ import ActivityTab from "./tabs/ActivityTab"
 import SkillTab from "./tabs/SkillTab"
 import WorkTab from "./tabs/WorkTab"
 const ActivityScreen = () => {
-  // Active tab
-  const [activeTab, setActiveTab] = useState("works");
-
   // Object with titles for each tab
   const tabTitles = {
-    
+
     works: "Карьера",
     skills: "Обучение",
   };
@@ -47,10 +44,14 @@ const ActivityScreen = () => {
   const { Icons } = Assets;
 
   const tabs = [
-    { icon: Icons.workTabIcon, label: "Карьера", callback: () => setActiveTab("works") },
-    { icon: Icons.skillTabIcon, label: "Обучение", callback: () => setActiveTab("skills") },
+    { icon: Icons.workTabIcon, label: "Карьера", callback: () => setActiveTab("works"), type: "works" },
+    { icon: Icons.skillTabIcon, label: "Обучение", callback: () => setActiveTab("skills"), type: "skills" },
   ];
-  
+
+  const { type } = useParams()
+  const [activeTab, setActiveTab] = useState(tabs.find((tab) => tab.type === type).type || 'works');
+  const [indexActiveTab] = useState(tabs.findIndex((tab) => tab.type === type) || 0);
+
 
   useEffect(() => {
     useTelegram.setBackButton(() => navigate("/"));
@@ -61,10 +62,10 @@ const ActivityScreen = () => {
       {/* Название вкладки передаем в HomeHeader */}
       <HomeHeader>{tabTitles[activeTab]}</HomeHeader>
 
-      
+
       <ScreenBody activity={'Развитие'}>
-      
-        
+
+
         {visibleModal && (
           <Modal
             onClose={() => setVisibleModal(false)}
@@ -74,18 +75,18 @@ const ActivityScreen = () => {
             height={"80%"}
           />
         )}
-        <ScreenTabs tabs={tabs} />
+        <ScreenTabs tabs={tabs} initialTab={indexActiveTab} />
 
-      {/* Контент для вкладки "Активности" */}
-      {activeTab === "activities" && (
+        {/* Контент для вкладки "Активности" */}
+        {activeTab === "activities" && (
           <ActivityTab
-          modalData={modalData}
-          setModalData={setModalData}
-          setUserParameters={setUserParameters}
-          setVisibleModal={setVisibleModal}
-          userParameters={userParameters}
-          userId={userId}
-        />
+            modalData={modalData}
+            setModalData={setModalData}
+            setUserParameters={setUserParameters}
+            setVisibleModal={setVisibleModal}
+            userParameters={userParameters}
+            userId={userId}
+          />
         )}
 
         {/* Works Data */}

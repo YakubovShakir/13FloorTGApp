@@ -28,7 +28,7 @@ function App() {
           {/* <Route index element={<PersonageCreationScreen />} /> */}
           <Route path="/care" element={<CareScreen />} />
           <Route path="/shop" element={<ShopScreen />} />
-          <Route path="/activity" element={<ActivityScreen />} />
+          <Route path="/activity/:type" element={<ActivityScreen />} />
           <Route path="/tasks" element={<TaskScreen />} />
 
         </Routes>

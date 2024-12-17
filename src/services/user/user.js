@@ -113,17 +113,25 @@ export const getInventoryItems = async (id) => {
   }
 }
 
-export const handleClothesUnequip = async(id, clothing_id, type) => {
+export const handleClothesUnequip = async(id, clothing_id, type, productType) => {
     await instance.post(`/users/${id}/inventory/c-unequip`, {
       clothing_id,
-      type
+      type,
+      productType
     })
 }
 
-export const handleClothesEquip = async (id, clothing_id, type) => {
-  console.log('Some')
+export const handleClothesEquip = async (id, clothing_id, type, productType) => {
     await instance.post(`/users/${id}/inventory/c-equip`, {
       clothing_id,
-      type
+      type,
+      productType
     })
+}
+
+export const buyItemsForCoins = async (userId, itemId, productType) => {
+  await instance.post(`/users/${userId}/buy-items-for-coins`, {
+    id: itemId,
+    productType
+  })
 }

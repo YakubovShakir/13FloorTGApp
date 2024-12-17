@@ -19,124 +19,20 @@ import { motion, AnimatePresence, complex } from "framer-motion"
 import UserContext from "../../../UserContext"
 import { FullScreenSpinner } from "../../Home/Home"
 import FilterModal from "../../../components/complex/FilterModal/FilterModal"
-
-const SquareButton = ({
-  handlePress,
-  assignedValue,
-  selectedValue,
-  imageSrc,
-  size = 60,
-  imageSize = 40,
-}) => {
-  const isSelected =
-    assignedValue && selectedValue && assignedValue === selectedValue;
-
-  return (
-    <motion.div
-      className="button-wrapper" // Основной контейнер кнопки
-      whileHover={{ scale: 1.05 }}
-      whileTap={{ scale: 0.95 }}
-      transition={{ type: "spring", stiffness: 300, damping: 10 }}
-      style={{
-        backgroundColor: isSelected ? "#E94E1B" : "rgb(57, 57, 57)",
-        height: size + 5,
-        width: size,
-        borderRadius: 8,
-        position: "relative", // Чтобы корректно отображать слои
-      }}
-      onClick={handlePress}
-    >
-      {/* Тень кнопки */}
-      {isSelected && (
-        <motion.div
-          className="button-shadow" // Контейнер тени
-          transition={{ type: "spring", stiffness: 300, damping: 10 }}
-        >
-          <img
-            src={Assets.Layers.squareButtonShadow}
-            width={42}
-            height={42}
-            style={{
-              position: "absolute",
-              bottom: 0,
-              left: -1,
-              zIndex: 5,
-              borderBottomLeftRadius: 8,
-              borderBottomRightRadius: 8,
-              
-            }}
-          />
-        </motion.div>
-      )}
-
-      <motion.div
-        className="button-body" // Внутренний блок кнопки
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{
-          opacity: 1,
-          scale: 1,
-          backgroundColor: "rgb(18, 18, 18)",
-          border: "1px solid rgb(57, 57, 57)",
-        }}
-        transition={{
-          duration: 0.3,
-          type: "spring",
-          stiffness: 300,
-          damping: 20,
-        }}
-        style={{
-          height: size + 2,
-          width: size + 2,
-          marginLeft: -2,
-          marginTop: -2,
-          borderRadius: 8,
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          position: "relative",
-          zIndex: 2,
-        }}
-      >
-        <motion.img
-          className="button-icon" // Иконка внутри кнопки
-          src={imageSrc}
-          width={imageSize}
-          height={imageSize}
-          animate={{
-            padding: "3px",
-            opacity: 1,
-            rotate: 0,
-            scale: isSelected ? 0.9 : 1,
-            filter: isSelected ? "brightness(0.8)" : "brightness(1)",
-          }}
-          transition={{
-            duration: 0.3,
-            type: "spring",
-            stiffness: 300,
-            damping: 20,
-          }}
-          style={{
-            position: "relative",
-            zIndex: 3,
-          }}
-        />
-      </motion.div>
-    </motion.div>
-  );
-};
-
+import { SquareButton } from '../../../components/simple/SquareButton/SquareButton'
 
 const GridItem = ({
   icon,
   title,
   price,
   available = true,
-  respect = 100,
+  respect,
   equipped,
   clothesUnequip,
   clothesEquip,
   clothingId,
-  type
+  type,
+  productType
 }) => {
   return (
     <div
@@ -216,7 +112,7 @@ const GridItem = ({
                 src={icon}
                 alt={title}
                 style={{
-                  height: "100%",
+                  maxHeight: 160,
                   width: "100%",
                   position: "relative",
                   zIndex: 2,
@@ -234,7 +130,7 @@ const GridItem = ({
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
-         
+          
           borderRight: "solid 1px rgb(243 117 0 / 18%)",
           borderLeft: "solid 1px rgb(243 117 0 / 18%)",
           borderTop: "solid 1px rgb(243 117 0 / 18%)",
@@ -257,7 +153,9 @@ const GridItem = ({
               {title}
             </p>
         {/* Уровень уважения */}
-        <div
+        
+        {respect !== undefined ? (
+          <div
           className="clothing-item-respect"
           style={{
             display: "flex",
@@ -281,6 +179,17 @@ const GridItem = ({
             {respect}
           </p>
         </div>
+        ) : (  <div
+          className="clothing-item-respect"
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            marginTop: 10,
+            marginBottom: 10,
+            height: 22
+          }}
+        ></div>)}
 
         {/* Кнопки действий */}
         {equipped ? (
@@ -299,7 +208,7 @@ const GridItem = ({
             borderColor={"rgb(34, 199, 163)"}
             ownColor={"linear-gradient(to bottom, rgb(34 199 163 / 0%), rgb(34 199 163 / 24%))"}
             bgColor={"linear-gradient(to bottom, rgb(34 199 163 / 0%), rgb(34 199 163 / 24%))"}
-            onClick={() => clothesUnequip(clothingId, type)}
+            onClick={() => type === 'Accessory' || productType === 'shelf' ? clothesUnequip(clothingId, type, productType) : null}
           />
         ) : (
           <Button
@@ -316,7 +225,7 @@ const GridItem = ({
             paddingTop={1}
             ownColor={"linear-gradient(rgb(18, 4, 2) 0%, rgba(243, 117, 0, 0.2) 100%)"}
             bgColor={"linear-gradient(rgb(18, 4, 2) 0%, rgba(243, 117, 0, 0.2) 100%)"}
-            onClick={() => clothesEquip(clothingId, type)}
+            onClick={() => clothesEquip(clothingId, type, productType)}
           />
         )}
       </div>
@@ -357,6 +266,7 @@ const GridLayout = ({ setCurrentItem, items, clothesUnequip, clothesEquip }) => 
             clothesEquip={clothesEquip}
             clothingId={item.clothing_id}
             type={item.category}
+            productType={item.productType}
           />
         ))}
       </div>
@@ -378,8 +288,28 @@ const loadClothesFromData = (data, userPersonage) => {
     equipped: Object.values(data.currentlyUsedClothes).includes(
       item.clothing_id
     ),
+    productType: 'clothes'
   }))
 }
+
+const loadShelfFromData = (data) => {
+  return data.shelf.map(item => ({
+    clothing_id: item.id,
+    name: item.name["ru"],
+    image: item.link,
+    price: item.price,
+    respect: item.respect,
+    tier: item.tier,
+    tags: item.tag,
+    category: item.type,
+    equipped: Object.values(data.currentlyUsedShelf).includes(
+      item.id
+    ),
+    productType: 'shelf'
+  }))
+}
+
+
 
 const BaseFilters = {
   // Uses Clothing
@@ -394,38 +324,37 @@ const BaseFilters = {
 }
 
 const InventoryTab = ({ userId }) => {
-  const [filterTypeInUse, setFilterTypeInUse] = useState(BaseFilters.Complex)
+  const [filterTypeInUse, setFilterTypeInUse] = useState(null)
   const [currentItem, setCurrentItem] = useState(null)
   const [clothesItems, setClothesItems] = useState(null)
+  const [shelfItems, setShelfItems] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false)
   const [currentComplexFilters, setCurrentComplexFilters] = useState([])
   console.log('sss', currentComplexFilters)
   const { userPersonage, userParameters } = useContext(UserContext)
 
- 
-
-  const TierFilters = [0, 1, 2, 3, 4, 5]
-
   useEffect(() => {
     getInventoryItems(userId)
       .then((data) => {
         // TODO: localize
         const loadedClothesItems = loadClothesFromData(data, userPersonage)
+        const loadedShelfItems = loadShelfFromData(data)
+        console.log(loadedShelfItems)
         setClothesItems(
           loadedClothesItems.sort((a, b) => b.equipped - a.equipped)
         )
+        setShelfItems(
+          loadedShelfItems.sort((a, b) => b.equipped - a.equipped)
+        )
       })
       .finally(() => setIsLoading(false))
-    // getFoods().then((r) => setFoods(r))
-    // getProcesses("food", userId).then((r) => setUserEatingFoods(r))
-    // updateInformation()
   }, [])
 
-  const clothesUnequip = async (clothing_id, type) => {
+  const clothesUnequip = async (clothing_id, type, productType) => {
     try {
       setIsLoading(true)
-      await handleClothesUnequip(userId, clothing_id, type)
+      await handleClothesUnequip(userId, clothing_id, type, productType)
     } catch(err) {
       
     } finally {
@@ -433,18 +362,22 @@ const InventoryTab = ({ userId }) => {
       .then((data) => {
         // TODO: localize
         const loadedClothesItems = loadClothesFromData(data, userPersonage)
+        const loadedShelfItems = loadShelfFromData(data)
         setClothesItems(
           loadedClothesItems.sort((a, b) => b.equipped - a.equipped)
+        )
+        setShelfItems(
+          loadedShelfItems.sort((a, b) => b.equipped - a.equipped)
         )
       })
       .finally(() => setTimeout(() => setIsLoading(false), 1000))
     } 
   }
 
-  const clothesEquip = async (clothing_id, type) => {
+  const clothesEquip = async (clothing_id, type, productType) => {
     try {
       setIsLoading(true)
-      await handleClothesEquip(userId, clothing_id, type)
+      await handleClothesEquip(userId, clothing_id, type, productType)
     } catch(err) {
       
     } finally {
@@ -452,8 +385,12 @@ const InventoryTab = ({ userId }) => {
       .then((data) => {
         // TODO: localize
         const loadedClothesItems = loadClothesFromData(data, userPersonage)
+        const loadedShelfItems = loadShelfFromData(data)
         setClothesItems(
           loadedClothesItems.sort((a, b) => b.equipped - a.equipped)
+        )
+        setShelfItems(
+          loadedShelfItems.sort((a, b) => b.equipped - a.equipped)
         )
       })
       .finally(() => setTimeout(() => setIsLoading(false), 1000))
@@ -476,8 +413,7 @@ const InventoryTab = ({ userId }) => {
 
   const applyFilter = (items) => {
     if (
-      !filterTypeInUse ||
-      filterTypeInUse === BaseFilters.Shelf
+      !filterTypeInUse
     ) {
       return items
     }
@@ -523,6 +459,10 @@ const InventoryTab = ({ userId }) => {
 
     if (filterTypeInUse === BaseFilters.Accessories) {
       return items.filter((item) => item.category === "Accessory")
+    }
+    
+    if (filterTypeInUse === BaseFilters.Shelf) {
+      return items.filter((item) => item.productType === "shelf")
     }
   }
 
@@ -621,16 +561,19 @@ const InventoryTab = ({ userId }) => {
             selectedValue={filterTypeInUse}
             assignedValue={BaseFilters.Shelf}
             handlePress={() =>
-              filterTypeInUse === BaseFilters.Shelf
-                ? setFilterTypeInUse(null)
-                : setFilterTypeInUse(BaseFilters.Shelf)
+              {
+                setCurrentComplexFilters([])
+                filterTypeInUse === BaseFilters.Shelf
+                  ? setFilterTypeInUse(null)
+                  : setFilterTypeInUse(BaseFilters.Shelf) 
+              }
             }
           />
         </div>
       </div>
       <GridLayout
         setCurrentItem={setCurrentItem}
-        items={applyFilter(clothesItems)}
+        items={applyFilter([...clothesItems, ...shelfItems].sort((a, b) => b.equipped - a.equipped))}
         clothesUnequip={clothesUnequip}
         clothesEquip={clothesEquip}
       />

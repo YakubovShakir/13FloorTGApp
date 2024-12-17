@@ -1,8 +1,8 @@
 import "./ScreenTabs.css";
 import { useEffect, useState } from "react";
 
-const ScreenTabs = ({ tabs }) => {
-  const [activeTab, setActiveTab] = useState(0);
+const ScreenTabs = ({ tabs, initialTab = 0 }) => {
+  const [activeTab, setActiveTab] = useState(initialTab);
 
   async function handleSwitchTab(index, callback) {
     setActiveTab(index);

@@ -3,6 +3,7 @@ import "./Menu.css"
 import { useNavigate } from "react-router-dom"
 import { useState } from "react"
 import Assets from "../../../assets"
+import Button from "../../simple/Button/Button"
 
 const Menu = ({ screenMenu, activeName, hasBg = true }) => {
   const { Icons } = Assets
@@ -41,7 +42,7 @@ const Menu = ({ screenMenu, activeName, hasBg = true }) => {
         if (currentTab === 'activity') {
           navigate('/#');
         } else {
-          navigate("/activity");
+          navigate("/activity/works");
           setCurrentTab('activity');
         }
       },
@@ -79,12 +80,27 @@ const Menu = ({ screenMenu, activeName, hasBg = true }) => {
 
   return (
     <div className={screenMenu ? "screenMenu Menu" : "Menu"} style={{ width: '100vw', zIndex: 99999 }}>
-      
+
       {/* Контейнер для кнопки BigButton */}
+
+
       <div className="MenuButtonContainer">
-        <div className="BigButton" onClick={() => navigate("/activity")}>
-          Начать
-        </div>
+        <Button
+          className="clothing-item-equip-button"
+          shadowColor={"#AF370F"}
+          width={"16%"}
+          marginBottom={"5"}
+          height={34}
+          active={true}
+          fontFamily={"Roboto"}
+          fontWeight={"500"}
+          text={"Начать"}
+          fontSize={14}
+          paddingTop={1}
+          ownColor={"linear-gradient(rgb(18, 4, 2) 0%, rgba(243, 117, 0, 0.2) 100%)"}
+          bgColor={"linear-gradient(rgba(243, 117, 0, 1) 0%, rgba(243, 117, 0, 1) 100%)"}
+          onClick={() => navigate('/activity/skills')}
+        />
       </div>
 
       {/* Контейнер с иконками кнопок */}

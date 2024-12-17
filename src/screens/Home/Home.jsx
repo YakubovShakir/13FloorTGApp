@@ -120,8 +120,28 @@ const Home = () => {
     
     fetchParams().then(() => {
       console.log("Fetching from home")
-      
     })
+
+    const preloadImages = async () => {
+      const imageUrls = [
+        Assets.BG.workScreenBG,
+        Assets.BG.sleepScreenBG,
+        Assets.BG.trainScreenBG,
+        Assets.BG.homeBackground
+      ];
+  
+      // Use Promise.all for concurrent image loading
+      await Promise.all(imageUrls.map(url => {
+        return new Promise((resolve, reject) => {
+          const img = new Image();
+          img.onload = resolve;
+          img.onerror = reject;
+          img.src = url;
+        });
+      }));
+    };
+  
+    preloadImages();
   }, [])
 
   useEffect(() => {

@@ -16,16 +16,15 @@ import StarsTab from "./tabs/StarsTab"
 import InventoryTab from "./tabs/InventoryTab"
 
 const ShopScreen = () => {
-  const [activeTab, setActiveTab] = useState("coins")
+  const [activeTab, setActiveTab] = useState("inventory")
 
   const { userParameters, setUserParameters, userId } = useContext(UserContext)
   const navigate = useNavigate()
   const { Icons } = Assets
   const tabs = [
-    { icon: Icons.inventoryIcon, callback: () => setActiveTab("inventory") },
-    { icon: Icons.balance, callback: () => setActiveTab("coins") },
-    { icon: Icons.starsIcon, callback: () => setActiveTab("stars") },
-    
+    { label: 'Коллекция', callback: () => setActiveTab("inventory") },
+    { label: 'Магазин', callback: () => setActiveTab("coins") },
+    // { icon: Icons.starsIcon, callback: () => setActiveTab("stars") },
   ]
 
   useEffect(() => {
@@ -49,23 +48,6 @@ const ShopScreen = () => {
         {/* Food Tab */}
         {activeTab === "coins" && (
           <CoinsTab
-            userId={userId}
-            userParameters={userParameters}
-            setUserParameters={setUserParameters}
-          />
-        )}
-
-        {activeTab === "stars" && (
-          <StarsTab
-            userId={userId}
-            userParameters={userParameters}
-            setUserParameters={setUserParameters}
-          />
-        )}
-
-        {/* Boosts Tab  */}
-        {activeTab === "boosts" && (
-          <BoostTab
             userId={userId}
             userParameters={userParameters}
             setUserParameters={setUserParameters}
