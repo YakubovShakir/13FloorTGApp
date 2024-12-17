@@ -16,14 +16,6 @@ function App() {
       useTelegram.setFullScreen();
     }
     useTelegram.setHeaderColor("#2F292B");
-
-    screen.orientation.lock('portrait')
-      .then(() => {
-        console.log('Screen orientation locked successfully');
-      })
-      .catch((error) => {
-        console.error('Failed to lock screen orientation:', error);
-      });
   }, []);
 
   return (
