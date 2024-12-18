@@ -73,7 +73,6 @@ const ActionScreen = () => {
             height={"80%"}
           />
         )}
-        <ScreenTabs tabs={tabs} />
 
       {/* Контент для вкладки "Активности" */}
       {activeTab === "activities" && (

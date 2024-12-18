@@ -42,7 +42,7 @@ const Menu = ({ screenMenu, activeName, hasBg = true }) => {
         if (currentTab === 'activity') {
           navigate('/#');
         } else {
-          navigate("/activity/works");
+          navigate("/action");
           setCurrentTab('activity');
         }
       },
@@ -99,7 +99,7 @@ const Menu = ({ screenMenu, activeName, hasBg = true }) => {
           paddingTop={1}
           ownColor={"linear-gradient(rgb(18, 4, 2) 0%, rgba(243, 117, 0, 0.2) 100%)"}
           bgColor={"linear-gradient(rgba(243, 117, 0, 1) 0%, rgba(243, 117, 0, 1) 100%)"}
-          onClick={() => navigate('/activity/skills')}
+          onClick={() => navigate('/action')}
         />
       </div>
 

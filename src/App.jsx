@@ -10,6 +10,7 @@ import PersonageCreationScreen from './screens/PersonageCreation/PersonageCreati
 import UserContext, { UserProvider } from "./UserContext"
 import ShopScreen from './screens/ShopScreen/ShopScreen'
 import TaskScreen from "./screens/TaskScreen/TaskScreen"
+import ActionScreen from "./screens/ActionScreen/ActionScreen";
 function App() {
   useEffect(() => {
     if (isMobile) {
@@ -30,7 +31,7 @@ function App() {
           <Route path="/shop" element={<ShopScreen />} />
           <Route path="/activity/:type" element={<ActivityScreen />} />
           <Route path="/tasks" element={<TaskScreen />} />
-
+          <Route path="/action" element={<ActionScreen/>} />
         </Routes>
       </MemoryRouter>
     </>
