@@ -48,9 +48,7 @@ const ActivityScreen = () => {
     { icon: Icons.skillTabIcon, label: "Обучение", callback: () => setActiveTab("skills"), type: "skills" },
   ];
 
-  const { type } = useParams()
-  const [activeTab, setActiveTab] = useState(tabs.find((tab) => tab.type === type).type || 'works');
-  const [indexActiveTab] = useState(tabs.findIndex((tab) => tab.type === type) || 0);
+  const [activeTab, setActiveTab] = useState('works');
 
 
   useEffect(() => {
@@ -75,7 +73,7 @@ const ActivityScreen = () => {
             height={"80%"}
           />
         )}
-        <ScreenTabs tabs={tabs} initialTab={indexActiveTab} />
+        <ScreenTabs tabs={tabs} initialTab={0} />
 
         {/* Контент для вкладки "Активности" */}
         {activeTab === "activities" && (

@@ -42,7 +42,7 @@ const Menu = ({ screenMenu, activeName, hasBg = true }) => {
         if (currentTab === 'activity') {
           navigate('/#');
         } else {
-          navigate("/action");
+          navigate("/activity");
           setCurrentTab('activity');
         }
       },
