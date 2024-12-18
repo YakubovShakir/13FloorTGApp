@@ -208,7 +208,7 @@ const GridItem = ({
             bgColor={
               "linear-gradient(rgb(18, 4, 2) 0%, rgba(243, 117, 0, 0.2) 100%)"
             }
-            onClick={() => handleCoinsBuy({ id, productType })}
+            onClick={() => available || price === 0 ? handleCoinsBuy({ id, productType }) : null}
           />
         )}
       </div>
@@ -393,7 +393,7 @@ const GridItemShelf = ({
             bgColor={
               "linear-gradient(rgb(18, 4, 2) 0%, rgba(243, 117, 0, 0.2) 100%)"
             }
-            onClick={() => handleCoinsBuy({ id, productType })}
+            onClick={() => available || price === 0 ? handleCoinsBuy({ id, productType }) : null}
           />
         )}
       </div>
@@ -613,7 +613,7 @@ const CoinsTab = ({ userId }) => {
   const handleStarsBuy = async (item) => {
     try {
       setIsLoading(true)
-      const response = await instance.post('/users/request-stars-invoice-link', {
+      const response = await instance.post('/users/request-stars-invoice-linkF', {
           productType: item.productType,
           id: item.id
       })
