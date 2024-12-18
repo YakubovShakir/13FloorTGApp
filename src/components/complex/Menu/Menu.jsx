@@ -35,7 +35,7 @@ const Menu = ({ screenMenu, activeName, hasBg = true }) => {
       },
       notify: false,
       icon: Icons.shopIcon,
-      title: "Одежда",
+      title: "Коллекция",
     },
     activity: {
       onClick: () => {
@@ -48,8 +48,23 @@ const Menu = ({ screenMenu, activeName, hasBg = true }) => {
       },
       notify: false,
       icon: Icons.activity,
-      title: "Активности",
+      title: "Развитие",
     },
+   
+    community: {
+      onClick: () => {
+        if (currentTab === 'community') {
+          navigate('/#');
+        } else {
+          navigate("/care");
+          setCurrentTab('community');
+        }
+      },
+      notify: false,
+      icon: Icons.contacts,
+      title: "Инвестиции",
+    },
+
     tasks: {
       onClick: () => {
         if (currentTab === 'tasks') {
@@ -63,19 +78,6 @@ const Menu = ({ screenMenu, activeName, hasBg = true }) => {
       icon: Icons.tasks,
       title: "Задания",
     },
-    community: {
-      onClick: () => {
-        if (currentTab === 'community') {
-          navigate('/#');
-        } else {
-          navigate("/care");
-          setCurrentTab('community');
-        }
-      },
-      notify: false,
-      icon: Icons.contacts,
-      title: "Сообщество",
-    },
   };
 
   return (
@@ -87,7 +89,7 @@ const Menu = ({ screenMenu, activeName, hasBg = true }) => {
       <div className="MenuButtonContainer">
         <Button
           className="clothing-item-equip-button"
-          shadowColor={"#AF370F"}
+          shadowColor={"#22c7a3"}
           width={"16%"}
           marginBottom={"5"}
           height={34}
@@ -97,8 +99,10 @@ const Menu = ({ screenMenu, activeName, hasBg = true }) => {
           text={"Начать"}
           fontSize={14}
           paddingTop={1}
-          ownColor={"linear-gradient(rgb(18, 4, 2) 0%, rgba(243, 117, 0, 0.2) 100%)"}
-          bgColor={"linear-gradient(rgba(243, 117, 0, 1) 0%, rgba(243, 117, 0, 1) 100%)"}
+          borderColor={"#22c7a3"}
+          backdropFilter= {"blur(5px)"}
+          ownColor={"#22c7a32d"}
+          bgColor={"#22c7a32d"}
           onClick={() => navigate('/activity/skills')}
         />
       </div>
