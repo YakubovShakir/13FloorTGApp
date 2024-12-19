@@ -50,7 +50,7 @@ const Menu = ({ screenMenu, activeName, hasBg = true }) => {
       icon: Icons.activity,
       title: "Развитие",
     },
-   
+
     community: {
       onClick: () => {
         if (currentTab === 'community') {
@@ -82,10 +82,7 @@ const Menu = ({ screenMenu, activeName, hasBg = true }) => {
 
   return (
     <div className={screenMenu ? "screenMenu Menu" : "Menu"} style={{ width: '100vw', zIndex: 99999 }}>
-
       {/* Контейнер для кнопки BigButton */}
-
-
       <div className="MenuButtonContainer">
         <Button
           className="clothing-item-equip-button"
@@ -99,9 +96,11 @@ const Menu = ({ screenMenu, activeName, hasBg = true }) => {
           text={"Начать"}
           fontSize={14}
           paddingTop={1}
-          ownColor={"linear-gradient(rgb(18, 4, 2) 0%, rgba(243, 117, 0, 0.2) 100%)"}
-          bgColor={"linear-gradient(rgba(243, 117, 0, 1) 0%, rgba(243, 117, 0, 1) 100%)"}
-          onClick={() => navigate('/action')}
+          borderColor={"#22c7a3"}
+          backdropFilter={"blur(5px)"}
+          ownColor={"#22c7a32d"}
+          bgColor={"#22c7a32d"}
+          onClick={() => navigate('/activity/skills')}
         />
       </div>
 
