@@ -35,7 +35,7 @@ const Menu = ({ screenMenu, activeName, hasBg = true }) => {
       },
       notify: false,
       icon: Icons.shopIcon,
-      title: "Одежда",
+      title: "Коллекция",
     },
     activity: {
       onClick: () => {
@@ -48,8 +48,23 @@ const Menu = ({ screenMenu, activeName, hasBg = true }) => {
       },
       notify: false,
       icon: Icons.activity,
-      title: "Активности",
+      title: "Развитие",
     },
+   
+    community: {
+      onClick: () => {
+        if (currentTab === 'community') {
+          navigate('/#');
+        } else {
+          navigate("/care");
+          setCurrentTab('community');
+        }
+      },
+      notify: false,
+      icon: Icons.contacts,
+      title: "Инвестиции",
+    },
+
     tasks: {
       onClick: () => {
         if (currentTab === 'tasks') {
@@ -63,19 +78,6 @@ const Menu = ({ screenMenu, activeName, hasBg = true }) => {
       icon: Icons.tasks,
       title: "Задания",
     },
-    community: {
-      onClick: () => {
-        if (currentTab === 'community') {
-          navigate('/#');
-        } else {
-          navigate("/care");
-          setCurrentTab('community');
-        }
-      },
-      notify: false,
-      icon: Icons.contacts,
-      title: "Сообщество",
-    },
   };
 
   return (
@@ -87,7 +89,7 @@ const Menu = ({ screenMenu, activeName, hasBg = true }) => {
       <div className="MenuButtonContainer">
         <Button
           className="clothing-item-equip-button"
-          shadowColor={"#AF370F"}
+          shadowColor={"#22c7a3"}
           width={"16%"}
           marginBottom={"5"}
           height={34}

@@ -29,6 +29,7 @@
   
   .button-pressed--active {
     background-color: #ff6b6b;
+    border: 1px solid rgb(243, 117, 0);
   }
   
   .button-pressed__glow {

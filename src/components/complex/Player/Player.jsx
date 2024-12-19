@@ -51,15 +51,15 @@ const Player = ({
   personage,
   clothing,
 }) => {
-  const { Images } = Assets
-  const [imagesLoaded, setImagesLoaded] = useState(false)
-  const [loadingError, setLoadingError] = useState(false)
+  const { Images } = Assets;
+  const [imagesLoaded, setImagesLoaded] = useState(false);
+  const [loadingError, setLoadingError] = useState(false);
 
   useEffect(() => {
     // If no personage or type is null, skip preloading
     if (type === null || personage === null || JSON.stringify(personage) === JSON.stringify({})) {
-      setImagesLoaded(true)
-      return
+      setImagesLoaded(true);
+      return;
     }
 
     // Collect all image URLs to preload
@@ -69,18 +69,18 @@ const Player = ({
       ...(clothing?.top ? [pullGenderedClothingImage(personage?.gender, clothing?.top)] : []),
       ...(clothing?.pants ? [pullGenderedClothingImage(personage?.gender, clothing?.pants)] : []),
       ...(clothing?.shoes ? [pullGenderedClothingImage(personage?.gender, clothing?.shoes)] : []),
-    ].filter(Boolean) // Remove any undefined URLs
+    ].filter(Boolean); // Remove any undefined URLs
 
     // Preload images
     preloadImages(imagesToPreload)
       .then(() => {
-        setImagesLoaded(true)
+        setImagesLoaded(true);
       })
       .catch((failedUrl) => {
-        console.error(`Failed to load image: ${failedUrl}`)
-        setLoadingError(true)
-      })
-  }, [personage, clothing, type])
+        console.error(`Failed to load image: ${failedUrl}`);
+        setLoadingError(true);
+      });
+  }, [personage, clothing, type]);
 
   // Render placeholder if loading or error occurs
   if (!imagesLoaded || loadingError) {
@@ -91,7 +91,7 @@ const Player = ({
       >
         <img className="PlayerAvatar" src={Images.missingGirl} alt="avatar" />
       </div>
-    )
+    );
   }
 
   // Render actual player if images are loaded successfully
@@ -101,15 +101,33 @@ const Player = ({
       style={{
         width: `${width}`,
         aspectRatio: "0.3",
-        
-        
-        transform: 'translate(-50%, -50%)', // Центрируем персонажа относительно заданной позиции
+        left: left,
+        top: top,
+        position: "absolute",
+        transform: "translate(-50%, -50%)", // Центрируем персонажа
       }}
     >
+      {/* Shadow */}
+      <div
+        className="PlayerShadow"
+        style={{
+          position: "absolute",
+          bottom: "18%", // Чуть ниже персонажа
+          left: "50%",
+          transform: "translateX(-59%)",
+          width: `calc(${width} * 0.8)`, // Размер относительно ширины персонажа
+          height: `calc(${width} * 0.3)`, // Пропорции тени
+          backgroundColor: "rgba(0, 0, 0, 0.5)", // Полупрозрачный черный
+          borderRadius: "50%", // Круглая форма
+          zIndex: "1", // Позади персонажа
+        }}
+      />
+      {/* Player Image */}
       <img
         className="PlayerAvatar"
         src={getBases(personage?.race, personage?.gender)}
         alt="avatar"
+        style={{ position: "relative", zIndex: "2" }}
       />
       {clothing && (
         <>
@@ -145,7 +163,7 @@ const Player = ({
         </>
       )}
     </div>
-  )
-}
+  );
+};
 
 export default Player

@@ -18,13 +18,13 @@
   justify-content: center;
   align-items: center;
   z-index: 4;
-  bottom: 12.5vh;
+  bottom: 95%;
 }
 
 .BigButton {
   width: 200px; /* Ширина кнопки */
   height: 60px; /* Высота кнопки */
-  background-color: #ff5722; /* Цвет кнопки */
+  background: linear-gradient(rgb(18, 4, 2) 0%, rgba(233, 27, 27, 0.12) 100%)2; /* Цвет кнопки */
   color: white; /* Цвет текста */
   font-size: 18px; /* Размер шрифта */
   display: flex;
