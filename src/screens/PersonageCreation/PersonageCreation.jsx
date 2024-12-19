@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react"
+import React, { useContext, useEffect, useState } from "react"
 import "./PersonageCreation.css"
 import Assets from "../../assets"
 import Player from "../../components/complex/Player/Player"
@@ -7,6 +7,7 @@ import { personageCreate } from "../../services/user/user"
 import UserContext from "../../UserContext"
 import { useNavigate } from "react-router-dom"
 import { motion } from "framer-motion"
+import { FullScreenSpinner } from "../Home/Home"
 
 const STEPS = {
   Gender: "gender",
@@ -149,6 +150,7 @@ const PersonageCreationScreen = () => {
   const [gender, setGender] = useState(GENDERS.FEMALE)
   const [race, setRace] = useState(RACES.WHITE)
   const [personageName, setPersonageName] = useState(null)
+  const [isLoading, setIsLoading] = useState(true)
   const [currentStep, setCurrentStep] = useState(STEPS.Gender)
   const { userId, setUserPersonage } = useContext(UserContext)
   const navigate = useNavigate()
@@ -165,6 +167,72 @@ const PersonageCreationScreen = () => {
     } catch (err) {
       console.error(err)
     }
+  }
+
+  useEffect(() => {
+    let mounted = true
+    
+    const preloadAssets = async () => {
+      const preloadImage = (src) => {
+        return new Promise((resolve, reject) => {
+          const img = new Image()
+          img.src = src
+          img.onload = () => resolve(src)
+          img.onerror = () => reject(src)
+        })
+      }
+  
+      const assetsToPreload = [
+        // Backgrounds
+        Assets.BG.personageCreationBg,
+        
+        // Icons and players
+        Assets.Icons.female,
+        Assets.Icons.male,
+        Assets.Icons.femaleWhiteIcon,
+        Assets.Icons.femaleBlackIcon,
+        Assets.Icons.femaleAsianIcon,
+        Assets.Icons.maleWhiteIcon,
+        Assets.Icons.maleWAfroIcon,
+        Assets.Icons.maleWAsianIcon,
+        Assets.Images.asianGirl,
+        Assets.Images.asianMan,
+        Assets.Images.euGirl,
+        Assets.Images.euMan,
+        Assets.Images.blackGirl,
+        Assets.Images.blackMan,
+        // Layers
+        Assets.Layers.squareButtonShadow,
+        
+        // Other assets
+        Assets.nameUnderline
+      ]
+  
+      try {
+        const preloadPromises = assetsToPreload.map(src => preloadImage(src))
+        await Promise.allSettled(preloadPromises)
+        
+        if (mounted) {
+          setIsLoading(false)
+        }
+      } catch (error) {
+        console.error('Failed to load some assets:', error)
+        // Still set loading to false to allow user to proceed
+        if (mounted) {
+          setTimeout(() => setIsLoading(false), 3000)
+        }
+      }
+    }
+  
+    preloadAssets()
+  
+    return () => {
+      mounted = false
+    }
+  }, [])
+
+  if(isLoading) {
+    return <FullScreenSpinner/>
   }
 
   if (currentStep === STEPS.Gender) {

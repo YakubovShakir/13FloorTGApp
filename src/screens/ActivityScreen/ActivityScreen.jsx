@@ -43,13 +43,15 @@ const ActivityScreen = () => {
 
   const { Icons } = Assets;
 
+  const { type } = useParams()
+
   const tabs = [
     { icon: Icons.workTabIcon, label: "Карьера", callback: () => setActiveTab("works"), type: "works" },
     { icon: Icons.skillTabIcon, label: "Обучение", callback: () => setActiveTab("skills"), type: "skills" },
   ];
 
-  const [activeTab, setActiveTab] = useState('works');
-
+  const [activeTab, setActiveTab] = useState(type || 'works');
+  const [initialTabIndex] = useState(tabs.findIndex(tab => tab.type === type))
 
   useEffect(() => {
     useTelegram.setBackButton(() => navigate("/"));
@@ -73,7 +75,7 @@ const ActivityScreen = () => {
             height={"80%"}
           />
         )}
-        <ScreenTabs tabs={tabs} initialTab={0} />
+        <ScreenTabs tabs={tabs} initialTab={initialTabIndex} />
 
         {/* Контент для вкладки "Активности" */}
         {activeTab === "activities" && (

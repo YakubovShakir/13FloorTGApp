@@ -55,7 +55,7 @@ const Modal = ({ bottom, left, width, height, data, onClose, logoWidth }) => {
             key={index}
             width={(Math.min(100 / data?.buttons.length - 2), 40) + "%"}
             height={44}
-            onClick={button?.onClick && (() => button?.onClick())}
+            onClick={button.onClick}
             active={button?.active}
             text={button?.text}
             icon={button?.icon}

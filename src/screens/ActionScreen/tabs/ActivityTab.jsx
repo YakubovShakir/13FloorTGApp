@@ -109,39 +109,6 @@ export const CareScreen = ({ userId, userParameters }) => {
     ]
   }
 
-
-              
-
-
-
-
-
-
-
-
-
-
-
-
-  
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  
-
   // Кнопки для работы
   const getItemWorkButton = (workId) => {
     const activeWork = activeWorkProcess === "work" // Проверяем активен ли процесс работы

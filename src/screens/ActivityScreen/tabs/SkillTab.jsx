@@ -39,7 +39,6 @@ const SkillTab = ({
     const learned = userLearnedSkills?.find(
       (skill) => skill?.skill_id === skillId
     )
-    console.log('learned', userLearnedSkills)
     return learned && skills?.find((skill) => skill?.skill_id === skillId)
   }
   // Return skill if it in study
@@ -52,6 +51,7 @@ const SkillTab = ({
 
   // Handle buy skill
   const handleBuySkill = async (skill) => {
+    console.log(skill)
     await startProcess("skill", userId, skill?.skill_id)
     const userParameters = await getParameters(userId)
     const userLearningSkills = await getProcesses("skill", userId)
@@ -102,8 +102,7 @@ const SkillTab = ({
     const learning = userLearningSkills?.find(
       (sk) => sk?.type_id === skill?.skill_id
     )
-    const bottomButtonOnClick =
-      getSkillBuyStatus(skill) && (() => handleBuySkill(skill))
+    const bottomButtonOnClick = () => handleBuySkill(skill)
 
     const data = {
       type: "skill",

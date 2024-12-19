@@ -42,7 +42,7 @@ const Menu = ({ screenMenu, activeName, hasBg = true }) => {
         if (currentTab === 'activity') {
           navigate('/#');
         } else {
-          navigate("/activity");
+          navigate("/activity/works");
           setCurrentTab('activity');
         }
       },
@@ -100,7 +100,7 @@ const Menu = ({ screenMenu, activeName, hasBg = true }) => {
           backdropFilter={"blur(5px)"}
           ownColor={"#22c7a32d"}
           bgColor={"#22c7a32d"}
-          onClick={() => navigate('/activity/skills')}
+          onClick={() => navigate('/action')}
         />
       </div>
 

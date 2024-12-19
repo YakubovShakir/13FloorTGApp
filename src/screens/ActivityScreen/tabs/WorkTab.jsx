@@ -262,15 +262,7 @@ export const WorkTab = ({
     <ScreenContainer withTab>
       {/* User main work card*/}
 
-      {userParameters?.work_id !== 0 && <ItemCard
-        ItemIcon={getWorkById(userParameters?.work_id)?.link}
-        ItemTitle={getWorkById(userParameters?.work_id)?.name}
-        ItemParamsBlocks={getItemWorkParams(userParameters?.work_id)}
-        ItemButtons={getItemWorkButton(userParameters?.work_id)}
-        ItemIndex={0}
-      />}
-
-      {works?.slice(userParameters?.work_id).map((work, index) => (
+      {works?.map((work, index) => (
         <ItemCard
           key={index}
           ItemIcon={work?.link}
