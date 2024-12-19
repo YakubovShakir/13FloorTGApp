@@ -9,7 +9,7 @@ const Modal = ({ bottom, left, width, height, data, onClose, logoWidth }) => {
       initial={{ opacity: 0, y: 100 }}
       animate={{ opacity: 1, y: 0 }}
       className="Modal"
-      style={{  left: left, width: width, height: "100%", zIndex: 10 }}
+      style={{  left: left, width: width, height: "83%", zIndex: 10 }}
     >
       
       <img
@@ -21,7 +21,7 @@ const Modal = ({ bottom, left, width, height, data, onClose, logoWidth }) => {
       <div className="ModalTitle">{data?.title}</div>
 
       <div className="ModalLogo" style={{  }}>
-        <img src={data?.image} alt="ModalLogo" style={{ width: logoWidth || '20vmax' }}/>
+        <img src={data?.image} alt="ModalLogo" style={{ width: logoWidth || '17vmax' }}/>
       </div>
       <div className="ModalBody" style={{ }}>
         {data?.blocks?.map((block, index) => (

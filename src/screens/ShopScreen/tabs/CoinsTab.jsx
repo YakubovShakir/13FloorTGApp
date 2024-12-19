@@ -93,7 +93,7 @@ const GridItem = ({
                     top: 0,
                     left: 0,
                     zIndex: 1,
-                    borderRadius: "0.5rem",
+                    
                   }}
                 />
               )}
@@ -121,11 +121,10 @@ const GridItem = ({
           flexDirection: "column",
           alignItems: "center",
 
-          borderRight: "solid 1px rgb(243 117 0 / 18%)",
-          borderLeft: "solid 1px rgb(243 117 0 / 18%)",
-          borderTop: "solid 1px rgb(243 117 0 / 18%)",
+          border: "solid 1px rgb(243 117 0 / 18%)",
+         
           borderRadius: "7px",
-          backgroundColor: "#2508047a",
+          backgroundColor: "rgb(67 14 7 / 48%)",
         }}
       >
         <p
@@ -308,9 +307,8 @@ const GridItemShelf = ({
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
-          borderRight: "solid 1px rgb(243 117 0 / 18%)",
-          borderLeft: "solid 1px rgb(243 117 0 / 18%)",
-          borderTop: "solid 1px rgb(243 117 0 / 18%)",
+          border: "solid 1px rgb(243 117 0 / 18%)",
+         
           borderRadius: "7px",
           backgroundColor: "#2508047a",
         }}

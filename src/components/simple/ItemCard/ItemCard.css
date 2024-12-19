@@ -16,6 +16,7 @@
 }
 
 .ItemTitle {
+  padding: 0px 5px 0px 5px;
   margin: 10px 0px 10px 0px;
   font-size: 15px;
   position: relative; 
@@ -125,16 +126,15 @@
 
 .ItemDetailsContainer {
   padding-right: 13px;
-  border-right: solid 1px rgb(243 117 0 / 18%);
-    border-left: solid 1px rgb(243 117 0 / 18%);
-    border-top: solid 1px rgb(243 117 0 / 18%);
+  border: solid 1px rgb(243 117 0 / 18%);
+   
   border-radius: 7px;
   justify-content: center;
   display: flex;
   flex-direction: column;
   gap: 15px;
   width: 60%; /* Задаем ширину */
-  background-color: #2508047a;
+  background-color: rgba(67, 14, 7, 0.48);
   height: 100%; /* Занимает всю высоту доступного пространства */
 }
 
@@ -182,7 +182,7 @@
 .ItemIconContainer img {
   position: relative; 
   z-index: 1; 
-  margin-top: 10px;
+  top: 10%;
     max-width: 78%;
     object-fit: contain;
    
