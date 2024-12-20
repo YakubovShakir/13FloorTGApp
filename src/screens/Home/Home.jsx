@@ -215,13 +215,14 @@ const Home = () => {
       }}
     >
       <motion.div
-        style={{
+        style={{   
+          filter: 'blur(1px)',
           position: 'absolute',
-          height: '100%',
-          width: '100%',
+          height: '53%',
+          width: '53%',
           backgroundImage: `url(${Assets.BG.winter})`,
           backgroundSize: "cover",
-          backgroundPosition: "bottom right",
+          backgroundPosition: "center right",
           zIndex: 0,
         }}
       />

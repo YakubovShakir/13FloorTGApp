@@ -1,6 +1,6 @@
 .Player img {
   
-  width: 130px;
+  width: calc(39vw);
   position: absolute;
   top: 0;
   left: 0;
@@ -11,45 +11,12 @@
 .Player {
   position: absolute;
   left: 9vw;
-  top: calc(-8% + 32vh); /* Базовое положение */
+  bottom: calc(-100vh + 50px);
   animation: breathe 2.5s ease-in-out infinite;
   transform-origin: bottom center;
 }
 
-/* iPhone SE (2022) - 375x667 */
-@media (max-width: 375px) and (max-height: 667px) {
-  .Player {
-    left: 10vw;
-    top: calc(-5% + 30vh);
-  }
-  .Player img {
-    width: 120px;
-  }
-}
 
-/* Google Pixel 6/7 - 412x915 */
-@media (min-width: 376px) and (max-width: 412px) and (max-height: 915px) {
-  .Player {
-    left: 8vw;
-    top: calc(-9% + 36vh);
-  }
-  .Player img {
-    width: 150px;
-  }
-}
-
-
-
-/* iPhone 14 Pro Max - 430x932 */
-@media (min-width: 413px) and (max-width: 430px) and (max-height: 932px) {
-  .Player {
-    left: 7vw;
-    top: calc(-9% + 36vh);
-  }
-  .Player img {
-    width: 160px;
-  }
-}
 
 
 .PlayerAvatar {

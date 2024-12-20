@@ -102,7 +102,7 @@ const Player = ({
         width: `${width}`,
         aspectRatio: "0.3",
         left: left,
-        top: top,
+        
         position: "absolute",
         transform: "translate(-50%, -50%)", // Центрируем персонажа
       }}
@@ -112,12 +112,12 @@ const Player = ({
         className="PlayerShadow"
         style={{
           position: "absolute",
-          bottom: "18%", // Чуть ниже персонажа
-          left: "50%",
+          bottom: "17%", // Чуть ниже персонажа
+          left: "58%",
           transform: "translateX(-59%)",
-          width: `calc(${width} * 0.8)`, // Размер относительно ширины персонажа
+          width: `calc(${width} * 1)`, // Размер относительно ширины персонажа
           height: `calc(${width} * 0.3)`, // Пропорции тени
-          backgroundColor: "rgba(0, 0, 0, 0.5)", // Полупрозрачный черный
+          backgroundColor: "rgba(0, 0, 0, 0.27)", // Полупрозрачный черный
           borderRadius: "50%", // Круглая форма
           zIndex: "1", // Позади персонажа
         }}
