@@ -21,6 +21,9 @@ import book from "./IMG/icons/book.png"
 import phone from "./IMG/icons/phone.png"
 import missingGirl from './IMG/missingGirl.png'
 import squareButtonShadow from "./IMG/layers/squareButtonShadow.png"
+import winter from './IMG/bg/winter.gif'
+
+import shelf from './IMG/shelf.png'
 
 import trainingCardBG from "./IMG/bg/trainingCard.png"
 import trainScreenBG from "./IMG/bg/trainScreenBG.png"
@@ -35,6 +38,8 @@ import cleanerDark from "./IMG/icons/cleaner.png"
 
 import courier from "./IMG/icons/courier.png"
 import courierDark from "./IMG/icons/courier.png"
+
+import couch from './IMG/couch.png'
 
 import loader from "./IMG/icons/loader.png"
 import loaderDark from "./IMG/icons/loader.png"
@@ -345,9 +350,14 @@ const Assets = {
     trainScreenBG,
     sleepScreenBG,
     personageCreationBg,
-    filterModalBG
+    filterModalBG,
+    winter
   },
   nameUnderline,
+  HOME: {
+    shelf,
+    couch
+  }
 }
 
 // export const getIcon = (name) => (

@@ -21,6 +21,7 @@ export const UserProvider = ({ children }) => {
         setUserParameters(parameters.parameters)
         setUserPersonage(parameters.personage)
         setUserClothing(parameters.clothing)
+        setUserShelf(parameters.shelf)
         setAppReady(true)
       }).catch(err => console.log('@', err))
     updateInformation()
@@ -35,6 +36,7 @@ export const UserProvider = ({ children }) => {
       setUserParameters(parameters.parameters)
       setUserPersonage(parameters.personage)
       setUserClothing(parameters.clothing)
+      setUserShelf(parameters.shelf)
       setAppReady(true)
     } catch(err) {
       console.log(err)
@@ -63,7 +65,8 @@ export const UserProvider = ({ children }) => {
         userPersonage,
         setUserPersonage,
         userClothing,
-        fetchParams
+        fetchParams,
+        userShelf
       }}
     >
       {children}

@@ -54,7 +54,7 @@ const Player = ({
   const { Images } = Assets;
   const [imagesLoaded, setImagesLoaded] = useState(false);
   const [loadingError, setLoadingError] = useState(false);
-
+  console.log(clothing)
   useEffect(() => {
     // If no personage or type is null, skip preloading
     if (type === null || personage === null || JSON.stringify(personage) === JSON.stringify({})) {
@@ -137,6 +137,15 @@ const Player = ({
               style={{ zIndex: "3" }}
               src={pullGenderedClothingImage(personage?.gender, clothing?.hat)}
               alt="Head"
+            />
+          )}
+          {clothing.accessories && clothing.accessories.map((clothing, index) => 
+              <img
+                key={index}
+                className="PlayerHead"
+                style={{ zIndex: "2" }}
+                src={pullGenderedClothingImage(personage?.gender, clothing?.accessories[index])}
+                alt="Head"
             />
           )}
           {clothing.top && (

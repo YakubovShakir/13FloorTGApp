@@ -6,11 +6,67 @@
   width: 390px;  /* Default: iPhone 12/13 */
 }
 
+.shelf1, .shelf2 {
+  height: 30px;
+  position: absolute;
+  z-index: 2;
+  right: 0;
+}
+
+.couch {
+  width: 100%;
+  position: fixed;
+  z-index: 2;
+  right: 0;
+}
+
 /* iPhone SE (2022) - 375x667 */
 @media (max-width: 375px) and (max-height: 667px) {
   .Home {
     height: 667px;
     width: 375px;
+  }
+
+  .couch {
+    top: -125px;
+  }
+
+  .shelf-container1 {
+    top: 0px;
+    position: absolute;
+    z-index: 1000;
+  }
+
+  .shelf1, .shelf2 {
+    width: 180px;
+    height: 20px;
+  }
+
+  .shelf1 {
+    top: -100px
+  }
+
+  .shelf2 {
+    top: 250px
+  }
+
+  .shelf-flower,
+  .shelf-award,
+  .shelf-event {
+    top: 35px;
+    left: 45px;
+    height: 50px;
+    position: relative;
+    z-index: 100;
+  }
+
+  .shelf-neko,
+  .shelf-flag {
+    top: 57px;
+    left: 45px;
+    height: 85px;
+    position: relative;
+    z-index: 100;
   }
 }
 
@@ -20,6 +76,55 @@
     height: 915px;
     width: 412px;
   }
+
+  .shelf1, .shelf2 {
+    width: 200px;
+  }
+
+  .shelf1 {
+    top: 140px
+  }
+
+  .shelf2 {
+    top: 250px
+  }
+
+  .shelf-container {
+    top: -110px;
+    position: absolute;
+    z-index: 1000;
+  }
+
+  .shelf1, .shelf2 {
+    width: 180px;
+  }
+
+  .shelf1 {
+    top: 140px
+  }
+
+  .shelf2 {
+    top: 250px
+  }
+
+  .shelf-flower,
+  .shelf-award,
+  .shelf-event {
+    top: 35px;
+    left: 45px;
+    height: 50px;
+    position: relative;
+    z-index: 100;
+  }
+
+  .shelf-neko,
+  .shelf-flag {
+    top: 57px;
+    left: 45px;
+    height: 85px;
+    position: relative;
+    z-index: 100;
+  }
 }
 
 /* Google Pixel 6 Pro - 412x932 */
@@ -28,6 +133,43 @@
     height: 932px;
     width: 412px;
   }
+
+  .shelf-container {
+    top: -110px;
+    position: absolute;
+    z-index: 1000;
+  }
+
+  .shelf1, .shelf2 {
+    width: 180px;
+  }
+
+  .shelf1 {
+    top: 140px
+  }
+
+  .shelf2 {
+    top: 250px
+  }
+
+  .shelf-flower,
+  .shelf-award,
+  .shelf-event {
+    top: 35px;
+    left: 45px;
+    height: 50px;
+    position: relative;
+    z-index: 100;
+  }
+
+  .shelf-neko,
+  .shelf-flag {
+    top: 57px;
+    left: 45px;
+    height: 85px;
+    position: relative;
+    z-index: 100;
+  }
 }
 
 /* iPhone 14 Pro Max - 430x932 */
@@ -35,6 +177,44 @@
   .Home {
     height: 932px;
     width: 430px;
+  }
+
+  .shelf-container {
+    top: 0px;
+    position: absolute;
+    z-index: 1000;
+  }
+
+  .shelf1, .shelf2 {
+    width: 200px;
+    height: 50px;
+  }
+
+  .shelf1 {
+    top: 250px
+  }
+
+  .shelf2 {
+    top: 390px
+  }
+
+  .shelf-flower,
+  .shelf-award,
+  .shelf-event {
+    top: -35px;
+    left: 35px;
+    height: 65px;
+    position: relative;
+    z-index: 100;
+  }
+
+  .shelf-neko,
+  .shelf-flag {
+    top: -25px;
+    left: 45px;
+    height: 105px;
+    position: relative;
+    z-index: 100;
   }
 }
 

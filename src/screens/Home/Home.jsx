@@ -30,16 +30,16 @@ export const FullScreenSpinner = ({ color = "#E94E1B", size = 70 }) => {
   });
 
   return (
-    <motion.div 
-      initial={{ 
+    <motion.div
+      initial={{
         opacity: 0,
         backgroundColor: "transparent"
       }}
-      animate={{ 
+      animate={{
         opacity: 1,
         backgroundColor: backgroundFrames
       }}
-      transition={{ 
+      transition={{
         duration: 1,
         ease: "easeInOut"
       }}
@@ -57,7 +57,7 @@ export const FullScreenSpinner = ({ color = "#E94E1B", size = 70 }) => {
     >
       <motion.div
         initial={{ scale: 0.7, opacity: 0 }}
-        animate={{ 
+        animate={{
           rotate: 360,
           scale: [0.7, 1, 0.7],
           opacity: 1
@@ -101,8 +101,8 @@ const Home = () => {
   const [inventoryEdit, setInventoryEdit] = useState(false)
   const [trainingParamters, setTrainingParameters] = useState(null)
   const [levels, setLevels] = useState(null)
-  
-  const { userId, userParameters, appReady, userPersonage, userClothing, fetchParams, setUserParameters } = useContext(UserContext)
+
+  const { userId, userParameters, appReady, userPersonage, userClothing, fetchParams, setUserParameters, userShelf } = useContext(UserContext)
 
   const getUserSleepDuration = () => {
     const duration = levels?.find(
@@ -117,7 +117,7 @@ const Home = () => {
 
   useEffect(() => {
     useTelegram.hideBackButton()
-    
+
     fetchParams().then(() => {
       console.log("Fetching from home")
     })
@@ -129,7 +129,7 @@ const Home = () => {
         Assets.BG.trainScreenBG,
         Assets.BG.homeBackground
       ];
-  
+
       // Use Promise.all for concurrent image loading
       await Promise.all(imageUrls.map(url => {
         return new Promise((resolve, reject) => {
@@ -140,7 +140,7 @@ const Home = () => {
         });
       }));
     };
-  
+
     preloadImages();
   }, [])
 
@@ -160,7 +160,7 @@ const Home = () => {
   useEffect(() => {
     if (appReady) {
       console.log('Clothing', userPersonage)
-      if(userPersonage === null || JSON.stringify(userPersonage) === JSON.stringify({}) || !userPersonage) {
+      if (userPersonage === null || JSON.stringify(userPersonage) === JSON.stringify({}) || !userPersonage) {
         return navigate('/personage-create')
       }
       getUserActiveProcess(userId)
@@ -168,28 +168,29 @@ const Home = () => {
           setCurrentProcess(process)
           useTelegram?.setReady()
         })
-        getTrainingParameters(userId).then((r) => setTrainingParameters(r)) // Get user training parameters
-        getLevels().then((levels) => setLevels(levels))
+      getTrainingParameters(userId).then((r) => setTrainingParameters(r)) // Get user training parameters
+      getLevels().then((levels) => setLevels(levels))
     }
-    
+
     setTimeout(() => {
       setIsLoading(false)
+      console.log('params', userShelf)
     }, 1500)
   }, [appReady])
 
   // Transition variants for scene changes
   const pageVariants = {
     initial: { opacity: 0, scale: 0.95 },
-    in: { 
-      opacity: 1, 
+    in: {
+      opacity: 1,
       scale: 1,
       transition: {
         duration: 0.3,
         type: "tween"
       }
     },
-    out: { 
-      opacity: 0, 
+    out: {
+      opacity: 0,
       scale: 1.05,
       transition: {
         duration: 0.3,
@@ -197,8 +198,7 @@ const Home = () => {
       }
     }
   }
-
-  // Render different scenes with consistent animation
+  
   const renderScene = (content) => (
     <motion.div
       className="Home"
@@ -210,22 +210,40 @@ const Home = () => {
       style={{
         position: 'absolute',
         height: '100%',
-    width: '100%',
-        backgroundImage: currentProcess?.type 
-          ? getBgByCurrentProcess(currentProcess.type)
-          : `url(${Assets.BG.homeBackground})`,
-        backgroundSize: "cover",
-        backgroundPosition: "bottom right", // Центрирование фона
-        
+        width: '100%',
+        overflow: 'hidden'
       }}
-    
     >
+      <motion.div
+        style={{
+          position: 'absolute',
+          height: '100%',
+          width: '100%',
+          backgroundImage: `url(${Assets.BG.winter})`,
+          backgroundSize: "cover",
+          backgroundPosition: "bottom right",
+          zIndex: 0,
+        }}
+      />
+      <motion.div
+        style={{
+          position: 'absolute',
+          height: '100%',
+          width: '100%',
+          backgroundImage: currentProcess?.type
+            ? getBgByCurrentProcess(currentProcess.type)
+            : `url(${Assets.BG.homeBackground})`,
+          backgroundSize: "cover",
+          backgroundPosition: "bottom right",
+          zIndex: 1,
+        }}
+      />
       {content}
     </motion.div>
-  )
+  );
 
-  if(isLoading) {
-    return <FullScreenSpinner/>
+  if (isLoading) {
+    return <FullScreenSpinner />
   }
 
   if (currentProcess === null) {
@@ -234,13 +252,18 @@ const Home = () => {
         <HomeHeader
           onClick={() => setVisibleSettingsModal(!visibleSettingsModal)}
         />
-        <Player 
-          width="40vw" 
-          left={"9vw"} 
-          top={"35vh"} 
-          personage={userPersonage}
-          clothing={userClothing}
-        />
+        <img className="shelf1" src={Assets.HOME.shelf} />
+        <img className="shelf2" src={Assets.HOME.shelf} />
+        <img className="couch" src={Assets.HOME.couch} />
+        <div style={{ position: 'absolute', zIndex: 2 }}>
+          <Player
+            width="40vw"
+            left={"9vw"}
+            top={"35vh"}
+            personage={userPersonage}
+            clothing={userClothing}
+          />
+        </div>
         {/* {!currentProcess && (
           <motion.img 
             initial={{ opacity: 0, scale: 0.8 }}
@@ -251,75 +274,41 @@ const Home = () => {
             alt="Pat" 
           />
         )} */}
-
-        <Menu hasBg={false}/>
+        <Menu hasBg={false} />
         {!currentProcess && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: 0.2 }}
             className="HomeInventory"
           >
-            {/* <div className="HomeInventoryHigh">
-              <InventoryCell
-                  active={inventoryEdit}
-                  aspectRatio={"1"}
-                  width={"30%"}
-                  icon={Icons.accessory.flowerPot}
-                />
-                <InventoryCell
-                  active={inventoryEdit}
-                  aspectRatio={"1"}
-                  width={"30%"}
-                />
-                <InventoryCell
-                  active={inventoryEdit}
-                  aspectRatio={"1"}
-                  width={"30%"}
-                  icon={Icons.accessory.framedPhoto}
-                />
-                <InventoryCell
-                  active={inventoryEdit}
-                  aspectRatio={"1"}
-                  width={"30%"}
-                />
-                <InventoryCell
-                  active={inventoryEdit}
-                  aspectRatio={"1"}
-                  width={"30%"}
-                  icon={Icons.accessory.flowerVase}
-                />
-                <InventoryCell
-                  active={inventoryEdit}
-                  aspectRatio={"1"}
-                  width={"30%"}
-                />
-              </div>
-              <div className="HomeInventoryBottom">
-                <InventoryCell
-                  active={inventoryEdit}
-                  aspectRatio={"0.6"}
-                  width={"46%"}
-                />
-  
-                <InventoryCell
-                  active={inventoryEdit}
-                  aspectRatio={"0.6"}
-                  width={"46%"}
-                  icon={Icons.accessory.goldenCat}
-                />
-            </div> */}
-          </motion.div>
-        )}
-        
-        {visibleWindow && (
-          <Window
-            title={currentWindow.title}
-            data={currentWindow.data}
-            tabs={currentWindow.tabs}
-            onClose={setVisibleWindow}
-          />
-        )}
+            {userShelf && (
+              <>
+                <div className="shelf-container1">
+                  <img className={'shelf-flower'} src={userShelf.flower?.shelf_link} />
+                  <img className={'shelf-award'} src={userShelf.award?.shelf_link} />
+                  <img className={'shelf-event'} src={userShelf.event?.shelf_link} />
+                </div>
+                <div className="shelf-container2">
+                  <img className={'shelf-neko'} src={userShelf.neko?.shelf_link} />
+                  <img className={'shelf-flag'} src={userShelf.flag?.shelf_link} />
+                </div>
+              </>
+            )}
+          </motion.div >
+        )
+        }
+
+        {
+          visibleWindow && (
+            <Window
+              title={currentWindow.title}
+              data={currentWindow.data}
+              tabs={currentWindow.tabs}
+              onClose={setVisibleWindow}
+            />
+          )
+        }
       </>
     )
   }
@@ -331,13 +320,13 @@ const Home = () => {
         <HomeHeader
           onClick={() => setVisibleSettingsModal(!visibleSettingsModal)}
         />
-        <Player       width="40vw" 
-          left={"9vw"} 
-          top={"35vh"}    
-          clothing={userClothing} 
+        <Player width="40vw"
+          left={"9vw"}
+          top={"35vh"}
+          clothing={userClothing}
           personage={userPersonage}
-/>  
-      <ProcessProgressBar activeProcess={currentProcess} inputPercentage={countPercentage(currentProcess?.seconds, 60)} />
+        />
+        <ProcessProgressBar activeProcess={currentProcess} inputPercentage={countPercentage(currentProcess?.seconds, 60)} />
         <Menu />
         {visibleWindow && (
           <Window
@@ -358,11 +347,11 @@ const Home = () => {
         <HomeHeader
           onClick={() => setVisibleSettingsModal(!visibleSettingsModal)}
         />
-        <Player        width="40vw" 
-          left={"9vw"} 
-          top={"35vh"} 
+        <Player width="40vw"
+          left={"9vw"}
+          top={"35vh"}
           personage={userPersonage}
-          clothing={userClothing}   />
+          clothing={userClothing} />
         <ProcessProgressBar
           activeProcess={currentProcess}
           inputPercentage={countPercentage(
@@ -391,12 +380,13 @@ const Home = () => {
         <HomeHeader
           onClick={() => setVisibleSettingsModal(!visibleSettingsModal)}
         />
-        <Player       
+
+        <Player
           width="90vw"
-          left={"5vw"} 
-          top={"55vmax"} 
+          left={"5vw"}
+          top={"55vmax"}
           personage={userPersonage}
-          clothing={userClothing}   />
+          clothing={userClothing} />
         <motion.img
           src={Assets.Layers.cover}
           initial={{ opacity: 0 }}
@@ -413,13 +403,14 @@ const Home = () => {
         {/* проп reverse отвечает на направление прогресс-бара */}
         <ProcessProgressBar
           inputPercentage={countPercentage(
-            (currentProcess?.duration * 60 + currentProcess?.seconds) ,
-              getUserSleepDuration() *
-              60
+            (currentProcess?.duration * 60 + currentProcess?.seconds),
+            getUserSleepDuration() *
+            60
           )}
           activeProcess={currentProcess}
           rate={"Full Recovery Energy"}
         />
+
         <Menu />
         {visibleWindow && (
           <Window

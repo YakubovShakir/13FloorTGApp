@@ -8,6 +8,8 @@ import UserContext from "../../UserContext"
 import { useNavigate } from "react-router-dom"
 import { motion } from "framer-motion"
 import { FullScreenSpinner } from "../Home/Home"
+import clothingSnapshot from "./clothingSnapshot"
+import { SquareButton } from "../../components/simple/SquareButton/SquareButton"
 
 const STEPS = {
   Gender: "gender",
@@ -15,104 +17,23 @@ const STEPS = {
   Name: "name",
 }
 
-const SquareButton = ({
-  handlePress,
-  assignedValue,
-  selectedValue,
-  imageSrc,
-  size = 60,
-  imageSize = 40,
-  paddingTop,
-}) => {
-  const isSelected =
-    assignedValue && selectedValue && assignedValue === selectedValue
+const getInitialClothing = (gender, race) => {
+  const raceToHatMap = {
+    [RACES.ASIAN]: clothingSnapshot.find(item => item.clothing_id === 8),
+    [RACES.BLACK]: clothingSnapshot.find(item => item.clothing_id === 12),
+    [RACES.WHITE]: clothingSnapshot.find(item => item.clothing_id === 10),
+  }
 
-  return (
-    <motion.div
-      whileHover={{ scale: 1.05 }}
-      whileTap={{ scale: 0.95 }}
-      transition={{ type: "spring", stiffness: 300, damping: 10 }}
-      style={{
-        backgroundColor: isSelected ? "#E94E1B" : "#453D3F",
-        height: size + 5,
-        width: size,
-        borderRadius: 8,
-        position: "relative",
-      }}
-      onClick={handlePress}
-    >
-      {/* Persistent Shadow */}
-      {isSelected && (
-        <motion.div
-          transition={{ type: "spring", stiffness: 300, damping: 10 }}
-        >
-          <img
-            src={Assets.Layers.squareButtonShadow}
-            width={42}
-            height={42}
-            style={{
-              position: "absolute",
-              bottom: 0,
-              left: -1,
-              zIndex: 5,
-              borderBottomLeftRadius: 8,
-              borderBottomRightRadius: 8,
-            }}
-          />
-        </motion.div>
-      )}
+  const defaultClothes = {
+    hat: null,
+    top: clothingSnapshot.find(item => item.clothing_id === 15),
+    pants: clothingSnapshot.find(item => item.clothing_id === 44),
+    shoes: clothingSnapshot.find(item => item.clothing_id === 85),
+  }
 
-      <motion.div
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{
-          opacity: 1,
-          scale: 1,
-          backgroundColor: "#595254",
-        }}
-        transition={{
-          duration: 0.3,
-          type: "spring",
-          stiffness: 300,
-          damping: 20,
-        }}
-        style={{
-          height: size + 2,
-          width: size + 2,
-          marginLeft: -2,
-          marginTop: -2,
-          borderRadius: 8,
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          position: "relative",
-          zIndex: 2,
-        }}
-      >
-        <motion.img
-          src={imageSrc}
-          width={imageSize}
-          height={imageSize}
-          animate={{
-            opacity: 1,
-            rotate: 0,
-            scale: isSelected ? 0.9 : 1,
-            filter: isSelected ? "brightness(0.8)" : "brightness(1)",
-          }}
-          transition={{
-            duration: 0.3,
-            type: "spring",
-            stiffness: 300,
-            damping: 20,
-          }}
-          style={{
-            position: "relative",
-            zIndex: 3,
-            paddingTop,
-          }}
-        />
-      </motion.div>
-    </motion.div>
-  )
+  defaultClothes.hat = raceToHatMap[race]
+
+  return defaultClothes
 }
 
 export const RACES = {
@@ -122,9 +43,9 @@ export const RACES = {
 }
 
 const femaleRaceToIconMap = {
-  [RACES.WHITE]: Assets.Icons.femaleWhiteIcon,
+  [RACES.WHITE]: Assets.Icons.femaleAsianIcon,
   [RACES.BLACK]: Assets.Icons.femaleBlackIcon,
-  [RACES.ASIAN]: Assets.Icons.femaleAsianIcon,
+  [RACES.ASIAN]: Assets.Icons.femaleWhiteIcon,
 }
 
 const maleRaceToIconMap = {
@@ -149,7 +70,7 @@ export const GENDERS = {
 const PersonageCreationScreen = () => {
   const [gender, setGender] = useState(GENDERS.FEMALE)
   const [race, setRace] = useState(RACES.WHITE)
-  const [personageName, setPersonageName] = useState(null)
+  const [personageName, setPersonageName] = useState('')
   const [isLoading, setIsLoading] = useState(true)
   const [currentStep, setCurrentStep] = useState(STEPS.Gender)
   const { userId, setUserPersonage } = useContext(UserContext)
@@ -157,7 +78,7 @@ const PersonageCreationScreen = () => {
 
   const handlePersonageCreation = async () => {
     try {
-      if(personageName && personageName?.length > 5) {
+      if(personageName && personageName?.length >= 2) { 
 
         await setUserPersonage({ race, name: personageName, gender })
 
@@ -183,6 +104,19 @@ const PersonageCreationScreen = () => {
       }
   
       const assetsToPreload = [
+        // Initial Clothes
+        "https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/clothes/1/Head/GlossyGlamDark-m.png",
+        "https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/clothes/1/Head/GlossyGlamDark-f.png",
+        "https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/clothes/1/Head/GlossyGlamBlonde-m.png",
+        "https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/clothes/1/Head/GlossyGlamBlonde-f.png",
+        "https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/clothes/1/Head/GlossyGlam  Brown-m.png",
+        "https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/clothes/1/Head/GlossyGlamBrown-f.png",
+        "https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/clothes/1/Body/WhiteTShirt-m.png",
+        "https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/clothes/1/Body/WhiteTShirt-f.png",
+        "https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/clothes/3/Shoes/Boots_m.png",
+        "https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/clothes/3/Shoes/Boots-f.png",
+        "https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/clothes/2/Legs/CamelPants-m.png",
+        "https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/clothes/2/Legs/CamelPants-f.png",
         // Backgrounds
         Assets.BG.personageCreationBg,
         
@@ -231,6 +165,12 @@ const PersonageCreationScreen = () => {
     }
   }, [])
 
+  const [clothing, setClothing] = useState(getInitialClothing(race, gender))
+
+  useEffect(() => {
+    setClothing(getInitialClothing(gender, race))
+  }, [race, gender])
+
   if(isLoading) {
     return <FullScreenSpinner/>
   }
@@ -247,6 +187,7 @@ const PersonageCreationScreen = () => {
       >
         <Player
           personage={{ gender, race }}
+          clothing={clothing}
           gender={gender}
           race={RACES.WHITE}
           width={"40vw"}
@@ -314,21 +255,27 @@ const PersonageCreationScreen = () => {
             }}
           >
             {gender && (
-              <Button
-                fontSize={14}
-                paddingTop={2}
-                text={"Далее"}
-                width={95}
-                height={43}
-                shadowColor={"#AF370F"}
-                active={true}
-                ownColor={"linear-gradient(to right, #E94E1B, #F37500)"}
-                bgColor={"linear-gradient(to right, #E94E1B, #F37500)"}
-                onClick={() => {
-                  if (gender) {
-                    setCurrentStep(STEPS.Race)
-                  }
-                }}
+                         <Button
+                         className="clothing-item-equip-button"
+                         shadowColor={"#AF370F"}
+                         width={'25vw'}
+                         height={44}
+                         active={true}
+                         fontFamily={"Roboto"}
+                         fontWeight={"300"}
+                         text={'Далее'}
+                         fontSize={14}
+                         ownColor={
+                           "linear-gradient(rgb(18, 4, 2) 0%, rgba(243, 117, 0, 0.2) 100%)"
+                         }
+                         bgColor={
+                           "linear-gradient(rgb(18, 4, 2) 0%, rgba(243, 117, 0, 0.2) 100%)"
+                         }
+                         onClick={() => {
+                          if (gender) {
+                            setCurrentStep(STEPS.Race)
+                          }
+                        }}
               />
             )}
           </div>
@@ -349,9 +296,10 @@ const PersonageCreationScreen = () => {
       >
         <Player
           personage={{ gender, race }}
+          clothing={clothing}
           width={"90vw"}
-          left={"5vw"}
-          top={"23vh"}
+          left={"30vw"}
+          top={"30vh"}
         />
         <div
           style={{
@@ -371,15 +319,21 @@ const PersonageCreationScreen = () => {
             }}
           >
             <Button
-              fontSize={14}
-              paddingTop={2}
-              text={"Назад"}
-              width={95}
-              height={43}
-              shadowColor={"#AF370F"}
-              active={true}
-              ownColor={"linear-gradient(to right, #E94E1B, #F37500)"}
-              bgColor={"linear-gradient(to right, #E94E1B, #F37500)"}
+                         className="clothing-item-equip-button"
+                         shadowColor={"#AF370F"}
+                         width={'25vw'}
+                         height={44}
+                         active={true}
+                         fontFamily={"Roboto"}
+                         fontWeight={"300"}
+                         text={'Назад'}
+                         fontSize={14}
+                         ownColor={
+                           "linear-gradient(rgb(18, 4, 2) 0%, rgba(243, 117, 0, 0.2) 100%)"
+                         }
+                         bgColor={
+                           "linear-gradient(rgb(18, 4, 2) 0%, rgba(243, 117, 0, 0.2) 100%)"
+                         }
               onClick={() => {
                 setCurrentStep(STEPS.Gender)
               }}
@@ -424,20 +378,25 @@ const PersonageCreationScreen = () => {
             }}
           >
             <Button
-              fontSize={14}
-              paddingTop={2}
-              text={"Далее"}
-              width={95}
-              height={43}
-              shadowColor={"#AF370F"}
-              active={true}
-              ownColor={"linear-gradient(to right, #E94E1B, #F37500)"}
-              bgColor={"linear-gradient(to right, #E94E1B, #F37500)"}
-              onClick={() => {
-                if (race && gender) {
-                  setCurrentStep(STEPS.Name)
-                }
-              }}
+                         className="clothing-item-equip-button"
+                         shadowColor={"#AF370F"}
+                         width={'25vw'}
+                         height={44}
+                         active={true}
+                         fontFamily={"Roboto"}
+                         fontWeight={"300"}
+                         text={'Далее'}
+                         fontSize={14}
+                         ownColor={
+                           "linear-gradient(rgb(18, 4, 2) 0%, rgba(243, 117, 0, 0.2) 100%)"
+                         }
+                         bgColor={
+                           "linear-gradient(rgb(18, 4, 2) 0%, rgba(243, 117, 0, 0.2) 100%)"}
+                           onClick={() => {
+                            if (race && gender) {
+                              setCurrentStep(STEPS.Name)
+                            }
+                          }}
             />
           </div>
         </div>
@@ -457,9 +416,10 @@ const PersonageCreationScreen = () => {
       >
         <Player
           personage={{ gender, race }}
-          width={"45vw"}
-          left={"27vw"}
-          top={"20vh"}
+          clothing={clothing}
+          width={"90vw"}
+          left={"30vw"}
+          top={"30vh"}
         />
         <div
           style={{
@@ -482,18 +442,25 @@ const PersonageCreationScreen = () => {
           >
             <div style={{ marginRight: "8px" }}></div>
             <div style={{ marginRight: "8px", zIndex: 3 }}>
-              <Button
-                fontSize={14}
-                paddingTop={2}
-                text={"Начать"}
-                width={95}
-                height={43}
-                shadowColor={"#AF370F"}
-                ownColor={"linear-gradient(to right, #E94E1B, #F37500)"}
-                bgColor={"linear-gradient(to right, #E94E1B, #F37500)"}
-                active={(personageName && personageName.length > 5) ? true : false}
-                onClick={() => handlePersonageCreation()}
-              />
+            <Button
+            className="clothing-item-equip-button"
+            shadowColor={"#AF370F"}
+            width={'30vw'}
+            marginBottom={"5"}
+            height={44}
+            active={personageName.length >= 2}
+            fontFamily={"Roboto"}
+            fontWeight={"300"}
+            text={'Начать'}
+            fontSize={14}
+            ownColor={
+              "linear-gradient(rgb(18, 4, 2) 0%, rgba(243, 117, 0, 0.2) 100%)"
+            }
+            bgColor={
+              "linear-gradient(rgb(18, 4, 2) 0%, rgba(243, 117, 0, 0.2) 100%)"
+            }
+            onClick={() => personageName.length >= 2 ? handlePersonageCreation() : null}
+          />
             </div>
             <div></div>
           </div>
@@ -519,7 +486,7 @@ const PersonageCreationScreen = () => {
               }}
             >
               <input
-                placeholder="***"
+                placeholder="Имя персонажа"
                 style={{
                   backgroundColor: "transparent",
                   border: "none",
