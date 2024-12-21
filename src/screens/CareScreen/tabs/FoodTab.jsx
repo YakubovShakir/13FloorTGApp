@@ -136,7 +136,7 @@ const FoodTab = ({ userId, userParameters, setUserParameters }) => {
         text: price,
         active: status,
         icon: Icons.balance,
-        shadowColor: "#0E3228",
+       
         onClick: status && (async () => await handleBuyFood(food?.food_id)),
       },
     ]

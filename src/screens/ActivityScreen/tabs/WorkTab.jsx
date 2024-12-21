@@ -215,22 +215,21 @@ export const WorkTab = ({
       isNextLevelWork &&
       enoughBalance
     if (currentWork?.work_id === workId) {
-  return [
-    {
-      text: activeWork ? "Стоп" : "Начать",
-      onClick:
-        activeWork
-          ? async () => await handleStopWork()
-          : async () => await handleStartWork(),
-      icon: buyStatus && Icons.balance,
-      active: true,
-      bg: activeWork
-        ? "linear-gradient(rgb(18, 4, 2) 0%, rgba(233, 27, 27, 0.12) 100%)"  // Красный для остановки
-             : "linear-gradient(rgb(18 4 2) 0%, rgb(243 117 0 / 20%) 100%)", // Оранжевый для начала
-      shadowColor: activeWork ? "rgb(255, 12, 0)" : "rgb(243 117 0)",  // Тень кнопки (темнее для активной работы)
-      borderColor: activeWork ? "1px solid rgb(243, 117, 0) !important" : "1px solid rgb(255, 12, 0) !important",
-    },
-  ]
+      return [
+        {
+          text: activeWork ? "Стоп" : "Начать",
+          onClick: activeWork
+            ? async () => await handleStopWork()
+            : async () => await handleStartWork(),
+          icon: buyStatus && Icons.balance,
+          active: true,
+          bg: activeWork
+            ? "linear-gradient(rgb(18, 4, 2) 0%, rgba(233, 27, 27, 0.12) 100%)"
+            : "linear-gradient(rgb(18 4 2) 0%, rgb(243 117 0 / 20%) 100%)",
+          shadowColor: activeWork ? "rgb(255, 12, 0)" : "rgb(243, 117, 0)",
+          borderColor: activeWork ? "rgb(255, 12, 0)" : "rgb(243, 117, 0)", // Убрали !important
+        },
+      ];
 }
 
     return [

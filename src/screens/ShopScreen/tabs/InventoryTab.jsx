@@ -194,7 +194,7 @@ const GridItem = ({
         {equipped ? (
           <Button
             className="clothing-item-unequip-button"
-            shadowColor={"#22c7a3"}
+            shadowColor={"rgba(243, 117, 0, 0.18)"}
             width={"88%"}
             marginBottom={"5"}
             height={44}
@@ -204,15 +204,15 @@ const GridItem = ({
             text={"Используется"}
             fontSize={14}
             paddingTop={1}
-            borderColor={"rgb(34, 199, 163)"}
-            ownColor={"linear-gradient(to bottom, rgb(34 199 163 / 0%), rgb(34 199 163 / 24%))"}
-            bgColor={"linear-gradient(to bottom, rgb(34 199 163 / 0%), rgb(34 199 163 / 24%))"}
+            borderColor={"rgba(243, 117, 0, 0.18)"}
+            ownColor={"linear-gradient(rgb(18 4 2 / 0%) 0%, rgba(67, 14, 7, 0.48) 100%)"}
+            bgColor={"linear-gradient(rgb(18 4 2 / 0%) 0%, rgba(67, 14, 7, 0.48) 100%)"}
             onClick={() => type === 'Accessory' || productType === 'shelf' ? clothesUnequip(clothingId, type, productType) : null}
           />
         ) : (
           <Button
             className="clothing-item-equip-button"
-            shadowColor={"#AF370F"}
+            shadowColor={"rgb(243, 117, 0"}
             width={"88%"}
             marginBottom={"5"}
             height={44}

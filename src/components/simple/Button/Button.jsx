@@ -20,7 +20,7 @@ const Button = ({
   backdropFilter, // Новый параметр
 }) => {
   const [isPressed, setIsPressed] = useState(false);
-  const shadowColorValue = active ? shadowColor || "rgb(57, 57, 57)" : "rgb(57, 57, 57)";
+  const shadowColorValue = active ? shadowColor || "rgb(243, 117, 0)" : "rgb(57, 57, 57)" ;
   const borderColorValue = active ? borderColor || "rgb(243, 117, 0)" : "rgb(57, 57, 57)";
 
   return (
@@ -39,7 +39,7 @@ const Button = ({
         background: active
           ? ownColor
             ? bgColor
-            : "linear-gradient(180deg, rgba(46,199,115,1) 0%, rgba(9,98,78,1) 100%)"
+            : "linear-gradient(rgb(18, 4, 2) 0%, rgba(243, 117, 0, 0.2) 100%)"
           : "linear-gradient(rgb(18 18 18) 5%, rgb(18 18 18) 95%)",
         boxShadow: `0px ${isPressed ? 3 : 5}px 0px ${shadowColorValue}`,
         transform: isPressed ? "translateY(2px)" : "translateY(0px)",
