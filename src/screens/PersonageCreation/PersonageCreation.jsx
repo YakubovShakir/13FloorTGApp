@@ -185,15 +185,6 @@ const PersonageCreationScreen = () => {
           width: "100vw",
         }}
       >
-        <Player
-          personage={{ gender, race }}
-          clothing={clothing}
-          gender={gender}
-          race={RACES.WHITE}
-          width={"40vw"}
-          left={"30vw"}
-          top={"30vh"}
-        />
         <div
           style={{
             position: "absolute",
@@ -252,10 +243,12 @@ const PersonageCreationScreen = () => {
               width: "30%",
               display: "flex",
               justifyContent: "flex-start",
+              position: 'absolute',
+              right: 0,
+              zIndex: 1000
             }}
           >
-            {gender && (
-                         <Button
+            <Button
                          className="clothing-item-equip-button"
                          shadowColor={"#AF370F"}
                          width={'25vw'}
@@ -271,15 +264,16 @@ const PersonageCreationScreen = () => {
                          bgColor={
                            "linear-gradient(rgb(18, 4, 2) 0%, rgba(243, 117, 0, 0.2) 100%)"
                          }
-                         onClick={() => {
-                          if (gender) {
-                            setCurrentStep(STEPS.Race)
-                          }
-                        }}
-              />
-            )}
+                         onClick={() => setCurrentStep(STEPS.Race)}/>
           </div>
         </div>
+        <Player
+          personage={{ gender, race }}
+          clothing={clothing}
+          width={"90vw"}
+          left={"30vw"}
+          top={"30vh"}
+        />
       </div>
     )
   }

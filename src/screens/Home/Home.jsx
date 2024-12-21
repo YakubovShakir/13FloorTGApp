@@ -321,12 +321,13 @@ const Home = () => {
         <HomeHeader
           onClick={() => setVisibleSettingsModal(!visibleSettingsModal)}
         />
-        <Player width="40vw"
-          left={"9vw"}
-          top={"35vh"}
-          clothing={userClothing}
-          personage={userPersonage}
-        />
+          <Player
+            width="40vw"
+            left={"9vw"}
+            top={"35vh"}
+            personage={userPersonage}
+            clothing={userClothing}
+          />
         <ProcessProgressBar activeProcess={currentProcess} inputPercentage={countPercentage(currentProcess?.seconds, 60)} />
         <Menu />
         {visibleWindow && (
@@ -348,11 +349,13 @@ const Home = () => {
         <HomeHeader
           onClick={() => setVisibleSettingsModal(!visibleSettingsModal)}
         />
-        <Player width="40vw"
-          left={"9vw"}
-          top={"35vh"}
-          personage={userPersonage}
-          clothing={userClothing} />
+          <Player
+            width="40vw"
+            left={"9vw"}
+            top={"35vh"}
+            personage={userPersonage}
+            clothing={userClothing}
+          />
         <ProcessProgressBar
           activeProcess={currentProcess}
           inputPercentage={countPercentage(
