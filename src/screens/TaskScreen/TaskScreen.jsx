@@ -22,7 +22,6 @@ const TaskScreen = () => {
     { icon: taskTabIcon, callback: () => setActiveTab("task") },
     { icon: taskTabIcon, callback: () => setActiveTab("ivent") },
   ]
-
   useEffect(() => {
     useTelegram.setBackButton(() => navigate("/"))
   }, [])
