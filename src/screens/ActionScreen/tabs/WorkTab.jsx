@@ -242,7 +242,7 @@ export const WorkTab = ({
         },
         icon: buyStatus && Icons.balance,
         active: buyStatus ,
-        shadowColor: buyStatus && "#0E3228",
+        shadowColor: buyStatus && "rgb(243, 117, 0)",
       },
     ]
   }
