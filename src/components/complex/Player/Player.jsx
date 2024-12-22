@@ -6,7 +6,6 @@ import {
   GENDERS,
 } from "../../../screens/PersonageCreation/PersonageCreation"
 
-// Utility function to preload images
 const preloadImages = (imageUrls) => {
   return Promise.all(
     imageUrls.map(url => {

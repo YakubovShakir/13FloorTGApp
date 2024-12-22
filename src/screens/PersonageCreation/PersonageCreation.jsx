@@ -78,7 +78,7 @@ const PersonageCreationScreen = () => {
 
   const handlePersonageCreation = async () => {
     try {
-      if(personageName && personageName?.length >= 2) { 
+      if (personageName && personageName?.length >= 2) {
 
         await setUserPersonage({ race, name: personageName, gender })
 
@@ -92,7 +92,7 @@ const PersonageCreationScreen = () => {
 
   useEffect(() => {
     let mounted = true
-    
+
     const preloadAssets = async () => {
       const preloadImage = (src) => {
         return new Promise((resolve, reject) => {
@@ -102,7 +102,7 @@ const PersonageCreationScreen = () => {
           img.onerror = () => reject(src)
         })
       }
-  
+
       const assetsToPreload = [
         // Initial Clothes
         "https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/clothes/1/Head/GlossyGlamDark-m.png",
@@ -119,7 +119,7 @@ const PersonageCreationScreen = () => {
         "https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/clothes/2/Legs/CamelPants-f.png",
         // Backgrounds
         Assets.BG.personageCreationBg,
-        
+
         // Icons and players
         Assets.Icons.female,
         Assets.Icons.male,
@@ -137,15 +137,15 @@ const PersonageCreationScreen = () => {
         Assets.Images.blackMan,
         // Layers
         Assets.Layers.squareButtonShadow,
-        
+
         // Other assets
         Assets.nameUnderline
       ]
-  
+
       try {
         const preloadPromises = assetsToPreload.map(src => preloadImage(src))
         await Promise.allSettled(preloadPromises)
-        
+
         if (mounted) {
           setIsLoading(false)
         }
@@ -157,9 +157,9 @@ const PersonageCreationScreen = () => {
         }
       }
     }
-  
+
     preloadAssets()
-  
+
     return () => {
       mounted = false
     }
@@ -171,8 +171,8 @@ const PersonageCreationScreen = () => {
     setClothing(getInitialClothing(gender, race))
   }, [race, gender])
 
-  if(isLoading) {
-    return <FullScreenSpinner/>
+  if (isLoading) {
+    return <FullScreenSpinner />
   }
 
   if (currentStep === STEPS.Gender) {
@@ -249,32 +249,32 @@ const PersonageCreationScreen = () => {
             }}
           >
             <Button
-                         className="clothing-item-equip-button"
-                         shadowColor={"#AF370F"}
-                         width={'25vw'}
-                         height={44}
-                         active={true}
-                         fontFamily={"Roboto"}
-                         fontWeight={"300"}
-                         text={'Далее'}
-                         fontSize={14}
-                         ownColor={
-                           "linear-gradient(rgb(18, 4, 2) 0%, rgba(243, 117, 0, 0.2) 100%)"
-                         }
-                         bgColor={
-                           "linear-gradient(rgb(18, 4, 2) 0%, rgba(243, 117, 0, 0.2) 100%)"
-                         }
-                         onClick={() => setCurrentStep(STEPS.Race)}/>
+              className="clothing-item-equip-button"
+              shadowColor={"#AF370F"}
+              width={'25vw'}
+              height={44}
+              active={true}
+              fontFamily={"Roboto"}
+              fontWeight={"300"}
+              text={'Далее'}
+              fontSize={14}
+              ownColor={
+                "linear-gradient(rgb(18, 4, 2) 0%, rgba(243, 117, 0, 0.2) 100%)"
+              }
+              bgColor={
+                "linear-gradient(rgb(18, 4, 2) 0%, rgba(243, 117, 0, 0.2) 100%)"
+              }
+              onClick={() => setCurrentStep(STEPS.Race)} />
           </div>
         </div>
-      
+
         <Player
-            bottom={'calc(1vh + 50px)'}
-            width={'37vw'}
-            left={'30vw'}
-            personage={{ race, gender }}
-            clothing={getInitialClothing(gender, race)}
-          />
+          bottom={'calc(1vh + 50px)'}
+          width={'37vw'}
+          left={'30vw'}
+          personage={{ race, gender }}
+          clothing={getInitialClothing(gender, race)}
+        />
       </div>
     )
   }
@@ -289,14 +289,14 @@ const PersonageCreationScreen = () => {
           width: "100vw",
         }}
       >
-      
-      <Player
-            bottom={'calc(1vh + 50px)'}
-            width={'37vw'}
-            left={'30vw'}
-            personage={{ race, gender }}
-            clothing={getInitialClothing(gender, race)}
-          />
+
+        <Player
+          bottom={'calc(1vh + 50px)'}
+          width={'37vw'}
+          left={'30vw'}
+          personage={{ race, gender }}
+          clothing={getInitialClothing(gender, race)}
+        />
         <div
           style={{
             position: "absolute",
@@ -315,21 +315,21 @@ const PersonageCreationScreen = () => {
             }}
           >
             <Button
-                         className="clothing-item-equip-button"
-                         shadowColor={"#AF370F"}
-                         width={'25vw'}
-                         height={44}
-                         active={true}
-                         fontFamily={"Roboto"}
-                         fontWeight={"300"}
-                         text={'Назад'}
-                         fontSize={14}
-                         ownColor={
-                           "linear-gradient(rgb(18, 4, 2) 0%, rgba(243, 117, 0, 0.2) 100%)"
-                         }
-                         bgColor={
-                           "linear-gradient(rgb(18, 4, 2) 0%, rgba(243, 117, 0, 0.2) 100%)"
-                         }
+              className="clothing-item-equip-button"
+              shadowColor={"#AF370F"}
+              width={'25vw'}
+              height={44}
+              active={true}
+              fontFamily={"Roboto"}
+              fontWeight={"300"}
+              text={'Назад'}
+              fontSize={14}
+              ownColor={
+                "linear-gradient(rgb(18, 4, 2) 0%, rgba(243, 117, 0, 0.2) 100%)"
+              }
+              bgColor={
+                "linear-gradient(rgb(18, 4, 2) 0%, rgba(243, 117, 0, 0.2) 100%)"
+              }
               onClick={() => {
                 setCurrentStep(STEPS.Gender)
               }}
@@ -374,25 +374,25 @@ const PersonageCreationScreen = () => {
             }}
           >
             <Button
-                         className="clothing-item-equip-button"
-                         shadowColor={"#AF370F"}
-                         width={'25vw'}
-                         height={44}
-                         active={true}
-                         fontFamily={"Roboto"}
-                         fontWeight={"300"}
-                         text={'Далее'}
-                         fontSize={14}
-                         ownColor={
-                           "linear-gradient(rgb(18, 4, 2) 0%, rgba(243, 117, 0, 0.2) 100%)"
-                         }
-                         bgColor={
-                           "linear-gradient(rgb(18, 4, 2) 0%, rgba(243, 117, 0, 0.2) 100%)"}
-                           onClick={() => {
-                            if (race && gender) {
-                              setCurrentStep(STEPS.Name)
-                            }
-                          }}
+              className="clothing-item-equip-button"
+              shadowColor={"#AF370F"}
+              width={'25vw'}
+              height={44}
+              active={true}
+              fontFamily={"Roboto"}
+              fontWeight={"300"}
+              text={'Далее'}
+              fontSize={14}
+              ownColor={
+                "linear-gradient(rgb(18, 4, 2) 0%, rgba(243, 117, 0, 0.2) 100%)"
+              }
+              bgColor={
+                "linear-gradient(rgb(18, 4, 2) 0%, rgba(243, 117, 0, 0.2) 100%)"}
+              onClick={() => {
+                if (race && gender) {
+                  setCurrentStep(STEPS.Name)
+                }
+              }}
             />
           </div>
         </div>
@@ -410,7 +410,7 @@ const PersonageCreationScreen = () => {
           width: "100vw",
         }}
       >
-          {/* <Player
+        {/* <Player
             fixed={true}
             bottom={'calc(1vh + 50px)'}
             width={'37vw'}
@@ -439,25 +439,25 @@ const PersonageCreationScreen = () => {
           >
             <div style={{ marginRight: "8px" }}></div>
             <div style={{ marginRight: "8px", zIndex: 3 }}>
-            <Button
-            className="clothing-item-equip-button"
-            shadowColor={"#AF370F"}
-            width={'30vw'}
-            marginBottom={"5"}
-            height={44}
-            active={personageName.length >= 2}
-            fontFamily={"Roboto"}
-            fontWeight={"300"}
-            text={'Начать'}
-            fontSize={14}
-            ownColor={
-              "linear-gradient(rgb(18, 4, 2) 0%, rgba(243, 117, 0, 0.2) 100%)"
-            }
-            bgColor={
-              "linear-gradient(rgb(18, 4, 2) 0%, rgba(243, 117, 0, 0.2) 100%)"
-            }
-            onClick={() => personageName.length >= 2 ? handlePersonageCreation() : null}
-          />
+              <Button
+                className="clothing-item-equip-button"
+                shadowColor={"#AF370F"}
+                width={'30vw'}
+                marginBottom={"5"}
+                height={44}
+                active={personageName.length >= 2}
+                fontFamily={"Roboto"}
+                fontWeight={"300"}
+                text={'Начать'}
+                fontSize={14}
+                ownColor={
+                  "linear-gradient(rgb(18, 4, 2) 0%, rgba(243, 117, 0, 0.2) 100%)"
+                }
+                bgColor={
+                  "linear-gradient(rgb(18, 4, 2) 0%, rgba(243, 117, 0, 0.2) 100%)"
+                }
+                onClick={() => personageName.length >= 2 ? handlePersonageCreation() : null}
+              />
             </div>
             <div></div>
           </div>
