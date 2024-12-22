@@ -127,7 +127,10 @@ const Home = () => {
         Assets.BG.workScreenBG,
         Assets.BG.sleepScreenBG,
         Assets.BG.trainScreenBG,
-        Assets.BG.homeBackground
+        Assets.BG.homeBackground,
+        Assets.HOME.shelf,
+        Assets.HOME.couch,
+        ...Object.values(userClothing)
       ];
 
       // Use Promise.all for concurrent image loading
