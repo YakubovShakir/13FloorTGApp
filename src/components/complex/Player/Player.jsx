@@ -113,10 +113,10 @@ const Player = ({
         className="PlayerShadow"
         style={{
           position: "absolute",
-          bottom: "10%", // Чуть ниже персонажа
+          bottom: "8%", // Чуть ниже персонажа
           left: "58%",
           transform: "translateX(-59%)",
-          width: `calc(${width} * 1)`, // Размер относительно ширины персонажа
+          width: `calc(${width} * 1.3)`, // Размер относительно ширины персонажа
           height: `calc(${width} * 0.3)`, // Пропорции тени
           background: "radial-gradient(circle, rgb(0 0 0 / 31%) 0%, rgba(0, 0, 0, 0) 68%)",
           borderRadius: "50%", // Круглая форма
