@@ -30,33 +30,37 @@ const GridItem = ({
   handleCoinsBuy,
   handleStarsBuy
 }) => {
+  // Определим стиль для неактивных элементов (если цена больше 0 и кнопка неактивна)
+  const isDisabled = !available && price > 0;
+  
   return (
     <div
-      className="clothing-item-container" // Основной контейнер элемента одежды
+      className="clothing-item-container"
       style={{
         padding: "0rem",
       }}
     >
       <div
-        className="clothing-item-top" // Верхний блок: Заголовок, Иконка и Тень
+        className="clothing-item-top"
         style={{
           display: "flex",
           alignItems: "center",
           gap: "1rem",
           flexDirection: "column",
           overflow: "hidden",
-          border: "solid 1px rgb(243, 117, 0)",
+          border: isDisabled ? "1px solid rgb(57, 57, 57)" : "1px solid rgb(243, 117, 0)", // изменено
           margin: "7px 0px 7px 0px",
           borderRadius: "7px",
           backgroundImage:
-            "repeating-linear-gradient(to right, transparent, transparent 19px, rgba(243, 117, 0, 0.3) 20px), repeating-linear-gradient(to bottom, transparent, transparent 19px, rgba(243, 117, 0, 0.3) 20px)",
+            isDisabled
+              ? "repeating-linear-gradient(to right, transparent, transparent 19px, rgba(99, 89, 80, 0.3) 20px), repeating-linear-gradient(transparent, transparent 19px, rgba(103, 93, 84, 0.3) 20px)"
+              : "repeating-linear-gradient(to right, transparent, transparent 19px, rgba(243, 117, 0, 0.3) 20px), repeating-linear-gradient(transparent, transparent 19px, rgba(243, 117, 0, 0.3) 20px)", // изменено
           justifyContent: "center",
+          backgroundColor: isDisabled ? "rgba(37, 37, 37, 0.48)" : "rgba(67, 14, 7, 0.48)", // изменено
         }}
       >
-        {/* Заголовок и Иконка */}
         <div className="clothing-item-header">
           <div></div>
-          {/* Иконка одежды и Тень активной одежды */}
           <motion.div
             className="clothing-item-icon-wrapper"
             style={{
@@ -76,12 +80,10 @@ const GridItem = ({
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-
                 marginTop: -5.5,
                 position: "relative",
               }}
             >
-              {/* Тень активной одежды */}
               {equipped && (
                 <img
                   className="clothing-item-shadow"
@@ -93,7 +95,6 @@ const GridItem = ({
                     top: 0,
                     left: 0,
                     zIndex: 1,
-                    
                   }}
                 />
               )}
@@ -106,6 +107,7 @@ const GridItem = ({
                   width: "100%",
                   position: "relative",
                   zIndex: 2,
+                  filter: isDisabled ? "grayscale(100%)" : "none", // обесцвечиваем только если неактивно
                 }}
               />
             </div>
@@ -114,24 +116,22 @@ const GridItem = ({
       </div>
 
       <div
-        className="clothing-item-bottom" // Нижний блок: Уровень уважения и Кнопки
+        className="clothing-item-bottom"
         style={{
+          color:"#ffffff",
           paddingBottom: "12px",
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
-
-          border: "solid 1px rgb(243 117 0 / 18%)",
-         
+          border: isDisabled ? "1px solid rgb(57, 57, 57)" : "1px solid rgba(243, 117, 0, 0.18)", // изменено
           borderRadius: "7px",
-          backgroundColor: "rgb(67 14 7 / 48%)",
+          backgroundColor: isDisabled ? "rgba(37, 37, 37, 0.48)" : "rgba(67, 14, 7, 0.48)", // изменено
         }}
       >
         <p
           style={{
             paddingTop: "10px",
             height: "45px",
-            color: "white",
             textAlign: "center",
             fontWeight: "100",
             fontFamily: "Roboto",
@@ -140,7 +140,7 @@ const GridItem = ({
         >
           {title}
         </p>
-        {/* Уровень уважения */}
+
         <div
           className="clothing-item-respect"
           style={{
@@ -151,10 +151,13 @@ const GridItem = ({
             marginBottom: 10,
           }}
         >
-          <img src={Assets.Icons.respect} height={22} />
+          <img
+            src={Assets.Icons.respect}
+            height={22}
+            style={isDisabled ? { filter: "grayscale(100%)" } : {}} // Серая иконка для неактивных элементов
+          />
           <p
             style={{
-              color: "white",
               textAlign: "center",
               fontWeight: "100",
               fontFamily: "Roboto",
@@ -208,12 +211,14 @@ const GridItem = ({
               "linear-gradient(rgb(18, 4, 2) 0%, rgba(243, 117, 0, 0.2) 100%)"
             }
             onClick={() => available || price === 0 ? handleCoinsBuy({ id, productType }) : null}
+            style={isDisabled ? { filter: "grayscale(100%)" } : {}} // Серая кнопка
           />
         )}
       </div>
     </div>
-  )
-}
+  );
+};
+
 
 const GridItemShelf = ({
   id,
