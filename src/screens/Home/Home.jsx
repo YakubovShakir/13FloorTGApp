@@ -236,7 +236,7 @@ const Home = () => {
             : `url(${Assets.BG.homeBackground})`,
           backgroundSize: "cover",
           backgroundPosition: "bottom right",
-          zIndex: 1,
+          zIndex: 0,
         }}
       />
       {content}
@@ -258,7 +258,8 @@ const Home = () => {
         <img className="couch" src={Assets.HOME.couch} />
         <div style={{ position: 'absolute', zIndex: 2 }}>
           <Player
-            width="40vw"
+          bottom={"calc(-100vh + 50px)"}
+            width="37vw"
             left={"9vw"}
             top={"35vh"}
             personage={userPersonage}
@@ -322,7 +323,8 @@ const Home = () => {
           onClick={() => setVisibleSettingsModal(!visibleSettingsModal)}
         />
           <Player
-            width="40vw"
+           bottom="calc(-2vh + 50px)"
+            width="37vw"
             left={"9vw"}
             top={"35vh"}
             personage={userPersonage}
@@ -350,7 +352,8 @@ const Home = () => {
           onClick={() => setVisibleSettingsModal(!visibleSettingsModal)}
         />
           <Player
-            width="40vw"
+          bottom="calc(-2vh + 50px)"
+            width="37vw"
             left={"9vw"}
             top={"35vh"}
             personage={userPersonage}
@@ -386,7 +389,7 @@ const Home = () => {
         />
 
         <Player
-          width="90vw"
+          width="81vw"
           left={"5vw"}
           top={"55vmax"}
           personage={userPersonage}
