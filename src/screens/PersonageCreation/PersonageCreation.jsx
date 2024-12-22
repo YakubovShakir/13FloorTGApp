@@ -267,13 +267,14 @@ const PersonageCreationScreen = () => {
                          onClick={() => setCurrentStep(STEPS.Race)}/>
           </div>
         </div>
+      
         <Player
-          personage={{ gender, race }}
-          clothing={clothing}
-          width={"90vw"}
-          left={"30vw"}
-          top={"30vh"}
-        />
+            bottom={'calc(1vh + 50px)'}
+            width={'37vw'}
+            left={'30vw'}
+            personage={{ race, gender }}
+            clothing={getInitialClothing(gender, race)}
+          />
       </div>
     )
   }
@@ -288,13 +289,14 @@ const PersonageCreationScreen = () => {
           width: "100vw",
         }}
       >
-        <Player
-          personage={{ gender, race }}
-          clothing={clothing}
-          width={"90vw"}
-          left={"30vw"}
-          top={"30vh"}
-        />
+      
+      <Player
+            bottom={'calc(1vh + 50px)'}
+            width={'37vw'}
+            left={'30vw'}
+            personage={{ race, gender }}
+            clothing={getInitialClothing(gender, race)}
+          />
         <div
           style={{
             position: "absolute",
@@ -408,13 +410,13 @@ const PersonageCreationScreen = () => {
           width: "100vw",
         }}
       >
-        <Player
-          personage={{ gender, race }}
-          clothing={clothing}
-          width={"90vw"}
-          left={"30vw"}
-          top={"30vh"}
-        />
+     <Player
+            bottom={'calc(1vh + 50px)'}
+            width={'37vw'}
+            left={'30vw'}
+            personage={{ race, gender }}
+            clothing={getInitialClothing(gender, race)}
+          />
         <div
           style={{
             position: "absolute",

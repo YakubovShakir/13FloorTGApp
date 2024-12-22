@@ -48,7 +48,6 @@ const ActionScreen = () => {
 
   const tabs = [
     { icon: Icons.activityTabIcon, callback: () => setActiveTab("activities") },  // Вкладка "Активности"
-    
   ];
   
 
