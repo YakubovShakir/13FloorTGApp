@@ -112,8 +112,8 @@ const Player = ({
         className="PlayerShadow"
         style={{
           position: "absolute",
-          bottom: "8%", // Чуть ниже персонажа
-          left: "58%",
+          bottom: "-2%", // Чуть ниже персонажа
+          left: "59%",
           transform: "translateX(-59%)",
           width: `calc(${width} * 1.3)`, // Размер относительно ширины персонажа
           height: `calc(${width} * 0.3)`, // Пропорции тени
@@ -128,7 +128,7 @@ const Player = ({
         className="PlayerAvatar"
         src={getBases(personage?.race, personage?.gender)}
         alt="avatar"
-        style={{ position: "relative", zIndex: "2" }}
+        style={{ zIndex: "2" }}
       />
       {clothing && (
         <>

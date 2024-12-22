@@ -269,7 +269,7 @@ const PersonageCreationScreen = () => {
         </div>
 
         <Player
-          bottom={'calc(1vh + 50px)'}
+          bottom={'calc(1vh + 120px)'}
           width={'37vw'}
           left={'30vw'}
           personage={{ race, gender }}
@@ -291,7 +291,7 @@ const PersonageCreationScreen = () => {
       >
 
         <Player
-          bottom={'calc(1vh + 50px)'}
+          bottom={'calc(1vh + 120px)'}
           width={'37vw'}
           left={'30vw'}
           personage={{ race, gender }}

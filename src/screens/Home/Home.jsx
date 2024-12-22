@@ -261,7 +261,7 @@ const Home = () => {
         <img className="couch" src={Assets.HOME.couch} />
         <div style={{ position: 'absolute', zIndex: 2 }}>
           <Player
-          bottom={"calc(-100vh + 50px)"}
+          bottom={"calc(-85vh + 50px)"}
             width="37vw"
             left={"9vw"}
             top={"35vh"}
@@ -326,7 +326,7 @@ const Home = () => {
           onClick={() => setVisibleSettingsModal(!visibleSettingsModal)}
         />
           <Player
-           bottom="calc(-2vh + 50px)"
+           bottom="calc(-1vh + 141px)"
             width="37vw"
             left={"9vw"}
             top={"35vh"}
@@ -355,7 +355,7 @@ const Home = () => {
           onClick={() => setVisibleSettingsModal(!visibleSettingsModal)}
         />
           <Player
-          bottom="calc(-2vh + 50px)"
+          bottom="calc(-1vh + 141px)"
             width="37vw"
             left={"9vw"}
             top={"35vh"}
@@ -392,6 +392,7 @@ const Home = () => {
         />
 
         <Player
+        bottom={"calc(-71vh + 50px)"}
           width="81vw"
           left={"5vw"}
           top={"55vmax"}
@@ -405,7 +406,7 @@ const Home = () => {
           style={{
             position: "absolute",
             width: "100%",
-            height: "80%",
+            height: "100%",
             bottom: 0,
             zIndex: 2,
           }}
