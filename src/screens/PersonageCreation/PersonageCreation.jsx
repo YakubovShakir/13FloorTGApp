@@ -250,7 +250,7 @@ const PersonageCreationScreen = () => {
           >
             <Button
               className="clothing-item-equip-button"
-              shadowColor={"#AF370F"}
+              shadowColor={"#f37500"}
               width={'25vw'}
               height={44}
               active={true}
@@ -316,7 +316,7 @@ const PersonageCreationScreen = () => {
           >
             <Button
               className="clothing-item-equip-button"
-              shadowColor={"#AF370F"}
+              shadowColor={"#f37500"}
               width={'25vw'}
               height={44}
               active={true}
@@ -375,7 +375,7 @@ const PersonageCreationScreen = () => {
           >
             <Button
               className="clothing-item-equip-button"
-              shadowColor={"#AF370F"}
+              shadowColor={"#f37500"}
               width={'25vw'}
               height={44}
               active={true}
@@ -441,7 +441,7 @@ const PersonageCreationScreen = () => {
             <div style={{ marginRight: "8px", zIndex: 3 }}>
               <Button
                 className="clothing-item-equip-button"
-                shadowColor={"#AF370F"}
+                shadowColor={"#f37500"}
                 width={'30vw'}
                 marginBottom={"5"}
                 height={44}
@@ -464,8 +464,8 @@ const PersonageCreationScreen = () => {
           <div
             style={{
               width: "100vw",
-              height: "100vh",
-              position: "absolute",
+              height: "550vh",
+              position: "fixed",
               display: "flex",
               flexDirection: "column",
               justifyContent: "center",
