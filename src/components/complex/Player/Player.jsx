@@ -81,7 +81,7 @@ const Player = ({
         console.error(`Failed to load image: ${failedUrl}`);
         setLoadingError(true);
       });
-  }, []);
+  }, [personage, clothing, type]);
 
   // Render placeholder if loading or error occurs
   if (!imagesLoaded || loadingError) {
