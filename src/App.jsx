@@ -16,7 +16,7 @@ function App() {
     if (isMobile) {
       useTelegram.setFullScreen();
     }
-    useTelegram.setHeaderColor("#000000");
+    useTelegram.setHeaderColor("#00000");
   }, []);
 
   return (
