@@ -410,13 +410,14 @@ const PersonageCreationScreen = () => {
           width: "100vw",
         }}
       >
-     <Player
+          {/* <Player
+            fixed={true}
             bottom={'calc(1vh + 50px)'}
             width={'37vw'}
             left={'30vw'}
             personage={{ race, gender }}
             clothing={getInitialClothing(gender, race)}
-          />
+          /> */}
         <div
           style={{
             position: "absolute",
