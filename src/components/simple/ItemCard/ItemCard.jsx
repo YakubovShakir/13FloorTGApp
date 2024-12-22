@@ -16,7 +16,7 @@ const ItemCard = ({
   handleStarsBuy
 }) => {
   // Определяем, активна ли хотя бы одна кнопка
-  const isAnyButtonActive = ItemButtons.some(button => button.active);
+  const isAnyButtonActive = ItemButtons?.some(button => button.active);
 
 // Логика для установки обводки
 let borderStyle = ""; // Стандартный цвет обводки (неактивная кнопка)
@@ -111,7 +111,7 @@ const isImageGrayscale = !isAnyButtonActive; // Если кнопка неакт
 
           {/* ItemButtons Section */}
           <div className="ItemCardButtons">
-            {ItemButtons.map((ItemButton, index) => (
+            {ItemButtons?.map((ItemButton, index) => (
               <Button
                 key={index}
                 width="100%"
