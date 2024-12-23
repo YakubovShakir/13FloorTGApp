@@ -23,6 +23,9 @@ import missingGirl from './IMG/missingGirl.png'
 import squareButtonShadow from "./IMG/layers/squareButtonShadow.png"
 import winter from './IMG/bg/winter.gif'
 
+import investmentCoffeeShopIcon from './IMG/icons/invest-cs.png'
+import investmentZooShopIcon from './IMG/icons/invest-zoo.png'
+
 import shelf from './IMG/shelf.png'
 
 import trainingCardBG from "./IMG/bg/trainingCard.png"
@@ -193,6 +196,10 @@ import arrowIcon from './IMG/icons/arrowIcon.png'
 import inventoryActiveShadow from './IMG/inventoryActiveShadow.png'
 import filterModalBG from './IMG/bg/filterModalBackground.png'
 
+import investManager from './IMG/icons/invest-manager.png'
+import investManagerActive from './IMG/icons/invest-manager-active.png'
+import gameCenter from './IMG/icons/invest-game.png'
+
 export function getImgUrl(name) {
   return new URL(`${name}`, import.meta.url).href
 }
@@ -227,6 +234,7 @@ const Assets = {
       goldenCat,
       patCat,
     },
+    investManager,
     maleWAfroIcon,
     maleWAsianIcon,
     maleWhiteIcon,
@@ -339,6 +347,10 @@ const Assets = {
     legsIcon,
     settingsIcon,
     shoesIcon,
+    investmentCoffeeShopIcon,
+    investmentZooShopIcon,
+    investManagerActive,
+    gameCenter,
   },
   BG: {
     trainingCardBG,

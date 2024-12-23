@@ -11,6 +11,7 @@ import UserContext, { UserProvider } from "./UserContext"
 import ShopScreen from './screens/ShopScreen/ShopScreen'
 import TaskScreen from "./screens/TaskScreen/TaskScreen"
 import ActionScreen from "./screens/ActionScreen/ActionScreen";
+import InvestmentScreen from "./screens/Investment/InvestmentScreen";
 function App() {
   useEffect(() => {
     if (isMobile) {
@@ -32,6 +33,7 @@ function App() {
           <Route path="/activity/:type" element={<ActivityScreen />} />
           <Route path="/tasks" element={<TaskScreen />} />
           <Route path="/action" element={<ActionScreen/>} />
+          <Route path="/investment" element={<InvestmentScreen/>} />
         </Routes>
       </MemoryRouter>
     </>
