@@ -135,3 +135,8 @@ export const buyItemsForCoins = async (userId, itemId, productType) => {
     productType
   })
 }
+
+export const getUserInvestments = async (userId) => {
+  const { data } = await instance.get(`/users/${userId}/investments`)
+  return data
+}

@@ -23,6 +23,13 @@ import missingGirl from './IMG/missingGirl.png'
 import squareButtonShadow from "./IMG/layers/squareButtonShadow.png"
 import winter from './IMG/bg/winter.gif'
 
+import wallets from './IMG/icons/wallets.png'
+import languages from './IMG/icons/languages.png'
+import musics from './IMG/icons/musics.png'
+import sounds from './IMG/icons/sounds.png'
+
+import checkboxChecked from './IMG/icons/checkbox-check.png'
+
 import investmentCoffeeShopIcon from './IMG/icons/invest-cs.png'
 import investmentZooShopIcon from './IMG/icons/invest-zoo.png'
 
@@ -351,6 +358,11 @@ const Assets = {
     investmentZooShopIcon,
     investManagerActive,
     gameCenter,
+    checkboxChecked,
+    wallets,
+    musics,
+    sounds,
+    languages
   },
   BG: {
     trainingCardBG,

@@ -14,6 +14,8 @@ import Modal from "../../components/complex/Modals/Modal/Modal"
 import Button from "../../components/simple/Button/Button"
 import { motion } from "framer-motion"
 import moment from 'moment-timezone'
+import { FullScreenSpinner } from "../Home/Home"
+import { getUserInvestments } from "../../services/user/user"
 
 const ThreeSectionCard = ({
     leftImage,
@@ -21,7 +23,7 @@ const ThreeSectionCard = ({
     index = 0,
     isWaiting = false,
     onClick,
-    has_auto_claim,
+    has_autoclaim,
     current_level = 1,
     started_at = "2024-12-23T08:02:40.126Z",
     tz = 'Europe/Moscow',
@@ -29,41 +31,41 @@ const ThreeSectionCard = ({
         price: 200
     }
 }) => {
-    const [timer, setTimer] = useState()
+    const [timer, setTimer] = useState('')
+    const isTest = process.env.NODE_ENV !== 'test'
     useEffect(() => {
         const calculateTimeLeft = () => {
-            const now = moment().tz(tz);
-            const end = moment(started_at).tz(tz).add(1, 'hour');
-            
-            if (now.isAfter(end)) {
-                return '00:00';
+          const now = moment().tz(tz);
+          const end = isTest 
+            ? moment(started_at).tz(tz).add(5, 'second') 
+            : moment(started_at).tz(tz).add(1, 'hour'); 
+          
+          if (now.isAfter(end)) {
+            if (has_autoclaim === true) {
+              return // reset timer to correct thing
             }
-
-            const duration = moment.duration(end.diff(now));
-            const minutes = Math.floor(duration.asMinutes());
-            const seconds = Math.floor(duration.seconds());
-            
-            return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            return '00:00';
+          }
+    
+          const duration = moment.duration(end.diff(now));
+          const minutes = Math.floor(duration.asMinutes());
+          const seconds = Math.floor(duration.seconds());
+          return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
         };
-
-        // Set initial timer value
+    
         setTimer(calculateTimeLeft());
-
-        // Update timer every second
+    
         const intervalId = setInterval(() => {
-            const timeLeft = calculateTimeLeft();
-            setTimer(timeLeft);
-            
-            // Clear interval if timer reaches 00:00
-            if (timeLeft === '00:00') {
-                clearInterval(intervalId);
-            }
+          const timeLeft = calculateTimeLeft();
+          setTimer(timeLeft);
+    
+          if (timeLeft === '00:00') {
+            clearInterval(intervalId);
+          }
         }, 1000);
-
-        // Cleanup function
+    
         return () => clearInterval(intervalId);
-    }, [started_at, tz]);
-    //   const isAnyButtonActive = buttons.some(button => button.active);
+      }, [started_at, tz, has_autoclaim]); 
 
     const getBorderStyle = () => {
         if (isWaiting) return "1px solid rgb(46, 199, 115)";
@@ -193,7 +195,7 @@ const ThreeSectionCard = ({
                 }}
             >
                 <img
-                    src={has_auto_claim ? Assets.Icons.investManagerActive : Assets.Icons.investManager}
+                    src={has_autoclaim ? Assets.Icons.investManagerActive : Assets.Icons.investManager}
                     alt="Right Section"
                     style={{
                         ...styles.image,
@@ -268,40 +270,50 @@ const ThreeSectionCard = ({
 
 const InvestmentScreen = () => {
     const [isLoading, setIsLoading] = useState(true)
+    const [investments, setInvestments] = useState()
     const [modalData, setModalData] = useState(null)
     const [isModalVisible, setIsModalVisible] = useState(false)
-
+    const { userId } = useContext(UserContext)
     const navigate = useNavigate()
 
     useEffect(() => {
         useTelegram.setBackButton(() => navigate("/"));
+        getUserInvestments(userId).then(res => {
+            console.log(res)
+            setInvestments(res)
+            setIsLoading(false)
+        }).catch(setIsLoading(false))
     }, []);
 
-    return (
-        <Screen>
-            <HomeHeader></HomeHeader>
-            <ScreenBody activity={'Инвестиции'}>
-                {isModalVisible && (
-                    <Modal
-                        onClose={() => setIsModalVisible(false)}
-                        data={modalData}
-                        bottom={"0"}
-                        width={"100%"}
-                        height={"80%"}
-                    />
-                )}
-                {/* Кофейня */}
-                <ThreeSectionCard leftImage={Assets.Icons.investmentCoffeeShopIcon} rightImage={Assets.Icons.investManager} onClick={() => setIsModalVisible(true)}/>
-                <ThreeSectionCard leftImage={Assets.Icons.investmentZooShopIcon} rightImage={Assets.Icons.investManager} onClick={() => setIsModalVisible(true)}/>
-                <ThreeSectionCard leftImage={Assets.Icons.gameCenter} rightImage={Assets.Icons.investManager} onClick={() => setIsModalVisible(true)}/>
-                {/* Зоомагазин */}
-                {/* <InvestmentItemCard /> */}
-
-                {/* Игровой центр */}
-                {/* <InvestmentItemCard /> */}
-            </ScreenBody>
-        </Screen>
-    );
+    if(isLoading) {
+        return <FullScreenSpinner/>
+    } else if(investments) {
+        return (
+            <Screen>
+                <HomeHeader></HomeHeader>
+                <ScreenBody activity={'Инвестиции'}>
+                    {isModalVisible && (
+                        <Modal
+                            onClose={() => setIsModalVisible(false)}
+                            data={modalData}
+                            bottom={"0"}
+                            width={"100%"}
+                            height={"80%"}
+                        />
+                    )}
+                    {/* Кофейня */}
+                    <ThreeSectionCard leftImage={Assets.Icons.investmentCoffeeShopIcon} rightImage={Assets.Icons.investManager} onClick={() => setIsModalVisible(true)} tz={investments?.tz} started_at={investments.coffee_shop?.started_at || null} {...investments.coffee_shop}/>
+                    <ThreeSectionCard leftImage={Assets.Icons.investmentZooShopIcon} rightImage={Assets.Icons.investManager} onClick={() => setIsModalVisible(true)}/>
+                    <ThreeSectionCard leftImage={Assets.Icons.gameCenter} rightImage={Assets.Icons.investManager} onClick={() => setIsModalVisible(true)}/>
+                    {/* Зоомагазин */}
+                    {/* <InvestmentItemCard /> */}
+    
+                    {/* Игровой центр */}
+                    {/* <InvestmentItemCard /> */}
+                </ScreenBody>
+            </Screen>
+        );
+    }
 };
 
 
