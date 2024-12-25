@@ -56,7 +56,7 @@ const GridItem = ({
               ? "repeating-linear-gradient(to right, transparent, transparent 19px, rgba(99, 89, 80, 0.3) 20px), repeating-linear-gradient(transparent, transparent 19px, rgba(103, 93, 84, 0.3) 20px)"
               : "repeating-linear-gradient(to right, transparent, transparent 19px, rgba(243, 117, 0, 0.3) 20px), repeating-linear-gradient(transparent, transparent 19px, rgba(243, 117, 0, 0.3) 20px)", // изменено
           justifyContent: "center",
-          backgroundColor: isDisabled ? "rgba(37, 37, 37, 0.48)" : "rgba(67, 14, 7, 0.48)", // изменено
+          
         }}
       >
         <div className="clothing-item-header">
@@ -194,7 +194,7 @@ const GridItem = ({
         ) : (
           <Button
             className="clothing-item-equip-button"
-            shadowColor={"#AF370F"}
+            shadowColor={"rgb(243, 117, 0)"}
             width={"88%"}
             marginBottom={"5"}
             height={44}
