@@ -9,12 +9,142 @@ import "./HomeHeader.css";
 import "swiper/css";
 import "swiper/css/pagination";
 import UserContext from "../../../UserContext";
+import { useSettingsProvider } from "../../../hooks";
+import { color } from "framer-motion";
+
+const Bar = ({ title, onClick, isChecked = true, iconLeft, iconRight }) => {
+  const styles = {
+    container: {
+      display: 'flex',
+      alignItems: 'center',
+      width: '100%',
+      padding: '8px 8px',
+      background: '#3B3537',
+      borderRadius: 8
+    },
+    icon: {
+      width: '24px',
+      height: '24px',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderRadius: 5,
+      color: 'white'
+    },
+    text: {
+      flexGrow: 1,
+      marginLeft: '16px',
+      textAlign: 'left',
+      color: 'white',
+      fontSize: '12px'
+    }
+  };
+
+  const [isBoxChecked, setIsChecked] = useState(isChecked)
+
+  const handleCLick = () => {
+    onClick()
+    setIsChecked(!isBoxChecked)
+  }
+
+  return (
+    <div style={styles.container}>
+      <div style={styles.icon}>
+        {iconLeft && <img style={styles.icon} src={iconLeft} />}
+      </div>
+      <p style={styles.text}>{title}</p>
+      <div style={{ borderRadius: 5, background: '#51494c', height: 26, width: 26, display: 'flex', alignContent: 'center', alignItems: 'center', padding: 1, paddingTop: 3 }} onClick={handleCLick}>
+        {isBoxChecked ? <img style={styles.icon} src={Assets.Icons.checkboxChecked} /> : null}
+      </div>
+    </div>
+  );
+};
+
+export const SettingsModal = ({
+  baseStyles,
+  setIsSettingsShown
+}) => {
+
+  const { isSoundEnabled, toggleSound, toggleMusic, isMusicEnabled, account, connect, disconnect } = useSettingsProvider();
+
+  return (
+    <div
+      style={{
+        ...baseStyles,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        background: "rgba(0,0,0,0.8)",
+        zIndex: 999999
+      }}
+    >
+      <div
+        style={{
+          border: "1px solid rgb(57, 57, 57)",
+          position: "absolute",
+          background: "rgb(16 16 16)",
+          zIndex: 6,
+          height: 350,
+          width: 320,
+          borderRadius: 6,
+          backgroundSize: "cover",
+        }}
+      >
+        <div onClick={() => setIsSettingsShown(false)}>
+          <img
+            src={Assets.Icons.modalClose}
+            width={16}
+            height={16}
+            style={{ position: "absolute", right: 15, top: 15 }}
+          />
+        </div>
+        <div
+          style={{
+            display: "flex",
+            width: "100%",
+            height: 350,
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <div style={{ display: "flex", flexDirection: "column", width: '75%' }}>
+            <p
+              style={{
+                fontFamily: "Roboto",
+                fontWeight: "500",
+                color: "white",
+                textAlign: "center",
+                marginBottom: 14,
+                fontSize: 16,
+              }}
+            >
+              Настройки
+            </p>
+            <div style={{ display: "flex", justifyContent: "center", width: '100%', flexDirection: 'column', rowGap: 8 }}>
+              <Bar title={'Музыка'} iconLeft={Assets.Icons.musics} onClick={() => toggleMusic()} isChecked={isMusicEnabled}/>
+              <Bar title={'Звуки'} iconLeft={Assets.Icons.sounds} onClick={() => toggleSound()} isChecked={isSoundEnabled}/>
+              <Bar title={'Язык'} iconLeft={Assets.Icons.languages} />
+              <Bar title={'Подключить кошелек'} iconLeft={Assets.Icons.wallets} onClick={() => account ? connect() : disconnect()} isChecked={account}/>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
 
 const HomeHeader = ({ screenHeader }) => {
   const { userId, userParameters } = useContext(UserContext);
   const [levels, setLevels] = useState();
+  const [isSettingsShown, setIsSettingsShown] = useState(0);
   const [activeProcess, setActiveProcess] = useState();
   const { Icons } = Assets;
+
+
+  const handleSettingsPress = () => {
+    setIsSettingsShown(!isSettingsShown)
+  }
 
   const getLevelByNumber = (number) => {
     return levels?.find((level) => level?.level === number);
@@ -41,64 +171,83 @@ const HomeHeader = ({ screenHeader }) => {
   }, []);
 
   return (
-    <div className="HomeHeader" style={{ borderRadius: screenHeader && "0" }}>
-      <div className="HomeHeaderTopRow">
-        <div className="HomeHeaderIncome">
-          <div>
-            <img src={Icons.balance} alt="Coin" />
+    <>
+      <div className="HomeHeader" style={{ borderRadius: screenHeader && "0" }}>
+        <div className="HomeHeaderTopRow">
+          <div className="HomeHeaderIncome">
+            <div>
+              <img src={Icons.balance} alt="Coin" />
+            </div>
+            <div style={{ display: "flex", alignItems: "flex-start", marginLeft: 10 }}>
+              <span style={{ fontSize: 20, paddingTop: 2, fontFamily: "Muller", fontWeight: "lighter" }}>
+                {userParameters?.coins}
+              </span>
+
+            </div>
           </div>
-          <div style={{ display: "flex", alignItems: "flex-start", marginLeft: 10 }}>
-            <span style={{ fontSize: 20, paddingTop: 2, fontFamily: "Muller", fontWeight: "lighter" }}>
-              {userParameters?.coins}
-            </span>
-            
+          <div className="HomeHeaderRespect">
+            <img src={Icons.respect} alt="RespectIcon" />
+            <span>{userParameters?.respect}</span>
           </div>
-        </div>
-        <div className="HomeHeaderRespect">
-          <img src={Icons.respect} alt="RespectIcon" />
-          <span>{userParameters?.respect}</span>
-        </div>
-        <div className="HomeHeaderLevel">
-          <span style={{ fontFamily: "Muller", fontWeight: "100" }}>{userParameters?.level}</span>
-          <span style={{ fontFamily: "Muller", fontWeight: "100" }}>LvL</span>
-          <div
-            className="HomeHeaderLevelCapacity"
-            style={{
-              width :
-                (userParameters?.total_earned /
-                  levels?.find(
-                    (level) => level?.level === userParameters?.level + 1
-                  )?.required_earned) *
+          <div className="HomeHeaderLevel">
+            <span style={{ fontFamily: "Muller", fontWeight: "100" }}>{userParameters?.level}</span>
+            <span style={{ fontFamily: "Muller", fontWeight: "100" }}>LvL</span>
+            <div
+              className="HomeHeaderLevelCapacity"
+              style={{
+                width:
+                  (userParameters?.total_earned /
+                    levels?.find(
+                      (level) => level?.level === userParameters?.level + 1
+                    )?.required_earned) *
                   100 +
-                "%",
-            }}
+                  "%",
+              }}
+            />
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginLeft: 2.5 }} onClick={handleSettingsPress}>
+            <img src={Assets.Icons.settings} height={25}></img>
+          </div>
+        </div>
+        <div className="HomeHeaderBottomRow">
+          <PlayerIndicators
+            indicators={[
+              {
+                icon: Icons.energy,
+                percentFill:
+                  (userParameters?.energy / userParameters?.energy_capacity) *
+                  100,
+                width: "30%",
+              },
+              {
+                icon: Icons.hungry,
+                percentFill: userParameters?.hungry,
+                width: "30%",
+              },
+              {
+                icon: Icons.happiness,
+                percentFill: userParameters?.mood,
+                width: "30%",
+              },
+            ]}
           />
         </div>
       </div>
-      <div className="HomeHeaderBottomRow">
-        <PlayerIndicators
-          indicators={[
-            {
-              icon: Icons.energy,
-              percentFill:
-                (userParameters?.energy / userParameters?.energy_capacity) *
-                100,
-              width: "30%",
-            },
-            {
-              icon: Icons.hungry,
-              percentFill: userParameters?.hungry,
-              width: "30%",
-            },
-            {
-              icon: Icons.happiness,
-              percentFill: userParameters?.mood,
-              width: "30%",
-            },
-          ]}
+      {isSettingsShown && (
+        <SettingsModal
+          baseStyles={{
+            position: "fixed",
+            height: "100vh",
+            width: "100vw",
+            backgroundColor: "black",
+            zIndex: 10,
+            top: 0,
+            left: 0,
+          }}
+          setIsSettingsShown={setIsSettingsShown}
         />
-      </div>
-    </div>
+      )}
+    </>
   );
 };
 

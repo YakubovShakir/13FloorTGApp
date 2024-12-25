@@ -11,29 +11,34 @@ import UserContext, { UserProvider } from "./UserContext"
 import ShopScreen from './screens/ShopScreen/ShopScreen'
 import TaskScreen from "./screens/TaskScreen/TaskScreen"
 import ActionScreen from "./screens/ActionScreen/ActionScreen";
+import InvestmentScreen from "./screens/Investment/InvestmentScreen";
+import { SettingsProvider } from "./hooks";
+
 function App() {
   useEffect(() => {
     if (isMobile) {
       useTelegram.setFullScreen();
     }
-    useTelegram.setHeaderColor("#000000");
-  }, []);
+  }, [])
 
   return (
     <>
+     <SettingsProvider>
       <MemoryRouter>
-        <Routes>
-          {/* <Route index element={<StartCustomize />} /> */}
-          <Route index element={<Home/>}/>
-          <Route path="/personage-create" element={<PersonageCreationScreen />} />
-          {/* <Route index element={<PersonageCreationScreen />} /> */}
-          <Route path="/care" element={<CareScreen />} />
-          <Route path="/shop" element={<ShopScreen />} />
-          <Route path="/activity/:type" element={<ActivityScreen />} />
-          <Route path="/tasks" element={<TaskScreen />} />
-          <Route path="/action" element={<ActionScreen/>} />
-        </Routes>
-      </MemoryRouter>
+          <Routes>
+            {/* <Route index element={<StartCustomize />} /> */}
+            <Route index element={<Home/>}/>
+            <Route path="/personage-create" element={<PersonageCreationScreen />} />
+            {/* <Route index element={<PersonageCreationScreen />} /> */}
+            <Route path="/care" element={<CareScreen />} />
+            <Route path="/shop" element={<ShopScreen />} />
+            <Route path="/activity/:type" element={<ActivityScreen />} />
+            <Route path="/tasks" element={<TaskScreen />} />
+            <Route path="/action" element={<ActionScreen/>} />
+            <Route path="/investment" element={<InvestmentScreen/>} />
+          </Routes>
+        </MemoryRouter>
+     </SettingsProvider>
     </>
   )
 }

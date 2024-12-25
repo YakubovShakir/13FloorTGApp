@@ -56,7 +56,7 @@ const Menu = ({ screenMenu, activeName, hasBg = true }) => {
         if (currentTab === 'community') {
           navigate('/#');
         } else {
-          navigate("/care");
+          navigate("/investment");
           setCurrentTab('community');
         }
       },
