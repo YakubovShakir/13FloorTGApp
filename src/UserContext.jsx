@@ -49,7 +49,7 @@ export const UserProvider = ({ children }) => {
         getParameters(userId).then((parameters) =>
           setUserParameters(parameters.parameters)
         )
-      }, 30000)
+      }, 1000)
     } catch (e) {
       console.log("Error when updateInfromation", e)
     }
