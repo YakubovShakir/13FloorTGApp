@@ -163,7 +163,7 @@ const AutoclaimModal = ({ bottom, left, width, height, data, onClose, logoWidth 
                     {...buttonStyle}
                     active={data.canUpgrade}
                     onClick={data.canUpgrade ? data.handleUpgrade : () => { }}
-                    text={400}
+                    text={1}
                     width={100}
                     icon={Assets.Icons.starsIcon}
                 />
@@ -397,21 +397,21 @@ const useInvestmentData = (userId) => {
         setIsLoading(false)
     };
 
-      const handleStarsBuyAutoclaim = async () => {
+      const handleStarsBuyAutoclaim = async (investment_type) => {
         const response = await instance.post('/users/request-stars-invoice-linkF', {
-             productType: item.productType,
-             id: item.id
+             productType: "autoclaim",
+             id: investment_type
           })
     
-          await new Promise((resolve, reject) => {
+          await new Promise((resolve) => {
             WebApp.openInvoice(response.data.invoiceLink, (status) => {
             // Можно вызвать попап или анимацию успеха/фейла
             if(status === "paid") {}
             if(status === "cancelled") {}
             if(status === 'pending') {}
             if(status === 'failed') {}
+            resolve()
           })
-          resolve()
         })
       }
 
