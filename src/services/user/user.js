@@ -140,3 +140,17 @@ export const getUserInvestments = async (userId) => {
   const { data } = await instance.get(`/users/${userId}/investments`)
   return data
 }
+
+export const buyInvestmentLevel = async (userId, investment_type) => {
+  const { data } = await instance.post(`/users/${userId}/investments/buy-level`, {
+    investment_type
+  })
+  return data
+}
+
+export const claimInvestment = async (userId, investment_type) => {
+  const { data } = await instance.post(`/users/${userId}/investments/claim`, {
+    investment_type
+  })
+  return data
+}
