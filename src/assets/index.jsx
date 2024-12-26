@@ -207,6 +207,8 @@ import investManager from './IMG/icons/invest-manager.png'
 import investManagerActive from './IMG/icons/invest-manager-active.png'
 import gameCenter from './IMG/icons/invest-game.png'
 
+import shittonsmoney from './IMG/icons/shittonsmoney.png'
+
 export function getImgUrl(name) {
   return new URL(`${name}`, import.meta.url).href
 }
@@ -270,6 +272,7 @@ const Assets = {
     femaleBlack,
     femaleEurope,
     female,
+    shittonsmoney,
     male,
     typeShoes,
     legs,

@@ -154,3 +154,15 @@ export const claimInvestment = async (userId, investment_type) => {
   })
   return data
 }
+
+export const getTasks = async (userId) => {
+  const { data } = await instance.get(`/users/${userId}/tasks`)
+  return data
+}
+
+export const claimTask = async (userId, id) => {
+  const { data } = await instance.post(`/users/${userId}/tasks/claim`, {
+    id
+  })
+  return data
+}
