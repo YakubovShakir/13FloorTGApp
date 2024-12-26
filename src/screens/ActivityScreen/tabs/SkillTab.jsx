@@ -312,16 +312,7 @@ const SkillTab = ({
 
   return (
     <ScreenContainer withTab>
-      {/* User training static card*/}
-      {trainingParamters && (
-        <ItemCard
-          ItemIcon={Icons.training}
-          ItemTitle={"Тренировка"}
-          ItemParamsBlocks={getItemTrainingParams()}
-          ItemButtons={getItemTrainingButton()}
-          ItemIndex={0}
-        />
-      )}
+   
 
       {/* List of skills*/}
       {skills?.map((skill, index) => (
