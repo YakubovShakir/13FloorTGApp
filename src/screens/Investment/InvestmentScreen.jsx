@@ -211,7 +211,7 @@ const ThreeSectionCard = ({
             width: '90%',
             gap: '8px',
             margin: '10px auto auto auto',
-            height: '160px',
+            height: '147px',
             backgroundImage: `
                 linear-gradient(90deg, rgba(0,0,0,0) 0%, rgba(0,0,0,1) 40%),
                 repeating-linear-gradient(
@@ -257,6 +257,7 @@ const ThreeSectionCard = ({
             padding: "8px",
             justifyContent: "center",
         },
+        
     };
 
     const getBorderStyle = () => {
@@ -547,6 +548,19 @@ const InvestmentScreen = () => {
                             height={"80%"}
                         />
                     )}
+
+<h2 style={{
+    fontSize: '14px',
+    fontWeight: 'regular',
+    margin: '16px 0',
+    textAlign: 'center',
+    color: '#fff',
+    fontFamily:'Muller',
+    padding:'0 16px'
+}}>
+    Инвестируй немного денег в бизнес, и забирай доход каждый час
+</h2>
+                    
                     <ThreeSectionCard
                         title={'Кофейня'}
                         leftImage={Assets.Icons.investmentCoffeeShopIcon}
