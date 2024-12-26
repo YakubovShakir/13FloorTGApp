@@ -12,6 +12,7 @@ const ItemCard = ({
   ItemIndex,
   ItemDescription,
   ItemAmount = undefined,
+  ItemBottomAmount,
   isWaiting = false, // Это флаг ожидания
   handleStarsBuy
 }) => {
@@ -38,7 +39,7 @@ if (isWaiting) {
 
 // Логика для обесцвечивания изображений
 const isImageGrayscale = !isAnyButtonActive; // Если кнопка неактивна, изображение будет обесцвечено
-
+  console.log(ItemAmount)
   return (
     <motion.div
       initial={{ opacity: 0, y: 100 }}
@@ -47,8 +48,8 @@ const isImageGrayscale = !isAnyButtonActive; // Если кнопка неакт
       className="ItemCard"
        // Применяем обводку в зависимости от состояния
     >
-      {ItemAmount !== undefined && (
-        <div className="ItemCardAmount">{ItemAmount}</div>
+      {ItemAmount && (
+        <div className="ItemCardAmount" style={{ color: 'white' }}>{ItemAmount}</div>
       )}
 
       <div className="ItemData">
@@ -65,6 +66,7 @@ const isImageGrayscale = !isAnyButtonActive; // Если кнопка неакт
             alt="ItemIcon"
             className={isImageGrayscale ? 'inactive' : ''}  // Применяем 'inactive' если кнопка неактивна
           />
+          <div className="ItemTitle" style={{ paddingTop: 8 }}>{ItemBottomAmount}</div>
         </div>
 
         {/* Right Section: ItemParams + ItemButtons */}

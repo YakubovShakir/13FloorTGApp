@@ -33,7 +33,6 @@ const TaskScreen = () => {
     <Screen>
       <HomeHeader screenHeader />
       <ScreenBody activity={'Задания'}>
-        <ScreenTabs tabs={tabs} />
         {/* Task Tab */}
 
         {activeTab === "task" && (
