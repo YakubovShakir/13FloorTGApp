@@ -21,7 +21,7 @@ import { instance } from "../../services/instance"
 
 const buttonStyle = {
     height: 44,
-    shadowColor: "#AF370F",
+    shadowColor: "#f37500",
     ownColor: "linear-gradient(rgb(18, 4, 2) 0%, rgba(243, 117, 0, 0.2) 100%)",
     bgColor: "linear-gradient(rgb(18, 4, 2) 0%, rgba(243, 117, 0, 0.2) 100%)",
     fontSize: 14,
@@ -207,11 +207,28 @@ const ThreeSectionCard = ({
 
     const styles = {
         cardContainer: {
-            display: "flex",
-            width: "100%",
-            gap: "8px",
-            padding: "8px",
-            height: "160px",
+            display: 'flex',
+            width: '90%',
+            gap: '8px',
+            margin: '10px auto auto auto',
+            height: '160px',
+            backgroundImage: `
+                linear-gradient(90deg, rgba(0,0,0,0) 0%, rgba(0,0,0,1) 40%),
+                repeating-linear-gradient(
+                    to right,
+                    transparent,
+                    transparent 19px,
+                    rgba(243, 117, 0, 0.3) 20px
+                ),
+                repeating-linear-gradient(
+                    transparent,
+                    transparent 19px,
+                    rgba(243, 117, 0, 0.3) 20px
+                )
+            `,
+            border: "solid 1px rgb(243, 117, 0)",
+            borderRadius: "8px",
+            position: 'relative',
         },
 
         section: {
@@ -244,13 +261,13 @@ const ThreeSectionCard = ({
 
     const getBorderStyle = () => {
         if (isWaiting) return "1px solid rgb(46, 199, 115)";
-        return "1px solid rgb(57, 57, 57)";
+        
     };
 
     const getBackgroundStyle = () => ({
         backgroundImage:
             "repeating-linear-gradient(to right, transparent, transparent 19px, rgb(99 89 80 / 30%) 20px), repeating-linear-gradient(to bottom, transparent, transparent 19px, rgb(103 93 84 / 30%) 20px)",
-        backgroundColor: "#2525257a",
+        
     });
 
     const getEmptyBackgroundStyle = () => ({
@@ -533,7 +550,10 @@ const InvestmentScreen = () => {
                     <ThreeSectionCard
                         title={'Кофейня'}
                         leftImage={Assets.Icons.investmentCoffeeShopIcon}
-                        rightImage={Assets.Icons.investManager}
+                        rightImage={Assets.Icons.investManager
+                            
+                            
+                        }
                         onClick={() => handleModalOpen('coffee_shop')}
                         tz={investments?.tz}
                         started_at={investments.coffee_shop?.started_at || null}
@@ -554,7 +574,11 @@ const InvestmentScreen = () => {
                     <ThreeSectionCard
                         title={'Зоомагазин'}
                         leftImage={Assets.Icons.investmentZooShopIcon}
-                        rightImage={Assets.Icons.investManager}
+                        rightImage={Assets.Icons.investManager
+
+                            
+                        }
+                        
                         onClick={() => handleModalOpen('zoo_shop')}
                         handleClaim={() => handleClaim('zoo_shop')}
                         tz={investments?.tz}
@@ -582,6 +606,16 @@ const InvestmentScreen = () => {
                         handleClaim={() => handleClaim('game_center')}
                         hideUpgrade={true}
                         {...investments.game_center}
+                        openAutoclaimModal={() => {
+                            setAutoclaimModalData(
+                                {
+                                    image: Assets.Icons.investManagerActive,
+                                    title: 'Автоклейм',
+                                    description: 'Автоматический сбор инвестиций - лучший способ сэкономить время!'
+                                }
+                            )
+                            setIsAutoClaimModalVisible(true)
+                        }}
                         userParameters={userParameters}
                     />
                 </ScreenBody>
