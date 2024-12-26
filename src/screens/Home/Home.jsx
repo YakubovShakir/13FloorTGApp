@@ -22,8 +22,8 @@ import { useNavigate } from "react-router-dom"
 
 import SheepJumpGame from "./Game";
 
-export const FullScreenSpinner = ({ color = "#E94E1B", size = 70 }) => {
-  // Generate 60 steps of opacity transition from transparent to #2F292B
+export const FullScreenSpinner = ({ color = "rgb(0, 0, 0)", size = 70 }) => {
+  // Generate 60 steps of opacity transition from transparent torgb(0, 0, 0)
   const backgroundFrames = Array.from({ length: 60 }, (_, i) => {
     const opacity = (i + 1) / 60;
     return `rgba(47, 41, 43, ${opacity})`;

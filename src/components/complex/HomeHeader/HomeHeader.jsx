@@ -19,7 +19,7 @@ const Bar = ({ title, onClick, isChecked = true, iconLeft, iconRight }) => {
       alignItems: 'center',
       width: '100%',
       padding: '8px 8px',
-      background: '#3B3537',
+      background: 'rgba(37, 37, 37, 0.48)',
       borderRadius: 8
     },
     icon: {
@@ -53,7 +53,7 @@ const Bar = ({ title, onClick, isChecked = true, iconLeft, iconRight }) => {
         {iconLeft && <img style={styles.icon} src={iconLeft} />}
       </div>
       <p style={styles.text}>{title}</p>
-      <div style={{ borderRadius: 5, background: '#51494c', height: 26, width: 26, display: 'flex', alignContent: 'center', alignItems: 'center', padding: 1, paddingTop: 3 }} onClick={handleCLick}>
+      <div style={{ borderRadius: 5, border:' 1px solid rgb(57, 57, 57)', height: 26, width: 26, display: 'flex', alignContent: 'center', alignItems: 'center', padding: 1, paddingTop: 3 }} onClick={handleCLick}>
         {isBoxChecked ? <img style={styles.icon} src={Assets.Icons.checkboxChecked} /> : null}
       </div>
     </div>
@@ -82,7 +82,7 @@ export const SettingsModal = ({
         style={{
           border: "1px solid rgb(57, 57, 57)",
           position: "absolute",
-          background: "rgb(16 16 16)",
+          background: "#000",
           zIndex: 6,
           height: 350,
           width: 320,

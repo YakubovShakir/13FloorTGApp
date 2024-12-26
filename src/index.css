@@ -22,8 +22,8 @@
 
   --main-yellow: #f39200;
   --main-orange: #e94e1b;
-  --main-black: #2f292b;
-  --main-lightblack: #3b3537;
+  --main-black: #000000;
+  --main-lightblack: #121212;
   --main-green: #2ec773;
 }
 #root {
