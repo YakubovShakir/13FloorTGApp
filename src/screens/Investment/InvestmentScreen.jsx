@@ -236,7 +236,7 @@ const ThreeSectionCard = ({
                             <>
                                 <Button
                                     height={44}
-                                    shadowColor={"#f37500"}
+                                    shadowColor={"#AF370F"}
                                     ownColor={
                                         "linear-gradient(rgb(18, 4, 2) 0%, rgba(243, 117, 0, 0.2) 100%)"
                                     }
@@ -251,7 +251,7 @@ const ThreeSectionCard = ({
                                 />
                                 <Button
                                     height={44}
-                                    shadowColor={"#f37500"}
+                                    shadowColor={"#AF370F"}
                                     ownColor={
                                         "linear-gradient(rgb(18, 4, 2) 0%, rgba(243, 117, 0, 0.2) 100%)"
                                     }
@@ -267,7 +267,7 @@ const ThreeSectionCard = ({
                         ) : (
                             <Button
                                 height={44}
-                                shadowColor={"#f37500"}
+                                shadowColor={"#AF370F"}
                                 ownColor={
                                     "linear-gradient(rgb(18, 4, 2) 0%, rgba(243, 117, 0, 0.2) 100%)"
                                 }
