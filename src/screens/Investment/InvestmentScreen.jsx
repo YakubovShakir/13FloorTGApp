@@ -16,6 +16,8 @@ import moment from "moment-timezone"
 import { FullScreenSpinner } from "../Home/Home"
 import '../../components/complex/Modals/Modal/Modal.css'
 import { buyInvestmentLevel, claimInvestment, getUserInvestments } from "../../services/user/user"
+import WebApp from "@twa-dev/sdk"
+import { instance } from "../../services/instance"
 
 const buttonStyle = {
     height: 44,
@@ -113,18 +115,58 @@ const Modal = ({ bottom, left, width, height, data, onClose, logoWidth }) => {
             <div className="ModalLogo" style={{}}>
                 <img src={data?.image} alt="ModalLogo" style={{ width: logoWidth || '17vmax' }} />
             </div>
-            <div className="ModalBody" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 200, width: '100%'}}>
+            <div className="ModalBody" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 200, width: '100%' }}>
                 <p>{data.from} {'->'} {data.to}</p>
             </div>
             <div className="ModalFooter" style={{ marginTop: 10 }}>
                 <Button
                     {...buttonStyle}
                     active={data.canUpgrade}
-                    onClick={data.canUpgrade ? data.handleUpgrade : () => {}}
+                    onClick={data.canUpgrade ? data.handleUpgrade : () => { }}
                     text={data.price}
                     width={100}
                     icon={Assets.Icons.balance}
-               />
+                />
+            </div>
+        </motion.div>
+    )
+}
+
+const AutoclaimModal = ({ bottom, left, width, height, data, onClose, logoWidth }) => {
+    const { Icons } = Assets
+    return (
+        <motion.div
+            initial={{ opacity: 0, y: 100 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="Modal"
+            style={{ left: left, width: width, height: "83%", zIndex: 10 }}
+        >
+
+            <img
+                className="ModalClose"
+                onClick={() => onClose()}
+                src={Icons.modalClose}
+                alt="closeIcon"
+            />
+            <div className="ModalTitle">{data?.title}</div>
+
+            <div className="ModalLogo" style={{}}>
+                <img src={data?.image} alt="ModalLogo" style={{ width: logoWidth || '17vmax' }} />
+            </div>
+            <div style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div className="ModalBody" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 200, width: '80%' }}>
+                    <p style={{ textAlign: 'center' }}>{data.description}</p>
+                </div>
+            </div>
+            <div className="ModalFooter" style={{ marginTop: 10 }}>
+                <Button
+                    {...buttonStyle}
+                    active={data.canUpgrade}
+                    onClick={data.canUpgrade ? data.handleUpgrade : () => { }}
+                    text={400}
+                    width={100}
+                    icon={Assets.Icons.starsIcon}
+                />
             </div>
         </motion.div>
     )
@@ -150,7 +192,9 @@ const ThreeSectionCard = ({
     handleClaim,
     hideUpgrade,
     canUpgrade,
-    title
+    title,
+    userParameters,
+    openAutoclaimModal
 }) => {
     const isTest = process.env.NODE_ENV === "test";
 
@@ -218,76 +262,80 @@ const ThreeSectionCard = ({
             <div style={{ flex: 1, background: 'black' }}>
                 <p></p>
             </div>
-        <motion.div
-            initial={{ opacity: 0, y: 100 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0 * (index + 1) }}
-            style={styles.cardContainer}
-        >
-            {/* Left Image Section */}
-            <div
-                style={{
-                    ...styles.section,
-                    border: getBorderStyle(),
-                    ...getBackgroundStyle(),
-                }}
+            <motion.div
+                initial={{ opacity: 0, y: 100 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0 * (index + 1) }}
+                style={styles.cardContainer}
             >
-                <img
-                    src={leftImage}
-                    alt="Investment Type"
-                    style={styles.image}
-                />
-            </div>
+                {/* Left Image Section */}
+                <div
+                    style={{
+                        ...styles.section,
+                        border: getBorderStyle(),
+                        ...getBackgroundStyle(),
+                    }}
+                >
+                    <p style={{ textAlign: 'center', fontSize: 12, color: 'white', paddingBottom: 8 }}>{title}</p>
+                    <img
+                        src={leftImage}
+                        alt="Investment Type"
+                        style={styles.image}
+                    />
+                    <p style={{ textAlign: 'center', fontSize: 12, color: 'white', paddingTop: 8 }}>Уровень {current_level}</p>
+                </div>
 
-            {/* Manager Image Section */}
-            <div
-                style={{
-                    ...styles.section,
-                    border: getBorderStyle(),
-                    ...getEmptyBackgroundStyle(),
-                }}
-            >
-                <img
-                    src={has_autoclaim ? Assets.Icons.investManagerActive : Assets.Icons.investManager}
-                    alt="Manager Status"
-                    style={styles.image}
-                />
-            </div>
+                {/* Manager Image Section */}
+                <div
+                    style={{
+                        ...styles.section,
+                        border: getBorderStyle(),
+                        ...getEmptyBackgroundStyle(),
+                    }}
+                    onClick={has_autoclaim ? () => {} : openAutoclaimModal}
+                >
+                    <img
+                        src={has_autoclaim ? Assets.Icons.investManagerActive : Assets.Icons.investManager}
+                        alt="Manager Status"
+                        style={styles.image}
+                    />
+                    {has_autoclaim && <p style={{ color: 'white', paddingTop: 8 }}>Автоклейм</p>}
+                </div>
 
-            {/* Buttons Section */}
-            <div
-                style={{
-                    ...styles.buttonsContainer,
-                    border: getBorderStyle(),
-                    ...getEmptyBackgroundStyle(),
-                }}
-            >
-                {current_level > 0 ? (
-                    <>
-                        { !hideUpgrade &&  <Button
-                            {...buttonStyle}
-                            active={true}
-                            onClick={onClick}
-                            text={'Улучшить'}
-                        /> }
+                {/* Buttons Section */}
+                <div
+                    style={{
+                        ...styles.buttonsContainer,
+                        border: getBorderStyle(),
+                        ...getEmptyBackgroundStyle(),
+                    }}
+                >
+                    {current_level > 0 ? (
+                        <>
+                            {!hideUpgrade && <Button
+                                {...buttonStyle}
+                                active={true}
+                                onClick={onClick}
+                                text={'Улучшить'}
+                            />}
+                            <Button
+                                {...buttonStyle}
+                                active={shouldShowCollectButton}
+                                onClick={shouldShowCollectButton ? handleClaim : undefined}
+                                text={shouldShowCollectButton ? "Собрать" : timer}
+                            />
+                        </>
+                    ) : (
                         <Button
                             {...buttonStyle}
-                            active={shouldShowCollectButton}
-                            onClick={shouldShowCollectButton ? handleClaim : undefined}
-                            text={shouldShowCollectButton ? "Собрать" : timer}
+                            active={userParameters.coins >= upgrade_info.price}
+                            icon={Assets.Icons.balance}
+                            text={upgrade_info.price}
+                            onClick={onClick}
                         />
-                    </>
-                ) : (
-                    <Button
-                        {...buttonStyle}
-                        active={true}
-                        icon={Assets.Icons.balance}
-                        text={upgrade_info.price}
-                        onClick={onClick}
-                    />
-                )}
-            </div>
-        </motion.div>
+                    )}
+                </div>
+            </motion.div>
         </div>
     );
 };
@@ -314,31 +362,20 @@ const useInvestmentData = (userId) => {
     const handleUpgrade = async (investment_type) => {
         if (!investments) return;
 
+        // Optimistically update the UI
+        setIsLoading(true)
+
         try {
             await buyInvestmentLevel(userId, investment_type);
-            // Fetch real data after successful upgrade
+            // Fetch real data after successful claim
             await fetchInvestments();
+
         } catch (err) {
-            console.error('Failed to upgrade:', err);
+            console.error('Failed to claim:', err);
             // Revert optimistic update on failure
             await fetchInvestments();
         }
-
-        // Optimistically update the UI
-        setInvestments(prev => {
-            if (!prev) return prev;
-            
-            const updatedInvestments = { ...prev };
-            const investment = updatedInvestments[investment_type];
-            
-            if (investment) {
-                investment.current_level += 1;
-                // Reset timer and started_at
-                investment.started_at = new Date().toISOString();
-            }
-            setIsLoading(false)
-            return updatedInvestments;
-        });
+        setIsLoading(false)
     };
 
     const handleClaim = async (investment_type) => {
@@ -351,7 +388,7 @@ const useInvestmentData = (userId) => {
             await claimInvestment(userId, investment_type);
             // Fetch real data after successful claim
             await fetchInvestments();
-            
+
         } catch (err) {
             console.error('Failed to claim:', err);
             // Revert optimistic update on failure
@@ -359,6 +396,46 @@ const useInvestmentData = (userId) => {
         }
         setIsLoading(false)
     };
+
+      const handleStarsBuyAutoclaim = async () => {
+        const response = await instance.post('/users/request-stars-invoice-linkF', {
+             productType: item.productType,
+             id: item.id
+          })
+    
+          await new Promise((resolve, reject) => {
+            WebApp.openInvoice(response.data.invoiceLink, (status) => {
+            // Можно вызвать попап или анимацию успеха/фейла
+            if(status === "paid") {}
+            if(status === "cancelled") {}
+            if(status === 'pending') {}
+            if(status === 'failed') {}
+          })
+          resolve()
+        })
+      }
+
+    const handleAutoclaimPurchased = async (investment_type) => {
+        if (!investments) return;
+
+        // Optimistically update the UI
+        setIsLoading(true)
+
+        try {
+            await handleStarsBuyAutoclaim(userId, investment_type);
+            // Fetch real data after successful claim
+            await fetchInvestments();
+
+        } catch (err) {
+            console.error('Failed to claim:', err);
+            // Revert optimistic update on failure
+            await fetchInvestments();
+        }
+        await new Promise((resolve) => setTimeout(() => {
+            setIsLoading(false)
+            resolve()
+        }, 2500))
+    }
 
     useEffect(() => {
         fetchInvestments();
@@ -371,12 +448,13 @@ const useInvestmentData = (userId) => {
         };
     }, [fetchInvestments]);
 
-    return { 
-        investments, 
-        isLoading, 
-        error, 
+    return {
+        investments,
+        isLoading,
+        error,
         handleUpgrade,
-        handleClaim
+        handleClaim,
+        handleAutoclaimPurchased
     };
 };
 
@@ -384,11 +462,12 @@ const InvestmentScreen = () => {
     const [modalData, setModalData] = useState(null);
     const [isModalVisible, setIsModalVisible] = useState(false);
     const { userId, userParameters } = useContext(UserContext);
-    const [autoClaimModalVisible, isAutoClaimModalVisible] = useState(false)
+    const [autoClaimModalVisible, setIsAutoClaimModalVisible] = useState(false)
+    const [autoclaimModalData, setAutoclaimModalData] = useState()
 
     const navigate = useNavigate();
 
-    const { investments, isLoading, error, handleUpgrade, handleClaim } = useInvestmentData(userId);
+    const { investments, isLoading, error, handleUpgrade, handleClaim, handleAutoclaimPurchased } = useInvestmentData(userId);
 
     useEffect(() => {
         useTelegram.setBackButton(() => navigate("/"));
@@ -397,7 +476,7 @@ const InvestmentScreen = () => {
 
     const handleModalOpen = (investment_type) => {
         if (!investments) return;
-        
+
         const investmentData = investments[investment_type];
         const iconMap = {
             coffee_shop: Assets.Icons.investmentCoffeeShopIcon,
@@ -421,7 +500,7 @@ const InvestmentScreen = () => {
                 setIsModalVisible(false);
             },
             title: titlesMap[investment_type],
-            canUpgrade: userParameters.balance >= investmentData.upgrade_info.price
+            canUpgrade: userParameters.coins >= investmentData.upgrade_info.price
         });
         setIsModalVisible(true);
     };
@@ -442,6 +521,15 @@ const InvestmentScreen = () => {
                             height={"80%"}
                         />
                     )}
+                    {autoClaimModalVisible && (
+                        <AutoclaimModal
+                            onClose={() => setIsAutoClaimModalVisible(false)}
+                            data={autoclaimModalData}
+                            bottom={"0"}
+                            width={"100%"}
+                            height={"80%"}
+                        />
+                    )}
                     <ThreeSectionCard
                         title={'Кофейня'}
                         leftImage={Assets.Icons.investmentCoffeeShopIcon}
@@ -450,8 +538,18 @@ const InvestmentScreen = () => {
                         tz={investments?.tz}
                         started_at={investments.coffee_shop?.started_at || null}
                         handleClaim={() => handleClaim('coffee_shop')}
-                        canUpgrade={userParameters.balance >= investments.coffee_shop?.upgrade_info.price}
+                        openAutoclaimModal={() => {
+                            setAutoclaimModalData(
+                                {
+                                    image: Assets.Icons.investManagerActive,
+                                    title: 'Автоклейм',
+                                    description: 'Автоматический сбор инвестиций - лучший способ сэкономить время!'
+                                }
+                            )
+                            setIsAutoClaimModalVisible(true)
+                        }}
                         {...investments.coffee_shop}
+                        userParameters={userParameters}
                     />
                     <ThreeSectionCard
                         title={'Зоомагазин'}
@@ -462,6 +560,17 @@ const InvestmentScreen = () => {
                         tz={investments?.tz}
                         started_at={investments.zoo_shop?.started_at || null}
                         {...investments.zoo_shop}
+                        openAutoclaimModal={() => {
+                            setAutoclaimModalData(
+                                {
+                                    image: Assets.Icons.investManagerActive,
+                                    title: 'Автоклейм',
+                                    description: 'Автоматический сбор инвестиций - лучший способ сэкономить время!'
+                                }
+                            )
+                            setIsAutoClaimModalVisible(true)
+                        }}
+                        userParameters={userParameters}
                     />
                     <ThreeSectionCard
                         title={'Игровой центр'}
@@ -473,6 +582,7 @@ const InvestmentScreen = () => {
                         handleClaim={() => handleClaim('game_center')}
                         hideUpgrade={true}
                         {...investments.game_center}
+                        userParameters={userParameters}
                     />
                 </ScreenBody>
             </Screen>
