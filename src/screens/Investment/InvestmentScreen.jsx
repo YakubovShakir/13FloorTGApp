@@ -69,13 +69,13 @@ const ThreeSectionCard = ({
 
     const getBorderStyle = () => {
         if (isWaiting) return "1px solid rgb(46, 199, 115)";
-        
+        return "1px solid rgb(57, 57, 57)";
     };
 
     const getBackgroundStyle = () => {
         return {
-           
-            
+            backgroundImage: "repeating-linear-gradient(to right, transparent, transparent 19px, rgb(99 89 80 / 30%) 20px), repeating-linear-gradient(to bottom, transparent, transparent 19px, rgb(103 93 84 / 30%) 20px)",
+            backgroundColor: "#2525257a"
         };
     };
 
@@ -88,29 +88,11 @@ const ThreeSectionCard = ({
     const styles = {
         cardContainer: {
             display: 'flex',
-            width: '90%',
+            width: '100%',
             gap: '8px',
-            margin: 'auto auto 10px auto',
+            padding: '8px',
             height: '160px',
-            backgroundImage: `
-                linear-gradient(to left, rgba(0, 0, 0), rgba(0, 0, 0, 0)),
-                repeating-linear-gradient(
-                    to right,
-                    transparent,
-                    transparent 19px,
-                    rgba(243, 117, 0, 0.3) 20px
-                ),
-                repeating-linear-gradient(
-                    transparent,
-                    transparent 19px,
-                    rgba(243, 117, 0, 0.3) 20px
-                )
-            `,
-            border: "solid 1px rgb(243, 117, 0)",
-            borderRadius: "8px",
-            position: 'relative',
         },
-     
 
         section: {
             width: '33.333%',
@@ -121,7 +103,6 @@ const ThreeSectionCard = ({
             flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
-            
         },
 
         title: {
