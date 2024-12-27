@@ -1,41 +1,20 @@
-import { useEffect, useState, useContext } from "react"
-import HomeHeader from "../../components/complex/HomeHeader/HomeHeader"
-import Menu from "../../components/complex/Menu/Menu"
-import Assets from "../../assets"
-import Screen from "../../components/section/Screen/Screen"
-import ScreenBody from "../../components/section/ScreenBody/ScreenBody"
-import ScreenTabs from "../../components/section/ScreenTabs/ScreenTabs"
-import ScreenContainer from "../../components/section/ScreenContainer/ScreenContainer"
-import useTelegram from "../../hooks/useTelegram"
-import { useNavigate } from "react-router-dom"
-import ItemCard from "../../components/simple/ItemCard/ItemCard"
-import skillsTab from "./assets/skillsTab.png"
 
-import { buyWork, getWorks } from "../../services/work/work"
-import UserContext from "../../UserContext"
-import { getSkills, getUserSkills } from "../../services/skill/skill"
-import { getParameters, getTrainingParameters } from "../../services/user/user"
-import { getProcesses, startProcess } from "../../services/process/process"
-import Modal from "../../components/complex/Modals/Modal/Modal"
-import formatTime from "../../utils/formatTime"
-import ActivityTab from "./tabs/ActivityTab"
-import SkillTab from "./tabs/SkillTab"
-import WorkTab from "./tabs/WorkTab"
+import { useEffect, useState, useContext } from "react";
+import HomeHeader from "../../components/complex/HomeHeader/HomeHeader";
+import Menu from "../../components/complex/Menu/Menu";
+import Assets from "../../assets";
+import Screen from "../../components/section/Screen/Screen";
+import ScreenContainer from "../../components/section/ScreenContainer/ScreenContainer";
+import ScreenBody from "../../components/section/ScreenBody/ScreenBody";
+import useTelegram from "../../hooks/useTelegram";
+import { useNavigate } from "react-router-dom";
+import Modal from "../../components/complex/Modals/Modal/Modal";
+import ActivityTab from "./tabs/ActivityTab";
+import SkillTab from "./tabs/SkillTab";
+import WorkTab from "./tabs/WorkTab";
+import UserContext from "../../UserContext";
+
 const ActionScreen = () => {
-  // Active tab
-  const [activeTab, setActiveTab] = useState("activities");
-
-  // Object with titles for each tab
-  const tabTitles = {
-    activities: "Активности",  // Новая вкладка
-    works: "Карьера",
-    skills: "Обучение",
-  };
-
-  // Works and Skills
-  const [works, setWorks] = useState(null);
-
-  // Modal showed on button click
   const [visibleModal, setVisibleModal] = useState(false);
   const [modalData, setModalData] = useState(null);
 
@@ -44,25 +23,15 @@ const ActionScreen = () => {
 
   const navigate = useNavigate();
 
-  const { Icons } = Assets;
-
-  const tabs = [
-    { icon: Icons.activityTabIcon, callback: () => setActiveTab("activities") },  // Вкладка "Активности"
-  ];
-  
-
   useEffect(() => {
     useTelegram.setBackButton(() => navigate("/"));
   }, []);
 
   return (
     <Screen>
-      {/* Название вкладки передаем в HomeHeader */}
-      <HomeHeader>{tabTitles[activeTab]}</HomeHeader>
-
+      <HomeHeader>Развитие</HomeHeader>
       
-
-      <ScreenBody activity={tabTitles[activeTab]}>
+      <ScreenBody activity={"Развитие"}>
         {visibleModal && (
           <Modal
             onClose={() => setVisibleModal(false)}
@@ -73,8 +42,26 @@ const ActionScreen = () => {
           />
         )}
 
-      {/* Контент для вкладки "Активности" */}
-      {activeTab === "activities" && (
+         {/* Контент из вкладок теперь отображается подряд */}
+         <ScreenContainer withTab>
+          <WorkTab
+          modalData={modalData}
+          setModalData={setModalData}
+          setUserParameters={setUserParameters}
+          setVisibleModal={setVisibleModal}
+          userParameters={userParameters}
+          userId={userId}
+         />
+
+         <SkillTab
+          modalData={modalData}
+          setModalData={setModalData}
+          setUserParameters={setUserParameters}
+          setVisibleModal={setVisibleModal}
+          userParameters={userParameters}
+          userId={userId}
+          />
+
           <ActivityTab
           modalData={modalData}
           setModalData={setModalData}
@@ -82,14 +69,11 @@ const ActionScreen = () => {
           setVisibleModal={setVisibleModal}
           userParameters={userParameters}
           userId={userId}
-        />
-        )}
-
-       
+          />
+        </ScreenContainer>
       </ScreenBody>
     </Screen>
   );
 };
 
-
-export default ActionScreen
+export default ActionScreen;

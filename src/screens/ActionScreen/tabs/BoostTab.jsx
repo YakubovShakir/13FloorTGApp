@@ -165,7 +165,7 @@ const BoostTab = ({ userId, userParameters, setUserParameters }) => {
   }, [activeProcess])
 
   return (
-    <temCard>
+    <ScreenContainer withTab>
       <ItemCard
         ItemIcon={sleepIcon}
         ItemTitle={"Долгий сон"}
@@ -174,8 +174,20 @@ const BoostTab = ({ userId, userParameters, setUserParameters }) => {
         ItemIndex={0}
       
       />
-     
-    </temCard>
+      {boosts?.map((boost, index) => (
+        <ItemCard
+          key={index}
+          ItemIcon={boost?.link}
+          ItemTitle={boost.name}
+          ItemDescription={boost?.description}
+          ItemParamsBlocks={getItemBoostParams(boost)}
+          ItemButtons={getItemBoostButton(boost)}
+          ItemAmount={getUserBoostAmount(boost?.boost_id)}
+          ItemIndex={index + 1}
+          handleStarsBuy={() => handleStarsBuy({ id: boost.boost_id, processType: 'boosts' })}
+        />
+      ))}
+    </ScreenContainer>
   )
 }
 

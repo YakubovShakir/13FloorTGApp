@@ -258,7 +258,7 @@ export const WorkTab = ({
   }, [])
 
   return (
-    <ScreenContainer withTab>
+    <temCard >
       {/* User main work card*/}
 
       {userParameters?.work_id !== 0 && <ItemCard
@@ -269,17 +269,8 @@ export const WorkTab = ({
         ItemIndex={0}
       />}
 
-      {works?.slice(userParameters?.work_id).map((work, index) => (
-        <ItemCard
-          key={index}
-          ItemIcon={work?.link}
-          ItemTitle={work?.name}
-          ItemParamsBlocks={getItemWorkParams(work?.work_id)}
-          ItemButtons={getItemWorkButton(work?.work_id)}
-          ItemIndex={index}
-        />
-      ))}
-    </ScreenContainer>
+     
+    </temCard>
   )
 }
 
