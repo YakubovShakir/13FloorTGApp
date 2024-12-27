@@ -31,7 +31,7 @@ const ActionScreen = () => {
     <Screen>
       <HomeHeader>Развитие</HomeHeader>
       
-      <ScreenBody activity={"Развитие"}>
+      <ScreenBody activity={"Активности"}>
         {visibleModal && (
           <Modal
             onClose={() => setVisibleModal(false)}

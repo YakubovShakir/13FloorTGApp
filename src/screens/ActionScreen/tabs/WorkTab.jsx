@@ -22,7 +22,7 @@ export const WorkTab = ({
   userId,
 }) => {
   const [skills, setSkills] = useState(null) // List of skills
-
+  const [activeButton, setActiveButton] = useState(null);
   const [works, setWorks] = useState(null) // List of works
   const [activeProcess, setActiveProcess] = useState(null) // Current work status if exist
   const [userLearnedSkills, setUserLearnedSkills] = useState(null) // User learning at this time skills
@@ -53,6 +53,9 @@ export const WorkTab = ({
     await stopProcess(userId)
     setActiveProcess(null)
   }
+  const handleButtonClick = (workId) => {
+    setActiveButton(workId); // Устанавливаем активную кнопку
+  };
 
   // Buy work
   const handleBuyWork = async (workId) => {
@@ -200,6 +203,7 @@ export const WorkTab = ({
 
   const getItemWorkButton = (workId) => {
     const work = getWorkById(workId)
+    const isActive = activeButton === workId; // Проверяем, активна ли кнопка
     const currentWork = getWorkById(userParameters?.work_id)
     const activeWork = activeProcess?.type === "work"
     const requiredRespect = userParameters?.respect >= work?.respect_required
