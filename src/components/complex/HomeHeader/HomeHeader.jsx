@@ -53,7 +53,7 @@ const Bar = ({ title, onClick, isChecked = true, iconLeft, iconRight }) => {
         {iconLeft && <img style={styles.icon} src={iconLeft} />}
       </div>
       <p style={styles.text}>{title}</p>
-      <div style={{ borderRadius: 5, border:' 1px solid rgb(57, 57, 57)', height: 26, width: 26, display: 'flex', alignContent: 'center', alignItems: 'center', padding: 1, paddingTop: 3 }} onClick={handleCLick}>
+      <div style={{ borderRadius: 5, border:' 1px solid rgb(57, 57, 57)', height: 26, width: 26, display: 'flex', alignContent: 'center', alignItems: 'center', padding: 1, }} onClick={handleCLick}>
         {isBoxChecked ? <img style={styles.icon} src={Assets.Icons.checkboxChecked} /> : null}
       </div>
     </div>
@@ -111,7 +111,7 @@ export const SettingsModal = ({
           <div style={{ display: "flex", flexDirection: "column", width: '75%' }}>
             <p
               style={{
-                fontFamily: "Roboto",
+                fontFamily: "Anonymous pro",
                 fontWeight: "500",
                 color: "white",
                 textAlign: "center",
@@ -179,19 +179,21 @@ const HomeHeader = ({ screenHeader }) => {
               <img src={Icons.balance} alt="Coin" />
             </div>
             <div style={{ display: "flex", alignItems: "flex-start", marginLeft: 10 }}>
-              <span style={{ fontSize: 20, paddingTop: 2, fontFamily: "Muller", fontWeight: "lighter" }}>
+              <span style={{ fontSize: 20, fontFamily: "Anonymous pro", fontWeight: "lighter" }}>
                 {userParameters?.coins}
               </span>
 
             </div>
           </div>
           <div className="HomeHeaderRespect">
+            
             <img src={Icons.respect} alt="RespectIcon" />
+            
             <span>{userParameters?.respect}</span>
           </div>
           <div className="HomeHeaderLevel">
-            <span style={{ fontFamily: "Muller", fontWeight: "100" }}>{userParameters?.level}</span>
-            <span style={{ fontFamily: "Muller", fontWeight: "100" }}>LvL</span>
+            <span style={{ fontFamily: "Anonymous pro", fontWeight: "100" }}>{userParameters?.level}</span>
+            <span style={{ fontFamily: "Anonymous pro", fontWeight: "100" }}>LvL</span>
             <div
               className="HomeHeaderLevelCapacity"
               style={{

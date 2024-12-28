@@ -134,7 +134,7 @@ const GridItem = ({
             height: "45px",
             textAlign: "center",
             fontWeight: "100",
-            fontFamily: "Roboto",
+            fontFamily: "Anonymous pro",
             width: "100%",
           }}
         >
@@ -160,7 +160,7 @@ const GridItem = ({
             style={{
               textAlign: "center",
               fontWeight: "100",
-              fontFamily: "Roboto",
+              fontFamily: "Anonymous pro",
               paddingLeft: 8,
               fontSize: "20px",
             }}
@@ -177,7 +177,7 @@ const GridItem = ({
             width={"88%"}
             marginBottom={"5"}
             height={44}
-            fontFamily={"Roboto"}
+            fontFamily={"Anonymous pro"}
             fontWeight={"300"}
             text={price}
             icon={Assets.Icons.starsIcon}
@@ -199,7 +199,7 @@ const GridItem = ({
             marginBottom={"5"}
             height={44}
             active={available}
-            fontFamily={"Roboto"}
+            fontFamily={"Anonymous pro"}
             fontWeight={"300"}
             icon={price > 0 ? Assets.Icons.balance : undefined}
             text={price === 0 ? 'Забрать' : price}
@@ -325,7 +325,7 @@ const GridItemShelf = ({
             color: "white",
             textAlign: "center",
             fontWeight: "100",
-            fontFamily: "Roboto",
+            fontFamily: "Anonymous pro",
             width: "90%",
           }}
         >
@@ -363,7 +363,7 @@ const GridItemShelf = ({
             width={"88%"}
             marginBottom={"5"}
             height={44}
-            fontFamily={"Roboto"}
+            fontFamily={"Anonymous pro"}
             fontWeight={"300"}
             text={price}
             icon={Assets.Icons.starsIcon}
@@ -385,7 +385,7 @@ const GridItemShelf = ({
             marginBottom={"5"}
             height={44}
             active={available || price === 0}
-            fontFamily={"Roboto"}
+            fontFamily={"Anonymous pro"}
             fontWeight={"300"}
             icon={price > 0 ? Assets.Icons.balance : undefined}
             text={price === 0 ? 'Забрать' : price}

@@ -158,7 +158,7 @@ const GridItem = ({
                 color: "white",
                 textAlign: "center",
                 fontWeight: "100",
-                fontFamily: "Roboto",
+                fontFamily: "Anonymous pro",
                 width: "80%",
               }}
             >
@@ -179,7 +179,7 @@ const GridItem = ({
                 color: "white",
                 textAlign: "center",
                 fontWeight: "100",
-                fontFamily: "Roboto",
+                fontFamily: "Anonymous pro",
                 paddingLeft: 8,
               }}
             >
@@ -232,7 +232,7 @@ const GridItem = ({
             width={109}
             height={44}
             active={equipped}
-            fontFamily={'Roboto'} 
+            fontFamily={'Anonymous pro'} 
             fontWeight={'300'}
             text={"Используется"}
             fontSize={14}
@@ -246,7 +246,7 @@ const GridItem = ({
             width={109}
             height={44}
             active={true}
-            fontFamily={'Roboto'} 
+            fontFamily={'Anonymous pro'} 
             fontWeight={'300'}
             text={"Выбрать"}
             fontSize={14}

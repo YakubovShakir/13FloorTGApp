@@ -22,7 +22,7 @@ export const WorkTab = ({
   userId,
 }) => {
   const [skills, setSkills] = useState(null) // List of skills
-
+  const [activeButton, setActiveButton] = useState(null);
   const [works, setWorks] = useState(null) // List of works
   const [activeProcess, setActiveProcess] = useState(null) // Current work status if exist
   const [userLearnedSkills, setUserLearnedSkills] = useState(null) // User learning at this time skills
@@ -53,6 +53,9 @@ export const WorkTab = ({
     await stopProcess(userId)
     setActiveProcess(null)
   }
+  const handleButtonClick = (workId) => {
+    setActiveButton(workId); // Устанавливаем активную кнопку
+  };
 
   // Buy work
   const handleBuyWork = async (workId) => {
@@ -200,6 +203,7 @@ export const WorkTab = ({
 
   const getItemWorkButton = (workId) => {
     const work = getWorkById(workId)
+    const isActive = activeButton === workId; // Проверяем, активна ли кнопка
     const currentWork = getWorkById(userParameters?.work_id)
     const activeWork = activeProcess?.type === "work"
     const requiredRespect = userParameters?.respect >= work?.respect_required
@@ -221,16 +225,19 @@ export const WorkTab = ({
           onClick:
             activeWork
               ? async () => await handleStopWork()
-              : async () => await handleStartWork(),
+              : async () => {
+                  await handleStartWork();
+                  navigation.navigate('MainScreen'); // Переход на основной экран сразу после начала работы
+                },
           icon: buyStatus && Icons.balance,
           active: true,
           bg: activeWork
             ? "linear-gradient(90deg, rgba(233,27,27,1) 0%, rgba(119,1,1,1) 100%)"
             : "linear-gradient(180deg, rgba(233,78,27,1) 0%, rgba(243,117,0,1) 100%)",
           shadowColor: activeWork ? "#4E1010" : "#AF370F",
-
-        },
+        }
       ]
+      
     }
 
     return [
@@ -258,28 +265,20 @@ export const WorkTab = ({
   }, [])
 
   return (
-    <ScreenContainer withTab>
+    <temCard >
       {/* User main work card*/}
 
       {userParameters?.work_id !== 0 && <ItemCard
         ItemIcon={getWorkById(userParameters?.work_id)?.link}
+        ItemDescription="Отправляйся на работу, что бы заработать монет!"
         ItemTitle={getWorkById(userParameters?.work_id)?.name}
         ItemParamsBlocks={getItemWorkParams(userParameters?.work_id)}
         ItemButtons={getItemWorkButton(userParameters?.work_id)}
         ItemIndex={0}
       />}
 
-      {works?.slice(userParameters?.work_id).map((work, index) => (
-        <ItemCard
-          key={index}
-          ItemIcon={work?.link}
-          ItemTitle={work?.name}
-          ItemParamsBlocks={getItemWorkParams(work?.work_id)}
-          ItemButtons={getItemWorkButton(work?.work_id)}
-          ItemIndex={index}
-        />
-      ))}
-    </ScreenContainer>
+     
+    </temCard>
   )
 }
 

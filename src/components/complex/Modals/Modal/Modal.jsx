@@ -62,7 +62,7 @@ const Modal = ({ bottom, left, width, height, data, onClose, logoWidth }) => {
             bgColor={button?.bg}
             ownColor={button?.bg}
             shadowColor={button?.shadowColor}
-            fontFamily={'Roboto'}
+            fontFamily={'Anonymous pro'}
             fontWeight={'200'}
             fontSize={14}
           />

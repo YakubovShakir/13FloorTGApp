@@ -169,7 +169,7 @@ export const WorkTab = ({
       return [
         [
           {
-            value: work?.coins_in_hour + " /  h",
+            value: work?.coins_in_hour + " /  Час",
             icon: Icons.balance,
           },
         ],
@@ -185,7 +185,7 @@ export const WorkTab = ({
     return [
       [
         {
-          value: work?.coins_in_hour + " /  h",
+          value: work?.coins_in_hour  +" /  Час",
           icon: Icons.balance,
         },
       ],
@@ -217,17 +217,15 @@ export const WorkTab = ({
     if (currentWork?.work_id === workId) {
       return [
         {
-          text: activeWork ? "Стоп" : "Начать",
-          onClick: activeWork
-            ? async () => await handleStopWork()
-            : async () => await handleStartWork(),
+          text: activeWork ? "Текущая работа" : "Текущая работа",
+          
           icon: buyStatus && Icons.balance,
           active: true,
           bg: activeWork
-            ? "linear-gradient(rgb(18, 4, 2) 0%, rgba(233, 27, 27, 0.12) 100%)"
-            : "linear-gradient(rgb(18 4 2) 0%, rgb(243 117 0 / 20%) 100%)",
-          shadowColor: activeWork ? "rgb(255, 12, 0)" : "rgb(243, 117, 0)",
-          borderColor: activeWork ? "rgb(255, 12, 0)" : "rgb(243, 117, 0)", // Убрали !important
+            ? "rgb(32 7 3)"
+            : "rgb(32 7 3)",
+          shadowColor: activeWork ? "rgb(32 7 3)" : "rgb(32 7 3)",
+          borderColor: "rgb(32 7 3)", // Убрали !important
         },
       ];
 }

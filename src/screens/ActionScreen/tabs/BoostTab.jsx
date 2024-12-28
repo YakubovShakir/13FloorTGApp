@@ -17,6 +17,8 @@ import { updateProcessTimers } from "../../../utils/updateTimers"
 import formatTime from "../../../utils/formatTime"
 import countPercentage from "../../../utils/countPercentage"
 
+
+
 const BoostTab = ({ userId, userParameters, setUserParameters }) => {
   const [boosts, setBoosts] = useState(null)
   const [levels, setLevels] = useState(null)
@@ -78,13 +80,10 @@ const BoostTab = ({ userId, userParameters, setUserParameters }) => {
         onClick:
           activeProcess?.type === "sleep"
             ? () => handleStopSleep()
-            : () => {
-                handleStartSleep();
-                navigation.navigate('MainScreen'); // Переход на основной экран
-              },
+            : () => handleStartSleep(),
       },
-    ];
-  };
+    ]
+  }
   const getItemBoostParams = (boost) => {
     const boostDuration = boost?.duration
     return [
@@ -168,18 +167,29 @@ const BoostTab = ({ userId, userParameters, setUserParameters }) => {
   }, [activeProcess])
 
   return (
-    <temCard>
+    <ScreenContainer withTab>
       <ItemCard
         ItemIcon={sleepIcon}
         ItemTitle={"Долгий сон"}
-        ItemDescription="Сон поможет восстановить энергию!"
         ItemParamsBlocks={getItemSleepParams()}
         ItemButtons={getItemSleepButton()}
         ItemIndex={0}
       
       />
-     
-    </temCard>
+      {boosts?.map((boost, index) => (
+        <ItemCard
+          key={index}
+          ItemIcon={boost?.link}
+          ItemTitle={boost.name}
+          ItemDescription={boost?.description}
+          ItemParamsBlocks={getItemBoostParams(boost)}
+          ItemButtons={getItemBoostButton(boost)}
+          ItemAmount={getUserBoostAmount(boost?.boost_id)}
+          ItemIndex={index + 1}
+          handleStarsBuy={() => handleStarsBuy({ id: boost.boost_id, processType: 'boosts' })}
+        />
+      ))}
+    </ScreenContainer>
   )
 }
 
