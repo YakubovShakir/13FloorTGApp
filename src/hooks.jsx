@@ -16,8 +16,15 @@ export function SettingsProvider({ children }) {
   });
 
   const [isMusicEnabled, setIsMusicEnabled] = useState(() => {
-    const stored = localStorage.getItem('musicEnabled');
-    return stored ? JSON.parse(stored) : false;
+    const stored = localStorage.getItem('musicEnabled')
+    if(!stored) {
+      localStorage.setItem('musicEnabled', 'true');
+      return true
+    } else if (stored === 'true') {
+      return true
+    } else {
+      return false
+    }
   });
 
   // Set initial volume
