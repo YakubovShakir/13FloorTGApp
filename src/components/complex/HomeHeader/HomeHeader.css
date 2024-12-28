@@ -83,7 +83,8 @@
 }
 
 .HomeHeaderRespect span {
-  padding-top: 4px;
+  font-size: 20px;
+  margin-right: 12px;
   text-align: center;
   width: 100%;
    text-shadow: 1px 1px 0px #2f292b, -1px -1px 0px #2f292b, 1px -1px 0px #2f292b, -1px 1px 0px #2f292b;
