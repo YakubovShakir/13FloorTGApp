@@ -111,7 +111,7 @@ export const SettingsModal = ({
           <div style={{ display: "flex", flexDirection: "column", width: '75%' }}>
             <p
               style={{
-                fontFamily: "Roboto",
+                fontFamily: "Anonymous pro",
                 fontWeight: "500",
                 color: "white",
                 textAlign: "center",
@@ -179,7 +179,7 @@ const HomeHeader = ({ screenHeader }) => {
               <img src={Icons.balance} alt="Coin" />
             </div>
             <div style={{ display: "flex", alignItems: "flex-start", marginLeft: 10 }}>
-              <span style={{ fontSize: 20, paddingTop: 2, fontFamily: "Muller", fontWeight: "lighter" }}>
+              <span style={{ fontSize: 20, paddingTop: 2, fontFamily: "Anonymous pro", fontWeight: "lighter" }}>
                 {userParameters?.coins}
               </span>
 
@@ -190,8 +190,8 @@ const HomeHeader = ({ screenHeader }) => {
             <span>{userParameters?.respect}</span>
           </div>
           <div className="HomeHeaderLevel">
-            <span style={{ fontFamily: "Muller", fontWeight: "100" }}>{userParameters?.level}</span>
-            <span style={{ fontFamily: "Muller", fontWeight: "100" }}>LvL</span>
+            <span style={{ fontFamily: "Anonymous pro", fontWeight: "100" }}>{userParameters?.level}</span>
+            <span style={{ fontFamily: "Anonymous pro", fontWeight: "100" }}>LvL</span>
             <div
               className="HomeHeaderLevelCapacity"
               style={{

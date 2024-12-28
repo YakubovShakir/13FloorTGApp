@@ -91,7 +91,7 @@ const Menu = ({ screenMenu, activeName, hasBg = true }) => {
           marginBottom={"5"}
           height={34}
           active={true}
-          fontFamily={"Roboto"}
+          fontFamily={"Anonymous pro"}
           fontWeight={"500"}
           text={"Начать"}
           fontSize={14}

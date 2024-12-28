@@ -254,7 +254,7 @@ const PersonageCreationScreen = () => {
               width={'25vw'}
               height={44}
               active={true}
-              fontFamily={"Roboto"}
+              fontFamily={"Anonymous pro"}
               fontWeight={"300"}
               text={'Далее'}
               fontSize={14}
@@ -320,7 +320,7 @@ const PersonageCreationScreen = () => {
               width={'25vw'}
               height={44}
               active={true}
-              fontFamily={"Roboto"}
+              fontFamily={"Anonymous pro"}
               fontWeight={"300"}
               text={'Назад'}
               fontSize={14}
@@ -379,7 +379,7 @@ const PersonageCreationScreen = () => {
               width={'25vw'}
               height={44}
               active={true}
-              fontFamily={"Roboto"}
+              fontFamily={"Anonymous pro"}
               fontWeight={"300"}
               text={'Далее'}
               fontSize={14}
@@ -446,7 +446,7 @@ const PersonageCreationScreen = () => {
                 marginBottom={"5"}
                 height={44}
                 active={personageName.length >= 2}
-                fontFamily={"Roboto"}
+                fontFamily={"Anonymous pro"}
                 fontWeight={"300"}
                 text={'Начать'}
                 fontSize={14}

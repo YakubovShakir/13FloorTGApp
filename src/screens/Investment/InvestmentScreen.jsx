@@ -25,7 +25,7 @@ const buttonStyle = {
     ownColor: "linear-gradient(rgb(18, 4, 2) 0%, rgba(243, 117, 0, 0.2) 100%)",
     bgColor: "linear-gradient(rgb(18, 4, 2) 0%, rgba(243, 117, 0, 0.2) 100%)",
     fontSize: 14,
-    fontFamily: "Muller"
+    fontFamily: "Anonymous pro"
 };
 
 
@@ -555,7 +555,7 @@ const InvestmentScreen = () => {
     margin: '16px 0',
     textAlign: 'center',
     color: '#fff',
-    fontFamily:'Muller',
+    fontFamily:'Anonymous pro',
     padding:'0 16px'
 }}>
     Инвестируй немного денег в бизнес, и забирай доход каждый час

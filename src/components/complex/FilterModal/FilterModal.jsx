@@ -40,7 +40,7 @@ const FilterButton = ({
       }}
       onClick={handleClick}
     >
-      <p style={{ fontFamily: "Roboto", textAlign: "center" }}>{title}</p>
+      <p style={{ fontFamily: "Anonymous pro", textAlign: "center" }}>{title}</p>
     </div>
   )
 }
@@ -152,7 +152,7 @@ export default ({
           <div style={{ display: "flex", flexDirection: "column" }}>
             <p
               style={{
-                fontFamily: "Roboto",
+                fontFamily: "Anonymous pro",
                 fontWeight: "500",
                 color: "white",
                 textAlign: "center",
@@ -192,7 +192,7 @@ export default ({
           >
             <p
               style={{
-                fontFamily: "Roboto",
+                fontFamily: "Anonymous pro",
                 fontWeight: "500",
                 color: "white",
                 textAlign: "center",
