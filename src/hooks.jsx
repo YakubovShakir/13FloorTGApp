@@ -2,27 +2,30 @@ import { createContext, useContext, useState, useEffect, useRef } from 'react';
 const SettingsContext = createContext(null);
 
 export function SettingsProvider({ children }) {
-  // Use refs for audio objects to persist across renders
   const backgroundMusicRef = useRef(new Audio("https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/Music.mp3"));
   const clickSoundPoolRef = useRef(
     Array(5).fill(null).map(() => new Audio("https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/click.mp3"))
   );
 
   const currentSoundIndexRef = useRef(0);
+  const hasInteractedRef = useRef(false);
 
   const [isSoundEnabled, setIsSoundEnabled] = useState(() => {
     const stored = localStorage.getItem('soundEnabled');
-    return stored ? 'true' : 'false';
+    return stored ? JSON.parse(stored) : false;
   });
 
   const [isMusicEnabled, setIsMusicEnabled] = useState(() => {
     const stored = localStorage.getItem('musicEnabled');
-    return stored ? 'true' : 'false';
+    return stored ? JSON.parse(stored) : false;
   });
 
   // Set initial volume
   useEffect(() => {
     backgroundMusicRef.current.volume = 0.65;
+    // Preload audio
+    backgroundMusicRef.current.load();
+    clickSoundPoolRef.current.forEach(sound => sound.load());
   }, []);
 
   const playClickSound = () => {
@@ -36,75 +39,88 @@ export function SettingsProvider({ children }) {
   const toggleSound = () => {
     setIsSoundEnabled(prevIsSoundEnabled => {
       const newIsSoundEnabled = !prevIsSoundEnabled;
-      localStorage.setItem('soundEnabled', String(newIsSoundEnabled));
+      localStorage.setItem('soundEnabled', JSON.stringify(newIsSoundEnabled));
       return newIsSoundEnabled;
     });
   };
 
   const toggleMusic = () => {
+    hasInteractedRef.current = true;
     setIsMusicEnabled(prevIsMusicEnabled => {
       const newIsMusicEnabled = !prevIsMusicEnabled;
-      localStorage.setItem('musicEnabled', String(newIsMusicEnabled));
+      localStorage.setItem('musicEnabled', JSON.stringify(newIsMusicEnabled));
+      
+      // Immediately handle music playback
+      if (newIsMusicEnabled) {
+        backgroundMusicRef.current.play().catch(console.error);
+      } else {
+        backgroundMusicRef.current.pause();
+      }
+      
       return newIsMusicEnabled;
     });
   };
 
+  // Handle initial music autoplay and Telegram WebApp detection
   useEffect(() => {
     const backgroundMusic = backgroundMusicRef.current;
     
-    const handleGlobalClick = (e) => {
-      if (e.target.dataset.soundToggle) return;
-      playClickSound();
-    };
+    // Check if running in Telegram WebApp
+    const isTelegramWebApp = window.Telegram && window.Telegram.WebApp;
+    
+    if (isTelegramWebApp) {
+      // For Telegram WebApp, we need to wait for user interaction
+      const handleFirstInteraction = () => {
+        if (isMusicEnabled && !hasInteractedRef.current) {
+          backgroundMusic.play().catch(console.error);
+          hasInteractedRef.current = true;
+        }
+      };
 
-    const handleMusicCanPlayThrough = () => {
+      window.Telegram.WebApp.ready();
+      window.addEventListener('click', handleFirstInteraction, { once: true });
+      
+      return () => {
+        window.removeEventListener('click', handleFirstInteraction);
+      };
+    } else {
+      // Regular browser behavior
       if (isMusicEnabled) {
         backgroundMusic.play().catch(error => {
           console.log('Playback failed:', error);
-          // Attempt to play on next user interaction
           const playOnInteraction = () => {
             backgroundMusic.play().catch(console.error);
             document.removeEventListener('click', playOnInteraction);
           };
           document.addEventListener('click', playOnInteraction);
         });
-      } else {
-        backgroundMusic.pause();
       }
-    };
-
-    if (isMusicEnabled) {
-      backgroundMusic.addEventListener('canplaythrough', handleMusicCanPlayThrough);
-      // Try to play immediately
-      handleMusicCanPlayThrough();
-    } else {
-      backgroundMusic.pause();
-    }
-
-    if (isSoundEnabled) {
-      document.addEventListener('click', handleGlobalClick);
-    } else {
-      document.removeEventListener('click', handleGlobalClick);
-      clickSoundPoolRef.current.forEach(sound => {
-        sound.pause();
-        sound.currentTime = 0;
-      });
     }
 
     return () => {
-      backgroundMusic.removeEventListener('canplaythrough', handleMusicCanPlayThrough);
+      backgroundMusic.pause();
+    };
+  }, [isMusicEnabled]);
+
+  // Handle click sounds
+  useEffect(() => {
+    const handleGlobalClick = (e) => {
+      if (e.target.dataset.soundToggle) return;
+      playClickSound();
+    };
+
+    if (isSoundEnabled) {
+      document.addEventListener('click', handleGlobalClick);
+    }
+
+    return () => {
       document.removeEventListener('click', handleGlobalClick);
       clickSoundPoolRef.current.forEach(sound => {
         sound.pause();
         sound.currentTime = 0;
       });
     };
-  }, [isSoundEnabled, isMusicEnabled]);
-
-  // Cleanup effect
-  useEffect(() => {
-    return () => backgroundMusicRef.current.pause();
-  }, []);
+  }, [isSoundEnabled]);
 
   return (
     <SettingsContext.Provider value={{ isSoundEnabled, toggleSound, toggleMusic, isMusicEnabled }}>
@@ -116,7 +132,7 @@ export function SettingsProvider({ children }) {
 export function useSettingsProvider() {
   const context = useContext(SettingsContext);
   if (!context) {
-    throw new Error('useSoundManager must be used within a SoundProvider');
+    throw new Error('useSettingsProvider must be used within a SettingsProvider');
   }
   return context;
 }
