@@ -73,7 +73,7 @@ const TelegramPlatformCheck = ({ children }) => {
       // Only allow ios and android explicitly
       const isMobileApp = /^(android|ios)$/.test(platform);
       
-      setShouldBlock(!!isMobileApp);
+      setShouldBlock(!isMobileApp);
 
       if (!isMobileApp) {
         setTimeout(() => {
