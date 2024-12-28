@@ -50,34 +50,37 @@ const FoodTab = ({ userId, userParameters, setUserParameters }) => {
     return [
       [
         instantHungryRestore && {
+          
           icon: Icons.hungry,
-          value: instantHungryRestore?.value + "%",
+          value: "+" + instantHungryRestore?.value + "%",
         },
         longHungryRestore && {
           icon: Icons.hungryUp,
-          value: longHungryRestore?.value + "%" + "  / h",
+          value: "+" + longHungryRestore?.value + "%" + "/h",
         },
         instantEnergyRestore && {
           icon: Icons.energy,
-          value: instantEnergyRestore?.value + "%",
+          value: "+" + instantEnergyRestore?.value + "%",
         },
         longEnergyRestore && {
           icon: Icons.energyUp,
           value:
+            "+" +
             longEnergyRestore?.value +
-            (longEnergyRestore?.percent && "%") +
-            "  / h",
+            (longEnergyRestore?.percent ? "%" : "") +
+            "/h",
         },
         instantMoodRestore && {
           icon: Icons.happiness,
-          value: instantMoodRestore?.value + "%",
+          value:"+" + instantMoodRestore?.value + "%",
         },
         longMoodRestore && {
+          
           icon: Icons.moodUp,
-          value:
+          value:"+" +
             longMoodRestore?.value +
             (longMoodRestore?.percent && "%") +
-            "  / h",
+            "/h",
         },
       ].filter(Boolean),
 
