@@ -10,7 +10,7 @@ const ScreenBody = ({ children, activity }) => {
 
     return (
         <div className="ScreenBody">
-            <div className="HomeHeaderBottomName" style={{ height: 55, display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100vw', color: 'white', fontFamily: 'Anonymous pro', fontWeight: '200' }}>
+            <div className="HomeHeaderBottomName" style={{ height: 55, display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100vw', color: 'white', fontFamily: 'Anonymous pro',fontSize: '20px' ,fontWeight: '700' }}>
                 <div>
                     <p>{activity}</p>
                 </div>
