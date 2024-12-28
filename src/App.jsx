@@ -22,25 +22,23 @@ const BlockerMessage = () => (
     alignItems: 'center',
     justifyContent: 'center',
     padding: '16px',
-    backgroundColor: '#f5f5f5'
+    backgroundColor: 'black'
   }}>
     <div style={{
       maxWidth: '400px',
       width: '100%',
       padding: '24px',
-      backgroundColor: 'white',
+      color: 'white',
       borderRadius: '8px',
-      boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
       textAlign: 'center'
     }}>
       <div style={{
         marginBottom: '16px',
         padding: '12px',
-        backgroundColor: '#fee2e2',
         borderRadius: '6px',
-        color: '#dc2626'
+        color: 'white',
       }}>
-        <h3 style={{ margin: '0 0 8px 0', fontSize: '18px' }}>
+        <h3 style={{ margin: '0 0 8px 0', fontSize: '18px', fontWeight: '800', color: 'rgb(243, 117, 0)' }}>
           Access Restricted
         </h3>
         <p style={{ margin: 0, fontSize: '14px' }}>
@@ -54,14 +52,6 @@ const BlockerMessage = () => (
         fontSize: '14px'
       }}>
         Please open this dApp using Telegram mobile app on iOS or Android.
-        This window will close automatically.
-      </p>
-      <p style={{ 
-        margin: '16px 0',
-        color: '#6b7280',
-        fontSize: '12px'
-      }}>
-        If you were redirected here from a link, please open the link on your mobile device.
       </p>
     </div>
   </div>
@@ -83,7 +73,7 @@ const TelegramPlatformCheck = ({ children }) => {
       // Only allow ios and android explicitly
       const isMobileApp = /^(android|ios)$/.test(platform);
       
-      setShouldBlock(!isMobileApp);
+      setShouldBlock(!!isMobileApp);
 
       if (!isMobileApp) {
         setTimeout(() => {
