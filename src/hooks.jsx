@@ -36,7 +36,7 @@ export function SettingsProvider({ children }) {
 
   // Set initial volume
   useEffect(() => {
-    backgroundMusicRef.current.volume = 0.65;
+    backgroundMusicRef.current.volume = 0.25;
     // Preload audio
     backgroundMusicRef.current.load();
     clickSoundPoolRef.current.forEach(sound => sound.load());
