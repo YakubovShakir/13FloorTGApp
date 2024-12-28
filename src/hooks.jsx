@@ -11,8 +11,15 @@ export function SettingsProvider({ children }) {
   const hasInteractedRef = useRef(false);
 
   const [isSoundEnabled, setIsSoundEnabled] = useState(() => {
-    const stored = localStorage.getItem('soundEnabled');
-    return stored ? JSON.parse(stored) : false;
+    const stored = localStorage.getItem('soundEnabled')
+    if(!stored) {
+      localStorage.setItem('soundEnabled', 'true');
+      return true
+    } else if (stored === 'true') {
+      return true
+    } else {
+      return false
+    }
   });
 
   const [isMusicEnabled, setIsMusicEnabled] = useState(() => {
