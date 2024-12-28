@@ -224,7 +224,7 @@ export const WorkTab = ({
           bg: activeWork
             ? "rgb(32 7 3)"
             : "rgb(32 7 3)",
-          shadowColor: activeWork ? "rgb(255, 12, 0)" : "rgb(32 7 3)",
+          shadowColor: activeWork ? "rgb(32 7 3)" : "rgb(32 7 3)",
           borderColor: "rgb(32 7 3)", // Убрали !important
         },
       ];
