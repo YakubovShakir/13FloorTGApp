@@ -7,16 +7,17 @@ export function SettingsProvider({ children }) {
   const clickSoundPoolRef = useRef(
     Array(5).fill(null).map(() => new Audio("https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/click.mp3"))
   );
+
   const currentSoundIndexRef = useRef(0);
 
   const [isSoundEnabled, setIsSoundEnabled] = useState(() => {
     const stored = localStorage.getItem('soundEnabled');
-    return stored === null ? true : stored === 'true';
+    return stored ? 'true' : 'false';
   });
 
   const [isMusicEnabled, setIsMusicEnabled] = useState(() => {
     const stored = localStorage.getItem('musicEnabled');
-    return stored === null ? true : stored === 'true';
+    return stored ? 'true' : 'false';
   });
 
   // Set initial volume
