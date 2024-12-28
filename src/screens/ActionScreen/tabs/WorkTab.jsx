@@ -225,16 +225,19 @@ export const WorkTab = ({
           onClick:
             activeWork
               ? async () => await handleStopWork()
-              : async () => await handleStartWork(),
+              : async () => {
+                  await handleStartWork();
+                  navigation.navigate('MainScreen'); // Переход на основной экран сразу после начала работы
+                },
           icon: buyStatus && Icons.balance,
           active: true,
           bg: activeWork
             ? "linear-gradient(90deg, rgba(233,27,27,1) 0%, rgba(119,1,1,1) 100%)"
             : "linear-gradient(180deg, rgba(233,78,27,1) 0%, rgba(243,117,0,1) 100%)",
           shadowColor: activeWork ? "#4E1010" : "#AF370F",
-
-        },
+        }
       ]
+      
     }
 
     return [
@@ -267,6 +270,7 @@ export const WorkTab = ({
 
       {userParameters?.work_id !== 0 && <ItemCard
         ItemIcon={getWorkById(userParameters?.work_id)?.link}
+        ItemDescription="Отправляйся на работу, что бы заработать монет!"
         ItemTitle={getWorkById(userParameters?.work_id)?.name}
         ItemParamsBlocks={getItemWorkParams(userParameters?.work_id)}
         ItemButtons={getItemWorkButton(userParameters?.work_id)}

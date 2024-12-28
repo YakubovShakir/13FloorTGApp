@@ -78,10 +78,13 @@ const BoostTab = ({ userId, userParameters, setUserParameters }) => {
         onClick:
           activeProcess?.type === "sleep"
             ? () => handleStopSleep()
-            : () => handleStartSleep(),
+            : () => {
+                handleStartSleep();
+                navigation.navigate('MainScreen'); // Переход на основной экран
+              },
       },
-    ]
-  }
+    ];
+  };
   const getItemBoostParams = (boost) => {
     const boostDuration = boost?.duration
     return [
@@ -169,6 +172,7 @@ const BoostTab = ({ userId, userParameters, setUserParameters }) => {
       <ItemCard
         ItemIcon={sleepIcon}
         ItemTitle={"Долгий сон"}
+        ItemDescription="Сон поможет восстановить энергию!"
         ItemParamsBlocks={getItemSleepParams()}
         ItemButtons={getItemSleepButton()}
         ItemIndex={0}

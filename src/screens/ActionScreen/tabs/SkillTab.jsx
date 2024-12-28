@@ -19,6 +19,8 @@ import {
 import formatTime from "../../../utils/formatTime"
 import countPercentage from "../../../utils/countPercentage.js"
 
+
+
 const SkillTab = ({
   modalData,
   setModalData,
@@ -272,10 +274,13 @@ const SkillTab = ({
         bg: "linear-gradient(180deg, rgba(233,78,27,1) 0%, rgba(243,117,0,1) 100%)",
         shadowColor: "#AF370F",
         onClick:
-          activeProcess?.type !== "training" && (() => handleStartTraining()),
+          activeProcess?.type !== "training" && (() => {
+            handleStartTraining();
+            navigation.navigate('MainScreen'); // Переход на основной экран сразу после начала тренировки
+          }),
       },
-    ]
-  }
+    ];
+  };
 
   // Interval update information
   const updateInformation = () => {
@@ -326,6 +331,7 @@ const SkillTab = ({
         <ItemCard
           ItemIcon={Icons.training}
           ItemTitle={"Тренировка"}
+           ItemDescription="Хорошая тренировка поднимает настроение!"
           ItemParamsBlocks={getItemTrainingParams()}
           ItemButtons={getItemTrainingButton()}
           ItemIndex={0}
