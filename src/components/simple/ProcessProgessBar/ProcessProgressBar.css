@@ -31,6 +31,7 @@
     border-top-right-radius: 4px;
     position: relative;
     z-index: 1;
+    backdrop-filter: blur(5px);
   }
   
   .progress-bar-icon-left,

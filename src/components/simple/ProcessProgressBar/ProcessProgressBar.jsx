@@ -40,21 +40,21 @@ const ProcessProgressBar = ({
       ],
       training: [
         <img
-          height={40}
-          width={40}
+          height={55}
+          width={55}
           src={Assets.Icons.training}
-          style={{ marginTop: "5px", marginLeft: "10px" }}
+          style={{ marginTop: "1px", marginLeft: "7px" }}
         />,
-        <img height={40} width={40} src={Assets.Icons.clock} />,
+        <img height={44} width={44} src={Assets.Icons.clock} />,
       ],
       sleep: [
         <img
-          height={55}
-          width={55}
+          height={75}
+          width={75}
           src={Assets.Icons.sleep}
-          style={{ top: "-2.7%" }}
+          style={{ marginTop: "-7px", marginLeft: "-5px" }}
         />,
-        <img height={40} width={40} src={Assets.Icons.clock} />,
+        <img height={44} width={44} src={Assets.Icons.clock} />,
       ],
     }
     return typeToIconsMap[processType]

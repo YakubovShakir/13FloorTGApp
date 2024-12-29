@@ -5,8 +5,8 @@ import Assets from '../../../assets';
 const getIcons = (processType) => {
     const typeToIconsMap = {
         'work': [<img height={45} width={45} src={Assets.Icons.boss} />, <img height={35} width={35} src={Assets.Icons.balance} />],
-        'training': [<img height={40} width={40} src={Assets.Icons.training} style={{ marginTop: '5px', marginLeft: '10px'}} />, <img height={40} width={40} src={Assets.Icons.clock}/>],
-        'sleep': [<img height={55} width={55} src={Assets.Icons.sleep} style={{ top: '-2.7%'}} />, <img height={40} width={40} src={Assets.Icons.clock}/>],
+        'training': [<img height={40} width={40} src={Assets.Icons.training} style={{ marginTop: '5px', marginLeft: '10px'}} />, <img height={43} width={43} src={Assets.Icons.clock}/>],
+        'sleep': [<img height={65} width={65} src={Assets.Icons.sleep} style={{ top: '-2.7%'}} />, <img height={43} width={43} src={Assets.Icons.clock}/>],
     }
 
     return typeToIconsMap[processType]
