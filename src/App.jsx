@@ -100,7 +100,7 @@ function App() {
   }, [])
 
   return (
-    <TelegramPlatformCheck>
+    // <TelegramPlatformCheck>
      <SettingsProvider>
       <MemoryRouter>
           <Routes>
@@ -117,7 +117,7 @@ function App() {
           </Routes>
         </MemoryRouter>
      </SettingsProvider>
-    </TelegramPlatformCheck>
+    // </TelegramPlatformCheck>
   )
 }
 

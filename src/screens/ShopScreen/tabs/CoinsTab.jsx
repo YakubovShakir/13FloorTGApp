@@ -165,7 +165,7 @@ const GridItem = ({
               fontSize: "20px",
             }}
           >
-            {respect}
+          + {respect}
           </p>
         </div>
 
