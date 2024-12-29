@@ -271,8 +271,7 @@ const SkillTab = ({
       {
         text: activeProcess?.type === "training" ? "В процессе" : "Начать",
         active: true,
-        bg: "linear-gradient(180deg, rgba(233,78,27,1) 0%, rgba(243,117,0,1) 100%)",
-        shadowColor: "#AF370F",
+        
         onClick:
           activeProcess?.type !== "training" && (() => {
             handleStartTraining();

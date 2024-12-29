@@ -20,6 +20,7 @@ export const WorkTab = ({
   setVisibleModal,
   userParameters,
   userId,
+  borderColor,
 }) => {
   const [skills, setSkills] = useState(null) // List of skills
   const [activeButton, setActiveButton] = useState(null);
@@ -231,10 +232,9 @@ export const WorkTab = ({
                 },
           icon: buyStatus && Icons.balance,
           active: true,
-          bg: activeWork
-            ? "linear-gradient(90deg, rgba(233,27,27,1) 0%, rgba(119,1,1,1) 100%)"
-            : "linear-gradient(180deg, rgba(233,78,27,1) 0%, rgba(243,117,0,1) 100%)",
-          shadowColor: activeWork ? "#4E1010" : "#AF370F",
+          
+          
+         
         }
       ]
       
@@ -242,7 +242,7 @@ export const WorkTab = ({
 
     return [
       {
-        text: buyStatus ? work?.coins_price : "Инфо",
+        text: buyStatus ? work?.coins_price : "Открыть",
         onClick: () => {
           setModalData(setWorkModalData(work))
           setVisibleModal(true)

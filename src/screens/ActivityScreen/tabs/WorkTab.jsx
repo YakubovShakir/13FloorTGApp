@@ -232,7 +232,7 @@ export const WorkTab = ({
 
     return [
       {
-        text: buyStatus ? work?.coins_price : "Инфо",
+        text: buyStatus ? work?.coins_price : "Открыть",
         onClick: () => {
           setModalData(setWorkModalData(work))
           setVisibleModal(true)

@@ -70,11 +70,7 @@ const BoostTab = ({ userId, userParameters, setUserParameters }) => {
       {
         text: activeProcess?.type === "sleep" ? "Стоп" : "Начать",
         active: true,
-        bg:
-          activeProcess?.type === "sleep"
-            ? "linear-gradient(90deg, rgba(233,27,27,1) 0%, rgba(119,1,1,1) 100%)"
-            : "linear-gradient(180deg, rgba(233,78,27,1) 0%, rgba(243,117,0,1) 100%)",
-        shadowColor: "#AF370F",
+        
         onClick:
           activeProcess?.type === "sleep"
             ? () => handleStopSleep()
