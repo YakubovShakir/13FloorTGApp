@@ -159,7 +159,7 @@ const FoodTab = ({ userId, userParameters, setUserParameters }) => {
   }, [])
 
   return (
-    <ScreenContainer withTab>
+    <ScreenContainer>
       {foods?.map((food, index) => (
         <ItemCard
           key={index}
