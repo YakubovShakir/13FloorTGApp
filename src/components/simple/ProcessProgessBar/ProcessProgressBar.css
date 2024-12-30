@@ -71,9 +71,11 @@
     position: relative;
     z-index: 0;
     background-color: #3B3537;
+    height: 7px;
   }
   
   .progress-bar-fill {
     background: linear-gradient(to right, #f7b733, #fc4a1a);
-    height: 13px;
+    height: 7px;
+
   }

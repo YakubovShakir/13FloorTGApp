@@ -24,7 +24,7 @@ const ProcessProgressBar = ({
     const works = await getWorks()
     const work = works?.find((work) => work?.work_id === activeProcess?.type_id)
     const typeToLabel = {
-      work: [work?.name, `${work?.coins_in_hour} / h`],
+      work: [work?.name, `${"+" +work?.coins_in_hour}/Час`],
       training: ["Training", rate],
       sleep: ["Long Sleep", rate],
     }
@@ -40,21 +40,21 @@ const ProcessProgressBar = ({
       ],
       training: [
         <img
-          height={55}
-          width={55}
+          height={50}
+          width={50}
           src={Assets.Icons.training}
           style={{ marginTop: "1px", marginLeft: "7px" }}
         />,
-        <img height={44} width={44} src={Assets.Icons.clock} />,
+        <img height={40} width={40} src={Assets.Icons.clock} />,
       ],
       sleep: [
         <img
-          height={75}
-          width={75}
+          height={60}
+          width={60}
           src={Assets.Icons.sleep}
-          style={{ marginTop: "-7px", marginLeft: "-5px" }}
+          style={{ marginTop: "-1px", marginLeft: "0px" }}
         />,
-        <img height={44} width={44} src={Assets.Icons.clock} />,
+        <img height={40} width={40} src={Assets.Icons.clock} />,
       ],
     }
     return typeToIconsMap[processType]

@@ -73,7 +73,7 @@ top: 5px;
 }
 
 .progress-bar-label-left {
-  left: 9%;
+  left: 5%;
 }
 
 .progress-bar-label-right {
@@ -92,6 +92,6 @@ background-color: rgba(243, 117, 0, 0.418);
 
 .progress-bar-fill {
   background: linear-gradient(to right, #f7b733, #fc4a1a);
-  height: 13px;
+  height: 7px;
   transition: width 500ms linear;
 }
