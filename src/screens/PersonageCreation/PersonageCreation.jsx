@@ -258,6 +258,7 @@ const PersonageCreationScreen = () => {
               fontWeight={"300"}
               text={'Далее'}
               fontSize={14}
+              color={"rgb(255, 255, 255)"}
               ownColor={
                 "linear-gradient(rgb(18, 4, 2) 0%, rgba(243, 117, 0, 0.2) 100%)"
               }
@@ -321,6 +322,7 @@ const PersonageCreationScreen = () => {
               height={44}
               active={true}
               fontFamily={"Anonymous pro"}
+              color={"rgb(255, 255, 255)"}
               fontWeight={"300"}
               text={'Назад'}
               fontSize={14}
@@ -380,6 +382,7 @@ const PersonageCreationScreen = () => {
               height={44}
               active={true}
               fontFamily={"Anonymous pro"}
+              color={"rgb(255, 255, 255)"}
               fontWeight={"300"}
               text={'Далее'}
               fontSize={14}
@@ -444,6 +447,7 @@ const PersonageCreationScreen = () => {
                 shadowColor={"#f37500"}
                 width={'30vw'}
                 marginBottom={"5"}
+                color={"rgb(255, 255, 255)"}
                 height={44}
                 active={personageName.length >= 2}
                 fontFamily={"Anonymous pro"}

@@ -22,6 +22,7 @@ import { instance } from "../../services/instance"
 const buttonStyle = {
     height: 44,
     shadowColor: "#f37500",
+    color:"rgb(255, 255, 255)",
     ownColor: "linear-gradient(rgb(18, 4, 2) 0%, rgba(243, 117, 0, 0.2) 100%)",
     bgColor: "linear-gradient(rgb(18, 4, 2) 0%, rgba(243, 117, 0, 0.2) 100%)",
     fontSize: 14,
@@ -121,6 +122,7 @@ const Modal = ({ bottom, left, width, height, data, onClose, logoWidth }) => {
             <div className="ModalFooter" style={{ marginTop: 10 }}>
                 <Button
                     {...buttonStyle}
+                    
                     active={data.canUpgrade}
                     onClick={data.canUpgrade ? data.handleUpgrade : () => { }}
                     text={data.price}

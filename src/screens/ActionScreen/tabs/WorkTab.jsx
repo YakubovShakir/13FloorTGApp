@@ -173,7 +173,7 @@ export const WorkTab = ({
       return [
         [
           {
-            value: work?.coins_in_hour + " /  h",
+            value: work?.coins_in_hour + "/h",
             icon: Icons.balance,
           },
         ],
@@ -189,7 +189,7 @@ export const WorkTab = ({
     return [
       [
         {
-          value: work?.coins_in_hour + " /  h",
+          value:"/h" + work?.coins_in_hour + "/h",
           icon: Icons.balance,
         },
       ],
