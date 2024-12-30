@@ -211,7 +211,8 @@ const ThreeSectionCard = ({
             width: '90%',
             gap: '8px',
             margin: '10px auto auto auto',
-            height: '147px',
+            height: '52vh',
+            maxHeight: '22vh',
             backgroundImage: `
                 linear-gradient(90deg, rgba(0,0,0,0) 0%, rgba(0,0,0,1) 40%),
                 repeating-linear-gradient(
@@ -560,7 +561,7 @@ const InvestmentScreen = () => {
 }}>
     Инвестируй немного денег в бизнес, и забирай доход каждый час
 </h2>
-                    
+  
                     <ThreeSectionCard
                         title={'Кофейня'}
                         leftImage={Assets.Icons.investmentCoffeeShopIcon}
@@ -632,6 +633,7 @@ const InvestmentScreen = () => {
                         }}
                         userParameters={userParameters}
                     />
+                    
                 </ScreenBody>
             </Screen>
         )

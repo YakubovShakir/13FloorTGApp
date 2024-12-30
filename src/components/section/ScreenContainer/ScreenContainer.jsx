@@ -1,9 +1,9 @@
 
 const ScreenContainer = ({ withTab, children }) => {
-    const height = withTab ? "75%" : "80vh"
+    const height = withTab ? "82%" : "90%"
   return (
     <div
-      style={{ height: height, overflowY: "scroll", padding: "5% 0"}}
+      style={{ height: height,  overflowY: "scroll", padding: "5% 0"}}
       className="ScreenContainer"
     >
       {children}
