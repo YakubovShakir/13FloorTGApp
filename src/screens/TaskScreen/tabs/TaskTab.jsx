@@ -58,7 +58,7 @@ const TaskTab = ({ userId, userParameters, setUserParameters }) => {
   }, []) // Remove userId dependency
 
   return (
-    <ScreenContainer withTab>
+    <ScreenContainer >
       {tasks?.map((task, index) => (
         <ItemCard
           key={index}

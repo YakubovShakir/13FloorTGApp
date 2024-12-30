@@ -16,14 +16,14 @@ const Button = ({
   fontFamily,
   fontWeight,
   borderColor,
+  color, // Новый пропс для цвета текста
   border,
   backdropFilter, // Новый параметр
 }) => {
   const [isPressed, setIsPressed] = useState(false);
-  const shadowColorValue = active ? shadowColor || "rgb(243, 117, 0)" : "rgb(57, 57, 57)" ;
+  const shadowColorValue = active ? shadowColor || "rgb(243, 117, 0)" : "rgb(57, 57, 57)";
   const borderColorValue = active ? borderColor || "rgb(243, 117, 0)" : "rgb(57, 57, 57)";
   
-
   return (
     <button
       onClick={() => {
@@ -37,6 +37,7 @@ const Button = ({
       style={{
         width,
         height,
+        
         background: active
           ? ownColor
             ? bgColor
@@ -44,6 +45,7 @@ const Button = ({
           : "linear-gradient(rgb(18 18 18) 5%, rgb(18 18 18) 95%)",
         boxShadow: `0px ${isPressed ? 3 : 5}px 0px ${shadowColorValue}`,
         transform: isPressed ? "translateY(2px)" : "translateY(0px)",
+        color: color || ownColor, // Используем цвет текста из пропсов или ownColor
         transition: "box-shadow 0.1s ease, transform 0.1s ease",
         border: `1px solid ${borderColorValue}`,
         borderRadius: "5px",

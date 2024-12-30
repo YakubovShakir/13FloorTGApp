@@ -183,6 +183,7 @@ const GridItem = ({
             icon={Assets.Icons.starsIcon}
             fontSize={14}
             borderColor={"rgb(34, 199, 163)"}
+            color={"rgb(255, 255, 255)"}
             ownColor={
               "linear-gradient(to bottom, rgb(34 199 163 / 0%), rgb(34 199 163 / 24%))"
             }
@@ -196,6 +197,7 @@ const GridItem = ({
             className="clothing-item-equip-button"
             shadowColor={"rgb(243, 117, 0)"}
             width={"88%"}
+            color={"rgb(255, 255, 255)"}
             marginBottom={"5"}
             height={44}
             active={available}

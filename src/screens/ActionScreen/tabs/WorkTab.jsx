@@ -250,6 +250,7 @@ export const WorkTab = ({
         icon: buyStatus && Icons.balance,
         active: buyStatus ,
         shadowColor: buyStatus && "rgb(243, 117, 0)",
+       
       },
     ]
   }
@@ -275,6 +276,7 @@ export const WorkTab = ({
         ItemParamsBlocks={getItemWorkParams(userParameters?.work_id)}
         ItemButtons={getItemWorkButton(userParameters?.work_id)}
         ItemIndex={0}
+      
       />}
 
      

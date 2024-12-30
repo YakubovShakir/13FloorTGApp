@@ -89,6 +89,7 @@ const Menu = ({ screenMenu, activeName, hasBg = true }) => {
           shadowColor={"#22c7a3"}
           width={"16%"}
           marginBottom={"5"}
+          color={"rgb(255, 255, 255)"}
           height={34}
           active={true}
           fontFamily={"Anonymous pro"}

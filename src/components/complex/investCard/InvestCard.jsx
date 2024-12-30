@@ -72,6 +72,7 @@ const InvestCard = ({
             text={"440"}
             height={"20%"}
             width={"50%"}
+            color={"rgb(255, 255, 255)"}
             icon={Icons.balance}
             bgColor={"#00C200"}
           />
@@ -90,6 +91,7 @@ const InvestCard = ({
         <Button
           height={"25%"}
           width={"80%"}
+          color={"rgb(255, 255, 255)"}
           active={upgradeStatus}
           text={"Улучшить"}
           onClick={() => setVisibleUpgradeModal(true)}
@@ -120,6 +122,7 @@ const InvestCard = ({
         <Button
           height={"25%"}
           width={"80%"}
+          color={"rgb(255, 255, 255)"}
           active={claimStatus}
           bgColor={"linear-gradient(180deg, rgba(233,78,27,1) 5%, rgba(243,117,0,1) 65%)"}
           ownColor = {autoClaim ? true : false}

@@ -43,7 +43,7 @@ const ActionScreen = () => {
         )}
 
          {/* Контент из вкладок теперь отображается подряд */}
-         <ScreenContainer withTab>
+         <ScreenContainer >
           <WorkTab
           modalData={modalData}
           setModalData={setModalData}

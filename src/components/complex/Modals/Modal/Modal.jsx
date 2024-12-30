@@ -55,6 +55,7 @@ const Modal = ({ bottom, left, width, height, data, onClose, logoWidth }) => {
             key={index}
             width={(Math.min(100 / data?.buttons.length - 2), 40) + "%"}
             height={44}
+            color={"rgb(255, 255, 255)"}
             onClick={button.onClick}
             active={button?.active}
             text={button?.text}

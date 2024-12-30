@@ -140,7 +140,7 @@ const GridItem = ({
 
 <p
               style={{
-                paddingTop: "10px",
+                padding: "10px 5px 0px 5px",
                 height: "45px",
                 color: "white",
                 textAlign: "center",
@@ -194,7 +194,7 @@ const GridItem = ({
         {equipped ? (
           <Button
             className="clothing-item-unequip-button"
-            shadowColor={"rgba(243, 117, 0, 0.18)"}
+            shadowColor={"rgba(243, 117, 0, 0)"}
             width={"88%"}
             marginBottom={"5"}
             height={44}
@@ -204,9 +204,10 @@ const GridItem = ({
             text={"Используется"}
             fontSize={14}
             paddingTop={1}
-            borderColor={"rgba(243, 117, 0, 0.18)"}
-            ownColor={"linear-gradient(rgb(18 4 2 / 0%) 0%, rgba(67, 14, 7, 0.48) 100%)"}
-            bgColor={"linear-gradient(rgb(18 4 2 / 0%) 0%, rgba(67, 14, 7, 0.48) 100%)"}
+            borderColor={"rgba(243, 117, 0, 0)"}
+            color={"rgba(243, 117, 0, 1)"}
+            ownColor={"rgb(166, 0, 243)"}
+            bgColor={"rgba(126, 86, 49, 0)"}
             onClick={() => type === 'Accessory' || productType === 'shelf' ? clothesUnequip(clothingId, type, productType) : null}
           />
         ) : (
@@ -220,6 +221,7 @@ const GridItem = ({
             fontFamily={"Anonymous pro"}
             fontWeight={"300"}
             text={"Выбрать"}
+            color={"rgb(255, 255, 255)"}
             fontSize={14}
             paddingTop={1}
             ownColor={"linear-gradient(rgb(18, 4, 2) 0%, rgba(243, 117, 0, 0.2) 100%)"}

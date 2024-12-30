@@ -172,6 +172,7 @@ const BoostTab = ({ userId, userParameters, setUserParameters }) => {
         ItemParamsBlocks={getItemSleepParams()}
         ItemButtons={getItemSleepButton()}
         ItemIndex={0}
+        
       
       />
      

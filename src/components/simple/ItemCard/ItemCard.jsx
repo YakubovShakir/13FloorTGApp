@@ -120,6 +120,7 @@ const isImageGrayscale = !isAnyButtonActive; // Если кнопка неакт
                 height={44}
                 fontSize={16}
                 fontFamily={"Anonymous pro"}
+                color={"rgb(255, 255, 255)"}
                 onClick={() => {
                   if (ItemButton.icon === Assets.Icons.starsIcon) {
                     ItemButton?.onClick && ItemButton.onClick();
