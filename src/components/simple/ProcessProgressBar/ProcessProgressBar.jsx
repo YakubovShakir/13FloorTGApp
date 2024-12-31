@@ -11,28 +11,26 @@ const ProcessProgressBar = ({
   reverse = false,
   rate,
 }) => {
-  const [percentage, setPercentage] = useState(100)
-  const [labelLeft, setLabelLeft] = useState(null)
-  const [labelRight, setLabelRight] = useState(null)
-
-  const [iconLeft, setIconLeft] = useState(null)
-  const [iconRight, setIconRight] = useState(null)
-  
-
+  const [percentage, setPercentage] = useState(100);
+  const [labelLeft, setLabelLeft] = useState(null);
+  const [labelRight, setLabelRight] = useState(null);
+  const [iconLeft, setIconLeft] = useState(null);
+  const [iconRight, setIconRight] = useState(null);
 
   const getLabels = async (processType, rate) => {
-    const works = await getWorks()
-    const work = works?.find((work) => work?.work_id === activeProcess?.type_id)
+    const works = await getWorks();
+    const work = works?.find((work) => work?.work_id === activeProcess?.type_id);
     const typeToLabel = {
       work: [work?.name, `${work?.coins_in_hour} / h`],
       training: ["Training", rate],
       sleep: ["Long Sleep", rate],
-    }
+    };
   
-    return typeToLabel[processType]
-  }
+    return typeToLabel[processType];
+  };
+
   const getIcons = async (processType) => {
-    const works = await getWorks()
+    const works = await getWorks();
     const typeToIconsMap = {
       work: [
         <img height={55} width={55} src={works?.find((work) => work?.work_id === activeProcess?.type_id)?.link} />,
@@ -56,38 +54,41 @@ const ProcessProgressBar = ({
         />,
         <img height={44} width={44} src={Assets.Icons.clock} />,
       ],
-    }
-    return typeToIconsMap[processType]
-  }
+    };
+    return typeToIconsMap[processType];
+  };
 
   const updatePercentage = () => {
-    if (percentage === 0) setPercentage(100)
+    if (percentage === 0) setPercentage(100);
     else {
-      setPercentage((prevPercentage) => prevPercentage - 2)
+      setPercentage((prevPercentage) => prevPercentage - 2);
     }
-  }
-  useEffect(() => {
+  };
 
+  useEffect(() => {
     if (!inputPercentage) {
-      updatePercentage()
+      updatePercentage();
     }
-  }, [])
-  useEffect(()=> {
-    getIcons(activeProcess?.type).then(([left, right]) => {
-      setIconLeft(left)
-      setIconRight(right)
-    })
-    getLabels(activeProcess?.type).then(([left, right]) => {
-      setLabelLeft(left)
-      setLabelRight(right)
-    })
-  }, [activeProcess])
-
+  }, []);
 
   useEffect(() => {
-    if (!inputPercentage) setTimeout(() => updatePercentage(), 1000)
-  }, [percentage])
+    getIcons(activeProcess?.type).then(([left, right]) => {
+      setIconLeft(left);
+      setIconRight(right);
+    });
+    getLabels(activeProcess?.type, rate).then(([left, right]) => {
+      setLabelLeft(left);
+      setLabelRight(right);
+    });
+  }, [activeProcess, rate]);
 
+  useEffect(() => {
+    if (!inputPercentage) setTimeout(() => updatePercentage(), 1000);
+  }, [percentage]);
+
+  const currentPercentage = inputPercentage || percentage;
+  const displayPercentage = reverse ? 100 - currentPercentage : currentPercentage;
+  
   return (
     <div className="progress-bar-container-fixed-top">
       <div className="progress-bar-container">
@@ -107,15 +108,15 @@ const ProcessProgressBar = ({
             <div
               className="progress-bar-fill"
               style={{
-                width: `${inputPercentage || percentage}%`,
-                marginLeft: reverse ? `${100 - percentage}%` : "0",
+                width: `${displayPercentage}%`,
+                transition: "width 0.3s ease-in-out"
               }}
             />
           </div>
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
 export default ProcessProgressBar

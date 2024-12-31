@@ -144,8 +144,8 @@ const Player = ({
               <img
                 key={index}
                 className="PlayerHead"
-                style={{ zIndex: "2" }}
-                src={pullGenderedClothingImage(personage?.gender, clothing?.accessories[index])}
+                style={{ zIndex: "5" }}
+                src={pullGenderedClothingImage(personage?.gender, clothing)}
                 alt="Head"
             />
           )}

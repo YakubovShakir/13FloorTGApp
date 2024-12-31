@@ -1,59 +1,55 @@
-import useTelegram from "./hooks/useTelegram"
-import React, { createContext, useState, useEffect } from "react"
+import React, { createContext, useState, useEffect, useRef, useCallback } from "react"
 import { getParameters } from "./services/user/user"
-// создаем контекст
+
 const UserContext = createContext()
 
-// создаем провайдер контекста
 export const UserProvider = ({ children }) => {
-  //states
   const [userParameters, setUserParameters] = useState(null)
   const [userPersonage, setUserPersonage] = useState(null)
   const [userClothing, setUserClothing] = useState(null)
   const [userShelf, setUserShelf] = useState(null)
-
   const [userId, setUserId] = useState(window.Telegram?.WebApp?.initDataUnsafe?.user?.id || 790629329)
   const [appReady, setAppReady] = useState(false)
+  
+  const isFetchingRef = useRef(false)
+  const latestDataRef = useRef(null)
 
-  useEffect(() => {
-    getParameters(userId)
-      .then((parameters) => {
+  const fetchParams = useCallback(async (isInitial = false) => {
+    if (isFetchingRef.current) return
+    
+    isFetchingRef.current = true
+    if (isInitial) setAppReady(false)
+    
+    try {
+      const parameters = await getParameters(userId)
+      
+      if (JSON.stringify(parameters) !== JSON.stringify(latestDataRef.current)) {
         setUserParameters(parameters.parameters)
         setUserPersonage(parameters.personage)
         setUserClothing(parameters.clothing)
         setUserShelf(parameters.shelf)
-        setAppReady(true)
-      }).catch(err => console.log('@', err))
-    updateInformation()
-  }, [])
-
-  const fetchParams = async () => {
-    setAppReady(false)
-    
-    let parameters
-    try {
-      parameters = await getParameters(userId)
-      setUserParameters(parameters.parameters)
-      setUserPersonage(parameters.personage)
-      setUserClothing(parameters.clothing)
-      setUserShelf(parameters.shelf)
-      setAppReady(true)
+        latestDataRef.current = parameters
+      }
+      
+      if (isInitial) setAppReady(true)
     } catch(err) {
-      console.log(err)
+      console.log('Error fetching parameters:', err)
+    } finally {
+      isFetchingRef.current = false
     }
-  }
+  }, [userId])
 
-  const updateInformation = () => {
-    try {
-      setInterval(() => {
-        getParameters(userId).then((parameters) =>
-          setUserParameters(parameters.parameters)
-        )
-      }, 1000)
-    } catch (e) {
-      console.log("Error when updateInfromation", e)
-    }
-  }
+  useEffect(() => {
+    // Initial fetch
+    fetchParams(true)
+    
+    // Set up polling
+    const intervalId = setInterval(() => {
+      fetchParams(false)
+    }, 1000)
+
+    return () => clearInterval(intervalId)
+  }, [fetchParams])
 
   return (
     <UserContext.Provider
@@ -65,7 +61,7 @@ export const UserProvider = ({ children }) => {
         userPersonage,
         setUserPersonage,
         userClothing,
-        fetchParams,
+        fetchParams: () => fetchParams(true),
         userShelf
       }}
     >

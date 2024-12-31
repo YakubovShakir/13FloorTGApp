@@ -20,6 +20,7 @@ import UserContext from "../../../UserContext"
 import { FullScreenSpinner } from "../../Home/Home"
 import FilterModal from "../../../components/complex/FilterModal/FilterModal"
 import { SquareButton } from '../../../components/simple/SquareButton/SquareButton'
+import { useSettingsProvider } from "../../../hooks"
 
 const GridItem = ({
   icon,
@@ -55,21 +56,21 @@ const GridItem = ({
           backgroundImage: "repeating-linear-gradient(to right, transparent, transparent 19px, rgba(243, 117, 0, 0.3) 20px), repeating-linear-gradient(to bottom, transparent, transparent 19px, rgba(243, 117, 0, 0.3) 20px)",
           justifyContent: "center",
 
-          
+
         }}
       >
         {/* Заголовок и Иконка */}
         <div className="clothing-item-header">
           <div
-           
+
           >
-           
+
           </div>
           {/* Иконка одежды и Тень активной одежды */}
           <motion.div
             className="clothing-item-icon-wrapper"
             style={{
-              
+
               width: "100%",
               display: "flex",
               justifyContent: "center",
@@ -86,7 +87,7 @@ const GridItem = ({
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-               
+
                 marginTop: -5.5,
                 position: "relative",
               }}
@@ -103,7 +104,7 @@ const GridItem = ({
                     top: 0,
                     left: 0,
                     zIndex: 1,
-                    
+
                   }}
                 />
               )}
@@ -112,7 +113,7 @@ const GridItem = ({
                 src={icon}
                 alt={title}
                 style={{
-                  
+
                   width: "100%",
                   position: "relative",
                   zIndex: 2,
@@ -130,55 +131,65 @@ const GridItem = ({
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
-          
+
           border: "solid 1px rgb(243 117 0 / 18%)",
-          
+
           borderRadius: "7px",
           backgroundColor: "rgb(67 14 7 / 48%)",
         }}
       >
 
-<p
-              style={{
-                paddingTop: "10px",
-                height: "45px",
-                color: "white",
-                textAlign: "center",
-                fontWeight: "100",
-                fontFamily: "Anonymous pro",
-                width: "100%",
-              }}
-            >
-              {title}
-            </p>
-        {/* Уровень уважения */}
-        
-        {respect !== undefined ? (
-          <div
-          className="clothing-item-respect"
+        <p
           style={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            marginTop: 10,
-            marginBottom: 10,
+            paddingTop: "10px",
+            height: "45px",
+            color: "white",
+            textAlign: "center",
+            fontWeight: "100",
+            fontFamily: "Anonymous pro",
+            width: "100%",
           }}
         >
-          <img src={Assets.Icons.respect} height={22} />
-          <p
+          {title}
+        </p>
+        {/* Уровень уважения */}
+
+        {respect !== undefined ? (
+          <div
+            className="clothing-item-respect"
             style={{
-              color: "white",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              marginTop: 10,
+              marginBottom: 10,
+              color: 'white'
+            }}
+          >
+            <img src={Assets.Icons.respect} height={22} />
+            <p
+            style={{
               textAlign: "center",
               fontWeight: "100",
               fontFamily: "Anonymous pro",
               paddingLeft: 8,
               fontSize: "20px",
+              paddingBottom: 4,
+              paddingRight: 2
+            }}
+          >+</p>
+          <p
+            style={{
+              textAlign: "center",
+              fontWeight: "100",
+              fontFamily: "Anonymous pro",
+              fontSize: "20px",
             }}
           >
-           + {respect}
+            {respect}
           </p>
-        </div>
-        ) : (  <div
+          </div>
+        ) : (<div
           className="clothing-item-respect"
           style={{
             display: "flex",
@@ -207,7 +218,7 @@ const GridItem = ({
             borderColor={"rgba(243, 117, 0, 0.18)"}
             ownColor={"linear-gradient(rgb(18 4 2 / 0%) 0%, rgba(67, 14, 7, 0.48) 100%)"}
             bgColor={"linear-gradient(rgb(18 4 2 / 0%) 0%, rgba(67, 14, 7, 0.48) 100%)"}
-            onClick={() => type === 'Accessory' || productType === 'shelf' ? clothesUnequip(clothingId, type, productType) : null}
+            onClick={() => productType === 'shelf' ? clothesUnequip(clothingId, type, productType) : null}
           />
         ) : (
           <Button
@@ -262,7 +273,7 @@ const GridLayout = ({ setCurrentItem, items, clothesUnequip, clothesEquip }) => 
             equipped={item.equipped}
             available={item.available}
             clothesUnequip={clothesUnequip}
-            clothesEquip={clothesEquip}
+            clothesEquip={item.equipped ? undefined : clothesEquip}
             clothingId={item.clothing_id}
             type={item.category}
             productType={item.productType}
@@ -273,28 +284,32 @@ const GridLayout = ({ setCurrentItem, items, clothesUnequip, clothesEquip }) => 
   )
 }
 
-const loadClothesFromData = (data, userPersonage) => {
-  return data.clothes.map((item) => ({
-    clothing_id: item.clothing_id,
-    name: item.name["ru"],
-    image:
-      userPersonage.gender === "male" ? item.male_icon : item.female_icon,
-    price: item.price,
-    respect: item.respect,
-    tier: item.tier,
-    tags: item.tag,
-    category: item.type,
-    equipped: Object.values(data.currentlyUsedClothes).includes(
-      item.clothing_id
-    ),
-    productType: 'clothes'
-  }))
+const loadClothesFromData = (data, userPersonage, lang) => {
+  return data.clothes.map((item) => {
+    return {
+      clothing_id: item.clothing_id,
+      name: item.name[lang],
+      image:
+        userPersonage.gender === "male" ? item.male_icon : item.female_icon,
+      price: item.price,
+      respect: item.respect,
+      tier: item.tier,
+      tags: item.tag,
+      category: item.type,
+      equipped: Object.values(data.currentlyUsedClothes).includes(
+        item.clothing_id
+      ) || data.currentlyUsedClothes.accessories.includes(
+        item.clothing_id
+      ),
+      productType: 'clothes'
+    }
+  })
 }
 
-const loadShelfFromData = (data) => {
+const loadShelfFromData = (data, lang) => {
   return data.shelf.map(item => ({
     clothing_id: item.id,
-    name: item.name["ru"],
+    name: item.name[lang],
     image: item.link,
     price: item.price,
     respect: item.respect,
@@ -320,6 +335,7 @@ const BaseFilters = {
   // Uses ShelfItems
   Shelf: "Shelf",
   Complex: "Complex",
+  Stars: "Stars"
 }
 
 const InventoryTab = ({ userId }) => {
@@ -332,13 +348,14 @@ const InventoryTab = ({ userId }) => {
   const [currentComplexFilters, setCurrentComplexFilters] = useState([])
   console.log('sss', currentComplexFilters)
   const { userPersonage, userParameters } = useContext(UserContext)
+  const { lang } = useSettingsProvider()
 
   useEffect(() => {
     getInventoryItems(userId)
       .then((data) => {
         // TODO: localize
-        const loadedClothesItems = loadClothesFromData(data, userPersonage)
-        const loadedShelfItems = loadShelfFromData(data)
+        const loadedClothesItems = loadClothesFromData(data, userPersonage, lang)
+        const loadedShelfItems = loadShelfFromData(data, lang)
         console.log(loadedShelfItems)
         setClothesItems(
           loadedClothesItems.sort((a, b) => b.equipped - a.equipped)
@@ -348,51 +365,51 @@ const InventoryTab = ({ userId }) => {
         )
       })
       .finally(() => setIsLoading(false))
-  }, [])
+  }, [lang])
 
   const clothesUnequip = async (clothing_id, type, productType) => {
     try {
       setIsLoading(true)
       await handleClothesUnequip(userId, clothing_id, type, productType)
-    } catch(err) {
-      
+    } catch (err) {
+
     } finally {
       getInventoryItems(userId)
-      .then((data) => {
-        // TODO: localize
-        const loadedClothesItems = loadClothesFromData(data, userPersonage)
-        const loadedShelfItems = loadShelfFromData(data)
-        setClothesItems(
-          loadedClothesItems.sort((a, b) => b.equipped - a.equipped)
-        )
-        setShelfItems(
-          loadedShelfItems.sort((a, b) => b.equipped - a.equipped)
-        )
-      })
-      .finally(() => setTimeout(() => setIsLoading(false), 1000))
-    } 
+        .then((data) => {
+          // TODO: localize
+          const loadedClothesItems = loadClothesFromData(data, userPersonage, lang)
+          const loadedShelfItems = loadShelfFromData(data, lang)
+          setClothesItems(
+            loadedClothesItems.sort((a, b) => b.equipped - a.equipped)
+          )
+          setShelfItems(
+            loadedShelfItems.sort((a, b) => b.equipped - a.equipped)
+          )
+        })
+        .finally(() => setTimeout(() => setIsLoading(false), 1000))
+    }
   }
 
   const clothesEquip = async (clothing_id, type, productType) => {
     try {
       setIsLoading(true)
       await handleClothesEquip(userId, clothing_id, type, productType)
-    } catch(err) {
-      
+    } catch (err) {
+
     } finally {
       getInventoryItems(userId)
-      .then((data) => {
-        // TODO: localize
-        const loadedClothesItems = loadClothesFromData(data, userPersonage)
-        const loadedShelfItems = loadShelfFromData(data)
-        setClothesItems(
-          loadedClothesItems.sort((a, b) => b.equipped - a.equipped)
-        )
-        setShelfItems(
-          loadedShelfItems.sort((a, b) => b.equipped - a.equipped)
-        )
-      })
-      .finally(() => setTimeout(() => setIsLoading(false), 1000))
+        .then((data) => {
+          // TODO: localize
+          const loadedClothesItems = loadClothesFromData(data, userPersonage, lang)
+          const loadedShelfItems = loadShelfFromData(data, lang)
+          setClothesItems(
+            loadedClothesItems.sort((a, b) => b.equipped - a.equipped).map(item => ({ ...item, isPrem: true }))
+          )
+          setShelfItems(
+            loadedShelfItems.sort((a, b) => b.equipped - a.equipped)
+          )
+        })
+        .finally(() => setTimeout(() => setIsLoading(false), 1000))
     }
   }
 
@@ -400,7 +417,7 @@ const InventoryTab = ({ userId }) => {
     console.log('filters', currentComplexFilters)
     setCurrentComplexFilters([...currentComplexFilters, { filteredField, filteredValue }]);
   };
-  
+
   const removeComplexFilter = ({ filteredValue, filteredField }) => {
     setCurrentComplexFilters(
       currentComplexFilters.filter(
@@ -417,8 +434,8 @@ const InventoryTab = ({ userId }) => {
       return items
     }
 
-    if(filterTypeInUse === BaseFilters.Complex) {
-      if(!currentComplexFilters || currentComplexFilters.length === 0) {
+    if (filterTypeInUse === BaseFilters.Complex) {
+      if (!currentComplexFilters || currentComplexFilters.length === 0) {
         return items
       }
 
@@ -430,7 +447,7 @@ const InventoryTab = ({ userId }) => {
         const isCorrectByTier = tiers.length > 0 ? tiers.includes(item.tier) : true
         const isCorrectByTags = tags.length > 0 ? item.tags.some(tag => tags.includes(tag)) : true
 
-        if(isCorrectByTier && isCorrectByTags){
+        if (isCorrectByTier && isCorrectByTags) {
           shouldTake = true
         }
 
@@ -459,9 +476,16 @@ const InventoryTab = ({ userId }) => {
     if (filterTypeInUse === BaseFilters.Accessories) {
       return items.filter((item) => item.category === "Accessory")
     }
-    
+
     if (filterTypeInUse === BaseFilters.Shelf) {
       return items.filter((item) => item.productType === "shelf")
+    }
+
+    if (filterTypeInUse === BaseFilters.Stars) {
+      return items.filter((item) => {
+        console.log(item)
+        item.isPrem === true
+      })
     }
   }
 
@@ -483,7 +507,7 @@ const InventoryTab = ({ userId }) => {
           }}
         >
           <SquareButton
-            size={42}
+            size={36}
             imageH={35}
             imageSrc={Assets.Icons.settingsIcon}
             assignedValue={true}
@@ -494,7 +518,7 @@ const InventoryTab = ({ userId }) => {
             }}
           />
           <SquareButton
-            size={42}
+            size={36}
             imageSize={42}
             imageSrc={Assets.Icons.hairIcon}
             selectedValue={filterTypeInUse}
@@ -506,7 +530,7 @@ const InventoryTab = ({ userId }) => {
             }
           />
           <SquareButton
-            size={42}
+            size={36}
             imageSize={30}
             imageSrc={Assets.Icons.bodyIcon}
             selectedValue={filterTypeInUse}
@@ -518,7 +542,7 @@ const InventoryTab = ({ userId }) => {
             }
           />
           <SquareButton
-            size={42}
+            size={36}
             imageSize={28}
             imageSrc={Assets.Icons.legsIcon}
             selectedValue={filterTypeInUse}
@@ -530,7 +554,7 @@ const InventoryTab = ({ userId }) => {
             }
           />
           <SquareButton
-            size={42}
+            size={36}
             imageSize={35}
             imageSrc={Assets.Icons.shoesIcon}
             assignedValue={BaseFilters.Shoes}
@@ -542,7 +566,7 @@ const InventoryTab = ({ userId }) => {
             }
           />
           <SquareButton
-            size={42}
+            size={36}
             imageSize={28}
             imageSrc={Assets.Icons.accIcon}
             selectedValue={filterTypeInUse}
@@ -554,20 +578,31 @@ const InventoryTab = ({ userId }) => {
             }
           />
           <SquareButton
-            size={42}
+            size={36}
             imageSize={30}
             imageSrc={Assets.Icons.homeIcon}
             selectedValue={filterTypeInUse}
             assignedValue={BaseFilters.Shelf}
-            handlePress={() =>
-              {
-                setCurrentComplexFilters([])
-                filterTypeInUse === BaseFilters.Shelf
-                  ? setFilterTypeInUse(null)
-                  : setFilterTypeInUse(BaseFilters.Shelf) 
-              }
+            handlePress={() => {
+              setCurrentComplexFilters([])
+              filterTypeInUse === BaseFilters.Shelf
+                ? setFilterTypeInUse(null)
+                : setFilterTypeInUse(BaseFilters.Shelf)
+            }
             }
           />
+          {/* <SquareButton
+            size={36}
+            imageSize={34}
+            imageSrc={Assets.Icons.starsIcon}
+            selectedValue={filterTypeInUse}
+            assignedValue={BaseFilters.Stars}
+            handlePress={() =>
+              filterTypeInUse === BaseFilters.Stars
+                ? setFilterTypeInUse(null)
+                : setFilterTypeInUse(BaseFilters.Stars)
+            }
+          /> */}
         </div>
       </div>
       <GridLayout
@@ -575,6 +610,7 @@ const InventoryTab = ({ userId }) => {
         items={applyFilter([...clothesItems, ...shelfItems].sort((a, b) => b.equipped - a.equipped))}
         clothesUnequip={clothesUnequip}
         clothesEquip={clothesEquip}
+        lang={lang}
       />
       {currentItem && (
         <Modal

@@ -47,10 +47,14 @@ export const useInvestmentTimer = ({
 
     const calculateTimeLeft = useCallback(() => {
         const now = moment().tz(tz);
-        const duration = isTest ? 30 : 3600; // 5 seconds or 1 hour
-        const end = moment(virtualStartTime).tz(tz).add(duration, isTest ? 'second' : 'second');
+        const duration = isTest ? 30 : 3600; // 30 seconds or 1 hour
+        const startMoment = moment(virtualStartTime).tz(tz);
+        const end = startMoment.add(duration, 'seconds');
+        
+        // Calculate the exact difference in seconds
+        const diffSeconds = end.diff(now, 'seconds');
 
-        if (now.isAfter(end)) {
+        if (diffSeconds <= 0) {
             if (has_autoclaim) {
                 // Reset timer by updating virtual start time
                 setVirtualStartTime(now.toISOString());
@@ -65,12 +69,9 @@ export const useInvestmentTimer = ({
             };
         }
 
-        const diff = moment.duration(end.diff(now));
-        const minutes = Math.floor(diff.asMinutes());
-        const seconds = Math.floor(diff.seconds());
-
+        // Format the remaining time
         return {
-            timeString: `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`,
+            timeString: formatDuration(diffSeconds),
             showCollect: false
         };
     }, [virtualStartTime, tz, has_autoclaim, isTest]);

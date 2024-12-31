@@ -10,7 +10,6 @@ import "swiper/css";
 import "swiper/css/pagination";
 import UserContext from "../../../UserContext";
 import { useSettingsProvider } from "../../../hooks";
-import { color } from "framer-motion";
 
 const Bar = ({ title, onClick, isChecked = true, iconLeft, iconRight }) => {
   const styles = {
@@ -53,8 +52,52 @@ const Bar = ({ title, onClick, isChecked = true, iconLeft, iconRight }) => {
         {iconLeft && <img style={styles.icon} src={iconLeft} />}
       </div>
       <p style={styles.text}>{title}</p>
-      <div style={{ borderRadius: 5, border:' 1px solid rgb(57, 57, 57)', height: 26, width: 26, display: 'flex', alignContent: 'center', alignItems: 'center', padding: 1, }} onClick={handleCLick}>
-        {isBoxChecked ? <img style={styles.icon} src={Assets.Icons.checkboxChecked} /> : null}
+      <div onClick={() => handleCLick()}>{iconRight && <img src={iconRight} style={{ height: 26, width: 26 }} />}</div>
+      {!iconRight && (
+        <div style={{ borderRadius: 5, border: ' 1px solid rgb(57, 57, 57)', height: 26, width: 26, display: 'flex', alignContent: 'center', alignItems: 'center', padding: 1, }} onClick={handleCLick}>
+          {isBoxChecked ? <img style={styles.icon} src={Assets.Icons.checkboxChecked} /> : null}
+        </div>
+      )}
+    </div>
+  );
+};
+
+const StatsBar = ({ title, iconLeft, value }) => {
+  const styles = {
+    container: {
+      display: 'flex',
+      alignItems: 'center',
+      width: '100%',
+      padding: '8px 8px',
+      background: 'rgba(37, 37, 37, 0.48)',
+      borderRadius: 8
+    },
+    icon: {
+      width: '24px',
+      height: '24px',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderRadius: 5,
+      color: 'white'
+    },
+    text: {
+      flexGrow: 1,
+      marginLeft: '16px',
+      textAlign: 'left',
+      color: 'white',
+      fontSize: '12px'
+    }
+  };
+
+  return (
+    <div style={styles.container}>
+      <div style={styles.icon}>
+        {iconLeft && <img style={styles.icon} src={iconLeft} />}
+      </div>
+      <p style={styles.text}>{title}</p>
+      <div>
+        <p style={{ fontWeight: 'bold', color: 'white' }}>{value}</p>
       </div>
     </div>
   );
@@ -65,8 +108,8 @@ export const SettingsModal = ({
   setIsSettingsShown
 }) => {
 
-  const { isSoundEnabled, toggleSound, toggleMusic, isMusicEnabled, account, connect, disconnect } = useSettingsProvider();
-
+  const { isSoundEnabled, toggleSound, toggleMusic, isMusicEnabled, account, connect, disconnect, lang, setLang } = useSettingsProvider();
+  console.log(lang)
   return (
     <div
       style={{
@@ -122,10 +165,86 @@ export const SettingsModal = ({
               Настройки
             </p>
             <div style={{ display: "flex", justifyContent: "center", width: '100%', flexDirection: 'column', rowGap: 8 }}>
-              <Bar title={'Музыка'} iconLeft={Assets.Icons.musics} onClick={() => toggleMusic()} isChecked={isMusicEnabled}/>
-              <Bar title={'Звуки'} iconLeft={Assets.Icons.sounds} onClick={() => toggleSound()} isChecked={isSoundEnabled}/>
-              <Bar title={'Язык'} iconLeft={Assets.Icons.languages} />
-              <Bar title={'Подключить кошелек'} iconLeft={Assets.Icons.wallets} onClick={() => account ? connect() : disconnect()} isChecked={account}/>
+              <Bar title={'Музыка'} iconLeft={Assets.Icons.musics} onClick={() => toggleMusic()} isChecked={isMusicEnabled} />
+              <Bar title={'Звуки'} iconLeft={Assets.Icons.sounds} onClick={() => toggleSound()} isChecked={isSoundEnabled} />
+              <Bar title={'Язык'} iconLeft={Assets.Icons.languages} iconRight={lang === 'ru' ? Assets.Icons.rusIcon : Assets.Icons.engIcon} onClick={() => setLang(lang === 'en' ? 'ru' : 'en')}/>
+              <Bar title={'Подключить кошелек'} iconLeft={Assets.Icons.wallets} onClick={() => account ? connect() : disconnect()} isChecked={account} />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export const StatsModal = ({
+  baseStyles,
+  setIsStatsShown,
+  userParameters,
+  personage,
+  clothing
+}) => {
+  const { total_earned, level, energy_capacity, respect } = userParameters;
+  return (
+    <div
+      style={{
+        ...baseStyles,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        background: "rgba(0,0,0,0.8)",
+        zIndex: 999999
+      }}
+    >
+      <div
+        style={{
+          border: "1px solid rgb(57, 57, 57)",
+          position: "absolute",
+          background: "#000",
+          zIndex: 6,
+          height: 350,
+          width: 320,
+          borderRadius: 6,
+          backgroundSize: "cover",
+        }}
+      >
+        <div onClick={() => setIsStatsShown(false)}>
+          <img
+            src={Assets.Icons.modalClose}
+            width={16}
+            height={16}
+            style={{ position: "absolute", right: 15, top: 15 }}
+          />
+        </div>
+        <div
+          style={{
+            display: "flex",
+            width: "100%",
+            height: 350,
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: 'center'
+          }}
+        >
+          <div style={{ display: "flex", flexDirection: "column", width: '75%', position: 'relative' }}>
+            <p
+              style={{
+                fontFamily: "Anonymous pro",
+                fontWeight: "500",
+                color: "white",
+                textAlign: "center",
+                marginBottom: 24,
+                fontSize: 16,
+                marginTop: 20
+              }}
+            >
+              Статистика {personage.name}
+            </p>
+            <div style={{ display: "flex", justifyContent: "center", width: '100%', flexDirection: 'column', rowGap: 8 }}>
+              <StatsBar iconLeft={Assets.Icons.boosterArrow} title={'Уровень'} value={level} />
+              <StatsBar iconLeft={Assets.Icons.respect} title={'Уважение'} value={respect} />
+              <StatsBar iconLeft={Assets.Icons.balance} title={'Всего заработано'} value={total_earned} />
+              <StatsBar iconLeft={Assets.Icons.energy} title={'Макс. энергии'} value={energy_capacity} />
             </div>
           </div>
         </div>
@@ -135,9 +254,10 @@ export const SettingsModal = ({
 }
 
 const HomeHeader = ({ screenHeader }) => {
-  const { userId, userParameters } = useContext(UserContext);
+  const { userId, userParameters, userPersonage, userClothing } = useContext(UserContext);
   const [levels, setLevels] = useState();
-  const [isSettingsShown, setIsSettingsShown] = useState(0);
+  const [isSettingsShown, setIsSettingsShown] = useState(false);
+  const [isStatsShown, setIsStatsShown] = useState(false)
   const [activeProcess, setActiveProcess] = useState();
   const { Icons } = Assets;
 
@@ -186,12 +306,12 @@ const HomeHeader = ({ screenHeader }) => {
             </div>
           </div>
           <div className="HomeHeaderRespect">
-            
+
             <img src={Icons.respect} alt="RespectIcon" />
-            
+
             <span>{userParameters?.respect}</span>
           </div>
-          <div className="HomeHeaderLevel">
+          <div className="HomeHeaderLevel" onClick={() => setIsStatsShown(true)}>
             <span style={{ fontFamily: "Anonymous pro", fontWeight: "100" }}>{userParameters?.level}</span>
             <span style={{ fontFamily: "Anonymous pro", fontWeight: "100" }}>LvL</span>
             <div
@@ -247,6 +367,24 @@ const HomeHeader = ({ screenHeader }) => {
             left: 0,
           }}
           setIsSettingsShown={setIsSettingsShown}
+        />
+      )}
+
+      {isStatsShown && (
+        <StatsModal
+          baseStyles={{
+            position: "fixed",
+            height: "100vh",
+            width: "100vw",
+            backgroundColor: "black",
+            zIndex: 10,
+            top: 0,
+            left: 0,
+          }}
+          setIsStatsShown={setIsStatsShown}
+          userParameters={userParameters}
+          personage={userPersonage}
+          clothing={userClothing}
         />
       )}
     </>
