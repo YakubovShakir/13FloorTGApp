@@ -31,7 +31,7 @@ const ActionScreen = () => {
     },
     development: {
       ru: 'Развитие',
-      en: 'Development'
+      en: 'Progress'
     }
   }
 

@@ -23,7 +23,7 @@ const Menu = ({ screenMenu, activeName, hasBg = true }) => {
     },
     activity: {
       ru: 'Развитие',
-      en: 'Development'
+      en: 'Progress'
     },
     investment: {
       ru: 'Инвестиции',

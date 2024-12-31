@@ -37,7 +37,7 @@ const ActivityScreen = () => {
     },
     development: {
       ru: 'Развитие',
-      en: 'Development'
+      en: 'Progress'
     }
   }
 

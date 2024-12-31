@@ -28,6 +28,7 @@ const ActivityWork = () => {
       tier: 0,
       level: 2,
       name: "Курьер",
+      
       nameEng: "courier",
       cost: 60,
       type: "available",
