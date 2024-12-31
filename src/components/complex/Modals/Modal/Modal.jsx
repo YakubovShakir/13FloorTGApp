@@ -26,17 +26,13 @@ const Modal = ({ bottom, left, width, height, data, onClose, logoWidth }) => {
       <div className="ModalBody" style={{ }}>
         {data?.blocks?.map((block, index) => (
           <div key={index} className="ModalBodyBlock">
-            {block?.fillPercent && (
               <span
                 className="progressFill"
                 style={{
-                  width: block?.fillPercent + "%",
-                  background:
-                    block?.fillBackground ||
-                    "linear-gradient(90deg, rgba(233, 78, 27, 1) 0%, rgba(243, 117, 0, 1) 50%)",
+                  width: "100%",
+                  background: block?.fillBackground
                 }}
               ></span>
-            )}
             <div style={{ width: "90%" }}>
               <img
                 style={{ marginRight: "5%" }}

@@ -5,6 +5,7 @@ import Assets from "../../../assets"
 import { getActiveProcess, startProcess, stopProcess } from "../../../services/process/process"
 import { getWorks } from "../../../services/work/work"
 import { getParameters } from "../../../services/user/user"
+import { useSettingsProvider } from "../../../hooks"
 
 export const CareScreen = ({ userId, userParameters }) => {
   const [works, setWorks] = useState(null) // Состояние для работ
@@ -12,6 +13,7 @@ export const CareScreen = ({ userId, userParameters }) => {
   const [sleepProcess, setSleepProcess] = useState(null) // Состояние для сна
   const [trainingProcess, setTrainingProcess] = useState(null) // Состояние для тренировки
   const { Icons } = Assets
+  const { lang } = useSettingsProvider()
 
   // Старт работы
   const handleStartWork = async () => {

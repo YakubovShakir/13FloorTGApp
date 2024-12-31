@@ -13,6 +13,7 @@ import ActivityTab from "./tabs/ActivityTab";
 import SkillTab from "./tabs/SkillTab";
 import WorkTab from "./tabs/WorkTab";
 import UserContext from "../../UserContext";
+import { useSettingsProvider } from "../../hooks";
 
 const ActionScreen = () => {
   const [visibleModal, setVisibleModal] = useState(false);
@@ -20,8 +21,19 @@ const ActionScreen = () => {
 
   // Import from context userId, userParameters and function to update userParameters
   const { userParameters, setUserParameters, userId } = useContext(UserContext);
-
+  const { lang } = useSettingsProvider()
   const navigate = useNavigate();
+
+  const translations = {
+    activities: {
+      ru: 'Активности',
+      en: 'Activities'
+    },
+    development: {
+      ru: 'Развитие',
+      en: 'Development'
+    }
+  }
 
   useEffect(() => {
     useTelegram.setBackButton(() => navigate("/"));
@@ -29,9 +41,9 @@ const ActionScreen = () => {
 
   return (
     <Screen>
-      <HomeHeader>Развитие</HomeHeader>
+      <HomeHeader>{translations.development[lang]}</HomeHeader>
       
-      <ScreenBody activity={"Активности"}>
+      <ScreenBody activity={translations.activities[lang]}>
         {visibleModal && (
           <Modal
             onClose={() => setVisibleModal(false)}

@@ -13,6 +13,7 @@ import {
 } from "../../../services/process/process"
 import { getSkills } from "../../../services/skill/skill"
 import { a } from "framer-motion/client"
+import { useSettingsProvider } from "../../../hooks"
 export const WorkTab = ({
   modalData,
   setModalData,
@@ -28,6 +29,39 @@ export const WorkTab = ({
   const [activeProcess, setActiveProcess] = useState(null) // Current work status if exist
   const [userLearnedSkills, setUserLearnedSkills] = useState(null) // User learning at this time skills
 
+  const { lang } = useSettingsProvider()
+
+  const translations = {
+    start: {
+      ru: 'Начать',
+      en: 'Start'
+    },
+    stop: {
+      ru: 'Стоп',
+      en: 'Stop'
+    },
+    available: {
+      ru: 'Доступно',
+      en: 'Available'
+    },
+    unavailable: {
+      ru: 'Недоступно',
+      en: 'Unavailable'
+    },
+    cost: {
+      ru: 'Стоимость',
+      en: 'Cost'
+    },
+    hour: {
+      ru: 'ЧАС',
+      en: 'HOUR'
+    },
+    minute: {
+      ru: 'м.',
+      en: 'm.'
+    }
+  }
+
   const { Icons } = Assets
   // Return skill if it already learned
   const checkLearnedSkill = (skillId) => {
@@ -42,7 +76,6 @@ export const WorkTab = ({
   }
   // Start work process
   const handleStartWork = async () => {
-    console.log("start work")
     await startProcess("work", userId)
 
     const activeProcess = await getActiveProcess(userId)
@@ -54,9 +87,6 @@ export const WorkTab = ({
     await stopProcess(userId)
     setActiveProcess(null)
   }
-  const handleButtonClick = (workId) => {
-    setActiveButton(workId); // Устанавливаем активную кнопку
-  };
 
   // Buy work
   const handleBuyWork = async (workId) => {
@@ -89,8 +119,11 @@ export const WorkTab = ({
       blocks: [
         {
           icon: Icons.balance,
-          text: "Стоимость",
-          value: work?.coins_price,
+          text: work?.coins_price,
+          fillPercent: '100%',
+          fillBackground: userParameters?.coins < work?.coins_price
+            ? "#4E1010" // red
+            : "#0E3228", // green
         },
         work?.skill_id_required && {
           icon: skills?.find(
@@ -116,20 +149,20 @@ export const WorkTab = ({
 
         {
           icon: Icons.hungryDecrease,
-          text: (work?.hungry_cost_in_hour / 60).toFixed(2) + " / m",
+          text: (work?.hungry_cost_in_hour / 60).toFixed(2) + " / " + translations.minute[lang],
         },
         {
           icon: Icons.moodDecrease,
-          text: (work?.mood_cost_in_hour / 60).toFixed(2) + " / m",
+          text: (work?.mood_cost_in_hour / 60).toFixed(2) + " / " + translations.minute[lang],
         },
         {
           icon: Icons.energyDecrease,
-          text: (work?.energy_cost_in_hour / 60).toFixed(2) + " / m",
+          text: (work?.energy_cost_in_hour / 60).toFixed(2) + " / " + translations.minute[lang],
         },
       ].filter(Boolean),
       buttons: [
         {
-          text: buyStatus ? work?.coins_price : "Недоступно ",
+          text: buyStatus ? work?.coins_price : translations.unavailable[lang],
           icon: buyStatus && Icons.balance,
           active: buyStatus,
           onClick: buyStatus && (() => handleBuyWork(work?.work_id)),
@@ -195,7 +228,7 @@ export const WorkTab = ({
       ],
       [
         {
-          value: buyStatus ? "Доступно" : "Недоступно",
+          value: buyStatus ? translations.available[lang] : translations.unavailable[lang],
           icon: buyStatus ? Icons.unlockedIcon : Icons.lockedIcon,
         },
       ],

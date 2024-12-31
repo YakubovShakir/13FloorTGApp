@@ -90,7 +90,7 @@ const isImageGrayscale = !isAnyButtonActive; // Если кнопка неакт
                     className="ItemCardParamBlock"
                     
                     key={blockIndex}
-                    style={{ width: param.length > 1 ? "50%" : "100%", marginTop: 5 ,backgroundColor: backgroundColor}}
+                    style={{ width: param.length > 1 ? "50%" : "100%", marginTop: 5 , backgroundColor: backgroundColor}}
                     
                   >
                     {block?.fillPercent && (

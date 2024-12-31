@@ -18,6 +18,8 @@ import {
 } from "../../../services/process/process"
 import formatTime from "../../../utils/formatTime"
 import countPercentage from "../../../utils/countPercentage.js"
+import { useSettingsProvider } from "../../../hooks.jsx"
+import { duration } from "moment-timezone"
 
 const SkillTab = ({
   modalData,
@@ -32,6 +34,75 @@ const SkillTab = ({
   const [userLearnedSkills, setUserLearnedSkills] = useState(null) // User learning at this time skills
   const [trainingParamters, setTrainingParameters] = useState(null) // User training parameters
   const [activeProcess, setActiveProcess] = useState(null) //  User active training
+
+  const { lang } = useSettingsProvider()
+
+  const translations = {
+    start: {
+      ru: 'Начать',
+      en: 'Start'
+    },
+    stop: {
+      ru: 'Стоп',
+      en: 'Stop'
+    },
+    available: {
+      ru: 'Доступно',
+      en: 'Available'
+    },
+    unavailable: {
+      ru: 'Недоступно',
+      en: 'Unavailable'
+    },
+    cost: {
+      ru: 'Стоимость',
+      en: 'Cost'
+    },
+    hour: {
+      ru: 'ЧАС',
+      en: 'HOUR'
+    },
+    minute: {
+      ru: 'м.',
+      en: 'm.'
+    },
+    currentWork: {
+      ru: 'Текущая работа',
+      en: 'Current work'
+    },
+    unlock: {
+      ru: 'Открыть',
+      en: 'Unlock'
+    },
+    noBoosts: {
+      ru: 'Усилений нет',
+      en: 'No boosts'
+    },
+    learned: {
+      ru: 'Изучено',
+      en: 'Learned'
+    },
+    boost: {
+      ru: 'Ускорить',
+      en: 'Boost'
+    },
+    training: {
+      ru: 'Тренировка',
+      en: 'Training'
+    },
+    inProgress: {
+      ru: 'В процессе',
+      en: 'In progress'
+    },
+    trainingDesc: {
+      ru: "Хорошая тренировка поднимает настроение!",
+      en: "A good workout lifts your mood!"
+    },
+    duration: {
+      ru: 'Длительность',
+      en: 'Duration'
+    }
+  }
 
   const { Icons } = Assets
   // Return skill if it already learned
@@ -75,15 +146,6 @@ const SkillTab = ({
     }
   }, [userLearningSkills])
 
-  // Get status for buy skill
-  const getSkillBuyStatus = (skill) => {
-    const coins = userParameters?.coins >= skill?.coins_price
-    const learned = checkLearnedSkill(skill?.skill_id)
-    const learning = checkLearningSkill(skill?.skill_id)
-    const requiredSkill = checkLearnedSkill(skill?.skill_id_required)
-
-    if (coins && !learned && !learning && requiredSkill) return true
-  }
 
   // Check active status (color) for skill card
   const checkActiveSkillButton = (skill) => {
@@ -107,17 +169,33 @@ const SkillTab = ({
     const data = {
       type: "skill",
       id: skill?.skill_id,
-      title: skill?.name,
+      title: skill?.name[lang] || skill?.name,
       image: skill?.link,
       blocks: [
         {
           icon: Icons.balance,
-          text: "Стоимость",
+          text: translations.cost[lang],
           value: skill?.coins_price,
+          fillPercent: '100%',
+          fillBackground: userParameters?.coins < skill.coins_price
+          ? "#4E1010" // red
+          : "#0E3228", // green
+
+        },
+        skill?.skill_id_required && {
+          icon: skills?.find((sk) => sk?.skill_id === skill?.skill_id_required)
+            ?.link,
+          text: skills?.find((sk) => sk?.skill_id === skill?.skill_id_required)
+            ?.name[lang] || skills?.find((sk) => sk?.skill_id === skill?.skill_id_required)
+            ?.name,
+          fillPercent: "100%",
+          fillBackground: !checkLearnedSkill(skill?.skill_id_required)
+            ? "#4E1010" // red
+            : "#0E3228", // green
         },
         {
           icon: Icons.clock,
-          text: null,
+          text: translations.duration[lang],
           fillPercent:
             learning?.duration || learning?.seconds
               ? countPercentage(
@@ -130,23 +208,13 @@ const SkillTab = ({
               ? formatTime(learning?.duration, learning?.seconds)
               : formatTime(skill?.duration),
         },
-        skill?.skill_id_required && {
-          icon: skills?.find((sk) => sk?.skill_id === skill?.skill_id_required)
-            ?.link,
-          text: skills?.find((sk) => sk?.skill_id === skill?.skill_id_required)
-            ?.name,
-          fillPercent: "100%",
-          fillBackground: !checkLearnedSkill(skill?.skill_id_required)
-            ? "#4E1010" // red
-            : "#0E3228", // green
-        },
       ].filter(Boolean),
       buttons: [
         {
           icon: !(learned || learning) && Icons.balance,
           text:
-            (learned && "Изучено") ||
-            (learning && "Ускорить") ||
+            (learned && translations.learned[lang]) ||
+            (learning && translations.boost[lang]) ||
             skill?.coins_price,
           onClick: bottomButtonOnClick,
           active: checkActiveSkillButton(skill),
@@ -217,56 +285,7 @@ const SkillTab = ({
     ]
   }
 
-  // Start training process
-  const handleStartTraining = async () => {
-    await startProcess("training", userId)
-    const activeProcess = await getActiveProcess(userId)
-    setActiveProcess(activeProcess)
-  }
 
-  // Get parameters for static training card
-  const getItemTrainingParams = () => {
-    const activeTraining = activeProcess?.type === "training"
-    return [
-      [
-        {
-          icon: Icons.clock,
-          value:
-            activeTraining &&
-            (activeProcess?.duration || activeProcess?.seconds)
-              ? formatTime(activeProcess?.duration, activeProcess?.seconds)
-              : formatTime(trainingParamters?.duration),
-          fillPercent:
-            activeTraining &&
-            (activeProcess?.duration || activeProcess?.seconds)
-              ? countPercentage(
-                  activeProcess?.duration * 60 + activeProcess?.seconds,
-                  trainingParamters?.duration * 60
-                )
-              : false,
-        },
-      ],
-      [
-        {
-          icon: Icons.boosterArrow,
-          value: "Усилений нет",
-        },
-      ],
-    ]
-  }
-
-  // Get button for static training card
-  const getItemTrainingButton = () => {
-    return [
-      {
-        text: activeProcess?.type === "training" ? "В процессе" : "Начать",
-        active: true,
-      
-        onClick:
-          activeProcess?.type !== "training" && (() => handleStartTraining()),
-      },
-    ]
-  }
 
   // Interval update information
   const updateInformation = () => {

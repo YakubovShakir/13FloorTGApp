@@ -104,6 +104,13 @@ const Home = () => {
 
   const { userId, userParameters, appReady, userPersonage, userClothing, fetchParams, setUserParameters, userShelf } = useContext(UserContext)
 
+  const translations = {
+    start: {
+      ru: 'Начать',
+      en: 'Start'
+    }
+  }
+
   const getUserSleepDuration = () => {
     const duration = levels?.find(
       (level) => level?.level === userParameters?.level

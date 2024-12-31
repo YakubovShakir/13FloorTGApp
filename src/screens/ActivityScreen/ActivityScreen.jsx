@@ -21,12 +21,31 @@ import formatTime from "../../utils/formatTime"
 import ActivityTab from "./tabs/ActivityTab"
 import SkillTab from "./tabs/SkillTab"
 import WorkTab from "./tabs/WorkTab"
+import { useSettingsProvider } from "../../hooks"
 const ActivityScreen = () => {
+
+  const { lang } = useSettingsProvider()
+
+  const translations = {
+    career: {
+      ru: 'Карьера',
+      en: 'Career'
+    },
+    learning: {
+      ru: 'Обучения',
+      en: 'Skills'
+    },
+    development: {
+      ru: 'Развитие',
+      en: 'Development'
+    }
+  }
+
   // Object with titles for each tab
   const tabTitles = {
 
-    works: "Карьера",
-    skills: "Обучение",
+    works: translations.career[lang],
+    skills: translations.learning[lang],
   };
 
   // Works and Skills
@@ -46,8 +65,8 @@ const ActivityScreen = () => {
   const { type } = useParams()
 
   const tabs = [
-    { icon: Icons.workTabIcon, label: "Карьера", callback: () => setActiveTab("works"), type: "works" },
-    { icon: Icons.skillTabIcon, label: "Обучение", callback: () => setActiveTab("skills"), type: "skills" },
+    { icon: Icons.workTabIcon, label: tabTitles.works, callback: () => setActiveTab("works"), type: "works" },
+    { icon: Icons.skillTabIcon, label: tabTitles.skills, callback: () => setActiveTab("skills"), type: "skills" },
   ];
 
   const [activeTab, setActiveTab] = useState(type || 'works');
@@ -63,7 +82,7 @@ const ActivityScreen = () => {
       <HomeHeader>{tabTitles[activeTab]}</HomeHeader>
 
 
-      <ScreenBody activity={'Развитие'}>
+      <ScreenBody activity={translations.development[lang]}>
 
 
         {visibleModal && (

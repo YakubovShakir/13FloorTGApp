@@ -107,7 +107,28 @@ export const SettingsModal = ({
   baseStyles,
   setIsSettingsShown
 }) => {
-
+  const translations = {
+    settings: {
+      ru: 'Настройки',
+      en: 'Settings'
+    },
+    music: {
+      ru: 'Музыка',
+      en: 'Music'
+    },
+    sound: {
+      ru: 'Звуки',
+      en: 'Sounds'
+    },
+    language: {
+      ru: 'Язык',
+      en: 'Language'
+    },
+    wallet: {
+      ru: 'Подключить кошелек',
+      en: 'Connect wallet'
+    }
+  }
   const { isSoundEnabled, toggleSound, toggleMusic, isMusicEnabled, account, connect, disconnect, lang, setLang } = useSettingsProvider();
   console.log(lang)
   return (
@@ -162,13 +183,13 @@ export const SettingsModal = ({
                 fontSize: 16,
               }}
             >
-              Настройки
+              {translations.settings[lang]}
             </p>
             <div style={{ display: "flex", justifyContent: "center", width: '100%', flexDirection: 'column', rowGap: 8 }}>
-              <Bar title={'Музыка'} iconLeft={Assets.Icons.musics} onClick={() => toggleMusic()} isChecked={isMusicEnabled} />
-              <Bar title={'Звуки'} iconLeft={Assets.Icons.sounds} onClick={() => toggleSound()} isChecked={isSoundEnabled} />
-              <Bar title={'Язык'} iconLeft={Assets.Icons.languages} iconRight={lang === 'ru' ? Assets.Icons.rusIcon : Assets.Icons.engIcon} onClick={() => setLang(lang === 'en' ? 'ru' : 'en')}/>
-              <Bar title={'Подключить кошелек'} iconLeft={Assets.Icons.wallets} onClick={() => account ? connect() : disconnect()} isChecked={account} />
+              <Bar title={translations.music[lang]} iconLeft={Assets.Icons.musics} onClick={() => toggleMusic()} isChecked={isMusicEnabled} />
+              <Bar title={translations.sound[lang]} iconLeft={Assets.Icons.sounds} onClick={() => toggleSound()} isChecked={isSoundEnabled} />
+              <Bar title={translations.language[lang]} iconLeft={Assets.Icons.languages} iconRight={lang === 'ru' ? Assets.Icons.rusIcon : Assets.Icons.engIcon} onClick={() => setLang(lang === 'en' ? 'ru' : 'en')}/>
+              <Bar title={translations.wallet[lang]} iconLeft={Assets.Icons.wallets} onClick={() => account ? connect() : disconnect()} isChecked={account} />
             </div>
           </div>
         </div>
@@ -185,6 +206,31 @@ export const StatsModal = ({
   clothing
 }) => {
   const { total_earned, level, energy_capacity, respect } = userParameters;
+  const { lang } = useSettingsProvider()
+  
+  const translations = {
+    level: {
+      ru: 'Уровень',
+      en: 'Level'
+    },
+    respect: {
+      ru: 'Уважение',
+      en: 'Respect'
+    },
+    total: {
+      ru: 'Всего заработано',
+      en: 'Total earned'
+    },
+    energy: {
+      ru: 'Макс. энергии',
+      en: 'Energy capacity'
+    },
+    stats: {
+      ru: 'Статистика',
+      en: 'Stats of'
+    }
+  }
+
   return (
     <div
       style={{
@@ -238,13 +284,13 @@ export const StatsModal = ({
                 marginTop: 20
               }}
             >
-              Статистика {personage.name}
+              {translations.stats[lang]} {personage.name}
             </p>
             <div style={{ display: "flex", justifyContent: "center", width: '100%', flexDirection: 'column', rowGap: 8 }}>
-              <StatsBar iconLeft={Assets.Icons.boosterArrow} title={'Уровень'} value={level} />
-              <StatsBar iconLeft={Assets.Icons.respect} title={'Уважение'} value={respect} />
-              <StatsBar iconLeft={Assets.Icons.balance} title={'Всего заработано'} value={total_earned} />
-              <StatsBar iconLeft={Assets.Icons.energy} title={'Макс. энергии'} value={energy_capacity} />
+              <StatsBar iconLeft={Assets.Icons.boosterArrow} title={translations.level[lang]} value={level} />
+              <StatsBar iconLeft={Assets.Icons.respect} title={translations.respect[lang]} value={respect} />
+              <StatsBar iconLeft={Assets.Icons.balance} title={translations.total[lang]} value={total_earned} />
+              <StatsBar iconLeft={Assets.Icons.energy} title={translations.energy[lang]} value={energy_capacity} />
             </div>
           </div>
         </div>

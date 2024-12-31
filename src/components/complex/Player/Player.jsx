@@ -54,7 +54,7 @@ const Player = ({
   const { Images } = Assets;
   const [imagesLoaded, setImagesLoaded] = useState(false);
   const [loadingError, setLoadingError] = useState(false);
-  console.log(clothing)
+
   useEffect(() => {
     // If no personage or type is null, skip preloading
     if (type === null || personage === null || JSON.stringify(personage) === JSON.stringify({})) {

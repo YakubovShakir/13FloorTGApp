@@ -18,6 +18,7 @@ import {
 } from "../../../services/process/process"
 import formatTime from "../../../utils/formatTime"
 import countPercentage from "../../../utils/countPercentage.js"
+import { useSettingsProvider } from "../../../hooks.jsx"
 
 
 
@@ -34,6 +35,71 @@ const SkillTab = ({
   const [userLearnedSkills, setUserLearnedSkills] = useState(null) // User learning at this time skills
   const [trainingParamters, setTrainingParameters] = useState(null) // User training parameters
   const [activeProcess, setActiveProcess] = useState(null) //  User active training
+
+  const { lang } = useSettingsProvider()
+
+  const translations = {
+    start: {
+      ru: 'Начать',
+      en: 'Start'
+    },
+    stop: {
+      ru: 'Стоп',
+      en: 'Stop'
+    },
+    available: {
+      ru: 'Доступно',
+      en: 'Available'
+    },
+    unavailable: {
+      ru: 'Недоступно',
+      en: 'Unavailable'
+    },
+    cost: {
+      ru: 'Стоимость',
+      en: 'Cost'
+    },
+    hour: {
+      ru: 'ЧАС',
+      en: 'HOUR'
+    },
+    minute: {
+      ru: 'м.',
+      en: 'm.'
+    },
+    currentWork: {
+      ru: 'Текущая работа',
+      en: 'Current work'
+    },
+    unlock: {
+      ru: 'Открыть',
+      en: 'Unlock'
+    },
+    noBoosts: {
+      ru: 'Усилений нет',
+      en: 'No boosts'
+    },
+    learned: {
+      ru: 'Изучено',
+      en: 'Learned'
+    },
+    boost: {
+      ru: 'Ускорить',
+      en: 'Boost'
+    },
+    training: {
+      ru: 'Тренировка',
+      en: 'Training'
+    },
+    inProgress: {
+      ru: 'В процессе',
+      en: 'In progress'
+    },
+    trainingDesc: {
+      ru: "Хорошая тренировка поднимает настроение!",
+      en: "A good workout lifts your mood!"
+    }
+  }
 
   const { Icons } = Assets
   // Return skill if it already learned
@@ -115,7 +181,7 @@ const SkillTab = ({
       blocks: [
         {
           icon: Icons.balance,
-          text: "Стоимость",
+          text: translations.cost[lang],
           value: skill?.coins_price,
         },
         {
@@ -148,8 +214,8 @@ const SkillTab = ({
         {
           icon: !(learned || learning) && Icons.balance,
           text:
-            (learned && "Изучено") ||
-            (learning && "Ускорить") ||
+            (learned && translations.learned[lang]) ||
+            (learning && translations.boost[lang]) ||
             skill?.coins_price,
           onClick: bottomButtonOnClick,
           active: checkActiveSkillButton(skill),
@@ -162,69 +228,6 @@ const SkillTab = ({
       ],
     }
     return data
-  }
-
-  // Get parameters for skill card
-  const getItemSkillParamsBlock = (skill) => {
-    const learned = checkLearnedSkill(skill?.skill_id)
-    if (learned) return []
-
-    const requiredSkill = skill?.skill_id_required
-
-    const learning = userLearningSkills?.find(
-      (sk) => sk?.type_id === skill?.skill_id
-    )
-    const timerBar = {
-      icon: Icons.clock,
-      fillPercent:
-        learning?.duration || learning?.seconds
-          ? countPercentage(
-              learning?.duration * 60 + learning?.seconds,
-              skill?.duration * 60
-            )
-          : false,
-      value:
-        learning?.duration || learning?.seconds
-          ? formatTime(learning?.duration, learning?.seconds)
-          : formatTime(skill?.duration),
-    }
-
-    let accessStatus = userParameters?.coins >= skill?.coins_price
-
-    if (requiredSkill) accessStatus && checkLearnedSkill(requiredSkill)
-
-    const accessBar = {
-      icon: accessStatus ? Icons.unlockedIcon : Icons.lockedIcon,
-      value: accessStatus ? "Доступно" : "Недоступно",
-    }
-
-    return [[timerBar], [accessBar]]
-  }
-
-  // Get button for skill card
-  const getItemSkillButton = (skill) => {
-    const learned = checkLearnedSkill(skill?.skill_id)
-    const learning = checkLearningSkill(skill?.skill_id)
-
-    return [
-      {
-        icon: !(learned || learning) && Icons.balance,
-        text:
-          (learned && "Изучено") ||
-          (learning && "Ускорить") ||
-          skill?.coins_price,
-        onClick: () => {
-          setModalData(setSkillModalData(skill))
-          setVisibleModal(true)
-        },
-        active: checkActiveSkillButton(skill),
-        bg:
-          (learned &&
-            "linear-gradient(180deg, rgba(233,78,27,1) 0%, rgba(243,117,0,1) 50%)") ||
-          (learning &&
-            "linear-gradient(180deg, rgba(233,78,27,1) 0%, rgba(243,117,0,1) 100%)"),
-      },
-    ]
   }
 
   // Start training process
@@ -259,7 +262,7 @@ const SkillTab = ({
       [
         {
           icon: Icons.boosterArrow,
-          value: "Усилений нет",
+          value: translations.noBoosts[lang],
         },
       ],
     ]
@@ -269,7 +272,7 @@ const SkillTab = ({
   const getItemTrainingButton = () => {
     return [
       {
-        text: activeProcess?.type === "training" ? "В процессе" : "Начать",
+        text: activeProcess?.type === "training" ? translations.inProgress[lang] : translations.start[lang],
         active: true,
         
         onClick:
@@ -329,8 +332,8 @@ const SkillTab = ({
       {trainingParamters && (
         <ItemCard
           ItemIcon={Icons.training}
-          ItemTitle={"Тренировка"}
-           ItemDescription="Хорошая тренировка поднимает настроение!"
+          ItemTitle={translations.training[lang]}
+           ItemDescription={translations.trainingDesc[lang]}
           ItemParamsBlocks={getItemTrainingParams()}
           ItemButtons={getItemTrainingButton()}
           ItemIndex={0}

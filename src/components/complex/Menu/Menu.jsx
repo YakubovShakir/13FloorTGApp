@@ -4,11 +4,40 @@ import { useNavigate } from "react-router-dom"
 import { useState } from "react"
 import Assets from "../../../assets"
 import Button from "../../simple/Button/Button"
+import { useSettingsProvider } from "../../../hooks"
 
 const Menu = ({ screenMenu, activeName, hasBg = true }) => {
   const { Icons } = Assets
   const navigate = useNavigate()
   const [currentTab, setCurrentTab] = useState();
+  const { lang } = useSettingsProvider()
+
+  const translations = {
+    food: {
+      ru: 'Еда',
+      en: 'Food'
+    },
+    shop: {
+      ru: 'Коллекция',
+      en: 'Collection'
+    },
+    activity: {
+      ru: 'Развитие',
+      en: 'Development'
+    },
+    investment: {
+      ru: 'Инвестиции',
+      en: 'Invest'
+    },
+    tasks: {
+      ru: 'Задания',
+      en: 'Tasks'
+    },
+    start: {
+      ru: 'Начать',
+      en: 'Start'
+    }
+  }
 
   const tabs = {
     care: {
@@ -22,7 +51,7 @@ const Menu = ({ screenMenu, activeName, hasBg = true }) => {
       },
       notify: false,
       icon: Icons.hungry,
-      title: "Еда",
+      title: translations.food[lang],
     },
     shop: {
       onClick: () => {
@@ -35,7 +64,7 @@ const Menu = ({ screenMenu, activeName, hasBg = true }) => {
       },
       notify: false,
       icon: Icons.shopIcon,
-      title: "Коллекция",
+      title: translations.shop[lang],
     },
     activity: {
       onClick: () => {
@@ -48,7 +77,7 @@ const Menu = ({ screenMenu, activeName, hasBg = true }) => {
       },
       notify: false,
       icon: Icons.activity,
-      title: "Развитие",
+      title: translations.activity[lang],
     },
 
     community: {
@@ -62,7 +91,7 @@ const Menu = ({ screenMenu, activeName, hasBg = true }) => {
       },
       notify: false,
       icon: Icons.contacts,
-      title: "Инвестиции",
+      title: translations.investment[lang],
     },
 
     tasks: {
@@ -76,7 +105,7 @@ const Menu = ({ screenMenu, activeName, hasBg = true }) => {
       },
       notify: false,
       icon: Icons.tasks,
-      title: "Задания",
+      title: translations.tasks[lang],
     },
   };
 
@@ -94,7 +123,7 @@ const Menu = ({ screenMenu, activeName, hasBg = true }) => {
           active={true}
           fontFamily={"Anonymous pro"}
           fontWeight={"500"}
-          text={"Начать"}
+          text={translations.start[lang]}
           fontSize={14}
           paddingTop={1}
           borderColor={"#22c7a3"}

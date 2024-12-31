@@ -13,6 +13,7 @@ import {
 } from "../../../services/process/process"
 import { getSkills } from "../../../services/skill/skill"
 import { a } from "framer-motion/client"
+import { useSettingsProvider } from "../../../hooks"
 export const WorkTab = ({
   modalData,
   setModalData,
@@ -21,6 +22,64 @@ export const WorkTab = ({
   userParameters,
   userId,
 }) => {
+
+  const { lang } = useSettingsProvider()
+
+  const translations = {
+    start: {
+      ru: 'Начать',
+      en: 'Start'
+    },
+    stop: {
+      ru: 'Стоп',
+      en: 'Stop'
+    },
+    available: {
+      ru: 'Доступно',
+      en: 'Available'
+    },
+    unavailable: {
+      ru: 'Недоступно',
+      en: 'Unavailable'
+    },
+    cost: {
+      ru: 'Стоимость',
+      en: 'Cost'
+    },
+    hour: {
+      ru: 'ЧАС',
+      en: 'HOUR'
+    },
+    minute: {
+      ru: 'м',
+      en: 'm'
+    },
+    currentWork: {
+      ru: 'Текущая работа',
+      en: 'Current work'
+    },
+    unlock: {
+      ru: 'Открыть',
+      en: 'Unlock'
+    },
+    noBoosts: {
+      ru: 'Усилений нет',
+      en: 'No boosts'
+    },
+    hungryDecrease: {
+      ru: 'Расход сытости',
+      en: 'Satiety consumption '
+    },
+    moodDecrease: {
+      ru: 'Расход настроения',
+      en: 'Mood consumption'
+    },
+    energyDecrease: {
+      ru: 'Расход энергии',
+      en: 'Consumes energy'
+    }
+  }
+
   const [skills, setSkills] = useState(null) // List of skills
 
   const [works, setWorks] = useState(null) // List of works
@@ -39,20 +98,6 @@ export const WorkTab = ({
   const getWorkById = (workId) => {
     return works?.find((work) => work?.work_id === workId)
   }
-  // Start work process
-  const handleStartWork = async () => {
-    console.log("start work")
-    await startProcess("work", userId)
-
-    const activeProcess = await getActiveProcess(userId)
-    setActiveProcess(activeProcess)
-  }
-
-  // Stop work process
-  const handleStopWork = async () => {
-    await stopProcess(userId)
-    setActiveProcess(null)
-  }
 
   // Buy work
   const handleBuyWork = async (workId) => {
@@ -64,7 +109,6 @@ export const WorkTab = ({
 
   const setWorkModalData = (work) => {
     const requiredRespect = userParameters?.respect >= work?.respect_required
-    const requiredLevel = userParameters?.level >= work?.work_id
     const isNextLevelWork = work?.work_id === userParameters?.work_id + 1
     const requiredSkill = work?.skill_id_required ? checkLearnedSkill(work?.skill_id_required) : true
 
@@ -73,20 +117,24 @@ export const WorkTab = ({
     const buyStatus =
       requiredRespect &&
       requiredSkill &&
-      requiredLevel &&
       isNextLevelWork &&
       enoughBalance
 
     const data = {
       type: "work",
       id: work?.work_id,
-      title: work?.name,
+      title: work?.name[lang] || work?.name,
       image: work?.link,
       blocks: [
         {
           icon: Icons.balance,
-          text: "Стоимость",
+          text: translations.cost[lang],
           value: work?.coins_price,
+          fillPercent: "100%",
+          fillBackground: 
+          userParameters?.coins < work?.coins_price
+            ? "#4E1010" // red
+            : "#0E3228", // green
         },
         work?.skill_id_required && {
           icon: skills?.find(
@@ -112,20 +160,23 @@ export const WorkTab = ({
 
         {
           icon: Icons.hungryDecrease,
-          text: (work?.hungry_cost_in_hour / 60).toFixed(2) + " / m",
+          text: translations.hungryDecrease[lang],
+          value: (work?.hungry_cost_in_hour / 60).toFixed(2) + "/" + translations.minute[lang],
         },
         {
           icon: Icons.moodDecrease,
-          text: (work?.mood_cost_in_hour / 60).toFixed(2) + " / m",
+          text: translations.moodDecrease[lang],
+          value: (work?.mood_cost_in_hour / 60).toFixed(2) + "/" + translations.minute[lang],
         },
         {
           icon: Icons.energyDecrease,
-          text: (work?.energy_cost_in_hour / 60).toFixed(2) + " / m",
+          text: translations.energyDecrease[lang],
+          value: (work?.energy_cost_in_hour / 60).toFixed(2) + "/" + translations.minute[lang],
         },
       ].filter(Boolean),
       buttons: [
         {
-          text: buyStatus ? work?.coins_price : "Недоступно ",
+          text: buyStatus ? work?.coins_price : translations.unavailable[lang],
           icon: buyStatus && Icons.balance,
           active: buyStatus,
           onClick: buyStatus && (() => handleBuyWork(work?.work_id)),
@@ -169,13 +220,13 @@ export const WorkTab = ({
       return [
         [
           {
-            value: work?.coins_in_hour + " /  Час",
+            value: work?.coins_in_hour + " / " + translations.hour[lang],
             icon: Icons.balance,
           },
         ],
         [
           {
-            value: "Усилений нет",
+            value: translations.noBoosts[lang],
             icon: Icons?.boosterArrow,
           },
         ],
@@ -185,13 +236,13 @@ export const WorkTab = ({
     return [
       [
         {
-          value: work?.coins_in_hour  +" /  Час",
+          value: work?.coins_in_hour + " / " + translations.hour[lang],
           icon: Icons.balance,
         },
       ],
       [
         {
-          value: buyStatus ? "Доступно" : "Недоступно",
+          value: buyStatus ? translations.available[lang] : translations.unavailable[lang],
           icon: buyStatus ? Icons.unlockedIcon : Icons.lockedIcon,
         },
       ],
@@ -217,8 +268,7 @@ export const WorkTab = ({
     if (currentWork?.work_id === workId) {
       return [
         {
-          text: activeWork ? "Текущая работа" : "Текущая работа",
-          
+          text: translations.currentWork[lang],
           icon: buyStatus && Icons.balance,
           active: true,
           bg: activeWork
@@ -228,19 +278,19 @@ export const WorkTab = ({
           borderColor: "rgb(32 7 3)", // Убрали !important
         },
       ];
-}
+    }
 
     return [
       {
-        text: buyStatus ? work?.coins_price : "Открыть",
+        text: buyStatus ? work?.coins_price : translations.unlock[lang],
         onClick: () => {
           setModalData(setWorkModalData(work))
           setVisibleModal(true)
         },
         icon: buyStatus && Icons.balance,
-        active: buyStatus ,
+        active: buyStatus,
         shadowColor: buyStatus && "rgb(243, 117, 0)",
-        borderColor:buyStatus,
+        borderColor: buyStatus,
       },
     ]
   }
