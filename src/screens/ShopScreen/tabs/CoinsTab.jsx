@@ -131,7 +131,7 @@ const GridItem = ({
       >
         <p
           style={{
-            paddingTop: "10px",
+            padding: "10px 5px 10px 5px",
             height: "45px",
             textAlign: "center",
             fontWeight: "100",
@@ -333,7 +333,7 @@ const GridItemShelf = ({
       >
         <p
           style={{
-            paddingTop: "10px",
+            padding: "10px 5px 10px 5px",
             height: "45px",
             color: "white",
             textAlign: "center",
@@ -375,6 +375,7 @@ const GridItemShelf = ({
             shadowColor={"#AF370F"}
             width={"88%"}
             marginBottom={"5"}
+            color={"rgb(255, 255, 255)"}
             height={44}
             fontFamily={"Anonymous pro"}
             fontWeight={"300"}
@@ -396,6 +397,7 @@ const GridItemShelf = ({
             shadowColor={"#AF370F"}
             width={"88%"}
             marginBottom={"5"}
+            color={"rgb(255, 255, 255)"}
             height={44}
             active={available || price === 0}
             fontFamily={"Anonymous pro"}

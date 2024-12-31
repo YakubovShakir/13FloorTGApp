@@ -141,7 +141,7 @@ const GridItem = ({
 
         <p
           style={{
-            paddingTop: "10px",
+            padding: "10px 5px 10px 5px",
             height: "45px",
             color: "white",
             textAlign: "center",
