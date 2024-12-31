@@ -67,7 +67,7 @@ export const WorkTab = ({
       en: 'No boosts'
     },
     hungryDecrease: {
-      ru: 'Расход сытости',
+      ru: 'Расход голода',
       en: 'Satiety consumption '
     },
     moodDecrease: {
@@ -77,7 +77,12 @@ export const WorkTab = ({
     energyDecrease: {
       ru: 'Расход энергии',
       en: 'Consumes energy'
-    }
+    },
+    respectRequired: {
+      ru: 'Минимальный Респект',
+      en: 'Minimum Respect'
+    },
+   
   }
 
   const [skills, setSkills] = useState(null) // List of skills
@@ -150,7 +155,8 @@ export const WorkTab = ({
         },
         {
           icon: Icons.respect,
-          text: work?.respect_required,
+          text: translations.respectRequired[lang],
+          value: work?.respect_required,
           fillPercent: "100%",
           fillBackground:
             userParameters?.respect < work?.respect_required
@@ -161,17 +167,17 @@ export const WorkTab = ({
         {
           icon: Icons.hungryDecrease,
           text: translations.hungryDecrease[lang],
-          value: (work?.hungry_cost_in_hour / 60).toFixed(2) + "/" + translations.minute[lang],
+          value: (work?.hungry_cost_in_hour) + "/" + translations.hour[lang],
         },
         {
           icon: Icons.moodDecrease,
           text: translations.moodDecrease[lang],
-          value: (work?.mood_cost_in_hour / 60).toFixed(2) + "/" + translations.minute[lang],
+          value: (work?.mood_cost_in_hour) + "/" + translations.hour[lang],
         },
         {
           icon: Icons.energyDecrease,
           text: translations.energyDecrease[lang],
-          value: (work?.energy_cost_in_hour / 60).toFixed(2) + "/" + translations.minute[lang],
+          value: (work?.energy_cost_in_hour) + "/" + translations.hour[lang],
         },
       ].filter(Boolean),
       buttons: [
