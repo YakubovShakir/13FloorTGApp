@@ -26,6 +26,72 @@ const BoostTab = ({ userId, userParameters, setUserParameters }) => {
   const [userBoosts, setUserBoosts] = useState(null)
   const { Icons } = Assets
 
+const { lang } = useSettingsProvider()
+
+  const translations = {
+    start: {
+      ru: 'Начать',
+      en: 'Start'
+    },
+    stop: {
+      ru: 'Стоп',
+      en: 'Stop'
+    },
+    available: {
+      ru: 'Доступно',
+      en: 'Available'
+    },
+    unavailable: {
+      ru: 'Недоступно',
+      en: 'Unavailable'
+    },
+    cost: {
+      ru: 'Стоимость',
+      en: 'Cost'
+    },
+    hour: {
+      ru: 'ЧАС',
+      en: 'HOUR'
+    },
+    minute: {
+      ru: 'м.',
+      en: 'm.'
+    },
+    currentWork: {
+      ru: 'Текущая работа',
+      en: 'Current work'
+    },
+    unlock: {
+      ru: 'Открыть',
+      en: 'Unlock'
+    },
+    noBoosts: {
+      ru: 'Усилений нет',
+      en: 'No boosts'
+    },
+    learned: {
+      ru: 'Изучено',
+      en: 'Learned'
+    },
+    boost: {
+      ru: 'Ускорить',
+      en: 'Boost'
+    },
+    training: {
+      ru: 'Тренировка',
+      en: 'Training'
+    },
+    inProgress: {
+      ru: 'В процессе',
+      en: 'In progress'
+    },
+    trainingDesc: {
+      ru: "Хорошая тренировка поднимает настроение!",
+      en: "A good workout lifts your mood!"
+    }
+  }
+
+  
   const handleStartSleep = async () => {
     await startProcess("sleep", userId)
 
@@ -70,7 +136,7 @@ const BoostTab = ({ userId, userParameters, setUserParameters }) => {
   const getItemSleepButton = () => {
     return [
       {
-        text: activeProcess?.type === "sleep" ? "Стоп" : "Начать",
+        text: activeProcess?.type === "sleep" ? translations.inProgress[lang] : translations.start[lang],
         active: true,
         bg:
           activeProcess?.type === "sleep"

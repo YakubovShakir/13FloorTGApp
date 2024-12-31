@@ -14,6 +14,7 @@ import {
 import { getSkills } from "../../../services/skill/skill"
 import { a } from "framer-motion/client"
 import { useSettingsProvider } from "../../../hooks"
+
 export const WorkTab = ({
   modalData,
   setModalData,
@@ -59,6 +60,38 @@ export const WorkTab = ({
     minute: {
       ru: 'м.',
       en: 'm.'
+    },
+    currentWork: {
+      ru: 'Текущая работа',
+      en: 'Current work'
+    },
+    unlock: {
+      ru: 'Открыть',
+      en: 'Unlock'
+    },
+    noBoosts: {
+      ru: 'Усилений нет',
+      en: 'No boosts'
+    },
+    learned: {
+      ru: 'Изучено',
+      en: 'Learned'
+    },
+    boost: {
+      ru: 'Ускорить',
+      en: 'Boost'
+    },
+    training: {
+      ru: 'Тренировка',
+      en: 'Training'
+    },
+    inProgress: {
+      ru: 'В процессе',
+      en: 'In progress'
+    },
+    workDesc: {
+      ru: "Отпрявляйся на работу, что бы заработать немного монет!",
+      en: "Gщ to work to earn some coins!"
     }
   }
 
@@ -212,7 +245,7 @@ export const WorkTab = ({
         ],
         [
           {
-            value: "Усилений нет",
+            value: translations.noBoosts[lang],
             icon: Icons?.boosterArrow,
           },
         ],
@@ -255,7 +288,7 @@ export const WorkTab = ({
     if (currentWork?.work_id === workId) {
       return [
         {
-          text: activeWork ? "Стоп" : "Начать",
+          text: activeWork ?  translations.inProgress[lang] : translations.start[lang],
           onClick:
             activeWork
               ? async () => await handleStopWork()
@@ -304,7 +337,7 @@ export const WorkTab = ({
 
       {userParameters?.work_id !== 0 && <ItemCard
         ItemIcon={getWorkById(userParameters?.work_id)?.link}
-        ItemDescription="Отправляйся на работу, что бы заработать монет!"
+        ItemDescription={translations.workDesc[lang]}
         ItemTitle={getWorkById(userParameters?.work_id)?.name}
         ItemParamsBlocks={getItemWorkParams(userParameters?.work_id)}
         ItemButtons={getItemWorkButton(userParameters?.work_id)}
