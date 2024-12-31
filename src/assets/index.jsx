@@ -209,6 +209,9 @@ import gameCenter from './IMG/icons/invest-game.png'
 
 import shittonsmoney from './IMG/icons/shittonsmoney.png'
 
+import rusIcon from './IMG/icons/rus.png'
+import engIcon from './IMG/icons/eng.png'
+
 export function getImgUrl(name) {
   return new URL(`${name}`, import.meta.url).href
 }
@@ -365,7 +368,9 @@ const Assets = {
     wallets,
     musics,
     sounds,
-    languages
+    languages,
+    rusIcon,
+    engIcon
   },
   BG: {
     trainingCardBG,

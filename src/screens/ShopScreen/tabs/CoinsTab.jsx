@@ -12,6 +12,7 @@ import { SquareButton } from "../../../components/simple/SquareButton/SquareButt
 import { instance } from "../../../services/instance"
 import { buyItemsForCoins } from '../../../services/user/user'
 import WebApp from "@twa-dev/sdk"
+import { useSettingsProvider } from "../../../hooks"
 
 const GridItem = ({
   id,
@@ -163,9 +164,19 @@ const GridItem = ({
               fontFamily: "Anonymous pro",
               paddingLeft: 8,
               fontSize: "20px",
+              paddingBottom: 4,
+              paddingRight: 2
+            }}
+          >+</p>
+          <p
+            style={{
+              textAlign: "center",
+              fontWeight: "100",
+              fontFamily: "Anonymous pro",
+              fontSize: "20px",
             }}
           >
-          + {respect}
+            {respect}
           </p>
         </div>
 
@@ -484,6 +495,7 @@ const CoinsTab = ({ userId }) => {
   const [isLoading, setIsLoading] = useState(true)
 
   const { userPersonage, userParameters } = useContext(UserContext)
+  const { lang } = useSettingsProvider()
 
   const BaseFilters = {
     // Uses Clothing
@@ -495,6 +507,7 @@ const CoinsTab = ({ userId }) => {
     // Uses ShelfItems
     Shelf: "Shelf",
     Complex: "Complex",
+    Stars: "Stars"
   }
 
   const TierFilters = [0, 1, 2, 3, 4, 5]
@@ -506,7 +519,7 @@ const CoinsTab = ({ userId }) => {
         // TODO: localize
         const loadedClothesItems = data.clothing.map((item) => ({
           id: item.clothing_id,
-          name: item.name["ru"],
+          name: item.name[lang],
           productType: 'clothes',
           image:
             userPersonage.gender === "male" ? item.male_icon : item.female_icon,
@@ -520,7 +533,7 @@ const CoinsTab = ({ userId }) => {
         const loadedShelfItems = data.shelf.map((item) => ({
           id: item.id,
           productType: 'shelf',
-          name: item.name["ru"],
+          name: item.name[lang],
           image: item.link,
           price: item.cost.stars || item.cost.coins,
           category: "Shelf",
@@ -612,6 +625,10 @@ const CoinsTab = ({ userId }) => {
 
     if (filterTypeInUse === BaseFilters.Shelf) {
       return items.filter((item) => item.productType === "shelf")
+    }
+
+    if (filterTypeInUse === BaseFilters.Stars) {
+      return items.filter((item) => item.isPrem === true)
     }
   }
 
@@ -711,8 +728,8 @@ const CoinsTab = ({ userId }) => {
             justifyContent: "space-around",
           }}
         >
-          <SquareButton
-            size={42}
+                   <SquareButton
+            size={36}
             imageH={35}
             imageSrc={Assets.Icons.settingsIcon}
             assignedValue={true}
@@ -723,7 +740,7 @@ const CoinsTab = ({ userId }) => {
             }}
           />
           <SquareButton
-            size={42}
+            size={36}
             imageSize={42}
             imageSrc={Assets.Icons.hairIcon}
             selectedValue={filterTypeInUse}
@@ -735,7 +752,7 @@ const CoinsTab = ({ userId }) => {
             }
           />
           <SquareButton
-            size={42}
+            size={36}
             imageSize={30}
             imageSrc={Assets.Icons.bodyIcon}
             selectedValue={filterTypeInUse}
@@ -747,7 +764,7 @@ const CoinsTab = ({ userId }) => {
             }
           />
           <SquareButton
-            size={42}
+            size={36}
             imageSize={28}
             imageSrc={Assets.Icons.legsIcon}
             selectedValue={filterTypeInUse}
@@ -759,7 +776,7 @@ const CoinsTab = ({ userId }) => {
             }
           />
           <SquareButton
-            size={42}
+            size={36}
             imageSize={35}
             imageSrc={Assets.Icons.shoesIcon}
             assignedValue={BaseFilters.Shoes}
@@ -771,7 +788,7 @@ const CoinsTab = ({ userId }) => {
             }
           />
           <SquareButton
-            size={42}
+            size={36}
             imageSize={28}
             imageSrc={Assets.Icons.accIcon}
             selectedValue={filterTypeInUse}
@@ -783,18 +800,29 @@ const CoinsTab = ({ userId }) => {
             }
           />
           <SquareButton
-            size={42}
+            size={36}
             imageSize={30}
             imageSrc={Assets.Icons.homeIcon}
             selectedValue={filterTypeInUse}
             assignedValue={BaseFilters.Shelf}
+            handlePress={() => {
+              setCurrentComplexFilters([])
+              filterTypeInUse === BaseFilters.Shelf
+                ? setFilterTypeInUse(null)
+                : setFilterTypeInUse(BaseFilters.Shelf)
+            }
+            }
+          />
+          <SquareButton
+            size={36}
+            imageSize={34}
+            imageSrc={Assets.Icons.starsIcon}
+            selectedValue={filterTypeInUse}
+            assignedValue={BaseFilters.Stars}
             handlePress={() =>
-              {
-                setCurrentComplexFilters([])
-                filterTypeInUse === BaseFilters.Shelf
-                  ? setFilterTypeInUse(null)
-                  : setFilterTypeInUse(BaseFilters.Shelf)
-              }
+              filterTypeInUse === BaseFilters.Stars
+                ? setFilterTypeInUse(null)
+                : setFilterTypeInUse(BaseFilters.Stars)
             }
           />
         </div>

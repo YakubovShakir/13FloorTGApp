@@ -261,7 +261,7 @@ const Home = () => {
         <img className="couch" src={Assets.HOME.couch} />
         <div style={{ position: 'absolute', zIndex: 2 }}>
           <Player
-          bottom={"calc(-85vh + 50px)"}
+            bottom={"calc(-85vh + 50px)"}
             width="37vw"
             left={"9vw"}
             top={"35vh"}
@@ -333,7 +333,7 @@ const Home = () => {
             personage={userPersonage}
             clothing={userClothing}
           />
-        <ProcessProgressBar activeProcess={currentProcess} inputPercentage={countPercentage(currentProcess?.seconds, 60)} />
+        <ProcessProgressBar activeProcess={currentProcess} inputPercentage={countPercentage(currentProcess?.seconds, 60)} reverse/>
         <Menu />
         {visibleWindow && (
           <Window

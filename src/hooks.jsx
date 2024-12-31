@@ -34,6 +34,16 @@ export function SettingsProvider({ children }) {
     }
   });
 
+  const [lang, setLang] = useState(() => {
+    const stored = localStorage.getItem('lang')
+    if(!stored) {
+      localStorage.setItem('lang', 'ru');
+      return 'ru'
+    } else {
+      return 'en'
+    }
+  })
+
   // Set initial volume
   useEffect(() => {
     backgroundMusicRef.current.volume = 0.25;
@@ -137,7 +147,7 @@ export function SettingsProvider({ children }) {
   }, [isSoundEnabled]);
 
   return (
-    <SettingsContext.Provider value={{ isSoundEnabled, toggleSound, toggleMusic, isMusicEnabled }}>
+    <SettingsContext.Provider value={{ isSoundEnabled, toggleSound, toggleMusic, isMusicEnabled, lang, setLang }}>
       {children}
     </SettingsContext.Provider>
   );
