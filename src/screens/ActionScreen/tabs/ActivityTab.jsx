@@ -27,75 +27,79 @@ const BoostTab = ({ userId, userParameters, setUserParameters }) => {
 
   const { lang } = useSettingsProvider()
   
-    const translations = {
-      start: {
-        ru: 'Начать',
-        en: 'Start'
-      },
-      stop: {
-        ru: 'Стоп',
-        en: 'Stop'
-      },
-      available: {
-        ru: 'Доступно',
-        en: 'Available'
-      },
-      unavailable: {
-        ru: 'Недоступно',
-        en: 'Unavailable'
-      },
-      cost: {
-        ru: 'Стоимость',
-        en: 'Cost'
-      },
-      hour: {
-        ru: 'ЧАС',
-        en: 'HOUR'
-      },
-      minute: {
-        ru: 'м.',
-        en: 'm.'
-      },
-      currentWork: {
-        ru: 'Текущая работа',
-        en: 'Current work'
-      },
-      unlock: {
-        ru: 'Открыть',
-        en: 'Unlock'
-      },
-      noBoosts: {
-        ru: 'Усилений нет',
-        en: 'No boosts'
-      },
-      learned: {
-        ru: 'Изучено',
-        en: 'Learned'
-      },
-      boost: {
-        ru: 'Ускорить',
-        en: 'Boost'
-      },
-      sleep: {
-        ru: 'Сон',
-        en: 'Sleep'
-      },
-      inProgress: {
-        ru: 'В процессе',
-        en: 'In progress'
-      },
-      sleepDesc: {
-        ru: "Сон поможет восстановить энергию!",
-        en: "Sleep will help restore energy!"
-      }
+  const translations = {
+    start: {
+      ru: 'Начать',
+      en: 'Start'
+    },
+    stop: {
+      ru: 'Стоп',
+      en: 'Stop'
+    },
+    available: {
+      ru: 'Доступно',
+      en: 'Available'
+    },
+    unavailable: {
+      ru: 'Недоступно',
+      en: 'Unavailable'
+    },
+    cost: {
+      ru: 'Стоимость',
+      en: 'Cost'
+    },
+    hour: {
+      ru: 'ЧАС',
+      en: 'HOUR'
+    },
+    minute: {
+      ru: 'м.',
+      en: 'm.'
+    },
+    currentWork: {
+      ru: 'Текущая работа',
+      en: 'Current work'
+    },
+    unlock: {
+      ru: 'Открыть',
+      en: 'Unlock'
+    },
+    noBoosts: {
+      ru: 'Усилений нет',
+      en: 'No boosts'
+    },
+    learned: {
+      ru: 'Изучено',
+      en: 'Learned'
+    },
+    boost: {
+      ru: 'Ускорить',
+      en: 'Boost'
+    },
+    sleep: {
+      ru: 'Сон',
+      en: 'Sleep'
+    },
+    inProgress: {
+      ru: 'В процессе',
+      en: 'In progress'
+    },
+    sleepDesc: {
+      ru: "Сон поможет восстановить энергию!",
+      en: "Sleep will help restore energy!"
     }
+  }
 
   const handleStartSleep = async () => {
+    if (userParameters.energy >= userParameters.energy_capacity) {
+      return; // Если энергия уже полная, не начинаем процесс
+    }
     await startProcess("sleep", userId)
 
     const sleepProcess = await getActiveProcess(userId)
     setActiveProcess(sleepProcess)
   }
+
   const handleStopSleep = async () => {
     await stopProcess(userId)
     setActiveProcess(null)
@@ -132,21 +136,26 @@ const BoostTab = ({ userId, userParameters, setUserParameters }) => {
   }
 
   const getItemSleepButton = () => {
+    const isEnergyFull = userParameters.energy >= userParameters.energy_capacity
     return [
       {
         text: activeProcess?.type === "sleep" ? translations.inProgress[lang] : translations.start[lang],
-        active: true,
-        
-        onClick:
-          activeProcess?.type === "sleep"
-            ? () => handleStopSleep()
-            : () => {
-                handleStartSleep();
-                navigation.navigate('MainScreen'); // Переход на основной экран
-              },
-      },
-    ];
-  };
+        active: !isEnergyFull, // Кнопка активна только если энергия не полная
+        onClick: () => {
+          if (!isEnergyFull) { // Если энергия не полная, то кнопка активна
+            if (activeProcess?.type === "sleep") {
+              handleStopSleep(); // Остановить процесс
+            } else {
+              handleStartSleep(); // Запустить процесс
+            }
+            navigation.navigate('MainScreen'); // Переход на экран
+          }
+          // Если энергия полная, кнопка неактивна, и ничего не происходит
+        },
+      }
+    ]
+  }
+
   const getItemBoostParams = (boost) => {
     const boostDuration = boost?.duration
     return [
@@ -176,15 +185,18 @@ const BoostTab = ({ userId, userParameters, setUserParameters }) => {
     setUserBoosts(userBoosts)
     setUserParameters(parameters.parameters)
   }
+  
   const checkUserHaveBoost = (boostId) => {
     return userBoosts?.find((boost) => boost?.boost_id === boostId) || false
   }
+
   const getUserBoostAmount = (boostId) => userBoosts?.filter((boost) => boost?.boost_id === boostId)?.length
+
   const getItemBoostButton = (boost) => { 
     const starsPrice =  boost.stars_price
     const buyBoostStatus = userParameters?.coins >= starsPrice
     const useBoostStatus = checkUserHaveBoost(boost?.boost_id)
-   return [
+    return [
       {
         text: boost.stars_price,
         active: buyBoostStatus,
@@ -198,6 +210,7 @@ const BoostTab = ({ userId, userParameters, setUserParameters }) => {
       },
     ]
   }
+
   useEffect(() => {
     getBoosts().then((r) => setBoosts(r))
     getActiveProcess(userId).then((process) => setActiveProcess(process))
@@ -230,7 +243,7 @@ const BoostTab = ({ userId, userParameters, setUserParameters }) => {
   }, [activeProcess])
 
   return (
-    <temCard>
+    <temCard >
       <ItemCard
         ItemIcon={sleepIcon}
         ItemTitle={translations.sleep[lang]}
@@ -238,11 +251,8 @@ const BoostTab = ({ userId, userParameters, setUserParameters }) => {
         ItemParamsBlocks={getItemSleepParams()}
         ItemButtons={getItemSleepButton()}
         ItemIndex={0}
-        
-      
       />
-     
-    </temCard>
+    </temCard >
   )
 }
 
