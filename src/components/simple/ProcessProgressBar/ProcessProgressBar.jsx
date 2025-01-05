@@ -1,9 +1,8 @@
-import React, { useEffect, useState, useContext} from "react"
-import "./ProcessProgressBar.css"
-import Assets from "../../../assets"
-import { getWorks } from "../../../services/work/work"
-import UserContext from "../../../UserContext"
-
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import "./ProcessProgressBar.css";
+import Assets from "../../../assets";
+import { getWorks } from "../../../services/work/work";
 
 const ProcessProgressBar = ({
   activeProcess = null,
@@ -11,6 +10,7 @@ const ProcessProgressBar = ({
   reverse = false,
   rate,
 }) => {
+  const navigate = useNavigate(); // Инициализируем useNavigate
   const [percentage, setPercentage] = useState(100);
   const [labelLeft, setLabelLeft] = useState(null);
   const [labelRight, setLabelRight] = useState(null);
@@ -21,11 +21,11 @@ const ProcessProgressBar = ({
     const works = await getWorks();
     const work = works?.find((work) => work?.work_id === activeProcess?.type_id);
     const typeToLabel = {
-      work: [work?.name, `${"+" +work?.coins_in_hour}/Час`],
+      work: [work?.name, `${"+" + work?.coins_in_hour}/Час`],
       training: ["Training", rate],
       sleep: ["Long Sleep", rate],
     };
-  
+
     return typeToLabel[processType];
   };
 
@@ -34,7 +34,7 @@ const ProcessProgressBar = ({
     const typeToIconsMap = {
       work: [
         <img height={55} width={55} src={works?.find((work) => work?.work_id === activeProcess?.type_id)?.link} />,
-        <img height={45} width={45} src={Assets.Icons.balance} />,
+        <img height={40} width={40} src={Assets.Icons.balance} />,
       ],
       training: [
         <img
@@ -72,14 +72,16 @@ const ProcessProgressBar = ({
   }, []);
 
   useEffect(() => {
-    getIcons(activeProcess?.type).then(([left, right]) => {
-      setIconLeft(left);
-      setIconRight(right);
-    });
-    getLabels(activeProcess?.type, rate).then(([left, right]) => {
-      setLabelLeft(left);
-      setLabelRight(right);
-    });
+    if (activeProcess) {
+      getIcons(activeProcess?.type).then(([left, right]) => {
+        setIconLeft(left);
+        setIconRight(right);
+      });
+      getLabels(activeProcess?.type, rate).then(([left, right]) => {
+        setLabelLeft(left);
+        setLabelRight(right);
+      });
+    }
   }, [activeProcess, rate]);
 
   useEffect(() => {
@@ -88,11 +90,21 @@ const ProcessProgressBar = ({
 
   const currentPercentage = inputPercentage || percentage;
   const displayPercentage = reverse ? 100 - currentPercentage : currentPercentage;
-  
+
+  const handleActionStart = () => {
+    // Логика для кнопки
+    console.log("Process started");
+    navigate('/action'); // Переход на /action
+  };
+
+  if (!activeProcess) {
+    return <div>Loading...</div>; // Подождите, пока процесс не загружен
+  }
+
   return (
     <div className="progress-bar-container-fixed-top">
-      <div className="progress-bar-container">
-        <div className="progress-bar-wrapper">
+      <div className="progress-bar-container" style={{ width: "90%" }}>
+        <div className="progress-bar-wrapper" style={{ width: "90%", float: "left" }}>
           <div className="progress-bar-header">
             <div className="progress-bar-icon-left">{iconLeft && iconLeft}</div>
             <div className="progress-bar-label-left">{labelLeft}</div>
@@ -109,14 +121,40 @@ const ProcessProgressBar = ({
               className="progress-bar-fill"
               style={{
                 width: `${displayPercentage}%`,
-                transition: "width 0.3s ease-in-out"
+                transition: "width 0.3s ease-in-out",
               }}
             />
           </div>
+        </div>
+
+        {/* Кнопка, которая не является частью прогресс бара */}
+        <div style={{ width: "10%", float: "left", position: "relative" }}>
+          <button
+            className="process-action-button"
+            onClick={handleActionStart} // Обработчик кнопки
+            style={{
+              fontFamily: "Anonymous pro",
+              marginLeft: "2vh",
+              width: "32px", // Кнопка занимает всю оставшуюся ширину
+              backgroundColor: "rgba(255, 0, 0, 0.14)", 
+              backdropFilter:" blur(5px)",
+              color: "#fff",
+              border: "1px solid rgb(255, 0, 0)",
+              boxShadow: "rgb(255, 0, 0) 0px 5px 0px",
+              borderRadius: "5px",
+              fontSize: "16px",
+              cursor: "pointer",
+              height: "32px", // Задаем фиксированную высоту кнопки
+              position: "absolute", // Абсолютное позиционирование кнопки
+              bottom: "0", // Кнопка располагается внизу
+            }}
+          >
+           X
+          </button>
         </div>
       </div>
     </div>
   );
 };
 
-export default ProcessProgressBar
+export default ProcessProgressBar;

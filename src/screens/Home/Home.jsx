@@ -415,7 +415,7 @@ const Home = () => {
             width: "100%",
             height: "100%",
             bottom: 0,
-            zIndex: 2,
+            zIndex: 0,
           }}
         />
         {/* проп reverse отвечает на направление прогресс-бара */}
@@ -426,7 +426,7 @@ const Home = () => {
             60
           )}
           activeProcess={currentProcess}
-          rate={"Full Recovery Energy"}
+          rate={"Time"}
         />
 
         <Menu />

@@ -91,7 +91,7 @@ export const WorkTab = ({
     },
     workDesc: {
       ru: "Отпрявляйся на работу, что бы заработать немного монет!",
-      en: "Gщ to work to earn some coins!"
+      en: "Go to work to earn some coins!"
     }
   }
 

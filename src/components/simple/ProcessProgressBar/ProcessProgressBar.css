@@ -10,13 +10,7 @@
   justify-content: center;
   width: 90%;
   margin: 0 auto;
-  background: linear-gradient(
-    to bottom,
-    rgba(0, 0, 0, 0.6),
-    rgba(0, 0, 0, 0.3)
-  );
-  backdrop-filter: blur(5px);
-  border-radius: 17px;
+ 
 }
 
 .progress-bar-wrapper {
@@ -24,6 +18,9 @@
   flex-direction: column;
   width: 100%;
   position: relative;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.3));
+    backdrop-filter: blur(5px);
+    border-radius: 17px;
 }
 
 .progress-bar-header {
