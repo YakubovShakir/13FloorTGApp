@@ -2,7 +2,7 @@
   width: 100%;
   position: fixed;
   padding-top: 3%;
-  
+  background: linear-gradient(0deg, rgba(0,0,0,0) 0%, rgba(0,0,0,1) 100%);
   height: auto;
   overflow-x: hidden;
   z-index: 3;
