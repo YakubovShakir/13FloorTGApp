@@ -35,26 +35,26 @@ const ProcessProgressBar = ({
     const works = await getWorks();
     const typeToIconsMap = {
       work: [
-        <img height={55} width={55} src={works?.find((work) => work?.work_id === activeProcess?.type_id)?.link} />,
-        <img height={40} width={40} src={Assets.Icons.balance} />,
+        // <img height={45} width={45} src={works?.find((work) => work?.work_id === activeProcess?.type_id)?.link} />,
+        <img height={20} width={20} src={Assets.Icons.balance} />,
       ],
       training: [
-        <img
-          height={50}
-          width={50}
-          src={Assets.Icons.training}
-          style={{ marginTop: "1px", marginLeft: "7px" }}
-        />,
-        <img height={40} width={40} src={Assets.Icons.clock} />,
+        // <img
+        //   height={50}
+        //   width={50}
+        //   src={Assets.Icons.training}
+        //   style={{ marginTop: "1px", marginLeft: "7px" }}
+        // />,
+        <img height={20} width={20} src={Assets.Icons.clock} />,
       ],
       sleep: [
-        <img
-          height={60}
-          width={60}
-          src={Assets.Icons.sleep}
-          style={{ marginTop: "-1px", marginLeft: "0px" }}
-        />,
-        <img height={40} width={40} src={Assets.Icons.clock} />,
+        // <img
+        //   height={60}
+        //   width={60}
+        //   src={Assets.Icons.sleep}
+        //   style={{ marginTop: "-1px", marginLeft: "0px" }}
+        // />,
+        <img height={20} width={20} src={Assets.Icons.clock} />,
       ],
     };
     return typeToIconsMap[processType];

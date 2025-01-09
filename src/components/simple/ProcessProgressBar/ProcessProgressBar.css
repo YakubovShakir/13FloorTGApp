@@ -42,19 +42,19 @@
 .progress-bar-icon-left,
 .progress-bar-icon-right {
   position: absolute;
-  top: -10px;
+  top: 2px;
 }
 
 .progress-bar-icon-left {
-  left: -5%;
+  right: 3%;
 }
 
 .progress-bar-icon-right {
-  right: -5%;
+  right: 0%;
 }
 
 .progress-bar-label-left{
-padding-left: 30px;
+
 font-weight: lighter;
 position: absolute;
 font-size: 13px;
