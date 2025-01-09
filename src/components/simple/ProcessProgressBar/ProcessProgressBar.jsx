@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import "./ProcessProgressBar.css";
 import Assets from "../../../assets";
 import { getWorks } from "../../../services/work/work";
+import Button from "../../simple/Button/Button"
 
 const ProcessProgressBar = ({
   activeProcess = null,
@@ -10,12 +11,13 @@ const ProcessProgressBar = ({
   reverse = false,
   rate,
 }) => {
-  const navigate = useNavigate(); // Инициализируем useNavigate
+  const navigate = useNavigate();
   const [percentage, setPercentage] = useState(100);
   const [labelLeft, setLabelLeft] = useState(null);
   const [labelRight, setLabelRight] = useState(null);
   const [iconLeft, setIconLeft] = useState(null);
   const [iconRight, setIconRight] = useState(null);
+  const [showModal, setShowModal] = useState(false); // Состояние для отображения модального окна
 
   const getLabels = async (processType, rate) => {
     const works = await getWorks();
@@ -97,8 +99,17 @@ const ProcessProgressBar = ({
     navigate('/action'); // Переход на /action
   };
 
+  const handleCloseModal = () => {
+    setShowModal(false);
+  };
+
+  const handleConfirmClose = () => {
+    setShowModal(false);
+    // Здесь можно добавить логику завершения процесса
+  };
+
   if (!activeProcess) {
-    return <div>Loading...</div>; // Подождите, пока процесс не загружен
+    return <div>Loading...</div>;
   }
 
   return (
@@ -131,12 +142,12 @@ const ProcessProgressBar = ({
         <div style={{ width: "10%", float: "left", position: "relative" }}>
           <button
             className="process-action-button"
-            onClick={handleActionStart} // Обработчик кнопки
+            onClick={() => setShowModal(true)} // Показываем модальное окно при нажатии
             style={{
               fontFamily: "Anonymous pro",
               marginLeft: "2vh",
               width: "32px", // Кнопка занимает всю оставшуюся ширину
-              backgroundColor: "rgba(255, 0, 0, 0.14)", 
+              backgroundColor: "rgba(255, 0, 0, 0.14)",
               backdropFilter:" blur(5px)",
               color: "#fff",
               border: "1px solid rgb(255, 0, 0)",
@@ -149,10 +160,23 @@ const ProcessProgressBar = ({
               bottom: "0", // Кнопка располагается внизу
             }}
           >
-           X
+            X
           </button>
         </div>
       </div>
+
+      {/* Всплывающее окно */}
+      {showModal && (
+        <div className="modal">
+          <div className="modal-content">
+            <p>Вы действительно хотите завершить процесс?</p>
+            <div className="modal-buttons">
+              <button onClick={handleConfirmClose}>Да</button>
+              <button onClick={handleCloseModal}>Нет</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
