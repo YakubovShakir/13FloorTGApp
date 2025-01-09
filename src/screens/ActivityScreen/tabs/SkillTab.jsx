@@ -18,8 +18,9 @@ import {
 } from "../../../services/process/process"
 import formatTime from "../../../utils/formatTime"
 import countPercentage from "../../../utils/countPercentage.js"
-import { useSettingsProvider } from "../../../hooks.jsx"
+import { useSettingsProvider } from "../../../hooks"
 import { duration } from "moment-timezone"
+
 
 const SkillTab = ({
   modalData,
@@ -35,6 +36,7 @@ const SkillTab = ({
   const [trainingParamters, setTrainingParameters] = useState(null) // User training parameters
   const [activeProcess, setActiveProcess] = useState(null) //  User active training
 
+  
   const { lang } = useSettingsProvider()
 
   const translations = {
@@ -186,8 +188,8 @@ const SkillTab = ({
           icon: skills?.find((sk) => sk?.skill_id === skill?.skill_id_required)
             ?.link,
           text: skills?.find((sk) => sk?.skill_id === skill?.skill_id_required)
-            ?.name[lang] || skills?.find((sk) => sk?.skill_id === skill?.skill_id_required)
-            ?.name,
+            ?.translations.name[lang] || skills?.find((sk) => sk?.skill_id === skill?.skill_id_required)
+            ?.translations.name[lang],
           fillPercent: "100%",
           fillBackground: !checkLearnedSkill(skill?.skill_id_required)
             ? "#4E1010" // red
@@ -213,8 +215,8 @@ const SkillTab = ({
         {
           icon: !(learned || learning) && Icons.balance,
           text:
-            (learned && translations.learned[lang]) ||
-            (learning && translations.boost[lang]) ||
+            (translations.learned[lang] && translations.learned[lang]) ||
+            (translations.learning[lang] && translations.boost[lang]) ||
             skill?.coins_price,
           onClick: bottomButtonOnClick,
           active: checkActiveSkillButton(skill),
@@ -257,7 +259,7 @@ const SkillTab = ({
 
     const accessBar = {
       icon: accessStatus ? Icons.unlockedIcon : Icons.lockedIcon,
-      value: accessStatus ? "Доступно" : "Недоступно",
+      value: accessStatus ? translations.available[lang] : translations.unavailable[lang],
     }
 
     return [[timerBar], [accessBar]]
@@ -272,8 +274,8 @@ const SkillTab = ({
       {
         icon: !(learned || learning) && Icons.balance,
         text:
-          (learned && "Изучено") ||
-          (learning && "Ускорить") ||
+          (translations.learned[lang] && translations.learned[lang]) ||
+          (translations.learning[lang] && translations.boost[lang]) ||
           skill?.coins_price,
         onClick: () => {
           setModalData(setSkillModalData(skill))
@@ -338,7 +340,7 @@ const SkillTab = ({
         <ItemCard
           key={index}
           ItemIcon={skill?.link}
-          ItemTitle={skill.name}
+          ItemTitle={skill.name[lang]}
           ItemDescription={skill?.description}
           ItemParamsBlocks={getItemSkillParamsBlock(skill)}
           ItemButtons={getItemSkillButton(skill)}

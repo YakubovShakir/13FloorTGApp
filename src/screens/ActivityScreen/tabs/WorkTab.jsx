@@ -5,6 +5,7 @@ import Assets from "../../../assets"
 import { getUserSkills } from "../../../services/skill/skill"
 import { getWorks, buyWork } from "../../../services/work/work"
 import { getParameters } from "../../../services/user/user"
+
 import {
   getProcesses,
   getActiveProcess,
@@ -147,7 +148,7 @@ export const WorkTab = ({
           )?.link,
           text: skills?.find(
             (skill) => skill?.skill_id === work?.skill_id_required
-          )?.name,
+          )?.name[lang],
           fillPercent: "100%",
           fillBackground: !checkLearnedSkill(work?.skill_id_required)
             ? "#4E1010" // red
