@@ -340,6 +340,22 @@ const HomeHeader = ({ screenHeader }) => {
     <>
       <div className="HomeHeader" style={{ borderRadius: screenHeader && "0" }}>
         <div className="HomeHeaderTopRow">
+        <div className="HomeHeaderLevel" onClick={() => setIsStatsShown(true)}>
+            <span style={{ fontFamily: "Anonymous pro", fontWeight: "100" }}>{userParameters?.level}</span>
+            <span style={{ fontFamily: "Anonymous pro", fontWeight: "100" }}>LvL</span>
+            <div
+              className="HomeHeaderLevelCapacity"
+              style={{
+                width:
+                  (userParameters?.total_earned /
+                    levels?.find(
+                      (level) => level?.level === userParameters?.level + 1
+                    )?.required_earned) *
+                  100 +
+                  "%",
+              }}
+            />
+          </div>
           <div className="HomeHeaderIncome">
             <div>
               <img src={Icons.balance} alt="Coin" />
@@ -357,22 +373,7 @@ const HomeHeader = ({ screenHeader }) => {
 
             <span>{userParameters?.respect}</span>
           </div>
-          <div className="HomeHeaderLevel" onClick={() => setIsStatsShown(true)}>
-            <span style={{ fontFamily: "Anonymous pro", fontWeight: "100" }}>{userParameters?.level}</span>
-            <span style={{ fontFamily: "Anonymous pro", fontWeight: "100" }}>LvL</span>
-            <div
-              className="HomeHeaderLevelCapacity"
-              style={{
-                width:
-                  (userParameters?.total_earned /
-                    levels?.find(
-                      (level) => level?.level === userParameters?.level + 1
-                    )?.required_earned) *
-                  100 +
-                  "%",
-              }}
-            />
-          </div>
+          
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginLeft: 2.5 }} onClick={handleSettingsPress}>
             <img src={Assets.Icons.settings} height={25}></img>
           </div>

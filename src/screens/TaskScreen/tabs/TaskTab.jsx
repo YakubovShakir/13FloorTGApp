@@ -5,8 +5,76 @@ import ScreenContainer from "../../../components/section/ScreenContainer/ScreenC
 import { useEffect, useState, useRef, useCallback } from "react"
 import Assets from "../../../assets"
 import { claimTask, getTasks } from "../../../services/user/user"
+import { useSettingsProvider } from "../../../hooks"
 
 const TaskTab = ({ userId, userParameters, setUserParameters }) => {
+
+
+  const { lang } = useSettingsProvider()
+
+  const translations = {
+    start: {
+      ru: 'Начать',
+      en: 'Start'
+    },
+    stop: {
+      ru: 'Стоп',
+      en: 'Stop'
+    },
+    available: {
+      ru: 'Доступно',
+      en: 'Available'
+    },
+    unavailable: {
+      ru: 'Недоступно',
+      en: 'Unavailable'
+    },
+    cost: {
+      ru: 'Стоимость',
+      en: 'Cost'
+    },
+    hour: {
+      ru: 'ЧАС',
+      en: 'HOUR'
+    },
+    minute: {
+      ru: 'м',
+      en: 'm'
+    },
+    currentWork: {
+      ru: 'Текущая работа',
+      en: 'Current work'
+    },
+    unlock: {
+      ru: 'Открыть',
+      en: 'Unlock'
+    },
+    noBoosts: {
+      ru: 'Усилений нет',
+      en: 'No boosts'
+    },
+    hungryDecrease: {
+      ru: 'Расход голода',
+      en: 'Satiety consumption '
+    },
+    moodDecrease: {
+      ru: 'Расход настроения',
+      en: 'Mood consumption'
+    },
+    check: {
+      ru: 'Проверить',
+      en: 'Check'
+    },
+    link: {
+      ru: 'Ссылка',
+      en: 'Link'
+    },
+   
+  }
+
+
+
+
   const [isLoading, setIsLoading] = useState(true)
   const [tasks, setTasks] = useState(null)
   const currentUserId = useRef(userId)
@@ -22,12 +90,12 @@ const TaskTab = ({ userId, userParameters, setUserParameters }) => {
         return {
           ...task,
           buttons: task.is_complete ? [] : [{
-            text: "Ссылка",
+            text: translations.link[lang],
             onClick: () => { window.location.href = task.link },
             active: true,
           },
           {
-            text: "Проверить",
+            text: translations.check[lang],
             onClick: () => handleTaskClaim(task.id),
             active: true,
           },]
@@ -64,7 +132,7 @@ const TaskTab = ({ userId, userParameters, setUserParameters }) => {
           key={index}
           ItemBottomAmount={task.reward}
           ItemIcon={Assets.Icons.shittonsmoney}
-          ItemTitle={task?.title}
+          ItemTitle={task?.title[lang]}
           ItemDescription={task?.description}
           ItemButtons={task?.buttons}
           ItemIndex={index}

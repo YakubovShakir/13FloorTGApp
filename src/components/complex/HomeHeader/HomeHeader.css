@@ -2,7 +2,7 @@
   width: 100%;
   position: fixed;
   padding-top: 3%;
-  background: linear-gradient(0deg, rgba(0,0,0,0) 0%, rgba(0,0,0,1) 100%);
+  
   height: auto;
   overflow-x: hidden;
   z-index: 3;
@@ -29,10 +29,10 @@
   display: flex;
   justify-content: space-between;  /* Распределяем элементы по бокам */
   align-items: center;
-  width: 35%;
+  width: 34%;
   border: solid 1px rgb(243, 117, 0);
     backdrop-filter: blur(5px);
-    background-color: #2508047a;
+    background-color: #0000007a;
   border-radius: 5px;
 }
 
@@ -40,14 +40,14 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 25%;
+  width: 32%;
 }
 
 .HomeHeaderIncome div:nth-child(2) {
   
   font-family: "Anonymous pro";
   justify-content: center;
-  text-shadow: 1px 1px 0px #2f292b, -1px -1px 0px #2f292b, 1px -1px 0px #2f292b, -1px 1px 0px #2f292b;
+  
   width: 70%;
   font-size: 4cqw;
   
@@ -73,13 +73,13 @@
   
   color: white;
 
-  
+  border: solid 1px rgb(243, 117, 0);
   font-size: 5cqw;
   letter-spacing: 1px;
-  width: 30%;
-  border: solid 1px rgb(243, 117, 0);
+  width: 24%;
+  
     backdrop-filter: blur(5px);
-    background-color: #2508047a;
+    background-color: #0000007a;
 }
 
 .HomeHeaderRespect span {
@@ -87,14 +87,14 @@
   margin-right: 12px;
   text-align: center;
   width: 100%;
-   text-shadow: 1px 1px 0px #2f292b, -1px -1px 0px #2f292b, 1px -1px 0px #2f292b, -1px 1px 0px #2f292b;
+  
 }
 
 .HomeHeaderRespect img {
   
   margin-left: -12px;
   max-width: 100%;
-  width: 27%;
+  width: 32%;
 }
 
 .HomeHeaderLevel {
@@ -111,9 +111,9 @@
   z-index: 0;
   overflow: hidden;
 
-  border: solid 1px #22c7a3;
+  border: solid 1px rgb(243, 117, 0);
     backdrop-filter: blur(5px);
-    background-color: #22c7a32d;
+    background-color: #2508047a;
 }
 
 .HomeHeaderLevelCapacity {
@@ -123,11 +123,7 @@
   height: 100%; /* Высота бара */
   width: 0; /* По умолчанию ширина — 0, увеличивается по мере заполнения */
   border-radius: 5px 0 0 5px;  /* Скругление снизу */
-  background: linear-gradient(
-    to right, /* Градиент направлен слева направо */
-    #22c7a31a,
-    #22c7a3
-  );
+  background: linear-gradient(90deg, rgba(34, 199, 163, 0) 0%, rgb(243, 117, 0) 100%);
   z-index: -1;
   
 }

@@ -19,7 +19,7 @@
   backdrop-filter: blur(5px);
   background-color: #2508047a;
   flex-grow: 1;
-  height: 20px;
+  height: 15px;
   position: relative;
  
   border-radius: 5px;
@@ -33,16 +33,16 @@
   transition: width 0.5s ease;
 }
 
-.FillBarText {
+/* .FillBarText {
   position: absolute;
-  top: 66%;  /* Вертикальное центрирование */
-  left: 40%;  /* Горизонтальное центрирование */
-  transform: translate(-50%, -50%);  /* Для точного центрирования */
+  top: 66%;  
+  left: 40%;  
+  transform: translate(-50%, -50%);  
   color: white;
   font-weight: bold;
   font-size: 14px;
   z-index: 2;
-  text-align: center; /* Выравнивание текста по горизонтали */
+  text-align: center; 
   text-shadow: 1px 1px 0px #2f292b, -1px -1px 0px #2f292b, 1px -1px 0px #2f292b, -1px 1px 0px #2f292b;
-}
+} */
 
