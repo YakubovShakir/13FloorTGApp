@@ -8,10 +8,13 @@ import { getParameters } from "../../../services/user/user"
 import formatTime from "../../../utils/formatTime"
 import countPercentage from "../../../utils/countPercentage"
 import { updateProcessesTimers } from "../../../utils/updateTimers"
+import { useSettingsProvider } from "../../../hooks"
 
 const FoodTab = ({ userId, userParameters, setUserParameters }) => {
   const [userEatingFoods, setUserEatingFoods] = useState(null)
   const [foods, setFoods] = useState(null)
+  const { lang } = useSettingsProvider()
+  
   // const [hasUpdatedTimers, setHasUpdatedTimers] = useState(false)
   const { Icons } = Assets
   // Buy food
@@ -164,7 +167,7 @@ const FoodTab = ({ userId, userParameters, setUserParameters }) => {
         <ItemCard
           key={index}
           ItemIcon={food?.link}
-          ItemTitle={food?.name}
+          ItemTitle={food?.name[lang]}
           ItemParamsBlocks={getItemFoodParams(food)}
           ItemButtons={getItemFoodButton(food)}
           ItemIndex={index}
