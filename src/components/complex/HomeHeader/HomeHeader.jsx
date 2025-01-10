@@ -272,6 +272,8 @@ export const StatsModal = ({
             justifyContent: 'center'
           }}
         >
+
+          
           <div style={{ display: "flex", flexDirection: "column", width: '75%', position: 'relative' }}>
             <p
               style={{
