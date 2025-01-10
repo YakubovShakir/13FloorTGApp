@@ -302,6 +302,7 @@ export const StatsModal = ({
 }
 
 const HomeHeader = ({ screenHeader }) => {
+  
   const { userId, userParameters, userPersonage, userClothing } = useContext(UserContext);
   const [levels, setLevels] = useState();
   const [isSettingsShown, setIsSettingsShown] = useState(false);
@@ -343,21 +344,30 @@ const HomeHeader = ({ screenHeader }) => {
       <div className="HomeHeader" style={{ borderRadius: screenHeader && "0" }}>
         <div className="HomeHeaderTopRow">
         <div className="HomeHeaderLevel" onClick={() => setIsStatsShown(true)}>
-            <span style={{ fontFamily: "Anonymous pro", fontWeight: "100" }}>{userParameters?.level}</span>
-            <span style={{ fontFamily: "Anonymous pro", fontWeight: "100" }}>LvL</span>
-            <div
-              className="HomeHeaderLevelCapacity"
-              style={{
-                width:
-                  (userParameters?.total_earned /
-                    levels?.find(
-                      (level) => level?.level === userParameters?.level + 1
-                    )?.required_earned) *
-                  100 +
-                  "%",
-              }}
-            />
-          </div>
+ 
+ <span style={{ fontFamily: "Anonymous pro", fontWeight: "100" }}>
+   {userPersonage?.name}
+ </span>
+ <div className="FillBarProgres">
+ <span style={{ fontFamily: "Anonymous pro", fontWeight: "100" }}>
+   {userParameters?.level}
+ </span>
+ 
+ 
+ <div
+   className="HomeHeaderLevelCapacity"
+   style={{
+     width:
+       (userParameters?.total_earned /
+         levels?.find(
+           (level) => level?.level === userParameters?.level + 1
+         )?.required_earned) *
+         100 +
+       "%",
+   }}
+ />
+ </div>
+</div>
           <div className="HomeHeaderIncome">
             <div>
               <img src={Icons.balance} alt="Coin" />

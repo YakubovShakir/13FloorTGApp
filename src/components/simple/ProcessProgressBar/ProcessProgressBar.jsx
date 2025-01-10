@@ -114,7 +114,7 @@ const ProcessProgressBar = ({
 
   return (
     <div className="progress-bar-container-fixed-top">
-      <div className="progress-bar-container" style={{ width: "90%" }}>
+      <div className="progress-bar-container" style={{ }}>
         <div className="progress-bar-wrapper" style={{ width: "90%", float: "left" }}>
           <div className="progress-bar-header">
             <div className="progress-bar-icon-left">{iconLeft && iconLeft}</div>
@@ -144,16 +144,16 @@ const ProcessProgressBar = ({
             className="process-action-button"
             onClick={() => setShowModal(true)} // Показываем модальное окно при нажатии
             style={{
-              fontFamily: "Anonymous pro",
-              marginLeft: "2vh",
+              
+              
               width: "32px", // Кнопка занимает всю оставшуюся ширину
-              backgroundColor: "rgba(255, 0, 0, 0.14)",
+              backgroundColor: "rgb(0 0 0 / 52%)",
               backdropFilter:" blur(5px)",
-              color: "#fff",
-              border: "1px solid rgb(255, 0, 0)",
-              boxShadow: "rgb(255, 0, 0) 0px 5px 0px",
+              color: "rgb(255, 0, 0)",
+              border: "2px solid rgb(255, 0, 0)",
+              
               borderRadius: "5px",
-              fontSize: "16px",
+              fontSize: "20px",
               cursor: "pointer",
               height: "32px", // Задаем фиксированную высоту кнопки
               position: "absolute", // Абсолютное позиционирование кнопки
