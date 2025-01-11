@@ -303,7 +303,6 @@ export const WorkTab = ({
   }
   useEffect(() => {
     getWorks().then((r) => {
-      console.log('works', r[0])
       setWorks(r)
     })
     getSkills().then((r) => setSkills(r)) // Get list of skills
@@ -320,7 +319,7 @@ export const WorkTab = ({
         <ItemCard
           key={index}
           ItemIcon={work?.link}
-          ItemTitle={work?.name}
+          ItemTitle={work?.name[lang]}
           ItemParamsBlocks={getItemWorkParams(work?.work_id)}
           ItemButtons={getItemWorkButton(work?.work_id)}
           ItemIndex={index}

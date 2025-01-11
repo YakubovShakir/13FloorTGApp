@@ -130,7 +130,7 @@ export const SettingsModal = ({
     }
   }
   const { isSoundEnabled, toggleSound, toggleMusic, isMusicEnabled, account, connect, disconnect, lang, setLang } = useSettingsProvider();
-  console.log(lang)
+
   return (
     <div
       style={{

@@ -18,6 +18,7 @@ import '../../components/complex/Modals/Modal/Modal.css'
 import { buyInvestmentLevel, claimInvestment, getUserInvestments } from "../../services/user/user"
 import WebApp from "@twa-dev/sdk"
 import { instance } from "../../services/instance"
+import { useSettingsProvider } from "../../hooks"
 
 const buttonStyle = {
     height: 44,
@@ -28,6 +29,17 @@ const buttonStyle = {
     fontSize: 14,
     fontFamily: "Anonymous pro"
 };
+
+const translations = {
+    description: {
+        ru: ``,
+        en: ``
+    },
+    investments: {
+        ru: 'Инвестиции',
+        en: 'Investments'
+    }
+}
 
 
 export const useInvestmentTimer = ({
@@ -200,6 +212,26 @@ const ThreeSectionCard = ({
     openAutoclaimModal
 }) => {
     const isTest = process.env.NODE_ENV === "test";
+    const { lang } = useSettingsProvider()
+
+    const translations = {
+        autoclaim: {
+            ru: 'Автоклейм',
+            en: 'Autoclaim'
+        },
+        level: {
+            ru: 'Уровень',
+            en: 'Level'
+        },
+        upgrade: {
+            ru: 'Улучшить',
+            en: 'Upgrade'
+        },
+        claim: {
+            ru: 'Забрать',
+            en: 'Claim'
+        }
+    }
 
     const { timer, shouldShowCollectButton } = useInvestmentTimer({
         started_at,
@@ -304,7 +336,7 @@ const ThreeSectionCard = ({
                         alt="Investment Type"
                         style={styles.image}
                     />
-                    <p style={{ textAlign: 'center', fontSize: 12, color: 'white', paddingTop: 8 }}>Уровень {current_level}</p>
+                    <p style={{ textAlign: 'center', fontSize: 12, color: 'white', paddingTop: 8 }}>{translations.level[lang]} {current_level}</p>
                 </div>
 
                 {/* Manager Image Section */}
@@ -321,7 +353,7 @@ const ThreeSectionCard = ({
                         alt="Manager Status"
                         style={styles.image}
                     />
-                    {has_autoclaim && <p style={{ color: 'white', paddingTop: 8 }}>Автоклейм</p>}
+                    {has_autoclaim && <p style={{ color: 'white', paddingTop: 8 }}>{translations.autoclaim[lang]}</p>}
                 </div>
 
                 {/* Buttons Section */}
@@ -338,13 +370,13 @@ const ThreeSectionCard = ({
                                 {...buttonStyle}
                                 active={true}
                                 onClick={onClick}
-                                text={'Улучшить'}
+                                text={translations.upgrade[lang]}
                             />}
                             <Button
                                 {...buttonStyle}
                                 active={shouldShowCollectButton}
                                 onClick={shouldShowCollectButton ? handleClaim : undefined}
-                                text={shouldShowCollectButton ? "Собрать" : timer}
+                                text={shouldShowCollectButton ? translations.claim[lang] : timer}
                             />
                         </>
                     ) : (
@@ -490,6 +522,22 @@ const InvestmentScreen = () => {
     const navigate = useNavigate();
 
     const { investments, isLoading, error, handleUpgrade, handleClaim, handleAutoclaimPurchased } = useInvestmentData(userId);
+    const { lang } = useSettingsProvider()
+
+    const titlesMap = {
+        coffee_shop: {
+            ru: 'Кофейня',
+            en: 'Coffeeshop'
+        },
+        zoo_shop: {
+            ru: 'Зоомагазин',
+            en: 'Zoo-shop'
+        },
+        game_center: {
+            ru: 'Игровой центр',
+            en: 'Game Center'
+        }
+    }
 
     useEffect(() => {
         useTelegram.setBackButton(() => navigate("/"));
@@ -506,11 +554,8 @@ const InvestmentScreen = () => {
             game_center: Assets.Icons.gameCenter
         };
 
-        const titlesMap = {
-            coffee_shop: 'Кофейня',
-            zoo_shop: 'Зоомагазин',
-            game_center: 'Игровой центр'
-        }
+      
+
 
         setModalData({
             image: iconMap[investment_type],
@@ -521,11 +566,36 @@ const InvestmentScreen = () => {
                 await handleUpgrade(investment_type);
                 setIsModalVisible(false);
             },
-            title: titlesMap[investment_type],
+            title: titlesMap[investment_type][lang],
             canUpgrade: userParameters.coins >= investmentData.upgrade_info.price
         });
         setIsModalVisible(true);
     };
+
+    const translations = {
+        autoclaim: {
+            ru: 'Автоклейм',
+            en: 'Autoclaim'
+        },
+        autoclaimDescription: {
+            ru: 'Автоматический сбор инвестиций - лучший способ сэкономить время!',
+            en: 'Automated investment claims - the best way to save time!'
+        },
+        investments: {
+            ru: 'Инвестиции',
+            en: 'Investments'
+        },
+        investmentsDescription: {
+            ru: 'Инвестируй немного денег в бизнес, и забирай доход каждый час',
+            en: 'Invest a little - collect interest hourly'
+        }
+    }
+
+    const autoclaimModalDataFixed = {
+        image: Assets.Icons.investManagerActive,
+        title: translations.autoclaim[lang],
+        description: translations.autoclaimDescription[lang]
+    }
 
     if (isLoading) {
         return <FullScreenSpinner />
@@ -533,7 +603,7 @@ const InvestmentScreen = () => {
         return (
             <Screen>
                 <HomeHeader></HomeHeader>
-                <ScreenBody activity={"Инвестиции"}>
+                <ScreenBody activity={translations.investments[lang]}>
                     {isModalVisible && (
                         <Modal
                             onClose={() => setIsModalVisible(false)}
@@ -562,27 +632,20 @@ const InvestmentScreen = () => {
     fontFamily:'Anonymous pro',
     padding:'0 16px'
 }}>
-    Инвестируй немного денег в бизнес, и забирай доход каждый час
+    {translations.investmentsDescription[lang]}
 </h2>
   
                     <ThreeSectionCard
-                        title={'Кофейня'}
+                        title={titlesMap.coffee_shop[lang]}
                         leftImage={Assets.Icons.investmentCoffeeShopIcon}
-                        rightImage={Assets.Icons.investManager
-                            
-                            
-                        }
+                        rightImage={Assets.Icons.investManager}
                         onClick={() => handleModalOpen('coffee_shop')}
                         tz={investments?.tz}
                         started_at={investments.coffee_shop?.started_at || null}
                         handleClaim={() => handleClaim('coffee_shop')}
                         openAutoclaimModal={() => {
                             setAutoclaimModalData(
-                                {
-                                    image: Assets.Icons.investManagerActive,
-                                    title: 'Автоклейм',
-                                    description: 'Автоматический сбор инвестиций - лучший способ сэкономить время!'
-                                }
+                                autoclaimModalDataFixed   
                             )
                             setIsAutoClaimModalVisible(true)
                         }}
@@ -590,7 +653,7 @@ const InvestmentScreen = () => {
                         userParameters={userParameters}
                     />
                     <ThreeSectionCard
-                        title={'Зоомагазин'}
+                        title={titlesMap.zoo_shop[lang]}
                         leftImage={Assets.Icons.investmentZooShopIcon}
                         rightImage={Assets.Icons.investManager
 
@@ -604,18 +667,14 @@ const InvestmentScreen = () => {
                         {...investments.zoo_shop}
                         openAutoclaimModal={() => {
                             setAutoclaimModalData(
-                                {
-                                    image: Assets.Icons.investManagerActive,
-                                    title: 'Автоклейм',
-                                    description: 'Автоматический сбор инвестиций - лучший способ сэкономить время!'
-                                }
+                                autoclaimModalDataFixed
                             )
                             setIsAutoClaimModalVisible(true)
                         }}
                         userParameters={userParameters}
                     />
                     <ThreeSectionCard
-                        title={'Игровой центр'}
+                        title={titlesMap.game_center[lang]}
                         leftImage={Assets.Icons.gameCenter}
                         rightImage={Assets.Icons.investManager}
                         onClick={() => handleModalOpen('game_center')}
@@ -626,11 +685,7 @@ const InvestmentScreen = () => {
                         {...investments.game_center}
                         openAutoclaimModal={() => {
                             setAutoclaimModalData(
-                                {
-                                    image: Assets.Icons.investManagerActive,
-                                    title: 'Автоклейм',
-                                    description: 'Автоматический сбор инвестиций - лучший способ сэкономить время!'
-                                }
+                                autoclaimModalDataFixed
                             )
                             setIsAutoClaimModalVisible(true)
                         }}

@@ -22,6 +22,17 @@ import FilterModal from "../../../components/complex/FilterModal/FilterModal"
 import { SquareButton } from '../../../components/simple/SquareButton/SquareButton'
 import { useSettingsProvider } from "../../../hooks"
 
+const translations = {
+  equipped: {
+    ru: 'Используется',
+    en: 'Equipped'
+  },
+  choose: {
+    ru: 'Выбрать',
+    en: 'Choose'
+  }
+}
+
 const GridItem = ({
   icon,
   title,
@@ -35,6 +46,7 @@ const GridItem = ({
   type,
   productType
 }) => {
+  const { lang } = useSettingsProvider()
   return (
     <div
       className="clothing-item-container" // Основной контейнер элемента одежды
@@ -212,7 +224,7 @@ const GridItem = ({
             active={equipped}
             fontFamily={"Anonymous pro"}
             fontWeight={"300"}
-            text={"Используется"}
+            text={translations.equipped[lang]}
             fontSize={14}
             paddingTop={1}
             borderColor={"rgba(243, 117, 0, 0)"}
@@ -231,7 +243,7 @@ const GridItem = ({
             active={true}
             fontFamily={"Anonymous pro"}
             fontWeight={"300"}
-            text={"Выбрать"}
+            text={translations.choose[lang]}
             color={"rgb(255, 255, 255)"}
             fontSize={14}
             paddingTop={1}
@@ -614,14 +626,6 @@ const InventoryTab = ({ userId }) => {
         clothesEquip={clothesEquip}
         lang={lang}
       />
-      {currentItem && (
-        <Modal
-          width={"100vw"}
-          bottom={"-25vh"}
-          height={"100vh"}
-          data={{ title: "Lol" }}
-        />
-      )}
       {/* {foods?.map((food, index) => (
         <ItemCard
           key={index}

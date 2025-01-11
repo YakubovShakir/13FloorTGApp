@@ -43,13 +43,9 @@ const ActivityScreen = () => {
 
   // Object with titles for each tab
   const tabTitles = {
-
     works: translations.career[lang],
     skills: translations.learning[lang],
   };
-
-  // Works and Skills
-  const [works, setWorks] = useState(null);
 
   // Modal showed on button click
   const [visibleModal, setVisibleModal] = useState(false);
