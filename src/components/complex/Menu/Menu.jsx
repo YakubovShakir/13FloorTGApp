@@ -113,10 +113,11 @@ const Menu = ({ screenMenu, activeName, hasBg = true }) => {
     <div className={screenMenu ? "screenMenu Menu" : "Menu"} style={{ width: '100vw', zIndex: 99999 }}>
       {/* Контейнер для кнопки BigButton */}
       <div className="MenuButtonContainer">
+        <div className="MenuButtonBg">
         <Button
           className="clothing-item-equip-button"
-          shadowColor={"#22c7a3"}
-          width={"16%"}
+          shadowColor={"rgb(199 80 21)"}
+          width={"90px"}
           marginBottom={"5"}
           color={"rgb(255, 255, 255)"}
           height={34}
@@ -126,12 +127,13 @@ const Menu = ({ screenMenu, activeName, hasBg = true }) => {
           text={translations.start[lang]}
           fontSize={14}
           paddingTop={1}
-          borderColor={"#22c7a3"}
+          borderColor={"rgb(255, 141, 0)"}
           backdropFilter={"blur(5px)"}
-          ownColor={"#22c7a32d"}
-          bgColor={"#22c7a32d"}
+          ownColor={"rgb(255, 118, 0)"}
+          bgColor={"rgb(255, 118, 0)"}
           onClick={() => navigate('/action')}
         />
+        </div>
       </div>
 
       {/* Контейнер с иконками кнопок */}

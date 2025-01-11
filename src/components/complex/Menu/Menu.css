@@ -60,3 +60,16 @@
   background-color: #22c7a32d;
   border-color: #22c7a3;
 }
+
+.MenuButtonBg{
+  border-radius: 5px;
+    border-top: solid 1px #b1b1b173;
+    padding: 5px 6px 11px 6px;
+    background-color: #212121d9;
+   
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 15vh;
+    
+}
