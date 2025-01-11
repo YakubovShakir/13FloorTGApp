@@ -19,8 +19,6 @@ import {
 import formatTime from "../../../utils/formatTime"
 import countPercentage from "../../../utils/countPercentage.js"
 import { useSettingsProvider } from "../../../hooks"
-import { duration } from "moment-timezone"
-
 
 const SkillTab = ({
   modalData,
@@ -124,11 +122,9 @@ const SkillTab = ({
 
   // Handle buy skill
   const handleBuySkill = async (skill) => {
-    console.log(skill)
     await startProcess("skill", userId, skill?.skill_id)
     const userParameters = await getParameters(userId)
     const userLearningSkills = await getProcesses("skill", userId)
-    console.log(userLearningSkills)
 
     setUserParameters(userParameters)
     setUserLearningSkills(userLearningSkills)
@@ -215,8 +211,8 @@ const SkillTab = ({
         {
           icon: !(learned || learning) && Icons.balance,
           text:
-            (translations.learned[lang] && translations.learned[lang]) ||
-            (translations.learning[lang] && translations.boost[lang]) ||
+            (learned && translations.learned[lang]) ||
+            (learning && translations.boost[lang]) ||
             skill?.coins_price,
           onClick: bottomButtonOnClick,
           active: checkActiveSkillButton(skill),
@@ -341,7 +337,7 @@ const SkillTab = ({
           key={index}
           ItemIcon={skill?.link}
           ItemTitle={skill.name[lang]}
-          ItemDescription={skill?.description}
+          ItemDescription={skill?.description && skill?.description[lang]}
           ItemParamsBlocks={getItemSkillParamsBlock(skill)}
           ItemButtons={getItemSkillButton(skill)}
           ItemIndex={index + 1}

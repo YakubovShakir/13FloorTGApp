@@ -11,28 +11,30 @@ import UserContext from "../../UserContext"
 import useTelegram from "../../hooks/useTelegram"
 import taskTabIcon from "./icons/taskTab.png"
 import TaskTab from "./tabs/TaskTab"
+import { useSettingsProvider } from "../../hooks"
+
+const translations = {
+  tasks: {
+    ru: 'Задания',
+    en: 'Tasks'
+  }
+}
+
 const TaskScreen = () => {
-  const [activeTab, setActiveTab] = useState("task")
+  const [activeTab] = useState("task")
 
   const { userParameters, setUserParameters, userId } = useContext(UserContext)
   const navigate = useNavigate()
-  const { Icons } = Assets
-
-  const tabs = [
-    { icon: taskTabIcon, callback: () => setActiveTab("task") },
-    { icon: taskTabIcon, callback: () => setActiveTab("ivent") },
-  ]
+  const { lang } = useSettingsProvider()
 
   useEffect(() => {
     useTelegram.setBackButton(() => navigate("/"))
   }, [])
-  useEffect(() => {
-    useTelegram.setBackButton(() => navigate("/"))
-  }, [])
+  
   return (
     <Screen>
       <HomeHeader screenHeader />
-      <ScreenBody activity={'Задания'}>
+      <ScreenBody activity={translations.tasks[lang]}>
         {/* Task Tab */}
 
         {activeTab === "task" && (

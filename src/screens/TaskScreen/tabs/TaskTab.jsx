@@ -133,7 +133,7 @@ const TaskTab = ({ userId, userParameters, setUserParameters }) => {
           ItemBottomAmount={task.reward}
           ItemIcon={Assets.Icons.shittonsmoney}
           ItemTitle={task?.title[lang]}
-          ItemDescription={task?.description}
+          ItemDescription={task?.description[lang]}
           ItemButtons={task?.buttons}
           ItemIndex={index}
         />

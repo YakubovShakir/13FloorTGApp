@@ -1,5 +1,6 @@
 import React, { useState } from "react"
 import Assets from "../../../assets"
+import { useSettingsProvider } from "../../../hooks"
 
 const FilterButton = ({
   title,
@@ -101,6 +102,17 @@ const Tiers = [
   },
 ]
 
+const translations = {
+  category: {
+    ru: 'Категория',
+    en: 'Category'
+  },
+  tier: {
+    ru: 'Тир',
+    en: 'Tier'
+  }
+}
+
 export default ({
   baseStyles,
   isOpen,
@@ -109,6 +121,7 @@ export default ({
   setIsFilterModalOpen,
   currentComplexFilters
 }) => {
+  const { lang } = useSettingsProvider()
   return (
     <div
       style={{
@@ -160,12 +173,12 @@ export default ({
                 fontSize: 16,
               }}
             >
-              Категория
+              {translations.category[lang]}
             </p>
             <div style={{ display: "flex", justifyContent: "space-between" }}>
               {Categories.map((category) => (
                 <FilterButton
-                  title={category.title}
+                  title={lang === 'ru' ? category.title : category.filteredValue}
                   filteredField={category.filteredField}
                   filteredValue={category.filteredValue}
                   addComplexFilter={() =>
@@ -200,7 +213,7 @@ export default ({
                 fontSize: 15,
               }}
             >
-              Тир Одежды
+              {translations.tier[lang]}
             </p>
             <div style={{ display: "flex", justifyContent: "space-between" }}>
               {Tiers.slice(0, 4).map((tier) => (

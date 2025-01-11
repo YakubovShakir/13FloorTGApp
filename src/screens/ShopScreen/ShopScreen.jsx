@@ -14,16 +14,33 @@ import CoinsTab from "./tabs/CoinsTab"
 import BoostTab from "./tabs/BoostTab"
 import StarsTab from "./tabs/StarsTab"
 import InventoryTab from "./tabs/InventoryTab"
+import { useSettingsProvider } from "../../hooks"
+
+const translations = {
+  clothes: {
+    ru: 'Одежда',
+    en: 'Clothes'
+  },
+  collection: {
+    ru: 'Коллекция',
+    en: 'Collection'
+  },
+  shop: {
+    ru: 'Магазин',
+    en: 'Shop'
+  }
+}
 
 const ShopScreen = () => {
   const [activeTab, setActiveTab] = useState("inventory")
 
   const { userParameters, setUserParameters, userId } = useContext(UserContext)
   const navigate = useNavigate()
-  const { Icons } = Assets
+  const { lang } = useSettingsProvider()
+
   const tabs = [
-    { label: 'Коллекция', callback: () => setActiveTab("inventory") },
-    { label: 'Магазин', callback: () => setActiveTab("coins") },
+    { label: translations.collection[lang], callback: () => setActiveTab("inventory") },
+    { label: translations.shop[lang], callback: () => setActiveTab("coins") },
     // { icon: Icons.starsIcon, callback: () => setActiveTab("stars") },
   ]
 
@@ -34,7 +51,7 @@ const ShopScreen = () => {
   return (
     <Screen>
       <HomeHeader screenHeader />
-      <ScreenBody activity={'Одежда'}>
+      <ScreenBody activity={translations.clothes[lang]}>
         <ScreenTabs tabs={tabs} />
 
         {activeTab === "inventory" && (

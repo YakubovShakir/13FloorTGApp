@@ -38,6 +38,16 @@ const getBases = (race, gender) => {
   }
 }
 
+const getHand = (race) => {
+  const map = {
+    [RACES.WHITE]: Assets.Images.euroHand,
+    [RACES.BLACK]: Assets.Images.blackHand,
+    [RACES.ASIAN]: Assets.Images.asianHand,
+  }
+
+  return map[race]
+}
+
 const pullGenderedClothingImage = (gender, clothing) => {
   return gender === 'male' ? clothing.male_link : clothing.female_link
 }
@@ -69,6 +79,7 @@ const Player = ({
       ...(clothing?.top ? [pullGenderedClothingImage(personage?.gender, clothing?.top)] : []),
       ...(clothing?.pants ? [pullGenderedClothingImage(personage?.gender, clothing?.pants)] : []),
       ...(clothing?.shoes ? [pullGenderedClothingImage(personage?.gender, clothing?.shoes)] : []),
+      personage.race && getHand(personage?.race),
     ].filter(Boolean); // Remove any undefined URLs
 
     // Preload images
@@ -144,7 +155,7 @@ const Player = ({
               <img
                 key={index}
                 className="PlayerHead"
-                style={{ zIndex: "5" }}
+                style={{ zIndex: 5 }}
                 src={pullGenderedClothingImage(personage?.gender, clothing)}
                 alt="Head"
             />
@@ -168,6 +179,14 @@ const Player = ({
               className="PlayerFeet" 
               src={pullGenderedClothingImage(personage?.gender, clothing.shoes)} 
               alt="Feet" 
+            />
+          )}
+          {personage && personage?.gender === 'female' && personage?.race && (
+            <img 
+              className="PlayerFeet" 
+              src={getHand(personage.race)} 
+              alt="Hand" 
+              style={{ zIndex: 4 }}
             />
           )}
         </>

@@ -10,6 +10,7 @@ import { motion } from "framer-motion"
 import { FullScreenSpinner } from "../Home/Home"
 import clothingSnapshot from "./clothingSnapshot"
 import { SquareButton } from "../../components/simple/SquareButton/SquareButton"
+import { useSettingsProvider } from "../../hooks"
 
 const STEPS = {
   Gender: "gender",
@@ -67,6 +68,25 @@ export const GENDERS = {
   FEMALE: "female",
 }
 
+const translations = {
+  next: {
+    ru: 'Далее',
+    en: 'Next'
+  },
+  back: {
+    ru: 'Назад',
+    en: 'Back'
+  },
+  enterName: {
+    ru: 'Имя персонажа',
+    en: "Personage's name"
+  },
+  start: {
+    ru: 'Начать',
+    en: 'Start'
+  }
+}
+
 const PersonageCreationScreen = () => {
   const [gender, setGender] = useState(GENDERS.FEMALE)
   const [race, setRace] = useState(RACES.WHITE)
@@ -74,6 +94,7 @@ const PersonageCreationScreen = () => {
   const [isLoading, setIsLoading] = useState(true)
   const [currentStep, setCurrentStep] = useState(STEPS.Gender)
   const { userId, setUserPersonage } = useContext(UserContext)
+  const { lang } = useSettingsProvider()
   const navigate = useNavigate()
 
   const handlePersonageCreation = async () => {
@@ -256,7 +277,7 @@ const PersonageCreationScreen = () => {
               active={true}
               fontFamily={"Anonymous pro"}
               fontWeight={"300"}
-              text={'Далее'}
+              text={translations.next[lang]}
               fontSize={14}
               color={"rgb(255, 255, 255)"}
               ownColor={
@@ -324,7 +345,7 @@ const PersonageCreationScreen = () => {
               fontFamily={"Anonymous pro"}
               color={"rgb(255, 255, 255)"}
               fontWeight={"300"}
-              text={'Назад'}
+              text={translations.back[lang]}
               fontSize={14}
               ownColor={
                 "linear-gradient(rgb(18, 4, 2) 0%, rgba(243, 117, 0, 0.2) 100%)"
@@ -384,7 +405,7 @@ const PersonageCreationScreen = () => {
               fontFamily={"Anonymous pro"}
               color={"rgb(255, 255, 255)"}
               fontWeight={"300"}
-              text={'Далее'}
+              text={translations.next[lang]}
               fontSize={14}
               ownColor={
                 "linear-gradient(rgb(18, 4, 2) 0%, rgba(243, 117, 0, 0.2) 100%)"
@@ -452,7 +473,7 @@ const PersonageCreationScreen = () => {
                 active={personageName.length >= 2}
                 fontFamily={"Anonymous pro"}
                 fontWeight={"300"}
-                text={'Начать'}
+                text={translations.start[lang]}
                 fontSize={14}
                 ownColor={
                   "linear-gradient(rgb(18, 4, 2) 0%, rgba(243, 117, 0, 0.2) 100%)"
@@ -487,7 +508,7 @@ const PersonageCreationScreen = () => {
               }}
             >
               <input
-                placeholder="Имя персонажа"
+                placeholder={translations.enterName[lang]}
                 style={{
                   backgroundColor: "transparent",
                   border: "none",

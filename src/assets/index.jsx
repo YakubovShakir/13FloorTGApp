@@ -212,6 +212,10 @@ import shittonsmoney from './IMG/icons/shittonsmoney.png'
 import rusIcon from './IMG/icons/rus.png'
 import engIcon from './IMG/icons/eng.png'
 
+import blackHand from './IMG/black-hand.png'
+import asianHand from './IMG/asian-hand.png'
+import euroHand from './IMG/euro-hand.png'
+
 export function getImgUrl(name) {
   return new URL(`${name}`, import.meta.url).href
 }
@@ -231,7 +235,10 @@ const Assets = {
     hightHeels,
     hair,
     afro,
-    missingGirl
+    missingGirl,
+    blackHand,
+    asianHand,
+    euroHand
   },
   Layers: {
     cover,

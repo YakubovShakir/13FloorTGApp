@@ -13,16 +13,21 @@ import UserContext from "../../UserContext"
 import FoodTab from "./tabs/FoodTab"
 import BoostTab from "./tabs/BoostTab"
 import InventoryTab from "./tabs/InventoryTab"
+import { useSettingsProvider } from "../../hooks"
+
+const translations = {
+  food: {
+    ru: 'Еда',
+    en: 'Food'
+  }
+}
 
 const CareScreen = () => {
   const [activeTab, setActiveTab] = useState("foods")
 
   const { userParameters, setUserParameters, userId } = useContext(UserContext)
   const navigate = useNavigate()
-  const { Icons } = Assets
-  const tabs = [
-    
-  ]
+  const { lang } = useSettingsProvider()
 
   useEffect(() => {
     useTelegram.setBackButton(() => navigate("/"))
@@ -31,9 +36,7 @@ const CareScreen = () => {
   return (
     <Screen>
       <HomeHeader screenHeader />
-      <ScreenBody activity={'Еда'}>
-       
-
+      <ScreenBody activity={translations.food[lang]}>
         {/* Food Tab */}
         {activeTab === "foods" && (
           <FoodTab
@@ -42,11 +45,6 @@ const CareScreen = () => {
             setUserParameters={setUserParameters}
           />
         )}
-
-        
-
-       
-        {/* Store Data */}
       </ScreenBody>
     </Screen>
   )
