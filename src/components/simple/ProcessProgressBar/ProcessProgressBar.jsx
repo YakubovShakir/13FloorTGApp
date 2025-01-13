@@ -4,6 +4,7 @@ import "./ProcessProgressBar.css";
 import Assets from "../../../assets";
 import { getWorks } from "../../../services/work/work";
 import Button from "../../simple/Button/Button"
+import { useSettingsProvider } from "../../../hooks";
 
 const ProcessProgressBar = ({
   activeProcess = null,
@@ -19,11 +20,13 @@ const ProcessProgressBar = ({
   const [iconRight, setIconRight] = useState(null);
   const [showModal, setShowModal] = useState(false); // Состояние для отображения модального окна
 
+  const { lang } = useSettingsProvider()
+
   const getLabels = async (processType, rate) => {
     const works = await getWorks();
     const work = works?.find((work) => work?.work_id === activeProcess?.type_id);
     const typeToLabel = {
-      work: [work?.name, `${"+" + work?.coins_in_hour}/Час`],
+      work: [work?.name[lang], `${"+" + work?.coins_in_hour}/` + (lang === 'en' ? 'Hour' : 'Час')],
       training: ["Training", rate],
       sleep: ["Long Sleep", rate],
     };

@@ -338,7 +338,7 @@ export const WorkTab = ({
       {userParameters?.work_id !== 0 && <ItemCard
         ItemIcon={getWorkById(userParameters?.work_id)?.link}
         ItemDescription={translations.workDesc[lang]}
-        ItemTitle={getWorkById(userParameters?.work_id)?.name}
+        ItemTitle={getWorkById(userParameters?.work_id)?.name[lang]}
         ItemParamsBlocks={getItemWorkParams(userParameters?.work_id)}
         ItemButtons={getItemWorkButton(userParameters?.work_id)}
         ItemIndex={0}
