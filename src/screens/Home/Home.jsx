@@ -4,7 +4,6 @@ import HomeHeader from "../../components/complex/HomeHeader/HomeHeader"
 import Player from "../../components/complex/Player/Player"
 import Menu from "../../components/complex/Menu/Menu"
 import Window from "../../components/complex/Windows/Window/Window"
-import InventoryCell from "../../components/simple/InventoryCell/InventoryCell"
 import Assets from "../../assets/index"
 import useTelegram from "../../hooks/useTelegram"
 import ProcessProgressBar from "../../components/simple/ProcessProgressBar/ProcessProgressBar"
@@ -13,6 +12,7 @@ import {
   getTrainingParameters,
   getUserActiveProcess,
 } from "../../services/user/user"
+import { stopProcess } from '../../services/process/process'
 import UserContext from "../../UserContext"
 import countPercentage from "../../utils/countPercentage"
 import { updateProcessTimers } from "../../utils/updateTimers"
@@ -20,10 +20,7 @@ import { getLevels } from "../../services/levels/levels"
 import { motion } from 'framer-motion'
 import { useNavigate } from "react-router-dom"
 
-import SheepJumpGame from "./Game";
-
 export const FullScreenSpinner = ({ color = "#f37500", size = 70 }) => {
-  // Generate 60 steps of opacity transition from transparent torgb(0, 0, 0)
   const backgroundFrames = Array.from({ length: 60 }, (_, i) => {
     const opacity = (i + 1) / 60;
     return `#000000, ${opacity})`;
@@ -31,18 +28,9 @@ export const FullScreenSpinner = ({ color = "#f37500", size = 70 }) => {
 
   return (
     <motion.div
-      initial={{
-        opacity: 0,
-        backgroundColor: "transparent"
-      }}
-      animate={{
-        opacity: 1,
-        backgroundColor: backgroundFrames
-      }}
-      transition={{
-        duration: 1,
-        ease: "easeInOut"
-      }}
+      initial={{ opacity: 0, backgroundColor: "transparent" }}
+      animate={{ opacity: 1, backgroundColor: backgroundFrames }}
+      transition={{ duration: 1, ease: "easeInOut" }}
       style={{
         position: 'fixed',
         top: 0,
@@ -89,38 +77,29 @@ const getBgByCurrentProcess = (processType) => {
   }
 
   const bg = typeToBgMap[processType]
-
   return `url(${bg || BG.homeBackground})`
 }
 
 const Home = () => {
+  const navigate = useNavigate()
   const { Icons, BG } = Assets
   const [currentWindow, setCurrentWindow] = useState(null)
   const [currentProcess, setCurrentProcess] = useState(null)
   const [visibleWindow, setVisibleWindow] = useState(false)
-  const [inventoryEdit, setInventoryEdit] = useState(false)
+  const [visibleSettingsModal, setVisibleSettingsModal] = useState(false)
   const [trainingParamters, setTrainingParameters] = useState(null)
   const [levels, setLevels] = useState(null)
+  const [isStoppingProcess, setIsStoppingProcess] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
 
   const { userId, userParameters, appReady, userPersonage, userClothing, fetchParams, setUserParameters, userShelf } = useContext(UserContext)
-
-  const translations = {
-    start: {
-      ru: 'Начать',
-      en: 'Start'
-    }
-  }
 
   const getUserSleepDuration = () => {
     const duration = levels?.find(
       (level) => level?.level === userParameters?.level
     )?.sleep_duration
-
     return duration
   }
-
-  const [isLoading, setIsLoading] = useState(true)
-  const navigate = useNavigate()
 
   useEffect(() => {
     useTelegram.hideBackButton()
@@ -140,7 +119,6 @@ const Home = () => {
         ...Object.values(userClothing)
       ];
 
-      // Use Promise.all for concurrent image loading
       await Promise.all(imageUrls.map(url => {
         return new Promise((resolve, reject) => {
           const img = new Image();
@@ -156,7 +134,6 @@ const Home = () => {
 
   useEffect(() => {
     if (currentProcess?.active) {
-      console.log(currentProcess?.seconds)
       const updateParametersFunction = async () => {
         const parameters = await getParameters(userId)
         setUserParameters(parameters.parameters)
@@ -168,46 +145,78 @@ const Home = () => {
   }, [currentProcess])
 
   useEffect(() => {
-    if (appReady) {
-      console.log('Clothing', userPersonage)
-      if (userPersonage === null || JSON.stringify(userPersonage) === JSON.stringify({}) || !userPersonage) {
-        return navigate('/personage-create')
-      }
-      getUserActiveProcess(userId)
-        .then(process => {
+    const initializeHome = async () => {
+      if (appReady) {
+        if (!userPersonage || JSON.stringify(userPersonage) === '{}') {
+          navigate('/personage-create')
+          return
+        }
+
+        try {
+          const process = await getUserActiveProcess(userId)
+          if (isStoppingProcess && !process) {
+            setIsStoppingProcess(false)
+            navigate('/')
+            return
+          }
           setCurrentProcess(process)
           useTelegram?.setReady()
-        })
-      getTrainingParameters(userId).then((r) => setTrainingParameters(r)) // Get user training parameters
-      getLevels().then((levels) => setLevels(levels))
+
+          const trainingParams = await getTrainingParameters(userId)
+          setTrainingParameters(trainingParams)
+
+          const levelsData = await getLevels()
+          setLevels(levelsData)
+        } catch (error) {
+          console.error('Error initializing home:', error)
+          setIsStoppingProcess(false)
+        }
+      }
     }
 
+    initializeHome()
+    
     setTimeout(() => {
       setIsLoading(false)
-      console.log('params', userShelf)
     }, 1500)
-  }, [appReady])
+  }, [appReady, isStoppingProcess])
 
-  // Transition variants for scene changes
+  const handleProcessStop = async () => {
+    try {
+      setIsStoppingProcess(true)
+      await stopProcess(userId)
+      await fetchParams()
+      setCurrentProcess(null)
+      navigate('/')
+    } catch (error) {
+      console.error('Error stopping process:', error)
+      setIsStoppingProcess(false)
+    }
+  }
+
   const pageVariants = {
     initial: { opacity: 0, scale: 0.95 },
     in: {
       opacity: 1,
       scale: 1,
-      transition: {
-        duration: 0.3,
-        type: "tween"
-      }
+      transition: { duration: 0.3, type: "tween" }
     },
     out: {
       opacity: 0,
       scale: 1.05,
-      transition: {
-        duration: 0.3,
-        type: "tween"
-      }
+      transition: { duration: 0.3, type: "tween" }
     }
   }
+
+  const renderProcessProgressBar = (process, percentage, rate, reverse = false) => (
+    <ProcessProgressBar
+      activeProcess={process}
+      inputPercentage={percentage}
+      rate={rate}
+      reverse={reverse}
+      onProcessStop={handleProcessStop}
+    />
+  )
   
   const renderScene = (content) => (
     <motion.div
@@ -263,9 +272,9 @@ const Home = () => {
         <HomeHeader
           onClick={() => setVisibleSettingsModal(!visibleSettingsModal)}
         />
-        <img className="shelf1" src={Assets.HOME.shelf} />
-        <img className="shelf2" src={Assets.HOME.shelf} />
-        <img className="couch" src={Assets.HOME.couch} />
+        <img className="shelf1" src={Assets.HOME.shelf} alt="shelf1" />
+        <img className="shelf2" src={Assets.HOME.shelf} alt="shelf2" />
+        <img className="couch" src={Assets.HOME.couch} alt="couch" />
         <div style={{ position: 'absolute', zIndex: 2 }}>
           <Player
             bottom={"calc(-85vh + 50px)"}
@@ -276,16 +285,6 @@ const Home = () => {
             clothing={userClothing}
           />
         </div>
-        {/* {!currentProcess && (
-          <motion.img 
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.3 }}
-            className="HomePatImg" 
-            src={Icons.accessory.patCat} 
-            alt="Pat" 
-          />
-        )} */}
         <Menu hasBg={false} />
         {!currentProcess && (
           <motion.div
@@ -297,50 +296,50 @@ const Home = () => {
             {userShelf && (
               <>
                 <div className="shelf-container1">
-                  <img className={'shelf-flower'} src={userShelf.flower?.shelf_link} />
-                  <img className={'shelf-award'} src={userShelf.award?.shelf_link} />
-                  <img className={'shelf-event'} src={userShelf.event?.shelf_link} />
+                  <img className="shelf-flower" src={userShelf.flower?.shelf_link} alt="flower" />
+                  <img className="shelf-award" src={userShelf.award?.shelf_link} alt="award" />
+                  <img className="shelf-event" src={userShelf.event?.shelf_link} alt="event" />
                 </div>
                 <div className="shelf-container2">
-                  <img className={'shelf-neko'} src={userShelf.neko?.shelf_link} />
-                  <img className={'shelf-flag'} src={userShelf.flag?.shelf_link} />
+                  <img className="shelf-neko" src={userShelf.neko?.shelf_link} alt="neko" />
+                  <img className="shelf-flag" src={userShelf.flag?.shelf_link} alt="flag" />
                 </div>
               </>
             )}
-          </motion.div >
-        )
-        }
-
-        {
-          visibleWindow && (
-            <Window
-              title={currentWindow.title}
-              data={currentWindow.data}
-              tabs={currentWindow.tabs}
-              onClose={setVisibleWindow}
-            />
-          )
-        }
+          </motion.div>
+        )}
+        {visibleWindow && (
+          <Window
+            title={currentWindow.title}
+            data={currentWindow.data}
+            tabs={currentWindow.tabs}
+            onClose={setVisibleWindow}
+          />
+        )}
       </>
     )
   }
 
-  // // Work process scene
   if (currentProcess?.type === "work") {
     return renderScene(
       <>
         <HomeHeader
           onClick={() => setVisibleSettingsModal(!visibleSettingsModal)}
         />
-          <Player
-           bottom="calc(-1vh + 141px)"
-            width="37vw"
-            left={"9vw"}
-            top={"35vh"}
-            personage={userPersonage}
-            clothing={userClothing}
-          />
-        <ProcessProgressBar activeProcess={currentProcess} inputPercentage={countPercentage(currentProcess?.seconds, 60)} reverse/>
+        <Player
+          bottom="calc(-1vh + 141px)"
+          width="37vw"
+          left={"9vw"}
+          top={"35vh"}
+          personage={userPersonage}
+          clothing={userClothing}
+        />
+        {renderProcessProgressBar(
+          currentProcess,
+          countPercentage(currentProcess?.seconds, 60),
+          undefined,
+          true
+        )}
         <Menu />
         {visibleWindow && (
           <Window
@@ -354,29 +353,28 @@ const Home = () => {
     )
   }
 
-  // Training process scene
   if (currentProcess?.type === "training") {
     return renderScene(
       <>
         <HomeHeader
           onClick={() => setVisibleSettingsModal(!visibleSettingsModal)}
         />
-          <Player
+        <Player
           bottom="calc(-1vh + 141px)"
-            width="37vw"
-            left={"9vw"}
-            top={"35vh"}
-            personage={userPersonage}
-            clothing={userClothing}
-          />
-        <ProcessProgressBar
-          activeProcess={currentProcess}
-          inputPercentage={countPercentage(
+          width="37vw"
+          left={"9vw"}
+          top={"35vh"}
+          personage={userPersonage}
+          clothing={userClothing}
+        />
+        {renderProcessProgressBar(
+          currentProcess,
+          countPercentage(
             currentProcess?.duration * 60 + currentProcess?.seconds,
             trainingParamters?.duration * 60
-          )}
-          rate={trainingParamters?.mood_profit}
-        />
+          ),
+          trainingParamters?.mood_profit
+        )}
         <Menu />
         {visibleWindow && (
           <Window
@@ -390,21 +388,20 @@ const Home = () => {
     )
   }
 
-  // Sleep process scene
   if (currentProcess?.type === "sleep") {
     return renderScene(
       <>
         <HomeHeader
           onClick={() => setVisibleSettingsModal(!visibleSettingsModal)}
         />
-
         <Player
-        bottom={"calc(-71vh + 50px)"}
+          bottom={"calc(-71vh + 50px)"}
           width="81vw"
           left={"5vw"}
           top={"55vmax"}
           personage={userPersonage}
-          clothing={userClothing} />
+          clothing={userClothing}
+        />
         <motion.img
           src={Assets.Layers.cover}
           initial={{ opacity: 0 }}
@@ -417,18 +414,16 @@ const Home = () => {
             bottom: 0,
             zIndex: 0,
           }}
+          alt="cover"
         />
-        {/* проп reverse отвечает на направление прогресс-бара */}
-        <ProcessProgressBar
-          inputPercentage={countPercentage(
+        {renderProcessProgressBar(
+          currentProcess,
+          countPercentage(
             (currentProcess?.duration * 60 + currentProcess?.seconds),
-            getUserSleepDuration() *
-            60
-          )}
-          activeProcess={currentProcess}
-          rate={"Time"}
-        />
-
+            getUserSleepDuration() * 60
+          ),
+          "Time"
+        )}
         <Menu />
         {visibleWindow && (
           <Window
