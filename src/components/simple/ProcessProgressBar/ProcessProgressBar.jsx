@@ -1,10 +1,12 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./ProcessProgressBar.css";
 import Assets from "../../../assets";
 import { getWorks } from "../../../services/work/work";
 import Button from "../../simple/Button/Button"
 import { useSettingsProvider } from "../../../hooks";
+import { stopProcess } from "../../../services/process/process";
+import UserContext, { UserProvider } from "../../../UserContext";
 
 const ProcessProgressBar = ({
   activeProcess = null,
@@ -20,6 +22,7 @@ const ProcessProgressBar = ({
   const [iconRight, setIconRight] = useState(null);
   const [showModal, setShowModal] = useState(false); // Состояние для отображения модального окна
 
+  const { userId, fetchParams } = useContext(UserContext)
   const { lang } = useSettingsProvider()
 
   const getLabels = async (processType, rate) => {
@@ -103,11 +106,15 @@ const ProcessProgressBar = ({
   };
 
   const handleCloseModal = () => {
+    navigate('/#');
     setShowModal(false);
   };
 
-  const handleConfirmClose = () => {
+  const handleConfirmClose = async () => {
+    await stopProcess(userId)
+    await fetchParams()
     setShowModal(false);
+    navigate('/');
     // Здесь можно добавить логику завершения процесса
   };
 
@@ -174,7 +181,7 @@ const ProcessProgressBar = ({
           <div className="modal-content">
             <p>Вы действительно хотите завершить процесс?</p>
             <div className="modal-buttons">
-              <button onClick={handleConfirmClose}>Да</button>
+              <button onClick={() => handleConfirmClose()}>Да</button>
               <button onClick={handleCloseModal}>Нет</button>
             </div>
           </div>
