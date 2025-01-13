@@ -18,8 +18,10 @@ const Bar = ({ title, onClick, isChecked = true, iconLeft, iconRight }) => {
       alignItems: 'center',
       width: '100%',
       padding: '8px 8px',
-      background: 'rgba(37, 37, 37, 0.48)',
-      borderRadius: 8
+      background: '#121212',
+      borderRadius: 8,
+      borderBottom: 'solid 1px #7575753b',
+      boxShadow: '0px 0px 8px 2px rgba(0, 0, 0, 0.24) inset'
     },
     icon: {
       width: '24px',
@@ -69,8 +71,10 @@ const StatsBar = ({ title, iconLeft, value }) => {
       alignItems: 'center',
       width: '100%',
       padding: '8px 8px',
-      background: 'rgba(37, 37, 37, 0.48)',
-      borderRadius: 8
+      background: '#121212',
+      borderRadius: 8,
+      borderBottom: 'solid 1px #7575753b',
+      boxShadow: '0px 0px 8px 2px rgba(0, 0, 0, 0.24) inset'
     },
     icon: {
       width: '24px',
@@ -146,10 +150,10 @@ export const SettingsModal = ({
         style={{
           border: "1px solid rgb(57, 57, 57)",
           position: "absolute",
-          background: "#000",
+          background: "#202020",
           zIndex: 6,
-          height: 350,
-          width: 320,
+          height: 270,
+          width: 280,
           borderRadius: 6,
           backgroundSize: "cover",
         }}
@@ -159,28 +163,29 @@ export const SettingsModal = ({
             src={Assets.Icons.modalClose}
             width={16}
             height={16}
-            style={{ position: "absolute", right: 15, top: 15 }}
+            style={{ position: "absolute", right: 17, top: 15 }}
           />
         </div>
         <div
           style={{
             display: "flex",
             width: "100%",
-            height: 350,
+            height: 270,
             flexDirection: "column",
             alignItems: "center",
-            justifyContent: "center",
+            justifyContent: "end",
+            paddingBottom: "20px",
           }}
         >
-          <div style={{ display: "flex", flexDirection: "column", width: '75%' }}>
+          <div style={{ display: "flex", flexDirection: "column", width: '90%' }}>
             <p
               style={{
                 fontFamily: "Anonymous pro",
                 fontWeight: "500",
                 color: "white",
-                textAlign: "center",
-                marginBottom: 14,
-                fontSize: 16,
+                textAlign: "left",
+                marginBottom: 19,
+                fontSize: 18,
               }}
             >
               {translations.settings[lang]}
@@ -246,12 +251,13 @@ export const StatsModal = ({
         style={{
           border: "1px solid rgb(57, 57, 57)",
           position: "absolute",
-          background: "#000",
+          background: "rgb(32, 32, 32)",
           zIndex: 6,
-          height: 350,
-          width: 320,
+          height: 260,
+          width: 280,
           borderRadius: 6,
           backgroundSize: "cover",
+          
         }}
       >
         <div onClick={() => setIsStatsShown(false)}>
@@ -259,29 +265,30 @@ export const StatsModal = ({
             src={Assets.Icons.modalClose}
             width={16}
             height={16}
-            style={{ position: "absolute", right: 15, top: 15 }}
+            style={{ position: "absolute", right: 17, top: 15 }}
           />
         </div>
         <div
           style={{
             display: "flex",
             width: "100%",
-            height: 350,
+            height: 260,
             flexDirection: "column",
             alignItems: "center",
-            justifyContent: 'center'
+            justifyContent: "end",
+            paddingBottom: "20px",
           }}
         >
 
           
-          <div style={{ display: "flex", flexDirection: "column", width: '75%', position: 'relative' }}>
+          <div style={{ display: "flex", flexDirection: "column", width: '90%', position: 'relative' }}>
             <p
               style={{
                 fontFamily: "Anonymous pro",
                 fontWeight: "500",
                 color: "white",
-                textAlign: "center",
-                marginBottom: 24,
+                textAlign: "Left",
+                marginBottom: 19,
                 fontSize: 16,
                 marginTop: 20
               }}
