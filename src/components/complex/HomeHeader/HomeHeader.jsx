@@ -186,6 +186,7 @@ export const SettingsModal = ({
                 textAlign: "left",
                 marginBottom: 19,
                 fontSize: 18,
+                width: "80%",
               }}
             >
               {translations.settings[lang]}
@@ -290,7 +291,7 @@ export const StatsModal = ({
                 textAlign: "Left",
                 marginBottom: 19,
                 fontSize: 16,
-                marginTop: 20
+                width: "80%",
               }}
             >
               {translations.stats[lang]} {personage.name}
