@@ -186,7 +186,7 @@ export const SettingsModal = ({
                 textAlign: "left",
                 marginBottom: 19,
                 fontSize: 18,
-                width: "80%",
+                
               }}
             >
               {translations.settings[lang]}
@@ -282,7 +282,7 @@ export const StatsModal = ({
         >
 
           
-          <div style={{ display: "flex", flexDirection: "column", width: '90%', position: 'relative' }}>
+          <div style={{ display: "flex", flexDirection: "column", width: '90%',  }}>
             <p
               style={{
                 fontFamily: "Anonymous pro",
@@ -291,7 +291,7 @@ export const StatsModal = ({
                 textAlign: "Left",
                 marginBottom: 19,
                 fontSize: 16,
-                width: "80%",
+                
               }}
             >
               {translations.stats[lang]} {personage.name}
