@@ -432,6 +432,7 @@ const HomeHeader = ({ screenHeader }) => {
             zIndex: 10,
             top: 0,
             left: 0,
+            
           }}
           setIsSettingsShown={setIsSettingsShown}
         />

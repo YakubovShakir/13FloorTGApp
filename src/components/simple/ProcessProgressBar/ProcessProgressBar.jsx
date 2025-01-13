@@ -181,8 +181,20 @@ const ProcessProgressBar = ({
           <div className="modal-content">
             <p>Вы действительно хотите завершить процесс?</p>
             <div className="modal-buttons">
-              <button onClick={() => handleConfirmClose()}>Да</button>
-              <button onClick={handleCloseModal}>Нет</button>
+              <button onClick={() => handleConfirmClose()}
+                style={{
+                  border: "2px solid rgb(0, 255, 115)", 
+                  color: "rgb(0, 255, 115)",
+                }}
+                  >Да</button>
+              <button onClick={handleCloseModal}
+              
+              style={{
+                color: "rgb(255, 0, 0)",
+              border: "2px solid rgb(255, 0, 0)",
+              
+              }}
+              >Нет</button>
             </div>
           </div>
         </div>

@@ -2,6 +2,7 @@
   position: fixed;
   top: 12.5vh;
   width: 100vw;
+  z-index: 4;
 }
 
 .progress-bar-container {
@@ -98,39 +99,45 @@ background-color: #8d8d8d69;
 
 
 .modal {
+  background: repeating-linear-gradient(45deg, #00000045, #00000045 3px, #3939390f 3px, #3939390f 6px);
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
+  
+  background-color: rgb(0 0 0 / 75%);
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
 .modal-content {
-  border: 1px solid rgb(57, 57, 57);
+  border-bottom: 1px solid rgb(57, 57, 57);
+    border-top: 1px solid rgb(57, 57, 57);
   color: #fff;
-  background:  rgba(0,0,0,1);
-  padding: 20px;
-  border-radius: 10px;
+  background:  rgb(26, 26, 26);
+  padding: 20px 45px 0px 45px;
+ 
   text-align: center;
-  width: 300px;
+  
 }
 
 .modal-buttons {
   display: flex;
   justify-content: space-between;
-  margin-top: 20px;
+  margin-top: 10px;
+  margin-bottom: -17px;
 }
 
 .modal-buttons button {
+  border: 1px solid rgb(57, 57, 57);
+  background:  rgb(26, 26, 26);
+  
   padding: 10px 20px;
   font-size: 16px;
-  cursor: pointer;
-  border: none;
+  width:20vh;
   border-radius: 5px;
+  box-shadow: rgba(0, 0, 0, 0.24) 0px 0px 8px 2px inset;
+
 }
-
-
