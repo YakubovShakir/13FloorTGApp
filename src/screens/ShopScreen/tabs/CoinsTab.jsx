@@ -38,8 +38,11 @@ const GridItem = ({
     <div
       className="clothing-item-container"
       style={{
-        padding: "0rem",
-      }}
+        borderRadius: "8px",
+        borderBottom: "solid 1px rgba(117, 117, 117, 0.23)",
+        background: "0% 0% / cover rgb(32, 32, 32)",
+        padding: "10px",
+          }}
     >
       <div
         className="clothing-item-top"
@@ -49,13 +52,14 @@ const GridItem = ({
           gap: "1rem",
           flexDirection: "column",
           overflow: "hidden",
-          border: isDisabled ? "1px solid rgb(57, 57, 57)" : "1px solid rgb(243, 117, 0)", // изменено
-          margin: "7px 0px 7px 0px",
+          boxShadow: "rgba(0, 0, 0, 0.24) 0px 0px 8px 2px inset",
+          borderBottom: isDisabled ? "solid 1px rgba(117, 117, 117, 0.23)" : "solid 1px rgba(117, 117, 117, 0.23)", // изменено
+        background:"#00000082",
           borderRadius: "7px",
           backgroundImage:
             isDisabled
-              ? "repeating-linear-gradient(to right, transparent, transparent 19px, rgba(99, 89, 80, 0.3) 20px), repeating-linear-gradient(transparent, transparent 19px, rgba(103, 93, 84, 0.3) 20px)"
-              : "repeating-linear-gradient(to right, transparent, transparent 19px, rgba(243, 117, 0, 0.3) 20px), repeating-linear-gradient(transparent, transparent 19px, rgba(243, 117, 0, 0.3) 20px)", // изменено
+              ? "repeating-linear-gradient(45deg, #00000036, #00000036 2px, #3939390f 2px, #3939390f 6px)"
+              : "repeating-linear-gradient(45deg, #00000036, #00000036 2px, #3939390f 2px, #3939390f 6px)", // изменено
           justifyContent: "center",
           
         }}
@@ -124,9 +128,7 @@ const GridItem = ({
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
-          border: isDisabled ? "1px solid rgb(57, 57, 57)" : "1px solid rgba(243, 117, 0, 0.18)", // изменено
-          borderRadius: "7px",
-          backgroundColor: isDisabled ? "rgba(37, 37, 37, 0.48)" : "rgba(67, 14, 7, 0.48)", // изменено
+          
         }}
       >
         <p
@@ -199,14 +201,14 @@ const GridItem = ({
               "linear-gradient(to bottom, rgb(34 199 163 / 0%), rgb(34 199 163 / 24%))"
             }
             bgColor={
-              "linear-gradient(to bottom, rgb(34 199 163 / 0%), rgb(34 199 163 / 24%))"
+              "rgb(255, 118, 0)"
             }
             onClick={() => handleStarsBuy({ id, productType })}
           />
         ) : (
           <Button
             className="clothing-item-equip-button"
-            shadowColor={"rgb(243, 117, 0)"}
+            shadowColor={"rgb(199, 80, 21)"}
             width={"88%"}
             color={"rgb(255, 255, 255)"}
             marginBottom={"5"}
@@ -218,10 +220,10 @@ const GridItem = ({
             text={price === 0 ? 'Забрать' : price}
             fontSize={14}
             ownColor={
-              "linear-gradient(rgb(18, 4, 2) 0%, rgba(243, 117, 0, 0.2) 100%)"
+              "rgb(255, 118, 0)"
             }
             bgColor={
-              "linear-gradient(rgb(18, 4, 2) 0%, rgba(243, 117, 0, 0.2) 100%)"
+              "rgb(255, 118, 0)"
             }
             onClick={() => available || price === 0 ? handleCoinsBuy({ id, productType }) : null}
             style={isDisabled ? { filter: "grayscale(100%)" } : {}} // Серая кнопка
@@ -253,8 +255,11 @@ const GridItemShelf = ({
   return (
     <div
       className="clothing-item-container" // Основной контейнер элемента одежды
-      style={{
-        padding: "0rem",
+     style={{
+    borderRadius: "8px",
+    border: "1px solid rgb(57, 57, 57)",
+    background: "0% 0% / cover rgb(32, 32, 32)",
+    padding: "10px",
       }}
     >
       <div
@@ -265,11 +270,14 @@ const GridItemShelf = ({
           gap: "1rem",
           flexDirection: "column",
           overflow: "hidden",
-          border: "solid 1px rgb(243, 117, 0)",
-          margin: "7px 0px 7px 0px",
+          borderBottom: "solid 1px rgba(117, 117, 117, 0.23)",
+          boxShadow: "rgba(0, 0, 0, 0.24) 0px 0px 8px 2px inset",
+          
+        background:"#00000082",
+         
           borderRadius: "7px",
           backgroundImage:
-            "repeating-linear-gradient(to right, transparent, transparent 19px, rgba(243, 117, 0, 0.3) 20px), repeating-linear-gradient(to bottom, transparent, transparent 19px, rgba(243, 117, 0, 0.3) 20px)",
+            "repeating-linear-gradient(45deg, #00000036, #00000036 2px, #3939390f 2px, #3939390f 6px)",
           justifyContent: "center",
         }}
       >
@@ -325,10 +333,7 @@ const GridItemShelf = ({
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
-          border: "solid 1px rgb(243 117 0 / 18%)",
-         
-          borderRadius: "7px",
-          backgroundColor: "#2508047a",
+          
         }}
       >
         <p

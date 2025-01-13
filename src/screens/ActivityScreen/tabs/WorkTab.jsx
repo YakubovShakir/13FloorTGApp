@@ -278,11 +278,11 @@ export const WorkTab = ({
           text: translations.currentWork[lang],
           icon: buyStatus && Icons.balance,
           active: true,
-          bg: activeWork
-            ? "rgb(32 7 3)"
-            : "rgb(32 7 3)",
-          shadowColor: activeWork ? "rgb(32 7 3)" : "rgb(32 7 3)",
-          borderColor: "rgb(32 7 3)", // Убрали !important
+          // bg: activeWork
+          //   ? "rgb(32 7 3)"
+          //   : "rgb(32 7 3)",
+          // shadowColor: activeWork ? "rgb(32 7 3)" : "rgb(32 7 3)",
+          // borderColor: "rgb(32 7 3)", // Убрали !important
         },
       ];
     }

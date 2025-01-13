@@ -21,8 +21,8 @@ const Button = ({
   backdropFilter, // Новый параметр
 }) => {
   const [isPressed, setIsPressed] = useState(false);
-  const shadowColorValue = active ? shadowColor || "rgb(243, 117, 0)" : "rgb(57, 57, 57)";
-  const borderColorValue = active ? borderColor || "rgb(243, 117, 0)" : "rgb(57, 57, 57)";
+  const shadowColorValue = active ? shadowColor || "rgb(199, 80, 21)" : "rgb(33 33 33)";
+  const borderColorValue = active ? borderColor || "rgb(255, 141, 0)" : "rgb(57, 57, 57)";
   
   return (
     <button
@@ -37,12 +37,12 @@ const Button = ({
       style={{
         width,
         height,
-        
+        marginTop:"-4px",
         background: active
           ? ownColor
             ? bgColor
-            : "linear-gradient(rgb(18, 4, 2) 0%, rgba(243, 117, 0, 0.2) 100%)"
-          : "linear-gradient(rgb(18 18 18) 5%, rgb(18 18 18) 95%)",
+            : "rgb(255, 118, 0)"
+          : "rgb(51 50 50)",
         boxShadow: `0px ${isPressed ? 3 : 5}px 0px ${shadowColorValue}`,
         transform: isPressed ? "translateY(2px)" : "translateY(0px)",
         color: color || ownColor, // Используем цвет текста из пропсов или ownColor

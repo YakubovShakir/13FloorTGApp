@@ -32,9 +32,9 @@ if (isWaiting) {
   backgroundImageStyle = ""; // Если кнопка активна, не применяем фоновый стиль
 } else {
   // При обесцвечивании (когда кнопка неактивна)
-  borderStyle = "1px solid rgb(57, 57, 57)"; // Стиль обводки для обесцвеченного состояния
-  backgroundImageStyle = "repeating-linear-gradient(to right, transparent, transparent 19px, rgb(99 89 80 / 30%) 20px), repeating-linear-gradient(to bottom, transparent, transparent 19px, rgb(103 93 84 / 30%) 20px)"; // Стиль фона при обесцвечивании
-  backgroundColor = "#2525257a"
+  // borderStyle = "1px solid rgb(57, 57, 57)"; // Стиль обводки для обесцвеченного состояния
+  // backgroundImageStyle = "repeating-linear-gradient(to right, transparent, transparent 19px, rgb(99 89 80 / 30%) 20px), repeating-linear-gradient(to bottom, transparent, transparent 19px, rgb(103 93 84 / 30%) 20px)"; // Стиль фона при обесцвечивании
+  // backgroundColor = "#2525257a"
 }
 
 // Логика для обесцвечивания изображений

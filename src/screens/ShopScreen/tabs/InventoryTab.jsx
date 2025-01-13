@@ -51,7 +51,10 @@ const GridItem = ({
     <div
       className="clothing-item-container" // Основной контейнер элемента одежды
       style={{
-        padding: "0rem",
+    borderRadius: "8px",
+    border: "1px solid rgb(57, 57, 57)",
+    background: "0% 0% / cover rgb(32, 32, 32)",
+    padding: "10px",
       }}
     >
       <div
@@ -62,10 +65,13 @@ const GridItem = ({
           gap: "1rem",
           flexDirection: "column",
           overflow: "hidden",
-          border: "solid 1px rgb(243, 117, 0)",
-          margin: "7px 0px 7px 0px",
+          borderBottom: "solid 1px rgba(117, 117, 117, 0.23)",
+          boxShadow: "rgba(0, 0, 0, 0.24) 0px 0px 8px 2px inset",
+          
+        background:"#00000082",
+         
           borderRadius: "7px",
-          backgroundImage: "repeating-linear-gradient(to right, transparent, transparent 19px, rgba(243, 117, 0, 0.3) 20px), repeating-linear-gradient(to bottom, transparent, transparent 19px, rgba(243, 117, 0, 0.3) 20px)",
+          backgroundImage: "repeating-linear-gradient(45deg, #00000036, #00000036 2px, #3939390f 2px, #3939390f 6px)",
           justifyContent: "center",
 
 
@@ -144,10 +150,7 @@ const GridItem = ({
           flexDirection: "column",
           alignItems: "center",
 
-          border: "solid 1px rgb(243 117 0 / 18%)",
-
-          borderRadius: "7px",
-          backgroundColor: "rgb(67 14 7 / 48%)",
+          
         }}
       >
 
@@ -228,7 +231,7 @@ const GridItem = ({
             fontSize={14}
             paddingTop={1}
             borderColor={"rgba(243, 117, 0, 0)"}
-            color={"rgba(243, 117, 0, 1)"}
+            color={"rgb(10 255 186)"}
             ownColor={"rgb(166, 0, 243)"}
             bgColor={"rgba(126, 86, 49, 0)"}
             onClick={() => productType === 'shelf' ? clothesUnequip(clothingId, type, productType) : null}
@@ -236,7 +239,7 @@ const GridItem = ({
         ) : (
           <Button
             className="clothing-item-equip-button"
-            shadowColor={"rgb(243, 117, 0"}
+            shadowColor={"rgb(199, 80, 21)"}
             width={"88%"}
             marginBottom={"5"}
             height={44}
@@ -247,8 +250,8 @@ const GridItem = ({
             color={"rgb(255, 255, 255)"}
             fontSize={14}
             paddingTop={1}
-            ownColor={"linear-gradient(rgb(18, 4, 2) 0%, rgba(243, 117, 0, 0.2) 100%)"}
-            bgColor={"linear-gradient(rgb(18, 4, 2) 0%, rgba(243, 117, 0, 0.2) 100%)"}
+            ownColor={"rgb(255, 118, 0)"}
+            bgColor={"rgb(255, 118, 0)"}
             onClick={() => clothesEquip(clothingId, type, productType)}
           />
         )}

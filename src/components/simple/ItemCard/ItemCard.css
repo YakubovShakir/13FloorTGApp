@@ -1,15 +1,18 @@
 .ItemCard {
+  border: 1px solid rgb(57, 57, 57);
+  background: 0% 0% / cover rgb(32, 32, 32);
+  padding: 10px;
   height: 75vh;
   max-height: 28vh;
   display: flex;
-  flex-direction: column;  /* Выравнивание по вертикали */
-  justify-content: center;  /* Центрирование содержимого по вертикали */
-  align-items: center;  /* Центрирование содержимого по горизонтали */
+  flex-direction: column;  
+  justify-content: center;  
+  align-items: center;  
   margin-bottom: 10px;
   width: 90%;
   margin: auto auto 10px auto;
   color: #ffffff;
-  
+  border-radius: 8px;
   position: relative;
   text-align: center;
   
@@ -61,9 +64,9 @@
   justify-content: center;
   height: 22px;
   margin-left: 13px;
- 
-  background-color: rgb(243 117 0 / 18%);
-  
+  border-bottom: 1px solid rgba(117, 117, 117, 0.23);
+  box-shadow: rgba(0, 0, 0, 0.24) 0px 0px 8px 2px inset;
+  background: rgb(18, 18, 18);
   position: relative;
   text-align: center;
   border-radius: 5px;
@@ -126,7 +129,7 @@
 
 .ItemDetailsContainer {
   padding-right: 13px;
-  border: solid 1px rgb(243 117 0 / 18%);
+  
    
   border-radius: 7px;
   justify-content: center;
@@ -134,7 +137,7 @@
   flex-direction: column;
   gap: 15px;
   width: 60%; /* Задаем ширину */
-  background-color: rgba(67, 14, 7, 0.48);
+  
   height: 100%; /* Занимает всю высоту доступного пространства */
 }
 
@@ -152,12 +155,17 @@
 }
 
 .ItemCardButtons {
-  margin-left: 13px;
-  
-  display: flex;
-  flex-direction: column;
-  gap: 10px; /* Отступы между кнопками */
- 
+  box-shadow: rgba(0, 0, 0, 0.24) 0px 0px 8px 2px inset;
+    background: rgb(18, 18, 18);
+    border-bottom: 1px solid rgb(117 117 117 / 47%);
+    border-radius: 6px;
+    /* background: black; */
+    padding: 1px 3px 8px 3px;
+    margin-left: 13px;
+    display: flex
+;
+    flex-direction: column;
+    gap: 10px;
 }
 
 /* Стили для изображения в контейнере ItemIconContainer */
@@ -192,7 +200,8 @@
 
 .ItemIconContainer {
   overflow: hidden;
-    border: solid 1px rgb(243, 117, 0);
+  border-bottom: 1px solid rgba(117, 117, 117, 0.23);
+  box-shadow: rgba(0, 0, 0, 0.24) 0px 0px 8px 2px inset;
     margin: 7px 7px 7px 0px;
     border-radius: 7px;
   width: 40%; /* Задаем ширину для иконки */
@@ -201,19 +210,7 @@
   z-index: 0; /* Сетка будет под изображением */
   
   /* Сетка из пересекающихся оранжевых линий */
-  background-image: 
-    repeating-linear-gradient(
-      to right,
-      transparent,
-      transparent 19px,
-      rgba(243, 117, 0, 0.3) 20px
-    ),
-    repeating-linear-gradient(
-      to bottom,
-      transparent,
-      transparent 19px,
-      rgba(243, 117, 0, 0.3) 20px
-    );
+  background: repeating-linear-gradient(45deg, #00000036, #00000036 2px, #3939390f 2px, #3939390f 6px);
 }
 
 /* Псевдоэлемент для градиента */

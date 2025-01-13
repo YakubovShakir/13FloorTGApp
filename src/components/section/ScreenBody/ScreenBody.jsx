@@ -31,7 +31,7 @@ const ScreenBody = ({ children, activity }) => {
                        height: 0,
                        borderTop: '10px solid transparent', // Прозрачная верхняя граница
                        borderBottom: '10px solid transparent', // Прозрачная нижняя граница
-                       borderRight: '20px solid rgba(34, 199, 163, 1)', // Левая граница — зеленая
+                       borderRight: '20px solid rgb(255, 118, 0)', // Левая граница — зеленая
                     }} />
                 </button>
             </div>

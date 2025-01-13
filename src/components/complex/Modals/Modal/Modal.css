@@ -1,61 +1,47 @@
 .Modal {
   position: absolute;
-  background: #000000;
+  background: rgb(32, 32, 32);
   border-top-left-radius: 10px;
   border-top-right-radius: 10px;
-  border: 1px solid #f37500;
+  border: 1px solid rgb(57, 57, 57);
   z-index: 2;
   container-type: size;
   color: white;
   padding-bottom: 5%;
   overflow: hidden;
-  box-shadow: 0 -10px 30px #1d191b;;
+  box-shadow: 0 -10px 30px #000000;;
 }
 .Modal img {
   max-width: 100%;
 }
 .ModalTitle {
-  background-color: #f37500;
+  
   text-align: center;
   font-size: 5cqw;
   height: 10%;
   display: flex;
   justify-content: center; 
   align-items: center; 
-  color: #000000;
+  color: #ffffff;
 }
 
 
 
 .ModalLogo {
   position: relative;
-  margin: 10px 0px 10px 0px;
+  margin: 0px 0px 10px 0px;
   text-align: center;
-
-  background: linear-gradient(90deg, rgba(34, 199, 163, 0) 20%, rgba(21, 110, 90, 0.47102591036414565) 50%, rgba(21, 110, 90, 0) 80%);
+  background: repeating-linear-gradient(45deg, #00000036, #00000036 2px, #3939390f 2px, #3939390f 6px);
+  background-color: rgba(0, 0, 0, 0.438);
+  border-bottom: 1px solid rgb(57, 57, 57);
+    border-top: 1px solid rgb(57, 57, 57);
+    box-shadow: rgba(0, 0, 0, 0.24) 0px 0px 8px 2px inset;
 }
 
 
 
 
-.ModalLogo::before,
-.ModalLogo::after {
-  content: ""; /* Создаём пустой элемент */
-  position: absolute;
-  left: 0;
-  right: 0;
-  height: 1px; /* Толщина границы */
-  background: radial-gradient(circle, #22c7a3 0%, transparent 70%); /* Градиент для псевдоэлементов */
-  
-}
 
-.ModalLogo::before {
-  top: 0; /* Имитация border-top */
-}
-
-.ModalLogo::after {
-  bottom: 0; /* Имитация border-bottom */
-}
 
 
 
@@ -103,6 +89,9 @@
   font-size: 9cqw;
 }
 .progressFill {
+  border-bottom: 1px solid rgba(117, 117, 117, 0.23);
+    box-shadow: rgba(0, 0, 0, 0.24) 0px 0px 8px 2px inset;
+    background: rgb(18, 18, 18);
   position: absolute;
   left: 0;
   top: 0;
@@ -118,5 +107,4 @@
   right: 5%;
   width: 5%;
   z-index: 1;
-  filter: brightness(0.6) saturate(100%) contrast(132%) hue-rotate(15deg);
-}
+  }
