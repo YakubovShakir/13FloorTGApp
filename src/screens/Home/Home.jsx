@@ -110,13 +110,14 @@ const Home = () => {
 
     const preloadImages = async () => {
       const imageUrls = [
+        Assets.Layers.cover,
         Assets.BG.workScreenBG,
         Assets.BG.sleepScreenBG,
         Assets.BG.trainScreenBG,
         Assets.BG.homeBackground,
         Assets.HOME.shelf,
         Assets.HOME.couch,
-        ...Object.values(userClothing)
+      
       ];
 
       await Promise.all(imageUrls.map(url => {
@@ -340,7 +341,7 @@ const Home = () => {
           undefined,
           true
         )}
-        <Menu />
+        <Menu noButton/>
         {visibleWindow && (
           <Window
             title={currentWindow.title}
@@ -375,7 +376,7 @@ const Home = () => {
           ),
           trainingParamters?.mood_profit
         )}
-        <Menu />
+        <Menu noButton/>
         {visibleWindow && (
           <Window
             title={currentWindow.title}
@@ -424,7 +425,7 @@ const Home = () => {
           ),
           "Time"
         )}
-        <Menu />
+        <Menu noButton/>
         {visibleWindow && (
           <Window
             title={currentWindow.title}

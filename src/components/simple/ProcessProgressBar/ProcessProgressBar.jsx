@@ -25,6 +25,21 @@ const ProcessProgressBar = ({
   const { userId, fetchParams } = useContext(UserContext)
   const { lang } = useSettingsProvider()
 
+  const translations = {
+    confirm: {
+      ru: 'Вы действительно хотите завершить процесс?',
+      en: 'Are you sure you want to stop the process?'
+    },
+    yes: {
+      ru: 'Да',
+      en: 'Yes'
+    },
+    no: {
+      ru: 'Нет',
+      en: 'No'
+    }
+  }
+
   const getLabels = async (processType, rate) => {
     const works = await getWorks();
     const work = works?.find((work) => work?.work_id === activeProcess?.type_id);
@@ -99,12 +114,6 @@ const ProcessProgressBar = ({
   const currentPercentage = inputPercentage || percentage;
   const displayPercentage = reverse ? 100 - currentPercentage : currentPercentage;
 
-  const handleActionStart = () => {
-    // Логика для кнопки
-    console.log("Process started");
-    navigate('/action'); // Переход на /action
-  };
-
   const handleCloseModal = () => {
     navigate('/#');
     setShowModal(false);
@@ -115,11 +124,10 @@ const ProcessProgressBar = ({
     await fetchParams()
     setShowModal(false);
     navigate('/');
-    // Здесь можно добавить логику завершения процесса
   };
 
   if (!activeProcess) {
-    return <div>Loading...</div>;
+    return null;
   }
 
   return (
@@ -179,14 +187,14 @@ const ProcessProgressBar = ({
       {showModal && (
         <div className="modal">
           <div className="modal-content">
-            <p>Вы действительно хотите завершить процесс?</p>
+            <p>{translations.confirm[lang]}</p>
             <div className="modal-buttons">
               <button onClick={() => handleConfirmClose()}
                 style={{
                   border: "2px solid rgb(0, 255, 115)", 
                   color: "rgb(0, 255, 115)",
                 }}
-                  >Да</button>
+                  >{translations.yes[lang]}</button>
               <button onClick={handleCloseModal}
               
               style={{
@@ -194,7 +202,7 @@ const ProcessProgressBar = ({
               border: "2px solid rgb(255, 0, 0)",
               
               }}
-              >Нет</button>
+              >{translations.no[lang]}</button>
             </div>
           </div>
         </div>

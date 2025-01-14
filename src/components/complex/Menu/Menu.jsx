@@ -6,47 +6,47 @@ import Assets from "../../../assets"
 import Button from "../../simple/Button/Button"
 import { useSettingsProvider } from "../../../hooks"
 
-const Menu = ({ screenMenu, activeName, hasBg = true }) => {
+const Menu = ({ screenMenu, activeName, noButton }) => {
   const { Icons } = Assets
   const navigate = useNavigate()
-  const [currentTab, setCurrentTab] = useState();
+  const [currentTab, setCurrentTab] = useState()
   const { lang } = useSettingsProvider()
 
   const translations = {
     food: {
-      ru: 'Еда',
-      en: 'Food'
+      ru: "Еда",
+      en: "Food",
     },
     shop: {
-      ru: 'Коллекция',
-      en: 'Collection'
+      ru: "Коллекция",
+      en: "Collection",
     },
     activity: {
-      ru: 'Развитие',
-      en: 'Progress'
+      ru: "Развитие",
+      en: "Progress",
     },
     investment: {
-      ru: 'Инвестиции',
-      en: 'Invest'
+      ru: "Инвестиции",
+      en: "Invest",
     },
     tasks: {
-      ru: 'Задания',
-      en: 'Tasks'
+      ru: "Задания",
+      en: "Tasks",
     },
     start: {
-      ru: 'Начать',
-      en: 'Start'
-    }
+      ru: "Начать",
+      en: "Start",
+    },
   }
 
   const tabs = {
     care: {
       onClick: () => {
-        if (currentTab === 'care') {
-          navigate('/#');
+        if (currentTab === "care") {
+          navigate("/#")
         } else {
-          navigate("/care");
-          setCurrentTab('care');
+          navigate("/care")
+          setCurrentTab("care")
         }
       },
       notify: false,
@@ -55,11 +55,11 @@ const Menu = ({ screenMenu, activeName, hasBg = true }) => {
     },
     shop: {
       onClick: () => {
-        if (currentTab === 'shop') {
-          navigate('/#');
+        if (currentTab === "shop") {
+          navigate("/#")
         } else {
-          navigate("/shop");
-          setCurrentTab('shop');
+          navigate("/shop")
+          setCurrentTab("shop")
         }
       },
       notify: false,
@@ -68,11 +68,11 @@ const Menu = ({ screenMenu, activeName, hasBg = true }) => {
     },
     activity: {
       onClick: () => {
-        if (currentTab === 'activity') {
-          navigate('/#');
+        if (currentTab === "activity") {
+          navigate("/#")
         } else {
-          navigate("/activity/works");
-          setCurrentTab('activity');
+          navigate("/activity/works")
+          setCurrentTab("activity")
         }
       },
       notify: false,
@@ -82,11 +82,11 @@ const Menu = ({ screenMenu, activeName, hasBg = true }) => {
 
     community: {
       onClick: () => {
-        if (currentTab === 'community') {
-          navigate('/#');
+        if (currentTab === "community") {
+          navigate("/#")
         } else {
-          navigate("/investment");
-          setCurrentTab('community');
+          navigate("/investment")
+          setCurrentTab("community")
         }
       },
       notify: false,
@@ -96,51 +96,59 @@ const Menu = ({ screenMenu, activeName, hasBg = true }) => {
 
     tasks: {
       onClick: () => {
-        if (currentTab === 'tasks') {
-          navigate('/#');
+        if (currentTab === "tasks") {
+          navigate("/#")
         } else {
-          navigate("/tasks");
-          setCurrentTab('tasks');
+          navigate("/tasks")
+          setCurrentTab("tasks")
         }
       },
       notify: false,
       icon: Icons.tasks,
       title: translations.tasks[lang],
     },
-  };
+  }
 
   return (
-    <div className={screenMenu ? "screenMenu Menu" : "Menu"} style={{ width: '100vw', zIndex: 99999 }}>
+    <div
+      className={screenMenu ? "screenMenu Menu" : "Menu"}
+      style={{ width: "100vw", zIndex: 99999 }}
+    >
       {/* Контейнер для кнопки BigButton */}
       <div className="MenuButtonContainer">
-        <div className="MenuButtonBg">
-        <Button
-          className="clothing-item-equip-button"
-          shadowColor={"rgb(199 80 21)"}
-          width={"90px"}
-          marginBottom={"5"}
-          color={"rgb(255, 255, 255)"}
-          height={34}
-          active={true}
-          fontFamily={"Anonymous pro"}
-          fontWeight={"500"}
-          text={translations.start[lang]}
-          fontSize={14}
-          paddingTop={1}
-          borderColor={"rgb(255, 141, 0)"}
-          backdropFilter={"blur(5px)"}
-          ownColor={"rgb(255, 118, 0)"}
-          bgColor={"rgb(255, 118, 0)"}
-          onClick={() => navigate('/action')}
-        />
-        </div>
+        {!noButton && (
+          <div className="MenuButtonBg">
+            <Button
+              className="clothing-item-equip-button"
+              shadowColor={"rgb(199 80 21)"}
+              width={"90px"}
+              marginBottom={"5"}
+              color={"rgb(255, 255, 255)"}
+              height={34}
+              active={true}
+              fontFamily={"Anonymous pro"}
+              fontWeight={"500"}
+              text={translations.start[lang]}
+              fontSize={14}
+              paddingTop={1}
+              borderColor={"rgb(255, 141, 0)"}
+              backdropFilter={"blur(5px)"}
+              ownColor={"rgb(255, 118, 0)"}
+              bgColor={"rgb(255, 118, 0)"}
+              onClick={() => navigate("/action")}
+            />
+          </div>
+        )}
       </div>
 
       {/* Контейнер с иконками кнопок */}
       <div className="ButtonMenu">
         {Object.keys(tabs).map((tab, index) => (
           <IconButton
-            color={activeName && (activeName === tab ? "white" : "rgba(255, 255, 255, 0.4)")}
+            color={
+              activeName &&
+              (activeName === tab ? "white" : "rgba(255, 255, 255, 0.4)")
+            }
             key={index}
             onClick={tabs[tab].onClick}
             notify={tabs[tab].notify}

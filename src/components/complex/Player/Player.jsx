@@ -86,6 +86,7 @@ const Player = ({
     preloadImages(imagesToPreload)
       .then(() => {
         setImagesLoaded(true);
+        console.log(clothing)
       })
       .catch((failedUrl) => {
         console.error(`Failed to load image: ${failedUrl}`);
@@ -100,7 +101,7 @@ const Player = ({
         className="Player"
         style={{ width: `${width}`, aspectRatio: "0.3", left: left, top: top }}
       >
-        <img className="PlayerAvatar" src={Images.missingGirl} alt="avatar" />
+        <img className="PlayerAvatar" src={personage?.gender === 'female' ? Images.missingGirl : Image.missingMan} alt="avatar" />
       </div>
     );
   }
@@ -151,12 +152,11 @@ const Player = ({
               alt="Head"
             />
           )}
-          {clothing.accessories && clothing.accessories.map((clothing, index) => 
+          {clothing.accessories && (
               <img
-                key={index}
                 className="PlayerHead"
                 style={{ zIndex: 5 }}
-                src={pullGenderedClothingImage(personage?.gender, clothing)}
+                src={pullGenderedClothingImage(personage?.gender, clothing?.accessories)}
                 alt="Head"
             />
           )}

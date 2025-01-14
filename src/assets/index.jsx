@@ -20,6 +20,7 @@ import respect from "./IMG/icons/respect.png"
 import book from "./IMG/icons/book.png"
 import phone from "./IMG/icons/phone.png"
 import missingGirl from './IMG/missingGirl.png'
+import missingMan from './IMG/missingMan.png'
 import squareButtonShadow from "./IMG/layers/squareButtonShadow.png"
 import winter from './IMG/bg/winter.gif'
 
@@ -236,6 +237,7 @@ const Assets = {
     hair,
     afro,
     missingGirl,
+    missingMan,
     blackHand,
     asianHand,
     euroHand
