@@ -79,6 +79,7 @@ const Player = ({
       ...(clothing?.top ? [pullGenderedClothingImage(personage?.gender, clothing?.top)] : []),
       ...(clothing?.pants ? [pullGenderedClothingImage(personage?.gender, clothing?.pants)] : []),
       ...(clothing?.shoes ? [pullGenderedClothingImage(personage?.gender, clothing?.shoes)] : []),
+      ...(clothing?.accessories ? [pullGenderedClothingImage(personage?.gender, clothing?.accessories)] : []),
       personage.race && getHand(personage?.race),
     ].filter(Boolean); // Remove any undefined URLs
 
@@ -105,7 +106,7 @@ const Player = ({
       </div>
     );
   }
-
+  console.log(clothing)
   // Render actual player if images are loaded successfully
   return (
     <div

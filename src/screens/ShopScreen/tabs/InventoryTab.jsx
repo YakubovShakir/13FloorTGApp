@@ -315,8 +315,6 @@ const loadClothesFromData = (data, userPersonage, lang) => {
       category: item.type,
       equipped: Object.values(data.currentlyUsedClothes).includes(
         item.clothing_id
-      ) || data.currentlyUsedClothes.accessories.includes(
-        item.clothing_id
       ),
       productType: 'clothes'
     }
