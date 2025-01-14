@@ -117,7 +117,7 @@ const Home = () => {
         Assets.BG.homeBackground,
         Assets.HOME.shelf,
         Assets.HOME.couch,
-      
+        Assets.BG.backgroundSun
       ];
 
       await Promise.all(imageUrls.map(url => {
