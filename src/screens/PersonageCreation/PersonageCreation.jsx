@@ -271,7 +271,7 @@ const PersonageCreationScreen = () => {
           >
             <Button
               className="clothing-item-equip-button"
-              shadowColor={"#f37500"}
+              shadowColor={"rgb(199, 80, 21)"}
               width={'25vw'}
               height={44}
               active={true}
@@ -281,10 +281,10 @@ const PersonageCreationScreen = () => {
               fontSize={14}
               color={"rgb(255, 255, 255)"}
               ownColor={
-                "linear-gradient(rgb(18, 4, 2) 0%, rgba(243, 117, 0, 0.2) 100%)"
+                "rgb(255, 118, 0)"
               }
               bgColor={
-                "linear-gradient(rgb(18, 4, 2) 0%, rgba(243, 117, 0, 0.2) 100%)"
+                "rgb(255, 118, 0)"
               }
               onClick={() => setCurrentStep(STEPS.Race)} />
           </div>
@@ -338,7 +338,7 @@ const PersonageCreationScreen = () => {
           >
             <Button
               className="clothing-item-equip-button"
-              shadowColor={"#f37500"}
+              shadowColor={"rgb(199, 80, 21)"}
               width={'25vw'}
               height={44}
               active={true}
@@ -348,10 +348,10 @@ const PersonageCreationScreen = () => {
               text={translations.back[lang]}
               fontSize={14}
               ownColor={
-                "linear-gradient(rgb(18, 4, 2) 0%, rgba(243, 117, 0, 0.2) 100%)"
+                "rgb(255, 118, 0)"
               }
               bgColor={
-                "linear-gradient(rgb(18, 4, 2) 0%, rgba(243, 117, 0, 0.2) 100%)"
+                "rgb(255, 118, 0)"
               }
               onClick={() => {
                 setCurrentStep(STEPS.Gender)
@@ -398,7 +398,7 @@ const PersonageCreationScreen = () => {
           >
             <Button
               className="clothing-item-equip-button"
-              shadowColor={"#f37500"}
+              shadowColor={"rgb(199, 80, 21)"}
               width={'25vw'}
               height={44}
               active={true}
@@ -408,10 +408,10 @@ const PersonageCreationScreen = () => {
               text={translations.next[lang]}
               fontSize={14}
               ownColor={
-                "linear-gradient(rgb(18, 4, 2) 0%, rgba(243, 117, 0, 0.2) 100%)"
+                "rgb(255, 118, 0)"
               }
               bgColor={
-                "linear-gradient(rgb(18, 4, 2) 0%, rgba(243, 117, 0, 0.2) 100%)"}
+                "rgb(255, 118, 0)"}
               onClick={() => {
                 if (race && gender) {
                   setCurrentStep(STEPS.Name)
@@ -465,7 +465,7 @@ const PersonageCreationScreen = () => {
             <div style={{ marginRight: "8px", zIndex: 3 }}>
               <Button
                 className="clothing-item-equip-button"
-                shadowColor={"#f37500"}
+                shadowColor={"rgb(199, 80, 21)"}
                 width={'30vw'}
                 marginBottom={"5"}
                 color={"rgb(255, 255, 255)"}
@@ -476,10 +476,10 @@ const PersonageCreationScreen = () => {
                 text={translations.start[lang]}
                 fontSize={14}
                 ownColor={
-                  "linear-gradient(rgb(18, 4, 2) 0%, rgba(243, 117, 0, 0.2) 100%)"
+                  "rgb(255, 118, 0)"
                 }
                 bgColor={
-                  "linear-gradient(rgb(18, 4, 2) 0%, rgba(243, 117, 0, 0.2) 100%)"
+                  "rgb(255, 118, 0)"
                 }
                 onClick={() => personageName.length >= 2 ? handlePersonageCreation() : null}
               />

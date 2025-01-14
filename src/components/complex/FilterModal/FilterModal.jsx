@@ -28,7 +28,7 @@ const FilterButton = ({
         width: 69,
         background: isActive
           ? "rgb(243, 117, 0)"
-          : "linear-gradient(rgb(243 117 0 / 18%) 0%, rgba(243, 117, 0, 0.2) 100%)",
+          : "rgb(18, 18, 18)",
         borderRadius: 6,
         display: "flex",
         justifyContent: "center",
@@ -38,6 +38,8 @@ const FilterButton = ({
         color: "white",
         margin: 2,
         fontWeight: "200",
+        
+       borderBottom: "1px solid rgba(117, 117, 117, 0.23)",
       }}
       onClick={handleClick}
     >
@@ -136,9 +138,9 @@ export default ({
         style={{
           border: "1px solid rgb(57, 57, 57)",
           position: "absolute",
-          background: "rgb(16 16 16)",
+          background: "rgb(32, 32, 32)",
           zIndex: 6,
-          height: 281,
+          height: 215,
           width: 320,
           borderRadius: 6,
           backgroundSize: "cover",
@@ -156,7 +158,7 @@ export default ({
           style={{
             display: "flex",
             width: "100%",
-            height: 281,
+            height: 215,
             flexDirection: "column",
             alignItems: "center",
             justifyContent: "center",
@@ -168,7 +170,8 @@ export default ({
                 fontFamily: "Anonymous pro",
                 fontWeight: "500",
                 color: "white",
-                textAlign: "center",
+                paddingLeft:5,
+                textAlign: "left",
                 marginBottom: 14,
                 fontSize: 16,
               }}
@@ -208,7 +211,8 @@ export default ({
                 fontFamily: "Anonymous pro",
                 fontWeight: "500",
                 color: "white",
-                textAlign: "center",
+                paddingLeft:5,
+                textAlign: "left",
                 marginBottom: 14,
                 fontSize: 15,
               }}

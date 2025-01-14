@@ -22,10 +22,10 @@ import { useSettingsProvider } from "../../hooks"
 
 const buttonStyle = {
     height: 44,
-    shadowColor: "#f37500",
+    shadowColor: "rgb(199, 80, 21)",
     color:"rgb(255, 255, 255)",
-    ownColor: "linear-gradient(rgb(18, 4, 2) 0%, rgba(243, 117, 0, 0.2) 100%)",
-    bgColor: "linear-gradient(rgb(18, 4, 2) 0%, rgba(243, 117, 0, 0.2) 100%)",
+    ownColor: "rgb(255, 118, 0)",
+    bgColor: "rgb(255, 118, 0)",
     fontSize: 14,
     fontFamily: "Anonymous pro"
 };
@@ -248,26 +248,17 @@ const ThreeSectionCard = ({
             margin: '10px auto auto auto',
             height: '52vh',
             maxHeight: '22vh',
-            backgroundImage: `
-                linear-gradient(90deg, rgba(0,0,0,0) 0%, rgba(0,0,0,1) 40%),
-                repeating-linear-gradient(
-                    to right,
-                    transparent,
-                    transparent 19px,
-                    rgba(243, 117, 0, 0.3) 20px
-                ),
-                repeating-linear-gradient(
-                    transparent,
-                    transparent 19px,
-                    rgba(243, 117, 0, 0.3) 20px
-                )
-            `,
-            border: "solid 1px rgb(243, 117, 0)",
+            background: ` rgb(32, 32, 32)`,
+            border: "solid 1px rgb(57, 57, 57)",
             borderRadius: "8px",
             position: 'relative',
         },
 
         section: {
+            margin:"5px 0px 5px 5px",
+            background: "repeating-linear-gradient(45deg, rgba(0, 0, 0, 0.21), rgba(0, 0, 0, 0.21) 2px, rgba(57, 57, 57, 0.06) 2px, rgba(57, 57, 57, 0.06) 6px) rgba(0, 0, 0, 0.51)",
+            borderBottom:" 1px solid rgba(117, 117, 117, 0.23)",
+            boxShadow: "rgba(0, 0, 0, 0.24) 0px 0px 8px 2px inset",
             width: "33.333%",
             borderRadius: "8px",
             overflow: "hidden",
@@ -285,12 +276,16 @@ const ThreeSectionCard = ({
         },
 
         buttonsContainer: {
+            margin:"58px 5px 58px 0px",
+            boxShadow:" rgba(0, 0, 0, 0.24) 0px 0px 8px 2px inset",
+    background:" rgb(18, 18, 18)",
+    borderBottom:" 1px solid rgb(117 117 117 / 47%)",
             width: "33.333%",
             borderRadius: "8px",
             display: "flex",
             flexDirection: "column",
             gap: "16px",
-            padding: "8px",
+            padding: "1px 3px 8px 3px",
             justifyContent: "center",
         },
         
