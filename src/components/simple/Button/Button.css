@@ -1,6 +1,6 @@
 .Button {
   min-height: 40px;
-  border: none;
+  
   display: flex;
   justify-content: center;
   align-items: center;
