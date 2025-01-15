@@ -361,17 +361,14 @@ const InventoryTab = ({ userId }) => {
   const [isLoading, setIsLoading] = useState(true)
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false)
   const [currentComplexFilters, setCurrentComplexFilters] = useState([])
-  console.log('sss', currentComplexFilters)
-  const { userPersonage, userParameters } = useContext(UserContext)
+  const { userPersonage } = useContext(UserContext)
   const { lang } = useSettingsProvider()
 
   useEffect(() => {
     getInventoryItems(userId)
       .then((data) => {
-        // TODO: localize
         const loadedClothesItems = loadClothesFromData(data, userPersonage, lang)
         const loadedShelfItems = loadShelfFromData(data, lang)
-        console.log(loadedShelfItems)
         setClothesItems(
           loadedClothesItems.sort((a, b) => b.equipped - a.equipped)
         )
@@ -429,7 +426,6 @@ const InventoryTab = ({ userId }) => {
   }
 
   const addComplexFilter = ({ filteredValue, filteredField }) => {
-    console.log('filters', currentComplexFilters)
     setCurrentComplexFilters([...currentComplexFilters, { filteredField, filteredValue }]);
   };
 

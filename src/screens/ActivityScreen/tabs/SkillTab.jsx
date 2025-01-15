@@ -208,17 +208,18 @@ const SkillTab = ({
         },
       ].filter(Boolean),
       buttons: [
-        {
-          icon: !(learned || learning) && Icons.balance,
-          text:
-            (learned && translations.learned[lang]) ||
-            (learning && translations.boost[lang]) ||
-            skill?.coins_price,
-          onClick: bottomButtonOnClick,
-          active: checkActiveSkillButton(skill),
+        // Убираем пока ускорить
+        // {
+        //   icon: !(learned || learning) && Icons.balance,
+        //   text:
+        //     (learned && translations.learned[lang]) ||
+        //     (learning && translations.boost[lang]) ||
+        //     skill?.coins_price,
+        //   onClick: bottomButtonOnClick,
+        //   active: checkActiveSkillButton(skill),
           
             
-        },
+        // },
       ],
     }
     return data

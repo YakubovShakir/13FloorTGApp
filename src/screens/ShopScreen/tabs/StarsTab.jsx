@@ -13,6 +13,7 @@ import UserContext from "../../../UserContext"
 import { FullScreenSpinner } from "../../Home/Home"
 import { instance } from "../../../services/instance"
 import WebApp from "@twa-dev/sdk"
+import { useSettingsProvider } from "../../../hooks"
 
 const SquareButton = ({
   handlePress,
@@ -172,6 +173,7 @@ const StarsTab = ({ userId }) => {
   const [clothesItems, setClothesItems] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
 
+  const { lang } = useSettingsProvider()
 
 
   const { userPersonage } = useContext(UserContext)
@@ -188,14 +190,10 @@ const StarsTab = ({ userId }) => {
     Complex: 'Complex'
   }
 
-  const TierFilters = [0, 1, 2, 3, 4, 5]
-
   useEffect(() => {
     getShopItems(userId).then(data => {
-      // TODO: localize
-      const loadedClothesItems = data.clothing.map(item => ({ name: item.name['ru'], image: userPersonage.gender === 'male' ? item.male_icon : item.female_icon, price: item.price, respect: item.respect, tier: item.tier, tags: item.tag, category: item.type, available: true , id: item.clothing_id}))
+      const loadedClothesItems = data.clothing.map(item => ({ name: item.name[lang], image: userPersonage.gender === 'male' ? item.male_icon : item.female_icon, price: item.price, respect: item.respect, tier: item.tier, tags: item.tag, category: item.type, available: true , id: item.clothing_id}))
       setClothesItems(loadedClothesItems)
-      console.log('Clothes Items', loadedClothesItems)
     }).finally(() => setIsLoading(false))
     // getFoods().then((r) => setFoods(r))
     // getProcesses("food", userId).then((r) => setUserEatingFoods(r))

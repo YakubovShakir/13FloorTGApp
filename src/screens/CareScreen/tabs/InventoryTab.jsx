@@ -336,12 +336,7 @@ const InventoryTab = ({ userId }) => {
   const [isLoading, setIsLoading] = useState(true)
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false)
   const [currentComplexFilters, setCurrentComplexFilters] = useState([])
-  console.log('sss', currentComplexFilters)
-  const { userPersonage, userParameters } = useContext(UserContext)
-
- 
-
-  const TierFilters = [0, 1, 2, 3, 4, 5]
+  const { userPersonage } = useContext(UserContext)
 
   useEffect(() => {
     getInventoryItems(userId)
@@ -397,7 +392,6 @@ const InventoryTab = ({ userId }) => {
   }
 
   const addComplexFilter = ({ filteredValue, filteredField }) => {
-    console.log('filters', currentComplexFilters)
     setCurrentComplexFilters([...currentComplexFilters, { filteredField, filteredValue }]);
   };
   

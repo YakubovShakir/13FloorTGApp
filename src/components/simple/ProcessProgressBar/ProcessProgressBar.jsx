@@ -37,6 +37,14 @@ const ProcessProgressBar = ({
     no: {
       ru: 'Нет',
       en: 'No'
+    },
+    training: {
+      ru: 'Тренировка',
+      en: 'Training'
+    },
+    longSleep: {
+      ru: 'Продолжительный сон',
+      en: 'Long Sleep'
     }
   }
 
@@ -45,15 +53,14 @@ const ProcessProgressBar = ({
     const work = works?.find((work) => work?.work_id === activeProcess?.type_id);
     const typeToLabel = {
       work: [work?.name[lang], `${"+" + work?.coins_in_hour}/` + (lang === 'en' ? 'Hour' : 'Час')],
-      training: ["Training", rate],
-      sleep: ["Long Sleep", rate],
+      training: [translations.training[lang], rate],
+      sleep: [translations.training[lang], rate],
     };
 
     return typeToLabel[processType];
   };
 
   const getIcons = async (processType) => {
-    const works = await getWorks();
     const typeToIconsMap = {
       work: [
         // <img height={45} width={45} src={works?.find((work) => work?.work_id === activeProcess?.type_id)?.link} />,
@@ -115,15 +122,23 @@ const ProcessProgressBar = ({
   const displayPercentage = reverse ? 100 - currentPercentage : currentPercentage;
 
   const handleCloseModal = () => {
-    navigate('/#');
     setShowModal(false);
   };
 
   const handleConfirmClose = async () => {
-    await stopProcess(userId)
-    await fetchParams()
-    setShowModal(false);
-    navigate('/');
+    try {
+      await stopProcess(userId);
+      await fetchParams();
+      setShowModal(false);
+
+      setTimeout(() => {
+        navigate('/');
+      }, 100);
+    } catch (error) {
+      console.error('Error stopping process:', error);
+      setShowModal(false);
+      navigate('/');
+    }
   };
 
   if (!activeProcess) {
@@ -195,7 +210,7 @@ const ProcessProgressBar = ({
                   color: "rgb(0, 255, 115)",
                 }}
                   >{translations.yes[lang]}</button>
-              <button onClick={handleCloseModal}
+              <button onClick={() => handleCloseModal()}
               
               style={{
                 color: "rgb(255, 0, 0)",

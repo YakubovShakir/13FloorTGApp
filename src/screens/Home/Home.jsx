@@ -12,19 +12,19 @@ import {
   getTrainingParameters,
   getUserActiveProcess,
 } from "../../services/user/user"
-import { stopProcess } from '../../services/process/process'
+import { stopProcess } from "../../services/process/process"
 import UserContext from "../../UserContext"
 import countPercentage from "../../utils/countPercentage"
 import { updateProcessTimers } from "../../utils/updateTimers"
 import { getLevels } from "../../services/levels/levels"
-import { motion } from 'framer-motion'
+import { motion } from "framer-motion"
 import { useNavigate } from "react-router-dom"
 
 export const FullScreenSpinner = ({ color = "#f37500", size = 70 }) => {
   const backgroundFrames = Array.from({ length: 60 }, (_, i) => {
-    const opacity = (i + 1) / 60;
-    return `#000000, ${opacity})`;
-  });
+    const opacity = (i + 1) / 60
+    return `#000000, ${opacity})`
+  })
 
   return (
     <motion.div
@@ -32,14 +32,14 @@ export const FullScreenSpinner = ({ color = "#f37500", size = 70 }) => {
       animate={{ opacity: 1, backgroundColor: backgroundFrames }}
       transition={{ duration: 1, ease: "easeInOut" }}
       style={{
-        position: 'fixed',
+        position: "fixed",
         top: 0,
         left: 0,
-        width: '100%',
-        height: '100%',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
+        width: "100%",
+        height: "100%",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
         zIndex: 9999,
       }}
     >
@@ -48,7 +48,7 @@ export const FullScreenSpinner = ({ color = "#f37500", size = 70 }) => {
         animate={{
           rotate: 360,
           scale: [0.7, 1, 0.7],
-          opacity: 1
+          opacity: 1,
         }}
         transition={{
           duration: 1.5,
@@ -61,19 +61,19 @@ export const FullScreenSpinner = ({ color = "#f37500", size = 70 }) => {
           height: size,
           border: `5px solid ${color}`,
           borderTop: `5px solid transparent`,
-          borderRadius: '50%',
+          borderRadius: "50%",
         }}
       />
     </motion.div>
-  );
-};
+  )
+}
 
 const getBgByCurrentProcess = (processType) => {
   const { BG } = Assets
   const typeToBgMap = {
-    'work': BG.workScreenBG,
-    'sleep': BG.sleepScreenBG,
-    'training': BG.trainScreenBG
+    work: BG.workScreenBG,
+    sleep: BG.sleepScreenBG,
+    training: BG.trainScreenBG,
   }
 
   const bg = typeToBgMap[processType]
@@ -82,8 +82,8 @@ const getBgByCurrentProcess = (processType) => {
 
 const Home = () => {
   const navigate = useNavigate()
-  const { Icons, BG } = Assets
-  const [currentWindow, setCurrentWindow] = useState(null)
+
+  const [currentWindow] = useState(null)
   const [currentProcess, setCurrentProcess] = useState(null)
   const [visibleWindow, setVisibleWindow] = useState(false)
   const [visibleSettingsModal, setVisibleSettingsModal] = useState(false)
@@ -92,7 +92,16 @@ const Home = () => {
   const [isStoppingProcess, setIsStoppingProcess] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
 
-  const { userId, userParameters, appReady, userPersonage, userClothing, fetchParams, setUserParameters, userShelf } = useContext(UserContext)
+  const {
+    userId,
+    userParameters,
+    appReady,
+    userPersonage,
+    userClothing,
+    fetchParams,
+    setUserParameters,
+    userShelf,
+  } = useContext(UserContext)
 
   const getUserSleepDuration = () => {
     const duration = levels?.find(
@@ -104,10 +113,6 @@ const Home = () => {
   useEffect(() => {
     useTelegram.hideBackButton()
 
-    fetchParams().then(() => {
-      console.log("Fetching from home")
-    })
-
     const preloadImages = async () => {
       const imageUrls = [
         Assets.Layers.cover,
@@ -117,20 +122,22 @@ const Home = () => {
         Assets.BG.homeBackground,
         Assets.HOME.shelf,
         Assets.HOME.couch,
-        Assets.BG.backgroundSun
-      ];
+        Assets.BG.backgroundSun,
+      ]
 
-      await Promise.all(imageUrls.map(url => {
-        return new Promise((resolve, reject) => {
-          const img = new Image();
-          img.onload = resolve;
-          img.onerror = reject;
-          img.src = url;
-        });
-      }));
-    };
+      await Promise.all(
+        [...imageUrls.map((url) => {
+          return new Promise((resolve, reject) => {
+            const img = new Image()
+            img.onload = resolve
+            img.onerror = reject
+            img.src = url
+          })
+        }), fetchParams()]
+      )
+    }
 
-    preloadImages();
+    preloadImages()
   }, [])
 
   useEffect(() => {
@@ -140,7 +147,12 @@ const Home = () => {
         setUserParameters(parameters.parameters)
       }
 
-      const updater = updateProcessTimers(currentProcess, setCurrentProcess, currentProcess?.type === "work", updateParametersFunction)
+      const updater = updateProcessTimers(
+        currentProcess,
+        setCurrentProcess,
+        currentProcess?.type === "work",
+        updateParametersFunction
+      )
       return () => clearInterval(updater)
     }
   }, [currentProcess])
@@ -148,8 +160,9 @@ const Home = () => {
   useEffect(() => {
     const initializeHome = async () => {
       if (appReady) {
-        if (!userPersonage || JSON.stringify(userPersonage) === '{}') {
-          navigate('/personage-create')
+        if (!userPersonage || JSON.stringify(userPersonage) === "{}") {
+          navigate("/learning")
+          // navigate('/personage-create')
           return
         }
 
@@ -157,7 +170,7 @@ const Home = () => {
           const process = await getUserActiveProcess(userId)
           if (isStoppingProcess && !process) {
             setIsStoppingProcess(false)
-            navigate('/')
+            navigate("/")
             return
           }
           setCurrentProcess(process)
@@ -169,14 +182,14 @@ const Home = () => {
           const levelsData = await getLevels()
           setLevels(levelsData)
         } catch (error) {
-          console.error('Error initializing home:', error)
+          console.error("Error initializing home:", error)
           setIsStoppingProcess(false)
         }
       }
     }
 
     initializeHome()
-    
+
     setTimeout(() => {
       setIsLoading(false)
     }, 1500)
@@ -188,9 +201,9 @@ const Home = () => {
       await stopProcess(userId)
       await fetchParams()
       setCurrentProcess(null)
-      navigate('/')
+      navigate("/")
     } catch (error) {
-      console.error('Error stopping process:', error)
+      console.error("Error stopping process:", error)
       setIsStoppingProcess(false)
     }
   }
@@ -200,16 +213,21 @@ const Home = () => {
     in: {
       opacity: 1,
       scale: 1,
-      transition: { duration: 0.3, type: "tween" }
+      transition: { duration: 0.3, type: "tween" },
     },
     out: {
       opacity: 0,
       scale: 1.05,
-      transition: { duration: 0.3, type: "tween" }
-    }
+      transition: { duration: 0.3, type: "tween" },
+    },
   }
 
-  const renderProcessProgressBar = (process, percentage, rate, reverse = false) => (
+  const renderProcessProgressBar = (
+    process,
+    percentage,
+    rate,
+    reverse = false
+  ) => (
     <ProcessProgressBar
       activeProcess={process}
       inputPercentage={percentage}
@@ -218,28 +236,28 @@ const Home = () => {
       onProcessStop={handleProcessStop}
     />
   )
-  
+
   const renderScene = (content) => (
     <motion.div
       className="Home"
-      key={currentProcess?.type || 'default'}
+      key={currentProcess?.type || "default"}
       initial="initial"
       animate="in"
       exit="out"
       variants={pageVariants}
       style={{
-        position: 'absolute',
-        height: '100%',
-        width: '100%',
-        overflow: 'hidden'
+        position: "absolute",
+        height: "100%",
+        width: "100%",
+        overflow: "hidden",
       }}
     >
       <motion.div
-        style={{   
-          filter: 'blur(1px)',
-          position: 'absolute',
-          height: '53%',
-          width: '53%',
+        style={{
+          filter: "blur(1px)",
+          position: "absolute",
+          height: "53%",
+          width: "53%",
           backgroundImage: `url(${Assets.BG.winter})`,
           backgroundSize: "cover",
           backgroundPosition: "center right",
@@ -248,9 +266,9 @@ const Home = () => {
       />
       <motion.div
         style={{
-          position: 'absolute',
-          height: '100%',
-          width: '100%',
+          position: "absolute",
+          height: "100%",
+          width: "100%",
           backgroundImage: currentProcess?.type
             ? getBgByCurrentProcess(currentProcess.type)
             : `url(${Assets.BG.homeBackground})`,
@@ -261,7 +279,7 @@ const Home = () => {
       />
       {content}
     </motion.div>
-  );
+  )
 
   if (isLoading) {
     return <FullScreenSpinner />
@@ -276,7 +294,7 @@ const Home = () => {
         <img className="shelf1" src={Assets.HOME.shelf} alt="shelf1" />
         <img className="shelf2" src={Assets.HOME.shelf} alt="shelf2" />
         <img className="couch" src={Assets.HOME.couch} alt="couch" />
-        <div style={{ position: 'absolute', zIndex: 2 }}>
+        <div style={{ position: "absolute", zIndex: 2 }}>
           <Player
             bottom={"calc(-85vh + 50px)"}
             width="37vw"
@@ -297,13 +315,43 @@ const Home = () => {
             {userShelf && (
               <>
                 <div className="shelf-container1">
-                  <img className="shelf-flower" src={userShelf.flower?.shelf_link} alt="flower" />
-                  <img className="shelf-award" src={userShelf.award?.shelf_link} alt="award" />
-                  <img className="shelf-event" src={userShelf.event?.shelf_link} alt="event" />
+                  {userShelf.flower?.shelf_link && (
+                    <img
+                      className="shelf-flower"
+                      src={userShelf.flower.shelf_link}
+                      alt="flower"
+                    />
+                  )}
+                  {userShelf.award?.shelf_link && (
+                    <img
+                      className="shelf-award"
+                      src={userShelf.award.shelf_link}
+                      alt="award"
+                    />
+                  )}
+                  {userShelf.event?.shelf_link && (
+                    <img
+                      className="shelf-event"
+                      src={userShelf.event.shelf_link}
+                      alt="event"
+                    />
+                  )}
                 </div>
                 <div className="shelf-container2">
-                  <img className="shelf-neko" src={userShelf.neko?.shelf_link} alt="neko" />
-                  <img className="shelf-flag" src={userShelf.flag?.shelf_link} alt="flag" />
+                  {userShelf.neko?.shelf_link && (
+                    <img
+                      className="shelf-neko"
+                      src={userShelf.neko.shelf_link}
+                      alt="neko"
+                    />
+                  )}
+                  {userShelf.flag?.shelf_link && (
+                    <img
+                      className="shelf-flag"
+                      src={userShelf.flag.shelf_link}
+                      alt="flag"
+                    />
+                  )}
                 </div>
               </>
             )}
@@ -341,7 +389,7 @@ const Home = () => {
           undefined,
           true
         )}
-        <Menu noButton/>
+        <Menu noButton />
         {visibleWindow && (
           <Window
             title={currentWindow.title}
@@ -376,7 +424,7 @@ const Home = () => {
           ),
           trainingParamters?.mood_profit
         )}
-        <Menu noButton/>
+        <Menu noButton />
         {visibleWindow && (
           <Window
             title={currentWindow.title}
@@ -420,12 +468,12 @@ const Home = () => {
         {renderProcessProgressBar(
           currentProcess,
           countPercentage(
-            (currentProcess?.duration * 60 + currentProcess?.seconds),
+            currentProcess?.duration * 60 + currentProcess?.seconds,
             getUserSleepDuration() * 60
           ),
           "Time"
         )}
-        <Menu noButton/>
+        <Menu noButton />
         {visibleWindow && (
           <Window
             title={currentWindow.title}

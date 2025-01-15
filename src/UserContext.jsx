@@ -26,7 +26,6 @@ export const UserProvider = ({ children }) => {
       if (JSON.stringify(parameters) !== JSON.stringify(latestDataRef.current)) {
         setUserParameters(parameters.parameters)
         setUserPersonage(parameters.personage)
-        console.log(parameters)
         setUserClothing(parameters.clothing)
         setUserShelf(parameters.shelf)
         latestDataRef.current = parameters
@@ -34,7 +33,7 @@ export const UserProvider = ({ children }) => {
       
       if (isInitial) setAppReady(true)
     } catch(err) {
-      console.log('Error fetching parameters:', err)
+      
     } finally {
       isFetchingRef.current = false
     }

@@ -131,7 +131,7 @@ const SkillTab = ({
       const activeProcess = await getActiveProcess(userId);
       setActiveProcess(activeProcess);
       // Navigate to the MainScreen after starting the process
-      navigation.navigate('MainScreen');
+      navigation.navigate('/');
     }
   };
 

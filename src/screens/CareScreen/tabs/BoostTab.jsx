@@ -146,10 +146,10 @@ const BoostTab = ({ userId, userParameters, setUserParameters }) => {
           productType: 'clothes',
           id: item.id
       }).then(res => res.data.invoiceLink)
-      WebApp.openInvoice(response, (status) => {
-        setIsLoading(true)
-        if(status === "paid") {}
-        setIsLoading(false)
+      window.WebApp.openInvoice(response, (status) => {
+        if(status === "paid") {
+          return
+        }
       })
     } catch (err) {
       console.error(err)
@@ -166,14 +166,13 @@ const BoostTab = ({ userId, userParameters, setUserParameters }) => {
 
   return (
     <ScreenContainer withTab>
-      <ItemCard
+      {/* <ItemCard
         ItemIcon={sleepIcon}
         ItemTitle={"Долгий сон"}
         ItemParamsBlocks={getItemSleepParams()}
         ItemButtons={getItemSleepButton()}
         ItemIndex={0}
-      
-      />
+      /> */}
       {boosts?.map((boost, index) => (
         <ItemCard
           key={index}

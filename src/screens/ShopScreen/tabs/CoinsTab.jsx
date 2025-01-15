@@ -444,7 +444,6 @@ const GridLayout = ({ items, handleCoinsBuy, handleStarsBuy }) => {
       >
         {items.map((item, index) => {
           if (item.category === "Shelf") {
-            console.log('shelf item', item)
             return (
               <GridItemShelf
                 key={index}
@@ -520,7 +519,6 @@ const CoinsTab = ({ userId }) => {
   const TierFilters = [0, 1, 2, 3, 4, 5]
   
   useEffect(() => {
-    console.log("Inside Coins tab")
     getShopItems(userId)
       .then((data) => {
         // TODO: localize
@@ -642,7 +640,7 @@ const CoinsTab = ({ userId }) => {
   const handleStarsBuy = async (item) => {
     try {
       setIsLoading(true)
-      const response = await instance.post('/users/request-stars-invoice-linkF', {
+      const response = await instance.post('/users/request-stars-invoice-link', {
           productType: item.productType,
           id: item.id
       })

@@ -115,8 +115,8 @@ const Menu = ({ screenMenu, activeName, noButton }) => {
       style={{ width: "100vw", zIndex: 99999 }}
     >
       {/* Контейнер для кнопки BigButton */}
-      <div className="MenuButtonContainer">
-        {!noButton && (
+      {!noButton && (
+        <div className="MenuButtonContainer">
           <div className="MenuButtonBg">
             <Button
               className="clothing-item-equip-button"
@@ -138,8 +138,8 @@ const Menu = ({ screenMenu, activeName, noButton }) => {
               onClick={() => navigate("/action")}
             />
           </div>
-        )}
-      </div>
+        </div>
+      )}
 
       {/* Контейнер с иконками кнопок */}
       <div className="ButtonMenu">

@@ -104,7 +104,7 @@ const PersonageCreationScreen = () => {
         await setUserPersonage({ race, name: personageName, gender })
 
         await personageCreate(userId, race, gender, personageName)
-        navigate("/#")
+        navigate("/learning/1")
       }
     } catch (err) {
       console.error(err)

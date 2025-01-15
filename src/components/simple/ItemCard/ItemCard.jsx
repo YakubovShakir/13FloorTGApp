@@ -39,7 +39,6 @@ if (isWaiting) {
 
 // Логика для обесцвечивания изображений
 const isImageGrayscale = !isAnyButtonActive; // Если кнопка неактивна, изображение будет обесцвечено
-  console.log(ItemAmount)
   return (
     <motion.div
       initial={{ opacity: 0, y: 100 }}

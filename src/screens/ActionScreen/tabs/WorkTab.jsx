@@ -294,7 +294,7 @@ export const WorkTab = ({
               ? async () => await handleStopWork()
               : async () => {
                   await handleStartWork();
-                  navigation.navigate('MainScreen'); // Переход на основной экран сразу после начала работы
+                  navigation.navigate('/'); // Переход на основной экран сразу после начала работы
                 },
           icon: buyStatus && Icons.balance,
           active: true,
@@ -322,7 +322,6 @@ export const WorkTab = ({
   }
   useEffect(() => {
     getWorks().then((r) => {
-      console.log('works', r[0])
       setWorks(r)
     })
     getSkills().then((r) => setSkills(r)) // Get list of skills

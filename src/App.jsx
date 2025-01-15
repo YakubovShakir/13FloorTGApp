@@ -13,6 +13,7 @@ import TaskScreen from "./screens/TaskScreen/TaskScreen"
 import ActionScreen from "./screens/ActionScreen/ActionScreen";
 import InvestmentScreen from "./screens/Investment/InvestmentScreen";
 import { SettingsProvider } from "./hooks";
+import Learning from "./screens/Learning/Learning";
 
 const BlockerMessage = () => (
   <div style={{
@@ -106,6 +107,7 @@ function App() {
           <Routes>
             {/* <Route index element={<StartCustomize />} /> */}
             <Route index path="/" exact element={<Home/>}/>
+            <Route path="/learning/:slideIndex?" element={<Learning/>}/>
             <Route path="/personage-create" element={<PersonageCreationScreen />} />
             {/* <Route index element={<PersonageCreationScreen />} /> */}
             <Route path="/care" element={<CareScreen />} />

@@ -110,8 +110,7 @@ export function SettingsProvider({ children }) {
     } else {
       // Regular browser behavior
       if (isMusicEnabled) {
-        backgroundMusic.play().catch(error => {
-          console.log('Playback failed:', error);
+        backgroundMusic.play().catch(_ => {
           const playOnInteraction = () => {
             backgroundMusic.play().catch(console.error);
             document.removeEventListener('click', playOnInteraction);

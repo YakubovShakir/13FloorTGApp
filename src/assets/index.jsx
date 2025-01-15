@@ -217,6 +217,11 @@ import blackHand from './IMG/black-hand.png'
 import asianHand from './IMG/asian-hand.png'
 import euroHand from './IMG/euro-hand.png'
 
+import learn1 from './IMG/bg/learn1.png'
+import learn2 from './IMG/bg/learn2.png'
+import learn3 from './IMG/bg/learn3.png'
+import learn4 from './IMG/bg/learn4.png'
+
 export function getImgUrl(name) {
   return new URL(`${name}`, import.meta.url).href
 }
@@ -392,7 +397,11 @@ const Assets = {
     sleepScreenBG,
     personageCreationBg,
     filterModalBG,
-    winter
+    winter,
+    learn1,
+    learn2,
+    learn3,
+    learn4
   },
   nameUnderline,
   HOME: {

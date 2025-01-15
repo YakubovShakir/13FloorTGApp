@@ -214,7 +214,7 @@ const { lang } = useSettingsProvider()
           productType: 'clothes',
           id: item.id
       }).then(res => res.data.invoiceLink)
-      WebApp.openInvoice(response, (status) => {
+      window.WebApp.openInvoice(response, (status) => {
         setIsLoading(true)
         if(status === "paid") {}
         setIsLoading(false)
@@ -234,20 +234,20 @@ const { lang } = useSettingsProvider()
 
   return (
     <ScreenContainer withTab>
-      <ItemCard
+      {/* <ItemCard
         ItemIcon={sleepIcon}
         ItemTitle={"Долгий сон"}
         ItemParamsBlocks={getItemSleepParams()}
         ItemButtons={getItemSleepButton()}
         ItemIndex={0}
       
-      />
+      /> */}
       {boosts?.map((boost, index) => (
         <ItemCard
           key={index}
           ItemIcon={boost?.link}
-          ItemTitle={boost.name}
-          ItemDescription={boost?.description}
+          ItemTitle={boost.name[lang]}
+          ItemDescription={boost?.description[lang]}
           ItemParamsBlocks={getItemBoostParams(boost)}
           ItemButtons={getItemBoostButton(boost)}
           ItemAmount={getUserBoostAmount(boost?.boost_id)}

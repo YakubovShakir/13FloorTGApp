@@ -39,7 +39,6 @@ const SkillTab = ({
     const learned = userLearnedSkills?.find(
       (skill) => skill?.skill_id === skillId
     )
-    console.log('learned', userLearnedSkills)
     return learned && skills?.find((skill) => skill?.skill_id === skillId)
   }
   // Return skill if it in study
@@ -55,7 +54,6 @@ const SkillTab = ({
     await startProcess("skill", userId, skill?.skill_id)
     const userParameters = await getParameters(userId)
     const userLearningSkills = await getProcesses("skill", userId)
-    console.log(userLearningSkills)
 
     setUserParameters(userParameters)
     setUserLearningSkills(userLearningSkills)
@@ -290,7 +288,7 @@ const SkillTab = ({
         setActiveProcess(trainingStatus)
       }, 30000)
     } catch (e) {
-      console.log("Error when updateInfromation", e)
+      
     }
   }
   useEffect(() => {

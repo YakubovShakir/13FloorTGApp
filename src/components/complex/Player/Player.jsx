@@ -87,7 +87,6 @@ const Player = ({
     preloadImages(imagesToPreload)
       .then(() => {
         setImagesLoaded(true);
-        console.log(clothing)
       })
       .catch((failedUrl) => {
         console.error(`Failed to load image: ${failedUrl}`);
@@ -106,7 +105,7 @@ const Player = ({
       </div>
     );
   }
-  console.log(clothing)
+
   // Render actual player if images are loaded successfully
   return (
     <div
