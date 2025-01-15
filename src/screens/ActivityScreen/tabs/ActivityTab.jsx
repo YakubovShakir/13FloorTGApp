@@ -122,8 +122,9 @@ export const CareScreen = ({ userId, userParameters }) => {
         active: true,
         bg: activeWork
           ? "linear-gradient(180deg, rgba(233,27,27,1) 0%, rgba(119,1,1,1) 100%)"
-          : "linear-gradient(180deg, rgba(233,78,27,1) 0%, rgba(243,117,0,1) 100%)",
+          : "rgb(65, 64, 64)",
         shadowColor: activeWork ? "#4E1010" : "#AF370F",
+        borderColor: "rgb(65, 64, 64)",
       },
     ]
   }

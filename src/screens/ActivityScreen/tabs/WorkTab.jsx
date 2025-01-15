@@ -22,6 +22,7 @@ export const WorkTab = ({
   setVisibleModal,
   userParameters,
   userId,
+  borderColor,
 }) => {
 
   const { lang } = useSettingsProvider()
@@ -265,7 +266,7 @@ export const WorkTab = ({
     const requiredLevel = userParameters?.level >= work?.work_id
     const isNextLevelWork = workId === userParameters?.work_id + 1
     const enoughBalance = userParameters?.coins >= work?.coins_price
-
+    
     const buyStatus =
       requiredRespect &&
       requiredSkill &&
@@ -278,11 +279,15 @@ export const WorkTab = ({
           text: translations.currentWork[lang],
           icon: buyStatus && Icons.balance,
           active: true,
-          // bg: activeWork
-          //   ? "rgb(32 7 3)"
-          //   : "rgb(32 7 3)",
-          // shadowColor: activeWork ? "rgb(32 7 3)" : "rgb(32 7 3)",
-          // borderColor: "rgb(32 7 3)", // Убрали !important
+          bg: activeWork
+            ? "rgb(18, 18, 18)"
+            : "rgb(18, 18, 18)",
+          shadowColor: activeWork ? "rgb(32, 32, 32)" : "rgb(32, 32, 32)",
+          borderColor: activeWork ? "rgb(73 73 73)" : "rgba(117, 117, 117, 0.23)",
+          border: `1px solid rgb(32, 32, 32)`,
+          color:'rgb(10, 255, 186)',
+          ownColor:'rgb(255, 118, 0)',
+         
         },
       ];
     }
