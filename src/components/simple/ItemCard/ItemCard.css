@@ -155,17 +155,12 @@
 }
 
 .ItemCardButtons {
-  box-shadow: rgba(0, 0, 0, 0.24) 0px 0px 8px 2px inset;
-    background: rgb(18, 18, 18);
-    border-bottom: 1px solid rgb(117 117 117 / 47%);
-    border-radius: 6px;
-    /* background: black; */
-    padding: 1px 3px 8px 3px;
+  
     margin-left: 13px;
     display: flex
 ;
     flex-direction: column;
-    gap: 10px;
+    gap: 17px;
 }
 
 /* Стили для изображения в контейнере ItemIconContainer */

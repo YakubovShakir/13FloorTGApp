@@ -11,17 +11,16 @@ const FillBar = ({ icon, width, percentFill }) => {
   return (
     <div className="FillBar" style={{ width: width }}>
       <img src={icon} alt="icon" />
-      <div className="FillBarProgress">
-        <div
-          style={{
-            width: `${roundedPercent}%`,
-            background: color,
-          }}
-        ></div>
-        <div className="FillBarText">
-          {roundedPercent}%
-        </div>
-      </div>
+      <div
+  className="FillBarProgress"
+  style={{ '--fill-width': `${roundedPercent}%` }}
+>
+  <div className="FillBarText">
+    {roundedPercent}%
+  </div>
+</div>
+
+      
     </div>
   );
 };
