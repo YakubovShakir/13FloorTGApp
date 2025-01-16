@@ -19,66 +19,8 @@ import { updateProcessTimers } from "../../utils/updateTimers"
 import { getLevels } from "../../services/levels/levels"
 import { motion } from "framer-motion"
 import { useNavigate } from "react-router-dom"
-
-export const FullScreenSpinner = ({ color = "#f37500", size = 70 }) => {
-  const backgroundFrames = Array.from({ length: 60 }, (_, i) => {
-    const opacity = (i + 1) / 60
-    return `#000000, ${opacity})`
-  })
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, backgroundColor: "transparent" }}
-      animate={{ opacity: 1, backgroundColor: backgroundFrames }}
-      transition={{ duration: 1, ease: "easeInOut" }}
-      style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        width: "100%",
-        height: "100%",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        zIndex: 9999,
-      }}
-    >
-      <motion.div
-        initial={{ scale: 0.7, opacity: 0 }}
-        animate={{
-          rotate: 360,
-          scale: [0.7, 1, 0.7],
-          opacity: 1,
-        }}
-        transition={{
-          duration: 1.5,
-          repeat: Infinity,
-          ease: "easeInOut",
-          times: [0, 0.5, 1],
-        }}
-        style={{
-          width: size,
-          height: size,
-          border: `5px solid ${color}`,
-          borderTop: `5px solid transparent`,
-          borderRadius: "50%",
-        }}
-      />
-    </motion.div>
-  )
-}
-
-const getBgByCurrentProcess = (processType) => {
-  const { BG } = Assets
-  const typeToBgMap = {
-    work: BG.workScreenBG,
-    sleep: BG.sleepScreenBG,
-    training: BG.trainScreenBG,
-  }
-
-  const bg = typeToBgMap[processType]
-  return `url(${bg || BG.homeBackground})`
-}
+import FullScreenSpinner from "./FullScreenSpinner"
+import getBgByCurrentProcess from "./getBgByCurrentProcess"
 
 const Home = () => {
   const navigate = useNavigate()
@@ -91,6 +33,7 @@ const Home = () => {
   const [levels, setLevels] = useState(null)
   const [isStoppingProcess, setIsStoppingProcess] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
+  const [imagesLoaded, setImagesLoaded] = useState(false);
 
   const {
     userId,
@@ -110,35 +53,35 @@ const Home = () => {
     return duration
   }
 
+  const preloadImages = async () => {
+    const imageUrls = [
+      Assets.Layers.cover,
+      Assets.BG.workScreenBG,
+      Assets.BG.sleepScreenBG,
+      Assets.BG.trainScreenBG,
+      Assets.BG.homeBackground,
+      Assets.HOME.shelf,
+      Assets.HOME.couch,
+      Assets.BG.backgroundSun,
+    ];
+  
+    const images = imageUrls.map((url) => {
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = resolve;
+        img.onerror = reject;
+        img.src = url;
+      });
+    });
+  
+    await Promise.all(images);
+    await fetchParams();
+    setImagesLoaded(true);
+  };
+
   useEffect(() => {
-    useTelegram.hideBackButton()
-
-    const preloadImages = async () => {
-      const imageUrls = [
-        Assets.Layers.cover,
-        Assets.BG.workScreenBG,
-        Assets.BG.sleepScreenBG,
-        Assets.BG.trainScreenBG,
-        Assets.BG.homeBackground,
-        Assets.HOME.shelf,
-        Assets.HOME.couch,
-        Assets.BG.backgroundSun,
-      ]
-
-      await Promise.all(
-        [...imageUrls.map((url) => {
-          return new Promise((resolve, reject) => {
-            const img = new Image()
-            img.onload = resolve
-            img.onerror = reject
-            img.src = url
-          })
-        }), fetchParams()]
-      )
-    }
-
-    preloadImages()
-  }, [])
+    preloadImages();
+  }, []);
 
   useEffect(() => {
     if (currentProcess?.active) {
@@ -238,13 +181,12 @@ const Home = () => {
   )
 
   const renderScene = (content) => (
-    <motion.div
+  <motion.div
       className="Home"
       key={currentProcess?.type || "default"}
-      initial="initial"
-      animate="in"
-      exit="out"
-      variants={pageVariants}
+      initial={{ opacity: imagesLoaded ? 1 : 0 }}
+      animate={{ opacity: imagesLoaded ? 1 : 0 }}
+      transition={{ duration: 0.3 }}
       style={{
         position: "absolute",
         height: "100%",

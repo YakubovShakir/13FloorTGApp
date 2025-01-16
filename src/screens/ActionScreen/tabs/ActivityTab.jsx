@@ -243,7 +243,7 @@ const BoostTab = ({ userId, userParameters, setUserParameters }) => {
   }, [activeProcess])
 
   return (
-    <temCard >
+    <>
       <ItemCard
         ItemIcon={sleepIcon}
         ItemTitle={translations.sleep[lang]}
@@ -252,7 +252,7 @@ const BoostTab = ({ userId, userParameters, setUserParameters }) => {
         ItemButtons={getItemSleepButton()}
         ItemIndex={0}
       />
-    </temCard >
+    </>
   )
 }
 

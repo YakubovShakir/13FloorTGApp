@@ -66,33 +66,28 @@ const Player = ({
   const [loadingError, setLoadingError] = useState(false);
 
   useEffect(() => {
-    // If no personage or type is null, skip preloading
-    if (type === null || personage === null || JSON.stringify(personage) === JSON.stringify({})) {
+
+  // Collect all image URLs to preload
+  const imagesToPreload = [
+    getBases(personage?.race, personage?.gender),
+    ...(clothing?.hat ? [pullGenderedClothingImage(personage?.gender, clothing?.hat)] : []),
+    ...(clothing?.top ? [pullGenderedClothingImage(personage?.gender, clothing?.top)] : []),
+    ...(clothing?.pants ? [pullGenderedClothingImage(personage?.gender, clothing?.pants)] : []),
+    ...(clothing?.shoes ? [pullGenderedClothingImage(personage?.gender, clothing?.shoes)] : []),
+    ...(clothing?.accessories ? [pullGenderedClothingImage(personage?.gender, clothing?.accessories)] : []),
+    personage.race && getHand(personage?.race),
+  ].filter(Boolean); // Remove any undefined URLs
+
+  // Preload images
+  preloadImages(imagesToPreload)
+    .then(() => {
       setImagesLoaded(true);
-      return;
-    }
-
-    // Collect all image URLs to preload
-    const imagesToPreload = [
-      getBases(personage?.race, personage?.gender),
-      ...(clothing?.hat ? [pullGenderedClothingImage(personage?.gender, clothing?.hat)] : []),
-      ...(clothing?.top ? [pullGenderedClothingImage(personage?.gender, clothing?.top)] : []),
-      ...(clothing?.pants ? [pullGenderedClothingImage(personage?.gender, clothing?.pants)] : []),
-      ...(clothing?.shoes ? [pullGenderedClothingImage(personage?.gender, clothing?.shoes)] : []),
-      ...(clothing?.accessories ? [pullGenderedClothingImage(personage?.gender, clothing?.accessories)] : []),
-      personage.race && getHand(personage?.race),
-    ].filter(Boolean); // Remove any undefined URLs
-
-    // Preload images
-    preloadImages(imagesToPreload)
-      .then(() => {
-        setImagesLoaded(true);
-      })
-      .catch((failedUrl) => {
-        console.error(`Failed to load image: ${failedUrl}`);
-        setLoadingError(true);
-      });
-  }, [personage, clothing, type]);
+    })
+    .catch((failedUrl) => {
+      console.error(`Failed to load image: ${failedUrl}`);
+      setLoadingError(true);
+    });
+}, [personage, clothing, type]);
 
   // Render placeholder if loading or error occurs
   if (!imagesLoaded || loadingError) {
@@ -136,6 +131,8 @@ const Player = ({
         }}
       />
       {/* Player Image */}
+      {imagesLoaded ? (
+        <>
       <img
         className="PlayerAvatar"
         src={getBases(personage?.race, personage?.gender)}
@@ -190,7 +187,15 @@ const Player = ({
             />
           )}
         </>
-      )}
+      )}</>
+    ) : (
+      <img
+        className="PlayerAvatar"
+        src={personage?.gender === 'female' ? Images.missingGirl : Images.missingMan}
+        alt="avatar"
+        style={{ zIndex: "2" }}
+      />
+    )}
     </div>
   );
 };

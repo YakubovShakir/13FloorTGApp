@@ -13,7 +13,7 @@ import UserContext from "../../UserContext"
 import Button from "../../components/simple/Button/Button"
 import { motion } from "framer-motion"
 import moment from "moment-timezone"
-import { FullScreenSpinner } from "../Home/Home"
+import FullScreenSpinner from "../Home/FullScreenSpinner"
 import "../../components/complex/Modals/Modal/Modal.css"
 import {
   buyInvestmentLevel,

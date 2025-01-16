@@ -331,7 +331,7 @@ export const WorkTab = ({
   }, [])
 
   return (
-    <temCard >
+    <>
       {/* User main work card*/}
 
       {userParameters?.work_id !== 0 && <ItemCard
@@ -345,7 +345,7 @@ export const WorkTab = ({
       />}
 
      
-    </temCard>
+    </>
   )
 }
 
