@@ -128,7 +128,6 @@ const ProcessProgressBar = ({
   const handleConfirmClose = async () => {
     try {
       await stopProcess(userId);
-      await fetchParams() // Add fetchParams to update context
       window.location.href = window.location.origin;
     } catch (error) {
       console.error('Error stopping process:', error);
