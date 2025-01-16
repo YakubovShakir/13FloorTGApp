@@ -1,0 +1,226 @@
+.ItemCardTask {
+  border: 1px solid rgb(57, 57, 57);
+  background: 0% 0% / cover rgb(32, 32, 32);
+  padding: 10px;
+  height: 41vh;
+  max-height: 19vh;
+  display: flex;
+  flex-direction: column;  
+  justify-content: center;  
+  align-items: center;  
+  margin-bottom: 10px;
+  width: 90%;
+  margin: auto auto 10px auto;
+  color: #ffffff;
+  border-radius: 8px;
+  position: relative;
+  text-align: center;
+  
+}
+
+.ItemTitleTask {
+  padding: 0px 5px 0px 5px;
+
+  font-size: 15px;
+  position: relative; 
+  z-index: 1; 
+}
+
+
+.ItemCardTask img {
+  max-width: 100%;
+  object-fit: contain;
+}
+
+.ItemCardAmountTask {
+  position: absolute;
+  top: 0.7%;
+  left: 2%;
+  width: 10%;
+  font-size: 3cqw;
+  background: rgb(111, 73, 129);
+  background: linear-gradient(
+    180deg,
+    rgba(111, 73, 129, 1) 0%,
+    rgba(160, 122, 236, 1) 50%
+  );
+  box-shadow: 0px 3px 0px 0px #442851;
+  padding: 0.7% 0;
+  text-align: center;
+  border-radius: 5px;
+}
+
+
+.ItemCardParamTask {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  width: 100%;
+}
+
+.ItemCardParamBlockTask {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 22px;
+  margin-left: 13px;
+  border-bottom: 1px solid rgba(117, 117, 117, 0.23);
+  box-shadow: rgba(0, 0, 0, 0.24) 0px 0px 8px 2px inset;
+  background: rgb(18, 18, 18);
+  position: relative;
+  text-align: center;
+  border-radius: 5px;
+  z-index: 0;
+  overflow: visible;
+
+  font-family: 'Anonymous pro';
+  font-size: clamp(12px, 2vw, 20px); 
+  text-transform: uppercase;
+}
+
+.ItemCardParamBlockTask span {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 100%; 
+  border-radius: 5px; 
+  z-index: -1;
+  text-align: center;
+}
+
+
+
+.ItemCardParamBlockTask img {
+  position: absolute;
+  left: -6px;
+  display: flex;
+  top: -3%;
+  max-height: 110%;
+  z-index: 1;
+}
+
+
+
+.ButtonTask img {
+  padding-bottom: 3px;
+  width: 10%; /* Зависит от ширины кнопки */
+  height: auto; /* Сохраняет пропорции */
+  max-width: 24px; /* Максимальный размер */
+  min-width: 16px; /* Минимальный размер */
+  object-fit: contain; /* Сохраняет пропорции изображения */
+}
+
+
+
+.ItemDataTask {
+ 
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  height: 100%;
+  width: 100%;
+  align-items: center; 
+}
+
+
+
+
+
+.ItemDetailsContainerTask{
+  padding-right: 13px;
+  padding: 0 0% 0 2%;
+   
+  border-radius: 7px;
+  justify-content: center;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  width: 80%; /* Задаем ширину */
+  
+  height: 100%; /* Занимает всю высоту доступного пространства */
+}
+
+.ItemCardParamsTask {
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 6px; /* Отступы между параметрами */
+}
+
+.ItemDescriptionTask {
+  font-family: "Anonymous pro";
+  font-size: 3.4cqw;
+  text-align: left;
+  
+}
+
+.ItemCardButtonsTask {
+  width: 40%;
+    margin-left: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 17px;
+}
+
+/* Стили для изображения в контейнере ItemIconContainer */
+.ItemIconContainerTask img,
+.ItemCardTask img {
+  transition: all 0.3s ease;
+}
+
+/* Стили для неактивных состояний */
+.ItemCardTask img.inactive,
+.ItemIconContainerTask img.inactive {
+  filter: grayscale(100%) opacity(0.5); /* Обезцвечивание и полупрозрачность */
+}
+
+.inactiveTask {
+  filter: grayscale(100%) opacity(0.5);
+}
+
+
+
+/* Чтобы изображение оставалось поверх сетки */
+.ItemIconContainerTask img {
+  position: relative; 
+  z-index: 1; 
+  top: 4%;
+    max-width: 78%;
+    object-fit: contain;
+   
+  
+}
+
+
+.ItemIconContainerTask {
+  overflow: hidden;
+  border-bottom: 1px solid rgba(117, 117, 117, 0.23);
+  box-shadow: rgba(0, 0, 0, 0.24) 0px 0px 8px 2px inset;
+    margin: 7px 7px 7px 0px;
+    border-radius: 7px;
+  width: 50%; /* Задаем ширину для иконки */
+  height: 100%;
+  position: relative; /* Для корректной работы псевдоэлемента */
+  z-index: 0; /* Сетка будет под изображением */
+  
+  /* Сетка из пересекающихся оранжевых линий */
+  background: repeating-linear-gradient(45deg, #00000036, #00000036 2px, #3939390f 2px, #3939390f 6px);
+}
+
+/* Псевдоэлемент для градиента */
+.ItemIconContainerTask::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1; /* Над сеткой */
+  background: linear-gradient(
+    to bottom,
+    #000000 0%,
+    transparent 100%
+  );
+}
+

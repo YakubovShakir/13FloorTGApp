@@ -1,4 +1,4 @@
-import ItemCard from "../../../components/simple/ItemCard/ItemCard"
+import ItemCard from "../../../components/simple/ItemCard/ItemCardTask"
 import coins30000 from "../icons/coins30000.png"
 import tg300000 from "../icons/tg30000.png"
 import ScreenContainer from "../../../components/section/ScreenContainer/ScreenContainer"
@@ -66,8 +66,8 @@ const TaskTab = ({ userId, userParameters, setUserParameters }) => {
       en: 'Check'
     },
     link: {
-      ru: 'Ссылка',
-      en: 'Link'
+      ru: '🔗',
+      en: '🔗'
     },
    
   }
