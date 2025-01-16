@@ -214,7 +214,7 @@ const { lang } = useSettingsProvider()
           productType: 'clothes',
           id: item.id
       }).then(res => res.data.invoiceLink)
-      window.WebApp.openInvoice(response, (status) => {
+      window.Telegram?.WebApp?.openInvoice(response, (status) => {
         setIsLoading(true)
         if(status === "paid") {}
         setIsLoading(false)

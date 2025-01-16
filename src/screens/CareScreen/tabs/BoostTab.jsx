@@ -146,7 +146,7 @@ const BoostTab = ({ userId, userParameters, setUserParameters }) => {
           productType: 'clothes',
           id: item.id
       }).then(res => res.data.invoiceLink)
-      window.WebApp.openInvoice(response, (status) => {
+      window.Telegram?.WebApp?.openInvoice(response, (status) => {
         if(status === "paid") {
           return
         }
