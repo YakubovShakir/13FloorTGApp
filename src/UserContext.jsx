@@ -34,13 +34,13 @@ export const UserProvider = ({ children }) => {
       
       if (isInitial) setAppReady(true)
       useTelegram.setReady()
-      useTelegram.setHeaderColor('transparent')
+      useTelegram.setHeaderColor('#ffffff00')
     } catch(err) {
       
     } finally {
       isFetchingRef.current = false
     }
-  }, [userId])
+  }, [])
 
   useEffect(() => {
     // Initial fetch

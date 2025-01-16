@@ -192,7 +192,7 @@ const PersonageCreationScreen = () => {
     }
   }, [])
 
-  const [clothing, setClothing] = useState(getInitialClothing(race, gender))
+  const [clothing, setClothing] = useState(null)
 
   useEffect(() => {
     setClothing(getInitialClothing(gender, race))

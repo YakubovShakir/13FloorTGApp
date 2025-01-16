@@ -93,10 +93,10 @@ const TelegramPlatformCheck = ({ children }) => {
   return children;
 };
 
+window.location = window.location + '/#tgWebAppVersion=7.0'
+
 function App() {
-  useEffect(() => {
-    useTelegram.setFullScreen();
-  }, [])
+  useTelegram.setFullScreen();
 
   return (
     // <TelegramPlatformCheck>

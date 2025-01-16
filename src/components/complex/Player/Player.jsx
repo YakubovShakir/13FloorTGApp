@@ -59,11 +59,11 @@ const Player = ({
   bottom,
   type = true,
   personage,
-  clothing,
+  clothing: initialClothing,
 }) => {
-  const { Images } = Assets;
   const [imagesLoaded, setImagesLoaded] = useState(false);
   const [loadingError, setLoadingError] = useState(false);
+  const [clothing, setClothing] = useState(initialClothing);
 
   useEffect(() => {
     // If no personage or type is null, skip preloading
@@ -87,12 +87,13 @@ const Player = ({
     preloadImages(imagesToPreload)
       .then(() => {
         setImagesLoaded(true);
+        setClothing(initialClothing)
       })
       .catch((failedUrl) => {
         console.error(`Failed to load image: ${failedUrl}`);
         setLoadingError(true);
       });
-  }, [personage, clothing, type]);
+  }, []);
 
   // Render placeholder if loading or error occurs
   if (!imagesLoaded || loadingError) {
@@ -101,7 +102,7 @@ const Player = ({
         className="Player"
         style={{ width: `${width}`, aspectRatio: "0.3", left: left, top: top }}
       >
-        <img className="PlayerAvatar" src={personage?.gender === 'female' ? Images.missingGirl : Image.missingMan} alt="avatar" />
+        <img className="PlayerAvatar" src={personage?.gender === 'female' ? Assets.Images.missingGirl : Assets.Images.missingMan} alt="avatar" />
       </div>
     );
   }
