@@ -165,7 +165,7 @@ const PersonageCreationScreen = () => {
 
       try {
         const preloadPromises = assetsToPreload.map(src => preloadImage(src))
-        await Promise.allSettled(preloadPromises)
+        await Promise.all(preloadPromises)
 
         if (mounted) {
           setIsLoading(false)
@@ -174,7 +174,7 @@ const PersonageCreationScreen = () => {
         console.error('Failed to load some assets:', error)
         // Still set loading to false to allow user to proceed
         if (mounted) {
-          setTimeout(() => setIsLoading(false), 3000)
+          setTimeout(() => navigate('/personage-create'))
         }
       }
     }

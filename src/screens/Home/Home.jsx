@@ -112,60 +112,14 @@ const Home = () => {
 
   useEffect(() => {
     useTelegram.hideBackButton()
-
-    const preloadImages = async () => {
-      const imageUrls = [
-        Assets.Layers.cover,
-        Assets.BG.workScreenBG,
-        Assets.BG.sleepScreenBG,
-        Assets.BG.trainScreenBG,
-        Assets.BG.homeBackground,
-        Assets.HOME.shelf,
-        Assets.HOME.couch,
-        Assets.BG.backgroundSun,
-      ]
-
-      await Promise.all(
-        [...imageUrls.map((url) => {
-          return new Promise((resolve, reject) => {
-            const img = new Image()
-            img.onload = resolve
-            img.onerror = reject
-            img.src = url
-          })
-        }), fetchParams()]
-      )
-    }
-
-    preloadImages()
-  }, [])
-
-  useEffect(() => {
-    if (currentProcess?.active) {
-      const updateParametersFunction = async () => {
-        const parameters = await getParameters(userId)
-        setUserParameters(parameters.parameters)
-      }
-
-      const updater = updateProcessTimers(
-        currentProcess,
-        setCurrentProcess,
-        currentProcess?.type === "work",
-        updateParametersFunction
-      )
-      return () => clearInterval(updater)
-    }
-  }, [currentProcess])
-
-  useEffect(() => {
+  
     const initializeHome = async () => {
       if (appReady) {
         if (!userPersonage || JSON.stringify(userPersonage) === "{}") {
           navigate("/learning")
-          // navigate('/personage-create')
           return
         }
-
+  
         try {
           const process = await getUserActiveProcess(userId)
           if (isStoppingProcess && !process) {
@@ -174,25 +128,66 @@ const Home = () => {
             return
           }
           setCurrentProcess(process)
-          useTelegram?.setReady()
-
-          const trainingParams = await getTrainingParameters(userId)
-          setTrainingParameters(trainingParams)
-
-          const levelsData = await getLevels()
-          setLevels(levelsData)
+          
+          const fetchData = async () => {
+            const params = await getParameters(userId)
+            setUserParameters(params.parameters)
+            const trainingParams = await getTrainingParameters(userId)
+            setTrainingParameters(trainingParams)
+            const levelsData = await getLevels()
+            setLevels(levelsData)
+            useTelegram?.setReady()
+          }
+          
+          await fetchData()
+          
+          if (currentProcess?.active) {
+            const updateParametersFunction = async () => {
+              const parameters = await getParameters(userId)
+              setUserParameters(parameters.parameters)
+            }
+            const updater = updateProcessTimers(
+              currentProcess,
+              setCurrentProcess,
+              currentProcess?.type === "work",
+              updateParametersFunction
+            )
+            return () => clearInterval(updater)
+          }
         } catch (error) {
           console.error("Error initializing home:", error)
           setIsStoppingProcess(false)
         }
+      } else {
+        const preloadImages = async () => {
+          const imageUrls = [
+            Assets.Layers.cover,
+            Assets.BG.workScreenBG,
+            Assets.BG.sleepScreenBG,
+            Assets.BG.trainScreenBG,
+            Assets.BG.homeBackground,
+            Assets.HOME.shelf,
+            Assets.HOME.couch,
+            Assets.BG.backgroundSun,
+          ]
+          await Promise.all(
+            imageUrls.map((url) => {
+              return new Promise((resolve, reject) => {
+                const img = new Image()
+                img.onload = resolve
+                img.onerror = reject
+                img.src = url
+              })
+            })
+          )
+        }
+        preloadImages()
       }
+      setIsLoading(false) // Set loading to false after everything finishes
     }
-
+  
     initializeHome()
-
-    setTimeout(() => {
-      setIsLoading(false)
-    }, 1500)
+  
   }, [appReady, isStoppingProcess])
 
   const handleProcessStop = async () => {
