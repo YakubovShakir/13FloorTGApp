@@ -101,7 +101,6 @@ export function SettingsProvider({ children }) {
         }
       };
 
-      window.Telegram.WebApp.ready();
       window.addEventListener('click', handleFirstInteraction, { once: true });
       
       return () => {
