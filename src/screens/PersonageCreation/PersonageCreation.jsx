@@ -126,18 +126,18 @@ const PersonageCreationScreen = () => {
 
       const assetsToPreload = [
         // Initial Clothes
-        "https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/clothes/1/Head/GlossyGlamDark-m.png",
-        "https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/clothes/1/Head/GlossyGlamDark-f.png",
-        "https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/clothes/1/Head/GlossyGlamBlonde-m.png",
-        "https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/clothes/1/Head/GlossyGlamBlonde-f.png",
-        "https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/clothes/1/Head/GlossyGlam  Brown-m.png",
-        "https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/clothes/1/Head/GlossyGlamBrown-f.png",
-        "https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/clothes/1/Body/WhiteTShirt-m.png",
-        "https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/clothes/1/Body/WhiteTShirt-f.png",
-        "https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/clothes/3/Shoes/Boots_m.png",
-        "https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/clothes/3/Shoes/Boots-f.png",
-        "https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/clothes/2/Legs/CamelPants-m.png",
-        "https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/clothes/2/Legs/CamelPants-f.png",
+        // "https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/clothes/1/Head/GlossyGlamDark-m.png",
+        // "https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/clothes/1/Head/GlossyGlamDark-f.png",
+        // "https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/clothes/1/Head/GlossyGlamBlonde-m.png",
+        // "https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/clothes/1/Head/GlossyGlamBlonde-f.png",
+        // "https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/clothes/1/Head/GlossyGlam  Brown-m.png",
+        // "https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/clothes/1/Head/GlossyGlamBrown-f.png",
+        // "https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/clothes/1/Body/WhiteTShirt-m.png",
+        // "https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/clothes/1/Body/WhiteTShirt-f.png",
+        // "https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/clothes/3/Shoes/Boots_m.png",
+        // "https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/clothes/3/Shoes/Boots-f.png",
+        // "https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/clothes/2/Legs/CamelPants-m.png",
+        // "https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/clothes/2/Legs/CamelPants-f.png",
         // Backgrounds
         Assets.BG.personageCreationBg,
 
