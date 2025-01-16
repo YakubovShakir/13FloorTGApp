@@ -94,8 +94,7 @@ const TelegramPlatformCheck = ({ children }) => {
 };
 
 function App() {
-  useTelegram.setFullScreen();
-
+  
   return (
     // <TelegramPlatformCheck>
      <SettingsProvider>

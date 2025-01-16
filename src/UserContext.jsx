@@ -32,8 +32,10 @@ export const UserProvider = ({ children }) => {
         latestDataRef.current = parameters
       }
       
-      if (isInitial) setAppReady(true)
-      useTelegram.setReady()
+      if (isInitial) {
+        useTelegram.setReady()
+        setAppReady(true)
+      }
     } catch(err) {
       
     } finally {

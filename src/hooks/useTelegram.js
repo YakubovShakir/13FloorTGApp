@@ -4,7 +4,6 @@ const Telegram = window.Telegram.WebApp
 
 const useTelegram = {
   setReady: () => {
-    Telegram.expand()
     postEvent('web_app_request_fullscreen')
     postEvent('web_app_expand')
     Telegram?.ready()
