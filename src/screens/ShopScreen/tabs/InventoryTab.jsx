@@ -269,7 +269,7 @@ const GridLayout = ({ setCurrentItem, items, clothesUnequip, clothesEquip }) => 
         width: "100vw",
         display: "flex",
         justifyContent: "center",
-        paddingTop: 12,
+        paddingTop: 55,
       }}
     >
       <div
@@ -512,6 +512,8 @@ const InventoryTab = ({ userId }) => {
       >
         <div
           style={{
+            zIndex: "3",
+            position:" fixed",
             width: "90vw",
             display: "flex",
             justifyContent: "space-around",
