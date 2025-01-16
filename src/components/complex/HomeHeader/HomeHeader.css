@@ -1,7 +1,7 @@
 .HomeHeader {
   width: 100%;
   position: fixed;
-  padding-top: 1%;
+  padding-top: 15%;
   
   height: auto;
   overflow-x: hidden;
@@ -13,7 +13,6 @@
 }
 
 .HomeHeaderRow {
- 
   display: flex;
   justify-content: space-evenly;
   align-items: center;
