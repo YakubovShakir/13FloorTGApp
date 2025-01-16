@@ -113,7 +113,7 @@ const PersonageCreationScreen = () => {
 
   useEffect(() => {
     let mounted = true
-
+  
     const preloadAssets = async () => {
       const preloadImage = (src) => {
         return new Promise((resolve, reject) => {
@@ -165,8 +165,14 @@ const PersonageCreationScreen = () => {
 
       try {
         const preloadPromises = assetsToPreload.map(src => preloadImage(src))
-        await Promise.allSettled(preloadPromises)
-
+        const results = await Promise.allSettled(preloadPromises)
+  
+        // Check for any rejected promises
+        const hasRejected = results.some(result => result.status === 'rejected')
+        if (hasRejected) {
+          console.error('Failed to load some assets:', results.filter(result => result.status === 'rejected'))
+        }
+  
         if (mounted) {
           setIsLoading(false)
         }
@@ -178,9 +184,9 @@ const PersonageCreationScreen = () => {
         }
       }
     }
-
+  
     preloadAssets()
-
+  
     return () => {
       mounted = false
     }

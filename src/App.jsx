@@ -95,9 +95,7 @@ const TelegramPlatformCheck = ({ children }) => {
 
 function App() {
   useEffect(() => {
-    if (isMobile) {
-      useTelegram.setFullScreen();
-    }
+    useTelegram.setFullScreen();
   }, [])
 
   return (

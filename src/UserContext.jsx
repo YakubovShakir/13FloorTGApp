@@ -1,5 +1,6 @@
 import React, { createContext, useState, useEffect, useRef, useCallback } from "react"
 import { getParameters } from "./services/user/user"
+import useTelegram from "./hooks/useTelegram"
 
 const UserContext = createContext()
 
@@ -32,6 +33,8 @@ export const UserProvider = ({ children }) => {
       }
       
       if (isInitial) setAppReady(true)
+      useTelegram.setReady()
+      useTelegram.setHeaderColor('transparent')
     } catch(err) {
       
     } finally {
