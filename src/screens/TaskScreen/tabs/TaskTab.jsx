@@ -62,12 +62,12 @@ const TaskTab = ({ userId, userParameters, setUserParameters }) => {
       en: 'Mood consumption'
     },
     check: {
-      ru: 'Проверить',
-      en: 'Check'
+      ru: 'Забрать',
+      en: 'Grap'
     },
     link: {
-      ru: '🔗',
-      en: '🔗'
+      ru: 'Ссылка',
+      en: 'Link'
     },
    
   }
