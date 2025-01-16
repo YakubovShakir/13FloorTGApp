@@ -34,7 +34,6 @@ export const UserProvider = ({ children }) => {
       
       if (isInitial) setAppReady(true)
       useTelegram.setReady()
-      useTelegram.setHeaderColor('#ffffff00')
     } catch(err) {
       
     } finally {

@@ -1,8 +1,16 @@
+import { postEvent } from '@telegram-apps/sdk';
+
 const Telegram = window.Telegram.WebApp
 
 const useTelegram = {
   setReady: () => Telegram?.ready(),
-  setFullScreen: () => Telegram.expand(),
+  setFullScreen: () => {
+    try {
+      // doesnt work in browsers
+      Telegram.expand()
+      postEvent('web_app_expand')
+    } catch(_) {}
+  },
   setBackButton: (callback) => {
     Telegram.BackButton.onClick(callback)
     Telegram.BackButton.show()
