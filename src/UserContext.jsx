@@ -37,7 +37,7 @@ export const UserProvider = ({ children }) => {
       if (
         JSON.stringify(parameters) !== JSON.stringify(latestDataRef.current)
       ) {
-        setUserParameters(parameters.parameters)
+        setUserParameters({...parameters.parameters})
         setUserPersonage(parameters.personage)
         setUserClothing(parameters.clothing)
         setUserShelf(parameters.shelf)

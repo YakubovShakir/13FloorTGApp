@@ -33,7 +33,7 @@ const Home = () => {
   const [levels, setLevels] = useState(null)
   const [isStoppingProcess, setIsStoppingProcess] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
-  const [imagesLoaded, setImagesLoaded] = useState(false);
+  const [imagesLoaded, setImagesLoaded] = useState(false)
 
   const {
     userId,
@@ -53,117 +53,131 @@ const Home = () => {
     return duration
   }
 
-  const preloadImages = async () => {
-    const imageUrls = [
-      Assets.Layers.cover,
-      Assets.BG.workScreenBG,
-      Assets.BG.sleepScreenBG,
-      Assets.BG.trainScreenBG,
-      Assets.BG.homeBackground,
-      Assets.HOME.shelf,
-      Assets.HOME.couch,
-      Assets.BG.backgroundSun,
-    ];
-  
-    const images = imageUrls.map((url) => {
-      return new Promise((resolve, reject) => {
-        const img = new Image();
-        img.onload = resolve;
-        img.onerror = reject;
-        img.src = url;
-      });
-    });
-  
-    await Promise.all(images);
-    await fetchParams();
-    setImagesLoaded(true);
-  };
+  // Enhanced error handling for process management
+  const initializeProcess = async () => {
+    try {
+      const process = await getUserActiveProcess(userId)
+      if (!process) {
+        setCurrentProcess(null)
+        return
+      }
+      setCurrentProcess(process)
+      
+      // Fetch additional parameters only if we have an active process
+      const [trainingParams, levelsData] = await Promise.all([
+        getTrainingParameters(userId),
+        getLevels()
+      ])
+      
+      setTrainingParameters(trainingParams)
+      setLevels(levelsData)
+    } catch (error) {
+      console.error("Error initializing process:", error)
+      // Reset states on error
+      setCurrentProcess(null)
+      setIsStoppingProcess(false)
+    }
+  }
 
-  useEffect(() => {
-    preloadImages();
-  }, []);
+  const handleProcessStop = async () => {
+    try {
+      navigate("/#")
+    } catch (error) {
+      console.error("Error stopping process:", error)
+      setIsStoppingProcess(false)
+      // Optionally show error to user
+    }
+  }
 
+  // Enhanced process timer management
   useEffect(() => {
+    let timerInterval
+    
     if (currentProcess?.active) {
       const updateParametersFunction = async () => {
-        const parameters = await getParameters(userId)
-        setUserParameters(parameters.parameters)
+        try {
+          const parameters = await getParameters(userId)
+          setUserParameters(parameters.parameters)
+        } catch (error) {
+          console.error("Error updating parameters:", error)
+        }
       }
 
-      const updater = updateProcessTimers(
+      timerInterval = updateProcessTimers(
         currentProcess,
         setCurrentProcess,
         currentProcess?.type === "work",
         updateParametersFunction
       )
-      return () => clearInterval(updater)
     }
-  }, [currentProcess])
 
+    return () => {
+      if (timerInterval) {
+        clearInterval(timerInterval)
+      }
+    }
+  }, [currentProcess, userId])
+
+  // Initialize home data
   useEffect(() => {
     const initializeHome = async () => {
-      if (appReady) {
-        if (!userPersonage || JSON.stringify(userPersonage) === "{}") {
-          navigate("/learning")
-          // navigate('/personage-create')
+      if (JSON.stringify(userPersonage) === "{}") {
+        navigate("/learning")
+        return
+      }
+
+      if (isStoppingProcess) {
+        const process = await getUserActiveProcess(userId)
+        if (!process) {
+          setIsStoppingProcess(false)
+          navigate("/")
           return
         }
-
-        try {
-          const process = await getUserActiveProcess(userId)
-          if (isStoppingProcess && !process) {
-            setIsStoppingProcess(false)
-            navigate("/")
-            return
-          }
-          setCurrentProcess(process)
-          useTelegram?.setReady()
-
-          const trainingParams = await getTrainingParameters(userId)
-          setTrainingParameters(trainingParams)
-
-          const levelsData = await getLevels()
-          setLevels(levelsData)
-        } catch (error) {
-          console.error("Error initializing home:", error)
-          setIsStoppingProcess(false)
-        }
       }
+
+      await initializeProcess()
+      setIsLoading(false)
     }
 
     initializeHome()
+  }, [userPersonage, userId])
 
-    setTimeout(() => {
-      setIsLoading(false)
-    }, 1500)
-  }, [appReady, isStoppingProcess])
-
-  const handleProcessStop = async () => {
-    try {
-      setIsStoppingProcess(true)
-      await stopProcess(userId)
-      await fetchParams()
-      setCurrentProcess(null)
-      navigate("/")
-    } catch (error) {
-      console.error("Error stopping process:", error)
-      setIsStoppingProcess(false)
+  // Image preloading logic
+  useEffect(() => {
+    const preloadImages = async () => {
+      const imageUrls = [
+        Assets.Layers.cover,
+        Assets.BG.workScreenBG,
+        Assets.BG.sleepScreenBG,
+        Assets.BG.trainScreenBG,
+        Assets.BG.homeBackground,
+        Assets.HOME.shelf,
+        Assets.HOME.couch,
+        Assets.BG.backgroundSun,
+      ]
+    
+      try {
+        await Promise.all(
+          imageUrls.map((url) => {
+            return new Promise((resolve, reject) => {
+              const img = new Image()
+              img.onload = resolve
+              img.onerror = reject
+              img.src = url
+            })
+          })
+        )
+        await fetchParams()
+        setImagesLoaded(true)
+      } catch (error) {
+        console.error("Error preloading images:", error)
+        // Continue without images if loading fails
+        setImagesLoaded(true)
+      }
     }
-  }
 
-  const pageVariants = {
-    initial: { opacity: 0, scale: 0.95 },
-    in: {
-      opacity: 1,
-      scale: 1,
-      transition: { duration: 0.3, type: "tween" },
-    },
-    out: {
-      opacity: 0,
-      scale: 1.05,
-      transition: { duration: 0.3, type: "tween" },
-    },
-  }
+    preloadImages()
+  }, [])
 
   const renderProcessProgressBar = (
     process,
