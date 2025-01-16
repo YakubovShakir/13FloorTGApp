@@ -6,20 +6,20 @@ import { useSettingsProvider } from "../../hooks"
 
 const translations = {
     slideOne: {
-      ru: "Добро пожаловать в приложение",
-      en: "Welcome to the app",
+      ru: "Добро пожаловать в корпорацию 13 Floor! Мы предоставляем услуги симуляции реальности, и мы рады что вы обратились именно к нам! Сейчас вам предстоит создать собственного аватара, а после мы объясним вам азы взаимодействия с симуляцией.",
+      en: "Welcome to the 13 Floor Corporation! We provide reality simulation services, and we are glad that you have contacted us! Now you have to create your own avatar, and after that we will explain to you the basics of interacting with the simulation.",
     },
     slideTwo: {
-      ru: "Создавайте и делитесь моментами",
-      en: "Create and share moments",
+      ru: "Мы почти закончили. Теперь я познакомлю вас с нейроинтерфейсом. Ваши базовые потребности. Энергия, голод и счастье. Любое действие в симуляции расходует эти ресурсы. ",
+      en: "We're almost done. Now I'm going to introduce you to the neural interface. Your basic needs. Energy, hunger and happiness. Any action in the simulation consumes these resources.",
     },
     slideThree: {
-      ru: "Присоединяйтесь к сообществу",
-      en: "Join the community",
+      ru: "Внимательно следите за ними, голодный и несчастный персонаж не сможет эффективно работать и будет меньше зарабатывать.",
+      en: "Keep a close eye on them, a hungry and unhappy character will not be able to work effectively and will earn less.",
     },
     slideFour: {
-      ru: "Начните своё путешествие",
-      en: "Start your journey",
+      ru: "Монета отображает ваш баланс. Монеты пригодятся вам для развития вашего персонажа и покупки предметов. Респект отражает ваш социальный статус. Одевайтесь в новую одежду, украшайте квартиру чтобы повысить ваш уровень респекта.",
+      en: "The coin displays your balance. Coins will be useful to you for developing your character and buying items. Respect reflects your social status. Dress up in new clothes, decorate your apartment to increase your respect level.",
     },
 }
 
