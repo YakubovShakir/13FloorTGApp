@@ -14,6 +14,7 @@ import ActionScreen from "./screens/ActionScreen/ActionScreen";
 import InvestmentScreen from "./screens/Investment/InvestmentScreen";
 import { SettingsProvider } from "./hooks";
 import Learning from "./screens/Learning/Learning";
+import BoostTab from "./screens/CareScreen/tabs/BoostTab";
 
 const BlockerMessage = () => (
   <div style={{
@@ -112,6 +113,7 @@ function App() {
             <Route path="/tasks" element={<TaskScreen />} />
             <Route path="/action" element={<ActionScreen/>} />
             <Route path="/investment" element={<InvestmentScreen/>} />
+            <Route path="/boost" element={<BoostTab/>} />
           </Routes>
           </UserProvider>
         </MemoryRouter>
