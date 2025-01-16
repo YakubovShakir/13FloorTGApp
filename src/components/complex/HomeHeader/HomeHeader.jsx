@@ -87,7 +87,7 @@ const useWalletConnection = () => {
   };
 };
 
-const Bar = ({ title, onClick, isChecked = true, iconLeft, iconRight, isLoading }) => {
+const Bar = ({ title, onClick, iconLeft, iconRight, isLoading }) => {
   const styles = {
     container: {
       display: 'flex',
@@ -120,12 +120,24 @@ const Bar = ({ title, onClick, isChecked = true, iconLeft, iconRight, isLoading 
     }
   };
 
-  const [isBoxChecked, setIsChecked] = useState(isChecked);
+  const { isSoundEnabled, toggleSound, isMusicEnabled, toggleMusic } = useSettingsProvider(); // Access context values
+
+  const getCorrectIsChecked = () => {
+      if (title === 'Music') return isMusicEnabled
+      if (title === 'Sounds') return isSoundEnabled
+      return true
+  }
+
+  const getCorrectOnClick = () => {
+    if (title === 'Music') return toggleMusic
+    if (title === 'Sounds') return toggleSound
+    return onClick
+  }
 
   const handleClick = async () => {
-    const result = await onClick();
-    if (result !== undefined) {
-      setIsChecked(result);
+    const clickHandler = getCorrectOnClick()
+    if (clickHandler) {
+      await clickHandler()
     }
   };
 
@@ -137,7 +149,6 @@ const Bar = ({ title, onClick, isChecked = true, iconLeft, iconRight, isLoading 
       <p style={styles.text}>{title}</p>
       <div onClick={handleClick}>
         {iconRight && <img src={iconRight} style={{ height: 26, width: 26 }} />}
-        {isLoading && <div style={styles.loading}>Loading...</div>}
       </div>
       {!iconRight && (
         <div 
@@ -153,12 +164,12 @@ const Bar = ({ title, onClick, isChecked = true, iconLeft, iconRight, isLoading 
           }} 
           onClick={handleClick}
         >
-          {isBoxChecked ? <img style={styles.icon} src={Assets.Icons.checkboxChecked} /> : null}
+          {getCorrectIsChecked() === true ? <img style={styles.icon} src={Assets.Icons.checkboxChecked} /> : null}
         </div>
       )}
     </div>
   );
-};
+}
 
 const StatsBar = ({ title, iconLeft, value }) => {
   const styles = {
