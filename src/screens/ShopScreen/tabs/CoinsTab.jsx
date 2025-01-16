@@ -431,7 +431,7 @@ const GridLayout = ({ items, handleCoinsBuy, handleStarsBuy }) => {
         width: "100vw",
         display: "flex",
         justifyContent: "center",
-        paddingTop: 12,
+        paddingTop: 55,
       }}
     >
       <div
@@ -728,6 +728,8 @@ const CoinsTab = ({ userId }) => {
       >
         <div
           style={{
+            zIndex: "3",
+            position:" fixed",
             width: "95vw",
             display: "flex",
             justifyContent: "space-around",
