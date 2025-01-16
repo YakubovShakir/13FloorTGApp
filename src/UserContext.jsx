@@ -65,7 +65,7 @@ export const UserProvider = ({ children }) => {
         userPersonage,
         setUserPersonage,
         userClothing,
-        fetchParams: () => fetchParams(true),
+        fetchParams: () => fetchParams(false),
         userShelf
       }}
     >
