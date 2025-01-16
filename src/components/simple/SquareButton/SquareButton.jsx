@@ -36,15 +36,15 @@ export const SquareButton = ({
           >
             <img
               src={Assets.Layers.squareButtonShadow}
-              width={42}
-              height={42}
+              width={36}
+              height={36}
               style={{
                 position: "absolute",
                 bottom: 0,
                 left: -1,
                 zIndex: 5,
-                borderBottomLeftRadius: 8,
-                borderBottomRightRadius: 8,
+                borderBottomLeftRadius: 14,
+                borderBottomRightRadius: 14,
                 
               }}
             />
