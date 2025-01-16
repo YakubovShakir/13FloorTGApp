@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react"
 import { useParams, useNavigate } from "react-router-dom"
-import "./FullscreenSlider.css"
+import "./FullScreenSlider.css"
 import Assets from "../../assets"
 import { useSettingsProvider } from "../../hooks"
 

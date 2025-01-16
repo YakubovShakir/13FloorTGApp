@@ -128,16 +128,13 @@ const ProcessProgressBar = ({
   const handleConfirmClose = async () => {
     try {
       await stopProcess(userId);
-      await fetchParams();
-      setShowModal(false);
-
-      setTimeout(() => {
-        navigate('/');
-      }, 100);
+      window.location.href = window.location.origin;
     } catch (error) {
       console.error('Error stopping process:', error);
-      setShowModal(false);
+      // It's crucial to navigate even on error to prevent the user from being stuck
       navigate('/');
+    } finally {
+        setShowModal(false); // Close modal in finally to ensure it closes regardless of success or failure
     }
   };
 

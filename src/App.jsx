@@ -14,6 +14,7 @@ import ActionScreen from "./screens/ActionScreen/ActionScreen";
 import InvestmentScreen from "./screens/Investment/InvestmentScreen";
 import { SettingsProvider } from "./hooks";
 import Learning from "./screens/Learning/Learning";
+import BoostTab from "./screens/CareScreen/tabs/BoostTab";
 
 const BlockerMessage = () => (
   <div style={{
@@ -94,16 +95,12 @@ const TelegramPlatformCheck = ({ children }) => {
 };
 
 function App() {
-  useEffect(() => {
-    if (isMobile) {
-      useTelegram.setFullScreen();
-    }
-  }, [])
-
+  
   return (
     // <TelegramPlatformCheck>
      <SettingsProvider>
       <MemoryRouter>
+      <UserProvider>
           <Routes>
             {/* <Route index element={<StartCustomize />} /> */}
             <Route index path="/" exact element={<Home/>}/>
@@ -116,7 +113,9 @@ function App() {
             <Route path="/tasks" element={<TaskScreen />} />
             <Route path="/action" element={<ActionScreen/>} />
             <Route path="/investment" element={<InvestmentScreen/>} />
+            <Route path="/boost" element={<BoostTab/>} />
           </Routes>
+          </UserProvider>
         </MemoryRouter>
      </SettingsProvider>
     // </TelegramPlatformCheck>

@@ -225,8 +225,7 @@ const SkillTab = ({
   }, [])
 
   return (
-    <temCard >
-      {/* User training static card*/}
+    <>
       {trainingParamters && (
         <ItemCard
           ItemIcon={Icons.training}
@@ -237,7 +236,7 @@ const SkillTab = ({
           ItemIndex={0}
         />
       )}
-    </temCard >
+    </>
   )
 }
 

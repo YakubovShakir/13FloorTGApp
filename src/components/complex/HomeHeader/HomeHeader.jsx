@@ -11,7 +11,83 @@ import "swiper/css/pagination";
 import UserContext from "../../../UserContext";
 import { useSettingsProvider } from "../../../hooks";
 
-const Bar = ({ title, onClick, isChecked = true, iconLeft, iconRight }) => {
+const useWalletConnection = () => {
+  const [walletAddress, setWalletAddress] = useState(null);
+  const [isConnecting, setIsConnecting] = useState(false);
+
+  useEffect(() => {
+    // Initialize Telegram WebApp
+    const tg = window.Telegram?.WebApp;
+    if (tg) {
+      tg.ready();
+    }
+  }, []);
+
+  const connectWallet = async () => {
+    try {
+      setIsConnecting(true);
+      const tg = window.Telegram?.WebApp;
+      
+      if (!tg) {
+        throw new Error('Telegram WebApp is not available');
+      }
+
+      // Request wallet connection
+      const result = await tg.sendData({
+        method: 'ton_requestWallets'
+      });
+
+      if (result?.event === 'ton_requestWallets' && result?.payload?.items?.length > 0) {
+        const walletAddress = result.payload.items[0].address;
+        setWalletAddress(walletAddress);
+        
+        // Send wallet address to backend
+        await fetch('YOUR_BACKEND_API_URL/connect-wallet', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ walletAddress })
+        });
+
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error('Error connecting wallet:', error);
+      return false;
+    } finally {
+      setIsConnecting(false);
+    }
+  };
+
+  const disconnectWallet = async () => {
+    try {
+      setWalletAddress(null);
+      // Notify backend about wallet disconnection
+      await fetch('YOUR_BACKEND_API_URL/disconnect-wallet', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+      return true;
+    } catch (error) {
+      console.error('Error disconnecting wallet:', error);
+      return false;
+    }
+  };
+
+  return {
+    walletAddress,
+    isConnecting,
+    connectWallet,
+    disconnectWallet,
+    isConnected: !!walletAddress
+  };
+};
+
+const Bar = ({ title, onClick, iconLeft, iconRight, isLoading }) => {
   const styles = {
     container: {
       display: 'flex',
@@ -38,15 +114,32 @@ const Bar = ({ title, onClick, isChecked = true, iconLeft, iconRight }) => {
       textAlign: 'left',
       color: 'white',
       fontSize: '12px'
+    },
+    loading: {
+      animation: 'spin 1s linear infinite',
     }
   };
 
-  const [isBoxChecked, setIsChecked] = useState(isChecked)
+  const { isSoundEnabled, toggleSound, isMusicEnabled, toggleMusic } = useSettingsProvider(); // Access context values
 
-  const handleCLick = () => {
-    onClick()
-    setIsChecked(!isBoxChecked)
+  const getCorrectIsChecked = () => {
+      if (title === 'Music') return isMusicEnabled
+      if (title === 'Sounds') return isSoundEnabled
+      return true
   }
+
+  const getCorrectOnClick = () => {
+    if (title === 'Music') return toggleMusic
+    if (title === 'Sounds') return toggleSound
+    return onClick
+  }
+
+  const handleClick = async () => {
+    const clickHandler = getCorrectOnClick()
+    if (clickHandler) {
+      await clickHandler()
+    }
+  };
 
   return (
     <div style={styles.container}>
@@ -54,15 +147,29 @@ const Bar = ({ title, onClick, isChecked = true, iconLeft, iconRight }) => {
         {iconLeft && <img style={styles.icon} src={iconLeft} />}
       </div>
       <p style={styles.text}>{title}</p>
-      <div onClick={() => handleCLick()}>{iconRight && <img src={iconRight} style={{ height: 26, width: 26 }} />}</div>
+      <div onClick={handleClick}>
+        {iconRight && <img src={iconRight} style={{ height: 26, width: 26 }} />}
+      </div>
       {!iconRight && (
-        <div style={{ borderRadius: 5, border: ' 1px solid rgb(57, 57, 57)', height: 26, width: 26, display: 'flex', alignContent: 'center', alignItems: 'center', padding: 1, }} onClick={handleCLick}>
-          {isBoxChecked ? <img style={styles.icon} src={Assets.Icons.checkboxChecked} /> : null}
+        <div 
+          style={{ 
+            borderRadius: 5, 
+            border: '1px solid rgb(57, 57, 57)', 
+            height: 26, 
+            width: 26, 
+            display: 'flex', 
+            alignContent: 'center', 
+            alignItems: 'center', 
+            padding: 1, 
+          }} 
+          onClick={handleClick}
+        >
+          {getCorrectIsChecked() === true ? <img style={styles.icon} src={Assets.Icons.checkboxChecked} /> : null}
         </div>
       )}
     </div>
   );
-};
+}
 
 const StatsBar = ({ title, iconLeft, value }) => {
   const styles = {
@@ -111,6 +218,30 @@ export const SettingsModal = ({
   baseStyles,
   setIsSettingsShown
 }) => {
+  const { 
+    isSoundEnabled, 
+    toggleSound, 
+    toggleMusic, 
+    isMusicEnabled, 
+    lang, 
+    setLang 
+  } = useSettingsProvider();
+  
+  const { 
+    isConnected,
+    isConnecting,
+    connectWallet,
+    disconnectWallet
+  } = useWalletConnection();
+
+  const handleWalletConnection = async () => {
+    if (isConnected) {
+      return await disconnectWallet();
+    } else {
+      return await connectWallet();
+    }
+  };
+
   const translations = {
     settings: {
       ru: 'Настройки',
@@ -133,7 +264,6 @@ export const SettingsModal = ({
       en: 'Connect wallet'
     }
   }
-  const { isSoundEnabled, toggleSound, toggleMusic, isMusicEnabled, account, connect, disconnect, lang, setLang } = useSettingsProvider();
 
   return (
     <div
@@ -195,7 +325,13 @@ export const SettingsModal = ({
               <Bar title={translations.music[lang]} iconLeft={Assets.Icons.musics} onClick={() => toggleMusic()} isChecked={isMusicEnabled} />
               <Bar title={translations.sound[lang]} iconLeft={Assets.Icons.sounds} onClick={() => toggleSound()} isChecked={isSoundEnabled} />
               <Bar title={translations.language[lang]} iconLeft={Assets.Icons.languages} iconRight={lang === 'ru' ? Assets.Icons.rusIcon : Assets.Icons.engIcon} onClick={() => setLang(lang === 'en' ? 'ru' : 'en')}/>
-              <Bar title={translations.wallet[lang]} iconLeft={Assets.Icons.wallets} onClick={() => account ? connect() : disconnect()} isChecked={account} />
+              <Bar 
+                title={translations.wallet[lang]} 
+                iconLeft={Assets.Icons.wallets} 
+                onClick={handleWalletConnection} 
+                isChecked={isConnected}
+                isLoading={isConnecting}
+              />
             </div>
           </div>
         </div>

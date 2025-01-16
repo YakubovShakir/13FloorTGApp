@@ -1,12 +1,11 @@
 .progress-bar-container-fixed-top {
   position: fixed;
-  top: 12.5vh;
+  top: 25vh;
   width: 100vw;
   z-index: 4;
 }
 
 .progress-bar-container {
-  
   display: flex;
   justify-content: center;
   width: 95%;

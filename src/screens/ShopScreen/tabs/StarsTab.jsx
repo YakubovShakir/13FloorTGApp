@@ -10,7 +10,7 @@ import Button from "../../../components/simple/Button/Button"
 import Modal from "../../../components/complex/Modals/Modal/Modal"
 import { motion, AnimatePresence } from 'framer-motion';
 import UserContext from "../../../UserContext"
-import { FullScreenSpinner } from "../../Home/Home"
+import FullScreenSpinner from "../../Home/FullScreenSpinner"
 import { instance } from "../../../services/instance"
 import WebApp from "@twa-dev/sdk"
 import { useSettingsProvider } from "../../../hooks"

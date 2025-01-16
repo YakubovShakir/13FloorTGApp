@@ -19,66 +19,8 @@ import { updateProcessTimers } from "../../utils/updateTimers"
 import { getLevels } from "../../services/levels/levels"
 import { motion } from "framer-motion"
 import { useNavigate } from "react-router-dom"
-
-export const FullScreenSpinner = ({ color = "#f37500", size = 70 }) => {
-  const backgroundFrames = Array.from({ length: 60 }, (_, i) => {
-    const opacity = (i + 1) / 60
-    return `#000000, ${opacity})`
-  })
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, backgroundColor: "transparent" }}
-      animate={{ opacity: 1, backgroundColor: backgroundFrames }}
-      transition={{ duration: 1, ease: "easeInOut" }}
-      style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        width: "100%",
-        height: "100%",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        zIndex: 9999,
-      }}
-    >
-      <motion.div
-        initial={{ scale: 0.7, opacity: 0 }}
-        animate={{
-          rotate: 360,
-          scale: [0.7, 1, 0.7],
-          opacity: 1,
-        }}
-        transition={{
-          duration: 1.5,
-          repeat: Infinity,
-          ease: "easeInOut",
-          times: [0, 0.5, 1],
-        }}
-        style={{
-          width: size,
-          height: size,
-          border: `5px solid ${color}`,
-          borderTop: `5px solid transparent`,
-          borderRadius: "50%",
-        }}
-      />
-    </motion.div>
-  )
-}
-
-const getBgByCurrentProcess = (processType) => {
-  const { BG } = Assets
-  const typeToBgMap = {
-    work: BG.workScreenBG,
-    sleep: BG.sleepScreenBG,
-    training: BG.trainScreenBG,
-  }
-
-  const bg = typeToBgMap[processType]
-  return `url(${bg || BG.homeBackground})`
-}
+import FullScreenSpinner from "./FullScreenSpinner"
+import getBgByCurrentProcess from "./getBgByCurrentProcess"
 
 const Home = () => {
   const navigate = useNavigate()
@@ -91,6 +33,7 @@ const Home = () => {
   const [levels, setLevels] = useState(null)
   const [isStoppingProcess, setIsStoppingProcess] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
+  const [imagesLoaded, setImagesLoaded] = useState(false)
 
   const {
     userId,
@@ -110,9 +53,97 @@ const Home = () => {
     return duration
   }
 
-  useEffect(() => {
-    useTelegram.hideBackButton()
+  // Enhanced error handling for process management
+  const initializeProcess = async () => {
+    try {
+      const process = await getUserActiveProcess(userId)
+      if (!process) {
+        setCurrentProcess(null)
+        return
+      }
+      setCurrentProcess(process)
+      
+      // Fetch additional parameters only if we have an active process
+      const [trainingParams, levelsData] = await Promise.all([
+        getTrainingParameters(userId),
+        getLevels()
+      ])
+      
+      setTrainingParameters(trainingParams)
+      setLevels(levelsData)
+    } catch (error) {
+      console.error("Error initializing process:", error)
+      // Reset states on error
+      setCurrentProcess(null)
+      setIsStoppingProcess(false)
+    }
+  }
 
+  const handleProcessStop = async () => {
+    try {
+      navigate("/#")
+    } catch (error) {
+      console.error("Error stopping process:", error)
+      setIsStoppingProcess(false)
+      // Optionally show error to user
+    }
+  }
+
+  // Enhanced process timer management
+  useEffect(() => {
+    let timerInterval
+    
+    if (currentProcess?.active) {
+      const updateParametersFunction = async () => {
+        try {
+          const parameters = await getParameters(userId)
+          setUserParameters(parameters.parameters)
+        } catch (error) {
+          console.error("Error updating parameters:", error)
+        }
+      }
+
+      timerInterval = updateProcessTimers(
+        currentProcess,
+        setCurrentProcess,
+        currentProcess?.type === "work",
+        updateParametersFunction
+      )
+    }
+
+    return () => {
+      if (timerInterval) {
+        clearInterval(timerInterval)
+      }
+    }
+  }, [currentProcess, userId])
+
+  // Initialize home data
+  useEffect(() => {
+    const initializeHome = async () => {
+      if (JSON.stringify(userPersonage) === "{}") {
+        navigate("/learning")
+        return
+      }
+
+      if (isStoppingProcess) {
+        const process = await getUserActiveProcess(userId)
+        if (!process) {
+          setIsStoppingProcess(false)
+          navigate("/")
+          return
+        }
+      }
+
+      await initializeProcess()
+      setIsLoading(false)
+    }
+
+    initializeHome()
+  }, [userPersonage, userId])
+
+  // Image preloading logic
+  useEffect(() => {
     const preloadImages = async () => {
       const imageUrls = [
         Assets.Layers.cover,
@@ -124,103 +155,29 @@ const Home = () => {
         Assets.HOME.couch,
         Assets.BG.backgroundSun,
       ]
-
-      await Promise.all(
-        [...imageUrls.map((url) => {
-          return new Promise((resolve, reject) => {
-            const img = new Image()
-            img.onload = resolve
-            img.onerror = reject
-            img.src = url
+    
+      try {
+        await Promise.all(
+          imageUrls.map((url) => {
+            return new Promise((resolve, reject) => {
+              const img = new Image()
+              img.onload = resolve
+              img.onerror = reject
+              img.src = url
+            })
           })
-        }), fetchParams()]
-      )
+        )
+        await fetchParams()
+        setImagesLoaded(true)
+      } catch (error) {
+        console.error("Error preloading images:", error)
+        // Continue without images if loading fails
+        setImagesLoaded(true)
+      }
     }
 
     preloadImages()
   }, [])
-
-  useEffect(() => {
-    if (currentProcess?.active) {
-      const updateParametersFunction = async () => {
-        const parameters = await getParameters(userId)
-        setUserParameters(parameters.parameters)
-      }
-
-      const updater = updateProcessTimers(
-        currentProcess,
-        setCurrentProcess,
-        currentProcess?.type === "work",
-        updateParametersFunction
-      )
-      return () => clearInterval(updater)
-    }
-  }, [currentProcess])
-
-  useEffect(() => {
-    const initializeHome = async () => {
-      if (appReady) {
-        if (!userPersonage || JSON.stringify(userPersonage) === "{}") {
-          navigate("/learning")
-          // navigate('/personage-create')
-          return
-        }
-
-        try {
-          const process = await getUserActiveProcess(userId)
-          if (isStoppingProcess && !process) {
-            setIsStoppingProcess(false)
-            navigate("/")
-            return
-          }
-          setCurrentProcess(process)
-          useTelegram?.setReady()
-
-          const trainingParams = await getTrainingParameters(userId)
-          setTrainingParameters(trainingParams)
-
-          const levelsData = await getLevels()
-          setLevels(levelsData)
-        } catch (error) {
-          console.error("Error initializing home:", error)
-          setIsStoppingProcess(false)
-        }
-      }
-    }
-
-    initializeHome()
-
-    setTimeout(() => {
-      setIsLoading(false)
-    }, 1500)
-  }, [appReady, isStoppingProcess])
-
-  const handleProcessStop = async () => {
-    try {
-      setIsStoppingProcess(true)
-      await stopProcess(userId)
-      await fetchParams()
-      setCurrentProcess(null)
-      navigate("/")
-    } catch (error) {
-      console.error("Error stopping process:", error)
-      setIsStoppingProcess(false)
-    }
-  }
-
-  const pageVariants = {
-    initial: { opacity: 0, scale: 0.95 },
-    in: {
-      opacity: 1,
-      scale: 1,
-      transition: { duration: 0.3, type: "tween" },
-    },
-    out: {
-      opacity: 0,
-      scale: 1.05,
-      transition: { duration: 0.3, type: "tween" },
-    },
-  }
 
   const renderProcessProgressBar = (
     process,
@@ -238,13 +195,12 @@ const Home = () => {
   )
 
   const renderScene = (content) => (
-    <motion.div
+  <motion.div
       className="Home"
       key={currentProcess?.type || "default"}
-      initial="initial"
-      animate="in"
-      exit="out"
-      variants={pageVariants}
+      initial={{ opacity: imagesLoaded ? 1 : 0 }}
+      animate={{ opacity: imagesLoaded ? 1 : 0 }}
+      transition={{ duration: 0.3 }}
       style={{
         position: "absolute",
         height: "100%",

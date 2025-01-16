@@ -37,6 +37,10 @@ const Menu = ({ screenMenu, activeName, noButton }) => {
       ru: "Начать",
       en: "Start",
     },
+    boost: {
+      ru: "Спиды",
+      en: 'Amphetamines'
+    }
   }
 
   const tabs = {
@@ -107,6 +111,19 @@ const Menu = ({ screenMenu, activeName, noButton }) => {
       icon: Icons.tasks,
       title: translations.tasks[lang],
     },
+    boost: {
+      onClick: () => {
+        if (currentTab === "boost") {
+          navigate("/#")
+        } else {
+          navigate("/boost")
+          setCurrentTab("boost")
+        }
+      },
+      notify: false,
+      icon: Icons.tasks,
+      title: translations.boost[lang],
+    }
   }
 
   return (

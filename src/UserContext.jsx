@@ -1,5 +1,13 @@
-import React, { createContext, useState, useEffect, useRef, useCallback } from "react"
+import React, {
+  createContext,
+  useState,
+  useEffect,
+  useRef,
+  useCallback,
+} from "react"
 import { getParameters } from "./services/user/user"
+import useTelegram from "./hooks/useTelegram"
+import { useNavigate } from "react-router-dom"
 
 const UserContext = createContext()
 
@@ -8,45 +16,52 @@ export const UserProvider = ({ children }) => {
   const [userPersonage, setUserPersonage] = useState(null)
   const [userClothing, setUserClothing] = useState(null)
   const [userShelf, setUserShelf] = useState(null)
-  const [userId, setUserId] = useState(window.Telegram?.WebApp?.initDataUnsafe?.user?.id || 790629329)
+  const [userId, setUserId] = useState(
+    window.Telegram?.WebApp?.initDataUnsafe?.user?.id || 790629329
+  )
   const [appReady, setAppReady] = useState(false)
-  
+
   const isFetchingRef = useRef(false)
   const latestDataRef = useRef(null)
+  const navigate = useNavigate()
 
   const fetchParams = useCallback(async (isInitial = false) => {
     if (isFetchingRef.current) return
-    
+
     isFetchingRef.current = true
     if (isInitial) setAppReady(false)
-    
+
     try {
       const parameters = await getParameters(userId)
-      
-      if (JSON.stringify(parameters) !== JSON.stringify(latestDataRef.current)) {
-        setUserParameters(parameters.parameters)
+
+      if (
+        JSON.stringify(parameters) !== JSON.stringify(latestDataRef.current)
+      ) {
+        setUserParameters({...parameters.parameters})
         setUserPersonage(parameters.personage)
         setUserClothing(parameters.clothing)
         setUserShelf(parameters.shelf)
         latestDataRef.current = parameters
       }
-      
-      if (isInitial) setAppReady(true)
-    } catch(err) {
-      
+
+      if (isInitial) {
+        useTelegram.setReady()
+        setAppReady(true)
+      }
+    } catch (err) {
     } finally {
       isFetchingRef.current = false
     }
-  }, [userId])
+  }, [])
 
   useEffect(() => {
     // Initial fetch
     fetchParams(true)
-    
+
     // Set up polling
     const intervalId = setInterval(() => {
       fetchParams(false)
-    }, 1000)
+    }, 3000)
 
     return () => clearInterval(intervalId)
   }, [fetchParams])
@@ -61,8 +76,8 @@ export const UserProvider = ({ children }) => {
         userPersonage,
         setUserPersonage,
         userClothing,
-        fetchParams: () => fetchParams(true),
-        userShelf
+        fetchParams: () => fetchParams(false),
+        userShelf,
       }}
     >
       {children}

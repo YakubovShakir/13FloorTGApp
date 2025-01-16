@@ -1,23 +1,24 @@
-import React, { useState, useEffect } from 'react'
-import "./Player.css"
-import Assets from "../../../assets"
+import React, { useState, useEffect } from 'react';
+import "./Player.css";
+import Assets from "../../../assets";
 import {
   RACES,
   GENDERS,
-} from "../../../screens/PersonageCreation/PersonageCreation"
+} from "../../../screens/PersonageCreation/PersonageCreation";
 
+// Helper functions remain the same
 const preloadImages = (imageUrls) => {
   return Promise.all(
     imageUrls.map(url => {
       return new Promise((resolve, reject) => {
-        const img = new Image()
-        img.onload = () => resolve(url)
-        img.onerror = () => reject(url)
-        img.src = url
-      })
+        const img = new Image();
+        img.onload = () => resolve(url);
+        img.onerror = () => reject(url);
+        img.src = url;
+      });
     })
-  )
-}
+  );
+};
 
 const getBases = (race, gender) => {
   const map = {
@@ -31,26 +32,25 @@ const getBases = (race, gender) => {
       [RACES.BLACK]: Assets.Images.blackGirl,
       [RACES.ASIAN]: Assets.Images.asianGirl,
     },
-  }
+  };
 
   if(race && gender) {
-    return map[gender][race]
+    return map[gender][race];
   }
-}
+};
 
 const getHand = (race) => {
   const map = {
     [RACES.WHITE]: Assets.Images.euroHand,
     [RACES.BLACK]: Assets.Images.blackHand,
     [RACES.ASIAN]: Assets.Images.asianHand,
-  }
-
-  return map[race]
-}
+  };
+  return map[race];
+};
 
 const pullGenderedClothingImage = (gender, clothing) => {
-  return gender === 'male' ? clothing.male_link : clothing.female_link
-}
+  return gender === 'male' ? clothing.male_link : clothing.female_link;
+};
 
 const Player = ({
   width,
@@ -58,22 +58,24 @@ const Player = ({
   top,
   bottom,
   type = true,
-  personage,
-  clothing,
+  personage = { gender: 'female' },
+  clothing: initialClothing,
 }) => {
-  const { Images } = Assets;
-  const [imagesLoaded, setImagesLoaded] = useState(false);
+  const [loadedImages, setLoadedImages] = useState({});
+  const [allImagesLoaded, setAllImagesLoaded] = useState(false);
   const [loadingError, setLoadingError] = useState(false);
+  const [clothing, setClothing] = useState(initialClothing);
 
   useEffect(() => {
-    // If no personage or type is null, skip preloading
+    setAllImagesLoaded(false);
+    setLoadedImages({});
+
     if (type === null || personage === null || JSON.stringify(personage) === JSON.stringify({})) {
-      setImagesLoaded(true);
+      setAllImagesLoaded(true);
       return;
     }
 
-    // Collect all image URLs to preload
-    const imagesToPreload = [
+    const imagesToLoad = [
       getBases(personage?.race, personage?.gender),
       ...(clothing?.hat ? [pullGenderedClothingImage(personage?.gender, clothing?.hat)] : []),
       ...(clothing?.top ? [pullGenderedClothingImage(personage?.gender, clothing?.top)] : []),
@@ -81,61 +83,102 @@ const Player = ({
       ...(clothing?.shoes ? [pullGenderedClothingImage(personage?.gender, clothing?.shoes)] : []),
       ...(clothing?.accessories ? [pullGenderedClothingImage(personage?.gender, clothing?.accessories)] : []),
       personage.race && getHand(personage?.race),
-    ].filter(Boolean); // Remove any undefined URLs
+    ].filter(Boolean);
 
-    // Preload images
-    preloadImages(imagesToPreload)
+    const loadImage = (url) => {
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => {
+          setLoadedImages(prev => ({ ...prev, [url]: true }));
+          resolve(url);
+        };
+        img.onerror = () => reject(url);
+        img.src = url;
+      });
+    };
+
+    Promise.all(imagesToLoad.map(loadImage))
       .then(() => {
-        setImagesLoaded(true);
+        setClothing(initialClothing);
+        setAllImagesLoaded(true);
       })
       .catch((failedUrl) => {
         console.error(`Failed to load image: ${failedUrl}`);
         setLoadingError(true);
       });
-  }, [personage, clothing, type]);
+  }, [personage, initialClothing, type]);
 
-  // Render placeholder if loading or error occurs
-  if (!imagesLoaded || loadingError) {
-    return (
-      <div
-        className="Player"
-        style={{ width: `${width}`, aspectRatio: "0.3", left: left, top: top }}
-      >
-        <img className="PlayerAvatar" src={personage?.gender === 'female' ? Images.missingGirl : Image.missingMan} alt="avatar" />
-      </div>
-    );
-  }
+  const commonStyles = {
+    width: `${width}`,
+    aspectRatio: "0.3",
+    left,
+    bottom,
+    position: "absolute",
+    transform: "translate(-50%, -50%)",
+  };
 
-  // Render actual player if images are loaded successfully
-  return (
-    <div
-      className="Player"
-      style={{
-        width: `${width}`,
-        aspectRatio: "0.3",
-        left: left,
-        bottom: bottom,
-        position: "absolute",
-        transform: "translate(-50%, -50%)", // Центрируем персонажа
-      }}
-    >
-      {/* Shadow */}
+  const renderPlaceholder = () => (
+    <div className="Player" style={commonStyles}>
       <div
         className="PlayerShadow"
         style={{
           position: "absolute",
-          bottom: "-2%", // Чуть ниже персонажа
+          bottom: "-2%",
           left: "59%",
           transform: "translateX(-59%)",
-          width: `calc(${width} * 1.3)`, // Размер относительно ширины персонажа
-          height: `calc(${width} * 0.3)`, // Пропорции тени
+          width: `calc(${width} * 1.3)`,
+          height: `calc(${width} * 0.3)`,
           background: "radial-gradient(circle, rgb(0 0 0 / 31%) 0%, rgba(0, 0, 0, 0) 68%)",
-          borderRadius: "50%", // Круглая форма
-          zIndex: "1", // Позади персонажа
+          borderRadius: "50%",
+          zIndex: "1",
           filter: "blur(2px)",
         }}
       />
-      {/* Player Image */}
+      <img
+        className="PlayerAvatar"
+        src={personage?.gender === 'male' ? Assets.Images.missingMan : Assets.Images.missingGirl}
+        alt="avatar"
+        style={{
+          opacity: 1,
+          transition: "opacity 0.3s ease-in-out",
+          position: "relative",
+          zIndex: "2",
+          width: "100%",
+          height: "100%",
+          objectFit: "contain"
+        }}
+      />
+    </div>
+  );
+
+  if (!allImagesLoaded || loadingError) {
+    return renderPlaceholder();
+  }
+
+  return (
+    <div 
+      className="Player" 
+      style={{
+        ...commonStyles,
+        opacity: 1,
+        transition: "opacity 0.3s ease-in-out"
+      }}
+    >
+      <div
+        className="PlayerShadow"
+        style={{
+          position: "absolute",
+          bottom: "-2%",
+          left: "59%",
+          transform: "translateX(-59%)",
+          width: `calc(${width} * 1.3)`,
+          height: `calc(${width} * 0.3)`,
+          background: "radial-gradient(circle, rgb(0 0 0 / 31%) 0%, rgba(0, 0, 0, 0) 68%)",
+          borderRadius: "50%",
+          zIndex: "1",
+          filter: "blur(2px)",
+        }}
+      />
       <img
         className="PlayerAvatar"
         src={getBases(personage?.race, personage?.gender)}
@@ -153,11 +196,11 @@ const Player = ({
             />
           )}
           {clothing.accessories && (
-              <img
-                className="PlayerHead"
-                style={{ zIndex: 5 }}
-                src={pullGenderedClothingImage(personage?.gender, clothing?.accessories)}
-                alt="Head"
+            <img
+              className="PlayerHead"
+              style={{ zIndex: 5 }}
+              src={pullGenderedClothingImage(personage?.gender, clothing?.accessories)}
+              alt="Head"
             />
           )}
           {clothing.top && (
@@ -195,4 +238,4 @@ const Player = ({
   );
 };
 
-export default Player
+export default Player;
