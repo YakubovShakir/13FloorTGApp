@@ -187,8 +187,8 @@ const PersonageCreationScreen = () => {
           <div style={commonStyles.container}>
             <Player
               bottom={"calc(1vh + 120px)"}
-              width={"37vw"}
-              left={"30vw"}
+              width={"46vw"}
+              left={"26vw"}
               personage={{ race, gender }}
               clothing={clothing}
             />
@@ -273,13 +273,7 @@ const PersonageCreationScreen = () => {
               </div>
             </div>
 
-            <Player
-              bottom={"calc(1vh + 120px)"}
-              width={"37vw"}
-              left={"30vw"}
-              personage={{ race, gender }}
-              clothing={getInitialClothing(gender, race)}
-            />
+          
           </div>
         )
       case STEPS.Race:
@@ -287,8 +281,8 @@ const PersonageCreationScreen = () => {
           <div style={commonStyles.container}>
             <Player
               bottom={"calc(1vh + 120px)"}
-              width={"37vw"}
-              left={"30vw"}
+              width={"46vw"}
+              left={"26vw"}
               personage={{ race, gender }}
               clothing={getInitialClothing(gender, race)}
             />
