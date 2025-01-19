@@ -38,13 +38,15 @@ const Home = () => {
   const {
     userId,
     userParameters,
-    appReady,
+    isInitialized, // Use isInitialized instead of appReady
     userPersonage,
     userClothing,
     fetchParams,
     setUserParameters,
     userShelf,
   } = useContext(UserContext)
+
+ 
 
   const getUserSleepDuration = () => {
     const duration = levels?.find(
@@ -75,51 +77,84 @@ const Home = () => {
       console.error("Error initializing process:", error)
       // Reset states on error
       setCurrentProcess(null)
-      setIsStoppingProcess(false)
     }
   }
 
-  const handleProcessStop = async () => {
-    try {
-      navigate("/#")
-    } catch (error) {
-      console.error("Error stopping process:", error)
-      setIsStoppingProcess(false)
-      // Optionally show error to user
-    }
-  }
+  // const handleProcessStop = async () => {
+  //   try {
+  //     navigate("/#")
+  //   } catch (error) {
+  //     console.error("Error stopping process:", error)
+  //     setIsStoppingProcess(false)
+  //     // Optionally show error to user
+  //   }
+  // }
 
   // Enhanced process timer management
-  useEffect(() => {
-    let timerInterval
+  // useEffect(() => {
+  //   let timerInterval
     
-    if (currentProcess?.active) {
-      const updateParametersFunction = async () => {
-        try {
-          const parameters = await getParameters(userId)
-          setUserParameters(parameters.parameters)
-        } catch (error) {
-          console.error("Error updating parameters:", error)
-        }
-      }
 
-      timerInterval = updateProcessTimers(
-        currentProcess,
-        setCurrentProcess,
-        currentProcess?.type === "work",
-        updateParametersFunction
+  //     if (currentProcess?.active) {
+  //       const updateParametersFunction = async () => {
+  //         try {
+  //           const parameters = await getParameters(userId)
+  //           setUserParameters(parameters.parameters)
+  //         } catch (error) {
+  //           console.error("Error updating parameters:", error)
+  //         }
+  //       }
+  
+  //       timerInterval = updateProcessTimers(
+  //         currentProcess,
+  //         setCurrentProcess,
+  //         currentProcess?.type === "work",
+  //         updateParametersFunction
+  //       )
+      
+  //   }
+
+  //   return () => {
+  //     if (timerInterval) {
+  //       clearInterval(timerInterval)
+  //     }
+  //   }
+  // }, [])
+
+  const preloadImages = async () => {
+    const imageUrls = [
+      Assets.Layers.cover,
+      Assets.BG.workScreenBG,
+      Assets.BG.sleepScreenBG,
+      Assets.BG.trainScreenBG,
+      Assets.BG.homeBackground,
+      Assets.HOME.shelf,
+      Assets.HOME.couch,
+      Assets.BG.backgroundSun,
+    ]
+  
+    try {
+      await Promise.all(
+        imageUrls.map((url) => {
+          return new Promise((resolve, reject) => {
+            const img = new Image()
+            img.onload = resolve
+            img.onerror = reject
+            img.src = url
+          })
+        })
       )
+      setImagesLoaded(true)
+    } catch (error) {
+      console.error("Error preloading images:", error)
+      // Continue without images if loading fails
     }
+  }
 
-    return () => {
-      if (timerInterval) {
-        clearInterval(timerInterval)
-      }
-    }
-  }, [currentProcess, userId])
-
-  // Initialize home data
   useEffect(() => {
+    console.log('running main useEffect')
+    if (!isInitialized) return // Exit early if not initialized
+
     const initializeHome = async () => {
       if (JSON.stringify(userPersonage) === "{}") {
         navigate("/learning")
@@ -135,49 +170,21 @@ const Home = () => {
         }
       }
 
-      await initializeProcess()
-      setIsLoading(false)
-    }
-
-    initializeHome()
-  }, [userPersonage, userId])
-
-  // Image preloading logic
-  useEffect(() => {
-    const preloadImages = async () => {
-      const imageUrls = [
-        Assets.Layers.cover,
-        Assets.BG.workScreenBG,
-        Assets.BG.sleepScreenBG,
-        Assets.BG.trainScreenBG,
-        Assets.BG.homeBackground,
-        Assets.HOME.shelf,
-        Assets.HOME.couch,
-        Assets.BG.backgroundSun,
-      ]
-    
       try {
-        await Promise.all(
-          imageUrls.map((url) => {
-            return new Promise((resolve, reject) => {
-              const img = new Image()
-              img.onload = resolve
-              img.onerror = reject
-              img.src = url
-            })
-          })
-        )
-        await fetchParams()
-        setImagesLoaded(true)
-      } catch (error) {
-        console.error("Error preloading images:", error)
-        // Continue without images if loading fails
-        setImagesLoaded(true)
+        await Promise.all([
+          fetchParams(),
+          initializeProcess(),
+          preloadImages()
+        ])
+        setIsLoading(false)
+      } catch (err) {
+        console.error(err)
+        setIsLoading(false)
       }
     }
 
-    preloadImages()
-  }, [])
+    initializeHome()
+  }, [isInitialized]) // Only depend on isInitialized
 
   const renderProcessProgressBar = (
     process,
@@ -190,7 +197,7 @@ const Home = () => {
       inputPercentage={percentage}
       rate={rate}
       reverse={reverse}
-      onProcessStop={handleProcessStop}
+      // onProcessStop={handleProcessStop}
     />
   )
 
@@ -198,7 +205,7 @@ const Home = () => {
   <motion.div
       className="Home"
       key={currentProcess?.type || "default"}
-      initial={{ opacity: imagesLoaded ? 1 : 0 }}
+      initial={{ background: 'black' }}
       animate={{ opacity: imagesLoaded ? 1 : 0 }}
       transition={{ duration: 0.3 }}
       style={{
@@ -237,209 +244,210 @@ const Home = () => {
     </motion.div>
   )
 
-  if (isLoading) {
+  
+  if (!isInitialized) {
     return <FullScreenSpinner />
-  }
-
-  if (currentProcess === null) {
-    return renderScene(
-      <>
-        <HomeHeader
-          onClick={() => setVisibleSettingsModal(!visibleSettingsModal)}
-        />
-        <img className="shelf1" src={Assets.HOME.shelf} alt="shelf1" />
-        <img className="shelf2" src={Assets.HOME.shelf} alt="shelf2" />
-        <img className="couch" src={Assets.HOME.couch} alt="couch" />
-        <div style={{ position: "absolute", zIndex: 2 }}>
+  } else {
+    if (currentProcess === null) {
+      return renderScene(
+        <>
+          <HomeHeader
+            onClick={() => setVisibleSettingsModal(!visibleSettingsModal)}
+          />
+          <img className="shelf1" src={Assets.HOME.shelf} alt="shelf1" />
+          <img className="shelf2" src={Assets.HOME.shelf} alt="shelf2" />
+          <img className="couch" src={Assets.HOME.couch} alt="couch" />
+          <div style={{ position: "absolute", zIndex: 2 }}>
+            <Player
+              bottom={"calc(-85vh + 50px)"}
+              width="37vw"
+              left={"9vw"}
+              top={"35vh"}
+              personage={userPersonage}
+              clothing={userClothing}
+            />
+          </div>
+          <Menu hasBg={false} />
+          {!currentProcess && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: 0.2 }}
+              className="HomeInventory"
+            >
+              {userShelf && (
+                <>
+                  <div className="shelf-container1">
+                    {userShelf.flower?.shelf_link && (
+                      <img
+                        className="shelf-flower"
+                        src={userShelf.flower.shelf_link}
+                        alt="flower"
+                      />
+                    )}
+                    {userShelf.award?.shelf_link && (
+                      <img
+                        className="shelf-award"
+                        src={userShelf.award.shelf_link}
+                        alt="award"
+                      />
+                    )}
+                    {userShelf.event?.shelf_link && (
+                      <img
+                        className="shelf-event"
+                        src={userShelf.event.shelf_link}
+                        alt="event"
+                      />
+                    )}
+                  </div>
+                  <div className="shelf-container2">
+                    {userShelf.neko?.shelf_link && (
+                      <img
+                        className="shelf-neko"
+                        src={userShelf.neko.shelf_link}
+                        alt="neko"
+                      />
+                    )}
+                    {userShelf.flag?.shelf_link && (
+                      <img
+                        className="shelf-flag"
+                        src={userShelf.flag.shelf_link}
+                        alt="flag"
+                      />
+                    )}
+                  </div>
+                </>
+              )}
+            </motion.div>
+          )}
+          {visibleWindow && (
+            <Window
+              title={currentWindow.title}
+              data={currentWindow.data}
+              tabs={currentWindow.tabs}
+              onClose={setVisibleWindow}
+            />
+          )}
+        </>
+      )
+    }
+  
+    if (currentProcess?.type === "work") {
+      return renderScene(
+        <>
+          <HomeHeader
+            onClick={() => setVisibleSettingsModal(!visibleSettingsModal)}
+          />
           <Player
-            bottom={"calc(-85vh + 50px)"}
+            bottom="calc(-1vh + 141px)"
             width="37vw"
             left={"9vw"}
             top={"35vh"}
             personage={userPersonage}
             clothing={userClothing}
           />
-        </div>
-        <Menu hasBg={false} />
-        {!currentProcess && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: 0.2 }}
-            className="HomeInventory"
-          >
-            {userShelf && (
-              <>
-                <div className="shelf-container1">
-                  {userShelf.flower?.shelf_link && (
-                    <img
-                      className="shelf-flower"
-                      src={userShelf.flower.shelf_link}
-                      alt="flower"
-                    />
-                  )}
-                  {userShelf.award?.shelf_link && (
-                    <img
-                      className="shelf-award"
-                      src={userShelf.award.shelf_link}
-                      alt="award"
-                    />
-                  )}
-                  {userShelf.event?.shelf_link && (
-                    <img
-                      className="shelf-event"
-                      src={userShelf.event.shelf_link}
-                      alt="event"
-                    />
-                  )}
-                </div>
-                <div className="shelf-container2">
-                  {userShelf.neko?.shelf_link && (
-                    <img
-                      className="shelf-neko"
-                      src={userShelf.neko.shelf_link}
-                      alt="neko"
-                    />
-                  )}
-                  {userShelf.flag?.shelf_link && (
-                    <img
-                      className="shelf-flag"
-                      src={userShelf.flag.shelf_link}
-                      alt="flag"
-                    />
-                  )}
-                </div>
-              </>
-            )}
-          </motion.div>
-        )}
-        {visibleWindow && (
-          <Window
-            title={currentWindow.title}
-            data={currentWindow.data}
-            tabs={currentWindow.tabs}
-            onClose={setVisibleWindow}
+          {renderProcessProgressBar(
+            currentProcess,
+            countPercentage(currentProcess?.seconds, 60),
+            undefined,
+            true
+          )}
+          <Menu noButton />
+          {visibleWindow && (
+            <Window
+              title={currentWindow.title}
+              data={currentWindow.data}
+              tabs={currentWindow.tabs}
+              onClose={setVisibleWindow}
+            />
+          )}
+        </>
+      )
+    }
+  
+    if (currentProcess?.type === "training") {
+      return renderScene(
+        <>
+          <HomeHeader
+            onClick={() => setVisibleSettingsModal(!visibleSettingsModal)}
           />
-        )}
-      </>
-    )
-  }
-
-  if (currentProcess?.type === "work") {
-    return renderScene(
-      <>
-        <HomeHeader
-          onClick={() => setVisibleSettingsModal(!visibleSettingsModal)}
-        />
-        <Player
-          bottom="calc(-1vh + 141px)"
-          width="37vw"
-          left={"9vw"}
-          top={"35vh"}
-          personage={userPersonage}
-          clothing={userClothing}
-        />
-        {renderProcessProgressBar(
-          currentProcess,
-          countPercentage(currentProcess?.seconds, 60),
-          undefined,
-          true
-        )}
-        <Menu noButton />
-        {visibleWindow && (
-          <Window
-            title={currentWindow.title}
-            data={currentWindow.data}
-            tabs={currentWindow.tabs}
-            onClose={setVisibleWindow}
+          <Player
+            bottom="calc(-1vh + 141px)"
+            width="37vw"
+            left={"9vw"}
+            top={"35vh"}
+            personage={userPersonage}
+            clothing={userClothing}
           />
-        )}
-      </>
-    )
-  }
-
-  if (currentProcess?.type === "training") {
-    return renderScene(
-      <>
-        <HomeHeader
-          onClick={() => setVisibleSettingsModal(!visibleSettingsModal)}
-        />
-        <Player
-          bottom="calc(-1vh + 141px)"
-          width="37vw"
-          left={"9vw"}
-          top={"35vh"}
-          personage={userPersonage}
-          clothing={userClothing}
-        />
-        {renderProcessProgressBar(
-          currentProcess,
-          countPercentage(
-            currentProcess?.duration * 60 + currentProcess?.seconds,
-            trainingParamters?.duration * 60
-          ),
-          trainingParamters?.mood_profit
-        )}
-        <Menu noButton />
-        {visibleWindow && (
-          <Window
-            title={currentWindow.title}
-            data={currentWindow.data}
-            tabs={currentWindow.tabs}
-            onClose={setVisibleWindow}
+          {renderProcessProgressBar(
+            currentProcess,
+            countPercentage(
+              currentProcess?.duration * 60 + currentProcess?.seconds,
+              trainingParamters?.duration * 60
+            ),
+            trainingParamters?.mood_profit
+          )}
+          <Menu noButton />
+          {visibleWindow && (
+            <Window
+              title={currentWindow.title}
+              data={currentWindow.data}
+              tabs={currentWindow.tabs}
+              onClose={setVisibleWindow}
+            />
+          )}
+        </>
+      )
+    }
+  
+    if (currentProcess?.type === "sleep") {
+      return renderScene(
+        <>
+          <HomeHeader
+            onClick={() => setVisibleSettingsModal(!visibleSettingsModal)}
           />
-        )}
-      </>
-    )
-  }
-
-  if (currentProcess?.type === "sleep") {
-    return renderScene(
-      <>
-        <HomeHeader
-          onClick={() => setVisibleSettingsModal(!visibleSettingsModal)}
-        />
-        <Player
-          bottom={"calc(-71vh + 50px)"}
-          width="81vw"
-          left={"5vw"}
-          top={"55vmax"}
-          personage={userPersonage}
-          clothing={userClothing}
-        />
-        <motion.img
-          src={Assets.Layers.cover}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.3 }}
-          style={{
-            position: "absolute",
-            width: "100%",
-            height: "100%",
-            bottom: 0,
-            zIndex: 0,
-          }}
-          alt="cover"
-        />
-        {renderProcessProgressBar(
-          currentProcess,
-          countPercentage(
-            currentProcess?.duration * 60 + currentProcess?.seconds,
-            getUserSleepDuration() * 60
-          ),
-          "Time"
-        )}
-        <Menu noButton />
-        {visibleWindow && (
-          <Window
-            title={currentWindow.title}
-            data={currentWindow.data}
-            tabs={currentWindow.tabs}
-            onClose={setVisibleWindow}
+          <Player
+            bottom={"calc(-71vh + 50px)"}
+            width="81vw"
+            left={"5vw"}
+            top={"55vmax"}
+            personage={userPersonage}
+            clothing={userClothing}
           />
-        )}
-      </>
-    )
+          <motion.img
+            src={Assets.Layers.cover}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.3 }}
+            style={{
+              position: "absolute",
+              width: "100%",
+              height: "100%",
+              bottom: 0,
+              zIndex: 0,
+            }}
+            alt="cover"
+          />
+          {renderProcessProgressBar(
+            currentProcess,
+            countPercentage(
+              currentProcess?.duration * 60 + currentProcess?.seconds,
+              getUserSleepDuration() * 60
+            ),
+            "Time"
+          )}
+          <Menu noButton />
+          {visibleWindow && (
+            <Window
+              title={currentWindow.title}
+              data={currentWindow.data}
+              tabs={currentWindow.tabs}
+              onClose={setVisibleWindow}
+            />
+          )}
+        </>
+      )
+    }
   }
 }
 

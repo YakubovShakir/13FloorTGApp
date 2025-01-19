@@ -1,12 +1,18 @@
-import { postEvent } from '@telegram-apps/sdk';
+import { isMiniAppSupported, postEvent } from '@telegram-apps/sdk';
 
 const Telegram = window.Telegram.WebApp
 
 const useTelegram = {
   setReady: () => {
-    postEvent('web_app_request_fullscreen')
-    postEvent('web_app_expand')
-    Telegram?.ready()
+      try {
+        postEvent('web_app_request_fullscreen')
+        postEvent('web_app_expand')
+
+        return
+      } catch(err) {
+        console.log('Running dev mode outside tg browser', err)
+        Telegram?.ready()
+      }
   },
   setFullScreen: () => {
     // try {

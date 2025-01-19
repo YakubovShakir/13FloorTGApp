@@ -217,10 +217,10 @@ import blackHand from './IMG/black-hand.png'
 import asianHand from './IMG/asian-hand.png'
 import euroHand from './IMG/euro-hand.png'
 
-import learn1 from './IMG/bg/learn1.png'
-import learn2 from './IMG/bg/learn2.png'
-import learn3 from './IMG/bg/learn3.png'
-import learn4 from './IMG/bg/learn4.png'
+import learn1 from './IMG/bg/learn1.webp'
+import learn2 from './IMG/bg/learn2.webp'
+import learn3 from './IMG/bg/learn3.webp'
+import learn4 from './IMG/bg/learn4.webp'
 
 export function getImgUrl(name) {
   return new URL(`${name}`, import.meta.url).href

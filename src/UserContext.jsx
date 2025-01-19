@@ -7,58 +7,57 @@ import React, {
 } from "react"
 import { getParameters } from "./services/user/user"
 import useTelegram from "./hooks/useTelegram"
-import { useNavigate } from "react-router-dom"
+import FullScreenSpinner from "./screens/Home/FullScreenSpinner"
 
 const UserContext = createContext()
 
 export const UserProvider = ({ children }) => {
-  const [userParameters, setUserParameters] = useState(null)
-  const [userPersonage, setUserPersonage] = useState(null)
-  const [userClothing, setUserClothing] = useState(null)
-  const [userShelf, setUserShelf] = useState(null)
-  const [userId, setUserId] = useState(
-    window.Telegram?.WebApp?.initDataUnsafe?.user?.id || 790629329
-  )
-  const [appReady, setAppReady] = useState(false)
-
+  const [state, setState] = useState({
+    userParameters: null,
+    userPersonage: null,
+    userClothing: null,
+    userShelf: null,
+    isInitialized: false // Replace appReady with isInitialized
+  })
+  
+  const userId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id || 790629329
   const isFetchingRef = useRef(false)
   const latestDataRef = useRef(null)
-  const navigate = useNavigate()
 
   const fetchParams = useCallback(async (isInitial = false) => {
     if (isFetchingRef.current) return
-
     isFetchingRef.current = true
-    if (isInitial) setAppReady(false)
 
     try {
       const parameters = await getParameters(userId)
 
-      if (
-        JSON.stringify(parameters) !== JSON.stringify(latestDataRef.current)
-      ) {
-        setUserParameters({...parameters.parameters})
-        setUserPersonage(parameters.personage)
-        setUserClothing(parameters.clothing)
-        setUserShelf(parameters.shelf)
+      if (JSON.stringify(parameters) !== JSON.stringify(latestDataRef.current)) {
+        setState(prev => ({
+          ...prev,
+          userParameters: {...parameters.parameters},
+          userPersonage: parameters.personage,
+          userClothing: parameters.clothing,
+          userShelf: parameters.shelf,
+          isInitialized: isInitial ? true : prev.isInitialized
+        }))
         latestDataRef.current = parameters
-      }
-
-      if (isInitial) {
+      } else if (isInitial) {
         useTelegram.setReady()
-        setAppReady(true)
+        setState(prev => ({ ...prev, isInitialized: true }))
       }
     } catch (err) {
+      console.error('Failed to fetch parameters:', err)
+      if (isInitial) {
+        setState(prev => ({ ...prev, isInitialized: false }))
+      }
     } finally {
       isFetchingRef.current = false
     }
-  }, [])
+  }, [userId])
 
   useEffect(() => {
-    // Initial fetch
     fetchParams(true)
-
-    // Set up polling
+    
     const intervalId = setInterval(() => {
       fetchParams(false)
     }, 3000)
@@ -69,18 +68,16 @@ export const UserProvider = ({ children }) => {
   return (
     <UserContext.Provider
       value={{
-        appReady,
+        ...state,
         userId,
-        userParameters,
-        setUserParameters,
-        userPersonage,
-        setUserPersonage,
-        userClothing,
         fetchParams: () => fetchParams(false),
-        userShelf,
+        setUserParameters: (newParams) => 
+          setState(prev => ({ ...prev, userParameters: newParams })),
+        setUserPersonage: (newParams) => 
+          setState(prev => ({...prev, userPersonage: newParams}))
       }}
     >
-      {children}
+      { state.isInitialized ? children : <FullScreenSpinner/> }
     </UserContext.Provider>
   )
 }

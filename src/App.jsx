@@ -100,7 +100,6 @@ function App() {
     // <TelegramPlatformCheck>
      <SettingsProvider>
       <MemoryRouter>
-      <UserProvider>
           <Routes>
             {/* <Route index element={<StartCustomize />} /> */}
             <Route index path="/" exact element={<Home/>}/>
@@ -115,7 +114,6 @@ function App() {
             <Route path="/investment" element={<InvestmentScreen/>} />
             <Route path="/boost" element={<BoostTab/>} />
           </Routes>
-          </UserProvider>
         </MemoryRouter>
      </SettingsProvider>
     // </TelegramPlatformCheck>
