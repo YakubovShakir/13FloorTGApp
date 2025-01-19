@@ -1,5 +1,5 @@
 import homeBackgroundImage from "./IMG/homeBG.png"
-import homeBackground from "./IMG/bg/homeBackground.png"
+import homeBackground from "./IMG/bg/homeBackground.webp"
 import avatar from "./IMG/avatar.png"
 import plus from "./IMG/icons/plus.png"
 import happiness from "./IMG/icons/happiness.png"
@@ -36,12 +36,12 @@ import investmentZooShopIcon from './IMG/icons/invest-zoo.png'
 
 import shelf from './IMG/shelf.png'
 
-import trainingCardBG from "./IMG/bg/trainingCard.png"
-import trainScreenBG from "./IMG/bg/trainScreenBG.png"
-import sleepScreenBG from "./IMG/bg/sleepScreenBG.png"
+import trainingCardBG from "./IMG/bg/trainingCard.webp"
+import trainScreenBG from "./IMG/bg/trainScreenBG.webp"
+import sleepScreenBG from "./IMG/bg/sleepScreenBG.webp"
 
-import workCardBG from "./IMG/bg/workCard.png"
-import workScreenBG from "./IMG/bg/workScreenBG.png"
+import workCardBG from "./IMG/bg/workCard.webp"
+import workScreenBG from "./IMG/bg/workScreenBG.webp"
 import organizer from "./IMG/icons/organizer.png"
 
 import cleaner from "./IMG/icons/cleaner.png"
@@ -111,7 +111,7 @@ import manager from "./IMG/icons/manager.png"
 import arrowRight from "./IMG/icons/arrowRight.png"
 import happinessDown from "./IMG/icons/happinessDown.png"
 
-import backgroundSun from "./IMG/bg/backSun.png"
+import backgroundSun from "./IMG/bg/backSun.webp"
 
 import storeShoes from "./IMG/icons/storeShoes.png"
 import broom from "./IMG/icons/broom.png"
@@ -140,11 +140,11 @@ import head from "./IMG/icons/head.png"
 import body from "./IMG/icons/body.png"
 import access from "./IMG/icons/accessory.png"
 
-import personageCreationBg from './IMG/bg/personageCreationBg.png'
+import personageCreationBg from './IMG/bg/personageCreationBg.webp'
 
 import afro from "./IMG/avatars/girls/clothes/head/afro.png"
 
-import StartCustomizeBG from "./IMG/bg/StartCustomizeBG.png"
+import StartCustomizeBG from "./IMG/bg/StartCustomizeBG.webp"
 
 import femaleBlack from "./IMG/icons/StartCustomize/black.png"
 import femaleAzia from "./IMG/icons/StartCustomize/azia.png"
@@ -202,7 +202,7 @@ import boss from './IMG/icons/boss.png'
 
 import arrowIcon from './IMG/icons/arrowIcon.png'
 import inventoryActiveShadow from './IMG/inventoryActiveShadow.png'
-import filterModalBG from './IMG/bg/filterModalBackground.png'
+import filterModalBG from './IMG/bg/filterModalBackground.webp'
 
 import investManager from './IMG/icons/invest-manager.png'
 import investManagerActive from './IMG/icons/invest-manager-active.png'

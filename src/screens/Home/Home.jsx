@@ -131,7 +131,7 @@ const Home = () => {
     }
 
     initialize()
-  }, [isInitialized, userPersonage, userId])
+  }, [isInitialized])
 
   // Early return for loading state
   if (isLoading) {
@@ -157,10 +157,6 @@ const Home = () => {
       <motion.div
         className="Home"
         key={state.currentProcess?.type || "default"}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        transition={{ duration: 0.3 }}
         style={{
           position: "absolute",
           height: "100%",
@@ -288,122 +284,131 @@ const Home = () => {
       )
     }
   
-    // if (currentProcess?.type === "work") {
-    //   return renderScene(
-    //     <>
-    //       <HomeHeader
-    //         onClick={() => setVisibleSettingsModal(!visibleSettingsModal)}
-    //       />
-    //       <Player
-    //         bottom="calc(-1vh + 141px)"
-    //         width="37vw"
-    //         left={"9vw"}
-    //         top={"35vh"}
-    //         personage={userPersonage}
-    //         clothing={userClothing}
-    //       />
-    //       {renderProcessProgressBar(
-    //         currentProcess,
-    //         countPercentage(currentProcess?.seconds, 60),
-    //         undefined,
-    //         true
-    //       )}
-    //       <Menu noButton />
-    //       {visibleWindow && (
-    //         <Window
-    //           title={currentWindow.title}
-    //           data={currentWindow.data}
-    //           tabs={currentWindow.tabs}
-    //           onClose={setVisibleWindow}
-    //         />
-    //       )}
-    //     </>
-    //   )
-    // }
+    if (state.currentProcess?.type === "work") {
+      return renderScene(
+        <>
+         <HomeHeader
+              onClick={() => setState(prev => ({ 
+                ...prev, 
+                visibleSettingsModal: !prev.visibleSettingsModal 
+              }))}
+            />
+          <Player
+            bottom="calc(-1vh + 141px)"
+            width="37vw"
+            left={"9vw"}
+            top={"35vh"}
+            personage={userPersonage}
+            clothing={userClothing}
+          />
+          {renderProcessProgressBar(
+            state.currentProcess,
+            countPercentage(state.currentProcess?.seconds, 60),
+            undefined,
+            true
+          )}
+          <Menu noButton />
+          {state.visibleWindow && (
+            <Window
+              title={state.currentWindow.title}
+              data={state.currentWindow.data}
+              tabs={state.currentWindow.tabs}
+              onClose={() => setState(prev => ({...prev, visibleWindow: false}))}
+            />
+          )}
+        </>
+      )
+    }
   
-    // if (currentProcess?.type === "training") {
-    //   return renderScene(
-    //     <>
-    //       <HomeHeader
-    //         onClick={() => setVisibleSettingsModal(!visibleSettingsModal)}
-    //       />
-    //       <Player
-    //         bottom="calc(-1vh + 141px)"
-    //         width="37vw"
-    //         left={"9vw"}
-    //         top={"35vh"}
-    //         personage={userPersonage}
-    //         clothing={userClothing}
-    //       />
-    //       {renderProcessProgressBar(
-    //         currentProcess,
-    //         countPercentage(
-    //           currentProcess?.duration * 60 + currentProcess?.seconds,
-    //           trainingParamters?.duration * 60
-    //         ),
-    //         trainingParamters?.mood_profit
-    //       )}
-    //       <Menu noButton />
-    //       {visibleWindow && (
-    //         <Window
-    //           title={currentWindow.title}
-    //           data={currentWindow.data}
-    //           tabs={currentWindow.tabs}
-    //           onClose={setVisibleWindow}
-    //         />
-    //       )}
-    //     </>
-    //   )
-    // }
+    if (state.currentProcess?.type === "training") {
+      return renderScene(
+        <>
+          <HomeHeader
+              onClick={() => setState(prev => ({ 
+                ...prev, 
+                visibleSettingsModal: !prev.visibleSettingsModal 
+              }))}
+            />
+          <Player
+            bottom="calc(-1vh + 141px)"
+            width="37vw"
+            left={"9vw"}
+            top={"35vh"}
+            personage={userPersonage}
+            clothing={userClothing}
+          />
+          {renderProcessProgressBar(
+            state.currentProcess,
+            countPercentage(
+              state.currentProcess?.duration * 60 + state.currentProcess?.seconds,
+              state.trainingParamters?.duration * 60
+            ),
+            state.trainingParamters?.mood_profit
+          )}
+          <Menu noButton />
+          {state.visibleWindow && (
+            <Window
+              title={state.currentWindow.title}
+              data={state.currentWindow.data}
+              tabs={state.currentWindow.tabs}
+              onClose={() => setState(prev => ({...prev, visibleWindow: false}))}
+            />
+          )}
+        </>
+      )
+    }
   
-    // if (currentProcess?.type === "sleep") {
-    //   return renderScene(
-    //     <>
-    //       <HomeHeader
-    //         onClick={() => setVisibleSettingsModal(!visibleSettingsModal)}
-    //       />
-    //       <Player
-    //         bottom={"calc(-71vh + 50px)"}
-    //         width="81vw"
-    //         left={"5vw"}
-    //         top={"55vmax"}
-    //         personage={userPersonage}
-    //         clothing={userClothing}
-    //       />
-    //       <motion.img
-    //         src={Assets.Layers.cover}
-    //         initial={{ opacity: 0 }}
-    //         animate={{ opacity: 1 }}
-    //         transition={{ duration: 0.3 }}
-    //         style={{
-    //           position: "absolute",
-    //           width: "100%",
-    //           height: "100%",
-    //           bottom: 0,
-    //           zIndex: 0,
-    //         }}
-    //         alt="cover"
-    //       />
-    //       {renderProcessProgressBar(
-    //         currentProcess,
-    //         countPercentage(
-    //           currentProcess?.duration * 60 + currentProcess?.seconds,
-    //           getUserSleepDuration() * 60
-    //         ),
-    //         "Time"
-    //       )}
-    //       <Menu noButton />
-    //       {visibleWindow && (
-    //         <Window
-    //           title={currentWindow.title}
-    //           data={currentWindow.data}
-    //           tabs={currentWindow.tabs}
-    //           onClose={setVisibleWindow}
-    //         />
-    //       )}
-    //     </>
-    //   )
-    // }
+    if (state.currentProcess?.type === "sleep") {
+      return renderScene(
+        <>
+         <HomeHeader
+              onClick={() => setState(prev => ({ 
+                ...prev, 
+                visibleSettingsModal: !prev.visibleSettingsModal 
+              }))}
+            />
+          <Player
+            bottom={"calc(-71vh + 50px)"}
+            width="81vw"
+            left={"5vw"}
+            top={"55vmax"}
+            personage={userPersonage}
+            clothing={userClothing}
+          />
+          <motion.img
+            src={Assets.Layers.cover}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.3 }}
+            style={{
+              position: "absolute",
+              width: "100%",
+              height: "100%",
+              bottom: 0,
+              zIndex: 0,
+            }}
+            alt="cover"
+          />
+          {renderProcessProgressBar(
+            state.currentProcess,
+            countPercentage(
+              state.currentProcess?.duration * 60 + state.currentProcess?.seconds,
+              getUserSleepDuration() * 60
+            ),
+            "Time"
+          )}
+          <Menu noButton />
+          {state.visibleWindow && (
+            <Window
+              title={state.currentWindow.title}
+              data={state.currentWindow.data}
+              tabs={state.currentWindow.tabs}
+              onClose={() => setState(prev => ({...prev, visibleWindow: false}))}
+            />
+          )}
+        </>
+      )
+    }
   }
 }
 
