@@ -60,7 +60,7 @@ export const UserProvider = ({ children }) => {
     
     const intervalId = setInterval(() => {
       fetchParams(false)
-    }, 3000)
+    }, 1000)
 
     return () => clearInterval(intervalId)
   }, [fetchParams])
