@@ -1,17 +1,20 @@
-import React, { useEffect, useState, useContext } from "react"
+import React, { useEffect, useState, useContext, useRef } from "react"
 import "./Home.css"
 import HomeHeader from "../../components/complex/HomeHeader/HomeHeader"
-import ProcessProgressBar from "../../components/simple/ProcessProgressBar/ProcessProgressBar"
 import Player from "../../components/complex/Player/Player"
 import Menu from "../../components/complex/Menu/Menu"
 import Window from "../../components/complex/Windows/Window/Window"
 import Assets from "../../assets/index"
+import ProcessProgressBar from "../../components/simple/ProcessProgressBar/ProcessProgressBar"
 import {
+  getParameters,
   getTrainingParameters,
   getUserActiveProcess,
 } from "../../services/user/user"
+import { stopProcess } from "../../services/process/process"
 import UserContext from "../../UserContext"
 import countPercentage from "../../utils/countPercentage"
+import { updateProcessTimers } from "../../utils/updateTimers"
 import { getLevels } from "../../services/levels/levels"
 import { motion, AnimatePresence } from "framer-motion"
 import { useNavigate } from "react-router-dom"
@@ -20,6 +23,8 @@ import getBgByCurrentProcess from "./getBgByCurrentProcess"
 
 const Home = () => {
   const navigate = useNavigate()
+  const mountedRef = useRef(false)
+
   const [state, setState] = useState({
     currentWindow: null,
     currentProcess: null,
@@ -31,7 +36,6 @@ const Home = () => {
     imagesLoaded: false
   })
 
-  // Combine all loading states into one
   const [isLoading, setIsLoading] = useState(true)
 
   const {
@@ -50,6 +54,65 @@ const Home = () => {
       (level) => level?.level === userParameters?.level
     )?.sleep_duration
     return duration
+  }
+
+  useEffect(() => {
+    mountedRef.current = true
+    return () => {
+      mountedRef.current = false
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!state.currentProcess?.active || !mountedRef.current) return;
+
+    const updateParametersFunction = async () => {
+      try {
+        const parameters = await getParameters(userId)
+        if (mountedRef.current) {
+          setUserParameters(parameters.parameters)
+        }
+      } catch (error) {
+        console.error("Error updating parameters:", error)
+      }
+    }
+
+    const timerInterval = updateProcessTimers(
+      state.currentProcess,
+      (updatedProcess) => {
+        if (mountedRef.current) {
+          setState(prev => ({ ...prev, currentProcess: updatedProcess }))
+        }
+      },
+      state.currentProcess?.type === "work",
+      updateParametersFunction
+    )
+
+    return () => {
+      if (timerInterval) {
+        clearInterval(timerInterval)
+      }
+    }
+  }, [state.currentProcess, userId, setUserParameters])
+
+  const handleProcessStop = async () => {
+    try {
+      setState(prev => ({ ...prev, isStoppingProcess: true }))
+      await stopProcess(userId)
+      if (mountedRef.current) {
+        setState(prev => ({ 
+          ...prev, 
+          currentProcess: null,
+          isStoppingProcess: false 
+        }))
+        navigate("/")
+      }
+    } catch (error) {
+      console.error("Error stopping process:", error)
+      if (mountedRef.current) {
+        setState(prev => ({ ...prev, isStoppingProcess: false }))
+      }
+    }
   }
 
   const preloadImages = async () => {
@@ -133,11 +196,6 @@ const Home = () => {
     initialize()
   }, [isInitialized])
 
-  // Early return for loading state
-  if (isLoading) {
-    return <FullScreenSpinner />
-  }
-
   const renderProcessProgressBar = (
     process,
     percentage,
@@ -149,8 +207,44 @@ const Home = () => {
       inputPercentage={percentage}
       rate={rate}
       reverse={reverse}
+      onProcessStop={handleProcessStop}
     />
   )
+
+  useEffect(() => {
+    if (!isInitialized) return
+    
+    const initialize = async () => {
+      if (JSON.stringify(userPersonage) === "{}") {
+        navigate("/learning")
+        return
+      }
+
+      try {
+        await Promise.all([
+          fetchParams(),
+          initializeProcess(),
+          preloadImages()
+        ])
+
+        if (mountedRef.current) {
+          setState(prev => ({ ...prev, imagesLoaded: true }))
+          setIsLoading(false)
+        }
+      } catch (err) {
+        console.error('Initialization error:', err)
+        if (mountedRef.current) {
+          setIsLoading(false)
+        }
+      }
+    }
+
+    initialize()
+  }, [isInitialized, userPersonage, navigate, fetchParams, userId])
+
+  if (isLoading) {
+    return <FullScreenSpinner />
+  }
 
   const renderScene = (content) => (
     <AnimatePresence mode="wait">

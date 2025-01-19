@@ -15,13 +15,6 @@ const useWalletConnection = () => {
   const [walletAddress, setWalletAddress] = useState(null);
   const [isConnecting, setIsConnecting] = useState(false);
 
-  useEffect(() => {
-    // Initialize Telegram WebApp
-    const tg = window.Telegram?.WebApp;
-    if (tg) {
-      tg.ready();
-    }
-  }, []);
 
   const connectWallet = async () => {
     try {
