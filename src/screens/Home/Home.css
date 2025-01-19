@@ -14,7 +14,7 @@
   right: 0;
   width: calc(50vw);
     height: 20px;
-    bottom: calc(71vh);
+    bottom: calc(63vh);
 }
 
 .shelf2 {
@@ -24,7 +24,7 @@
   right: 0;
   width: calc(50vw);
     height: 20px;
-    bottom: calc(54vh);
+    bottom: calc(47vh);
 }
 
 .couch {
@@ -39,14 +39,14 @@
 
 
   .shelf-container1 {
-    bottom: calc(37vh);
+    bottom: calc(29vh);
     
     position: absolute;
     z-index: 1000;
   }
 
   .shelf-container2 {
-    bottom: calc(20vh);
+    bottom: calc(13vh);
     
     position: absolute;
     z-index: 1000;

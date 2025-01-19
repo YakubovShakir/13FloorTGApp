@@ -2,8 +2,8 @@
   border: 1px solid rgb(57, 57, 57);
   background: 0% 0% / cover rgb(32, 32, 32);
   padding: 10px;
-  height: 41vh;
-  max-height: 19vh;
+  height: 127px;
+  
   display: flex;
   flex-direction: column;  
   justify-content: center;  
