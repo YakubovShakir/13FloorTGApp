@@ -63,7 +63,7 @@ const TaskTab = ({ userId, userParameters, setUserParameters }) => {
     },
     check: {
       ru: 'Забрать',
-      en: 'Grap'
+      en: 'Grab'
     },
     link: {
       ru: 'Ссылка',

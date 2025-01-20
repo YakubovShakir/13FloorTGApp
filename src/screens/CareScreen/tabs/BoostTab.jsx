@@ -16,72 +16,25 @@ import { buyBoost, getBoosts, getUserBoosts, useBoost } from "../../../services/
 import { updateProcessTimers } from "../../../utils/updateTimers"
 import formatTime from "../../../utils/formatTime"
 import countPercentage from "../../../utils/countPercentage"
+import { useSettingsProvider } from "../../../hooks"
+import HomeHeader from "../../../components/complex/HomeHeader/HomeHeader"
+import ScreenBody from "../../../components/section/ScreenBody/ScreenBody"
 
 const BoostTab = ({ userId, userParameters, setUserParameters }) => {
+  const { lang } = useSettingsProvider()
   const [boosts, setBoosts] = useState(null)
   const [levels, setLevels] = useState(null)
   const [activeProcess, setActiveProcess] = useState(null)
   const [userBoosts, setUserBoosts] = useState(null)
   const { Icons } = Assets
 
-  const handleStartSleep = async () => {
-    await startProcess("sleep", userId)
-
-    const sleepProcess = await getActiveProcess(userId)
-    setActiveProcess(sleepProcess)
-  }
-  const handleStopSleep = async () => {
-    await stopProcess(userId)
-    setActiveProcess(null)
+  const translations = {
+    take: {
+      ru: 'Принять',
+      en: 'Take'
+    }
   }
 
-  const getItemSleepParams = () => {
-    const userSleepDuration = levels?.find(
-      (level) => level?.level === userParameters?.level
-    )?.sleep_duration
-    return [
-      [
-        {
-          icon: Icons.clock,
-          value:
-            activeProcess?.type === "sleep" && (activeProcess?.duration || activeProcess?.seconds)
-              ? formatTime(activeProcess?.duration, activeProcess?.seconds)
-              : userSleepDuration,
-          fillPercent:
-            activeProcess?.type === "sleep" && activeProcess?.duration
-              ? countPercentage(
-                  activeProcess?.duration * 60,
-                  userSleepDuration * 60
-                )
-              : null,
-        },
-      ],
-      [
-        {
-          icon: Icons.boosterArrow,
-          value: "Усилений нет",
-        },
-      ],
-    ]
-  }
-
-  const getItemSleepButton = () => {
-    return [
-      {
-        text: activeProcess?.type === "sleep" ? "Стоп" : "Начать",
-        active: true,
-        bg:
-          activeProcess?.type === "sleep"
-            ? "linear-gradient(90deg, rgba(233,27,27,1) 0%, rgba(119,1,1,1) 100%)"
-            : "linear-gradient(180deg, rgba(233,78,27,1) 0%, rgba(243,117,0,1) 100%)",
-        shadowColor: "#AF370F",
-        onClick:
-          activeProcess?.type === "sleep"
-            ? () => handleStopSleep()
-            : () => handleStartSleep(),
-      },
-    ]
-  }
   const getItemBoostParams = (boost) => {
     const boostDuration = boost?.duration
     return [
@@ -127,7 +80,7 @@ const BoostTab = ({ userId, userParameters, setUserParameters }) => {
         icon: Icons.starsIcon,
       },
       {
-        text: "Принять",
+        text: translations.take[lang],
         active: useBoostStatus,
         onClick: useBoostStatus && (()=> handleUseBoost(boost?.boost_id))
       },
@@ -143,7 +96,7 @@ const BoostTab = ({ userId, userParameters, setUserParameters }) => {
   const handleStarsBuy = async (item) => {
     try {
       const response = await instance.post('/users/request-stars-invoice-link', {
-          productType: 'clothes',
+          productType: 'boost',
           id: item.id
       }).then(res => res.data.invoiceLink)
       window.Telegram?.WebApp?.openInvoice(response, (status) => {
@@ -166,6 +119,7 @@ const BoostTab = ({ userId, userParameters, setUserParameters }) => {
 
   return (
     <ScreenContainer withTab>
+      <HomeHeader/>
       {/* <ItemCard
         ItemIcon={sleepIcon}
         ItemTitle={"Долгий сон"}
@@ -173,12 +127,14 @@ const BoostTab = ({ userId, userParameters, setUserParameters }) => {
         ItemButtons={getItemSleepButton()}
         ItemIndex={0}
       /> */}
-      {boosts?.map((boost, index) => (
+      <ScreenBody activity={lang === 'ru' ? 'Бусты' : 'Boosts'}>
+        <div style={{paddingTop: 20}}>
+        {boosts?.map((boost, index) => (
         <ItemCard
           key={index}
           ItemIcon={boost?.link}
-          ItemTitle={boost.name}
-          ItemDescription={boost?.description}
+          ItemTitle={boost.name[lang]}
+          ItemDescription={boost?.description[lang]}
           ItemParamsBlocks={getItemBoostParams(boost)}
           ItemButtons={getItemBoostButton(boost)}
           ItemAmount={getUserBoostAmount(boost?.boost_id)}
@@ -186,6 +142,8 @@ const BoostTab = ({ userId, userParameters, setUserParameters }) => {
           handleStarsBuy={() => handleStarsBuy({ id: boost.boost_id, processType: 'boosts' })}
         />
       ))}
+        </div>
+      </ScreenBody>
     </ScreenContainer>
   )
 }
