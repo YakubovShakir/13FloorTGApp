@@ -18,7 +18,7 @@ import formatTime from "../../../utils/formatTime"
 import countPercentage from "../../../utils/countPercentage"
 import { useSettingsProvider } from "../../../hooks"
 import HomeHeader from "../../../components/complex/HomeHeader/HomeHeader"
-import ScreenBody from "../../../components/section/ScreenBody/ScreenBody"
+import ScreenBody from "../../../components/section/ScreenBody/ScreenBodyFood"
 
 const BoostTab = ({ userId, userParameters, setUserParameters }) => {
   const { lang } = useSettingsProvider()
@@ -30,8 +30,8 @@ const BoostTab = ({ userId, userParameters, setUserParameters }) => {
 
   const translations = {
     take: {
-      ru: 'Принять',
-      en: 'Take'
+      ru: 'Использовать',
+      en: 'Use'
     }
   }
 

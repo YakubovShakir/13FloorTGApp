@@ -1,7 +1,7 @@
 import ItemCard from "../../../components/simple/ItemCard/ItemCardTask"
 import coins30000 from "../icons/coins30000.png"
 import tg300000 from "../icons/tg30000.png"
-import ScreenContainer from "../../../components/section/ScreenContainer/ScreenContainer"
+import ScreenContainer from "../../../components/section/ScreenContainer/ScreenContainerFood"
 import { useEffect, useState, useRef, useCallback } from "react"
 import Assets from "../../../assets"
 import { claimTask, getTasks } from "../../../services/user/user"

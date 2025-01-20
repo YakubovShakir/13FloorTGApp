@@ -321,10 +321,8 @@ const ThreeSectionCard = ({
     },
 
     buttonsContainer: {
-      margin: "58px 5px 58px 0px",
-      boxShadow: " rgba(0, 0, 0, 0.24) 0px 0px 8px 2px inset",
-      background: " rgb(18, 18, 18)",
-      borderBottom: " 1px solid rgb(117 117 117 / 47%)",
+      margin: "0px 5px 0px 0px",
+      
       width: "33.333%",
       borderRadius: "8px",
       display: "flex",
@@ -695,6 +693,8 @@ const InvestmentScreen = () => {
 
           <h2
             style={{
+              zIndex: "9",
+              position: "relative",
               fontSize: "14px",
               fontWeight: "regular",
               margin: "16px 0",

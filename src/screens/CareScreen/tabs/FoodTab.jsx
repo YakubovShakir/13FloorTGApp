@@ -10,6 +10,7 @@ import countPercentage from "../../../utils/countPercentage"
 import { updateProcessesTimers } from "../../../utils/updateTimers"
 import { useSettingsProvider } from "../../../hooks"
 
+
 const FoodTab = ({ userId, userParameters, setUserParameters }) => {
   const [userEatingFoods, setUserEatingFoods] = useState(null)
   const [foods, setFoods] = useState(null)
