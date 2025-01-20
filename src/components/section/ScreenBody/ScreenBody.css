@@ -4,12 +4,12 @@
   height: 100%;
   width: 100%;
  
-  padding-top: 23vh;
+  padding-top: 18vh;
 }
 
 .HomeHeaderBottomName {
 
-
+  display: 'none';
   position: relative; /* Для псевдоэлементов */
   background: linear-gradient(90deg, rgba(34,199,163,0) 20%, rgba(189, 78, 4, 0.336) 50%, rgba(21,110,90,0) 80%);
   animation: pulseLinearGradient 6s infinite ease-in-out; /* Плавная анимация для фона */

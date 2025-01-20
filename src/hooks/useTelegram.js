@@ -4,13 +4,13 @@ const Telegram = window.Telegram.WebApp
 
 const useTelegram = {
   setReady: () => {
-      try {
-        postEvent('web_app_request_fullscreen')
-        postEvent('web_app_expand')
-      } catch(err) {
-        console.log('Running dev mode outside tg browser', err)
-        Telegram?.ready()
-      }
+    try {
+      postEvent('web_app_expand')
+      postEvent('web_app_request_fullscreen')
+      postEvent('web_app_ready')
+    } catch(err) {
+      console.log(err)
+    }
   },
   setFullScreen: () => {
     // try {

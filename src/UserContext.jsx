@@ -32,6 +32,9 @@ export const UserProvider = ({ children }) => {
       const parameters = await getParameters(userId)
 
       if (JSON.stringify(parameters) !== JSON.stringify(latestDataRef.current)) {
+        if(isInitial) {
+          useTelegram.setReady()
+        }
         setState(prev => ({
           ...prev,
           userParameters: {...parameters.parameters},
@@ -42,7 +45,6 @@ export const UserProvider = ({ children }) => {
         }))
         latestDataRef.current = parameters
       } else if (isInitial) {
-        useTelegram.setReady()
         setState(prev => ({ ...prev, isInitialized: true }))
       }
     } catch (err) {

@@ -672,7 +672,7 @@ const InvestmentScreen = () => {
   } else if (investments) {
     return (
       <Screen>
-        <HomeHeader></HomeHeader>
+        <HomeHeader/>
         <ScreenBody activity={translations.investments[lang]}>
           {isModalVisible && (
             <Modal
