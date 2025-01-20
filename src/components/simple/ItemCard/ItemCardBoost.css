@@ -1,8 +1,8 @@
-.ItemCard {
+.ItemCardBoost {
   border: 1px solid rgb(57, 57, 57);
   background: 0% 0% / cover rgb(32, 32, 32);
   padding: 10px;
-  height: 22vh;
+  height: 32vh;
  
   display: flex;
   flex-direction: column;  
@@ -18,7 +18,7 @@
   
 }
 
-.ItemTitle {
+.ItemTitleBoost {
   padding: 0px 5px 0px 5px;
   margin: 10px 0px -10px 0px;
   font-size: 15px;
@@ -27,12 +27,12 @@
 }
 
 
-.ItemCard img {
+.ItemCardBoost img {
   max-width: 100%;
   object-fit: contain;
 }
 
-.ItemCardAmount {
+.ItemCardAmountBoost {
   position: absolute;
   top: 0.7%;
   left: 2%;
@@ -51,14 +51,14 @@
 }
 
 
-.ItemCardParam {
+.ItemCardParamBoost {
   display: flex;
   justify-content: space-around;
   align-items: center;
   width: 100%;
 }
 
-.ItemCardParamBlock {
+.ItemCardParamBlockBoost {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -78,7 +78,7 @@
   text-transform: uppercase;
 }
 
-.ItemCardParamBlock span {
+.ItemCardParamBlockBoost span {
   position: absolute;
   left: 0;
   top: 0;
@@ -91,7 +91,7 @@
 
 
 
-.ItemCardParamBlock img {
+.ItemCardParamBlockBoost img {
   position: absolute;
   left: -6px;
   display: flex;
@@ -102,7 +102,7 @@
 
 
 
-.Button img {
+.ButtonBoost img {
   padding-bottom: 3px;
   width: 10%; /* Зависит от ширины кнопки */
   height: auto; /* Сохраняет пропорции */
@@ -113,7 +113,7 @@
 
 
 
-.ItemData {
+.ItemDataBoost {
  
   display: flex;
   justify-content: space-between;
@@ -127,7 +127,7 @@
 
 
 
-.ItemDetailsContainer {
+.ItemDetailsContainerBoost {
   padding-right: 13px;
   
    
@@ -141,20 +141,20 @@
   height: 100%; /* Занимает всю высоту доступного пространства */
 }
 
-.ItemCardParams {
+.ItemCardParamsBoost {
   display: flex;
   flex-direction: column;
   gap: 6px; /* Отступы между параметрами */
 }
 
-.ItemDescription {
+.ItemDescriptionBoost {
   font-family: "Anonymous pro";
   font-size: 3.4cqw;
   text-align: center;
   padding: 0 0% 0 6%;
 }
 
-.ItemCardButtons {
+.ItemCardButtonsBoost {
   
     margin-left: 13px;
     display: flex
@@ -164,25 +164,25 @@
 }
 
 /* Стили для изображения в контейнере ItemIconContainer */
-.ItemIconContainer img,
-.ItemCard img {
+.ItemIconContainerBoost img,
+.ItemCardBoost img {
   transition: all 0.3s ease;
 }
 
-/* Стили для неактивных состояний */
-.ItemCard img.inactive,
-.ItemIconContainer img.inactive {
-  filter: grayscale(100%) opacity(0.5); /* Обезцвечивание и полупрозрачность */
+Стили для неактивных состояний
+.ItemCardBoost img.inactive,
+.ItemIconContainerBoost img.inactive {
+  filter: grayscale(0%) opacity(1); /* Обезцвечивание и полупрозрачность */
 }
 
-.inactive {
+.inactiveBoost {
   filter: grayscale(100%) opacity(0.5);
 }
 
 
 
 /* Чтобы изображение оставалось поверх сетки */
-.ItemIconContainer img {
+.ItemIconContainerBoost img {
   position: relative; 
   z-index: 1; 
   top: 14%;
@@ -193,7 +193,7 @@
 }
 
 
-.ItemIconContainer {
+.ItemIconContainerBoost {
   overflow: hidden;
   border-bottom: 1px solid rgba(117, 117, 117, 0.23);
   box-shadow: rgba(0, 0, 0, 0.24) 0px 0px 8px 2px inset;
@@ -209,7 +209,7 @@
 }
 
 /* Псевдоэлемент для градиента */
-.ItemIconContainer::before {
+.ItemIconContainerBoost::before {
   content: "";
   position: absolute;
   top: 0;

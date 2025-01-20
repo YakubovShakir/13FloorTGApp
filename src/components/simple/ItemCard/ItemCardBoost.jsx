@@ -1,4 +1,4 @@
-import "./ItemCard.css";
+import "./ItemCardBoost.css";
 import { motion } from "framer-motion";
 import Button from "../Button/Button";
 import { useEffect, useState } from "react";
@@ -44,49 +44,49 @@ const isImageGrayscale = !isAnyButtonActive; // Если кнопка неакт
       initial={{ opacity: 0, y: 100 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.15 * (ItemIndex + 1) }}
-      className="ItemCard"
+      className="ItemCardBoost"
        // Применяем обводку в зависимости от состояния
     >
       {ItemAmount && (
-        <div className="ItemCardAmount" style={{ color: 'white' }}>{ItemAmount}</div>
+        <div className="ItemCardAmountBoost" style={{ color: 'white' }}>{ItemAmount}</div>
       )}
 
-      <div className="ItemData">
-        <div className="WireframeGrid"></div> {/* Добавлено сюда */}
+      <div className="ItemDataBoost">
+        <div className="WireframeGridBoost"></div> {/* Добавлено сюда */}
         {/* ItemIcon Section */}
-        <div className="ItemIconContainer"
+        <div className="ItemIconContainerBoost"
         style={{ border: borderStyle, backgroundImage: backgroundImageStyle }}
         >
           {/* {ItemTitle Section} */}
-          <div className="ItemTitle">{ItemTitle}</div>
+          <div className="ItemTitleBoost">{ItemTitle}</div>
           <img
             loading="lazy"
             src={ItemIcon}
             alt="ItemIcon"
             className={isImageGrayscale ? 'inactive' : ''}  // Применяем 'inactive' если кнопка неактивна
           />
-          <div className="ItemTitle" style={{ paddingTop: 8 }}>{ItemBottomAmount}</div>
+          <div className="ItemTitleBoost" style={{ paddingTop: 8 }}>{ItemBottomAmount}</div>
         </div>
 
         {/* Right Section: ItemParams + ItemButtons */}
-        <div className="ItemDetailsContainer"
+        <div className="ItemDetailsContainerBoost"
         style={{ border: borderStyle,backgroundColor: backgroundColor }}
 
         
         >
           
           {/* ItemParams Section */}
-          <div className="ItemCardParams">
+          <div className="ItemCardParamsBoost">
             {ItemDescription && (
-              <span className="ItemDescription">
+              <span className="ItemDescriptionBoost">
                 {ItemDescription}
               </span>
             )}
             {ItemParamsBlocks?.map((param, index) => (
-              <div key={index} className="ItemCardParam">
+              <div key={index} className="ItemCardParamBoost">
                 {param.map((block, blockIndex) => (
                   <span
-                    className="ItemCardParamBlock"
+                    className="ItemCardParamBlockBoost"
                     
                     key={blockIndex}
                     style={{ width: param.length > 1 ? "50%" : "100%", marginTop: 5 , backgroundColor: backgroundColor}}
@@ -111,7 +111,7 @@ const isImageGrayscale = !isAnyButtonActive; // Если кнопка неакт
           </div>
 
           {/* ItemButtons Section */}
-          <div className="ItemCardButtons">
+          <div className="ItemCardButtonsBoost">
             {ItemButtons.map((ItemButton, index) => (
               <Button
                 key={index}

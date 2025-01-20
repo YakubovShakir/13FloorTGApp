@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react"
 import ScreenContainer from "../../../components/section/ScreenContainer/ScreenContainer"
 import Assets from "../../../assets"
-import ItemCard from "../../../components/simple/ItemCard/ItemCard"
+import ItemCard from "../../../components/simple/ItemCard/ItemCardBoost"
 import sleepIcon from "./../../../assets/IMG/icons/sleepIcon.png"
 import { instance } from "../../../services/instance"
 import {
