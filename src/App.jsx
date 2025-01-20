@@ -15,6 +15,7 @@ import InvestmentScreen from "./screens/Investment/InvestmentScreen";
 import { SettingsProvider } from "./hooks";
 import Learning from "./screens/Learning/Learning";
 import BoostTab from "./screens/CareScreen/tabs/BoostTab";
+import { TonConnectUIProvider } from "@tonconnect/ui-react";
 
 const BlockerMessage = () => (
   <div style={{
@@ -98,6 +99,7 @@ function App() {
   
   return (
     // <TelegramPlatformCheck>
+    <TonConnectUIProvider manifestUrl="https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/tonconnect-manifest.json">
      <SettingsProvider>
       <MemoryRouter>
           <Routes>
@@ -116,7 +118,7 @@ function App() {
           </Routes>
         </MemoryRouter>
      </SettingsProvider>
-    // </TelegramPlatformCheck>
+    </TonConnectUIProvider>
   )
 }
 

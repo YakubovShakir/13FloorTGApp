@@ -165,3 +165,55 @@ export const claimTask = async (userId, id) => {
   })
   return data
 }
+
+export const WalletConnectionErrors = {
+  BadRequest: 'BAD_REQUEST',
+  Forbidden: 'FORBIDDEN',
+  InternalServerError: 'ISE'
+}
+
+export const saveUserWallet = async (userId, tonWalletAddress) => {
+  try {
+    await instance.post(`/users/${userId}/wallet/connect`, {
+      tonWalletAddress,
+    });
+  } catch (error) {
+    // Handle different error codes
+    if (error.response) {
+      const { status, data } = error.response;
+
+      switch (status) {
+        case 400: // Bad Request
+          return WalletConnectionErrors.BadRequest
+        case 403: // Forbidden
+          return WalletConnectionErrors.Forbidden
+        default:
+          return WalletConnectionErrors.InternalServerError
+      }
+    } else {
+      return WalletConnectionErrors.InternalServerError
+    }
+  }
+};
+
+export const disconnectUserWallet = async (userId) => {
+  try {
+    await instance.post(`/users/${userId}/wallet/disconnect`);
+  } catch (error) {
+    // Handle different error codes
+    if (error.response) {
+      const { status } = error.response;
+
+      switch (status) {
+        case 400: // Bad Request
+          return WalletConnectionErrors.BadRequest
+        case 403: // Forbidden
+          return WalletConnectionErrors.Forbidden
+        default:
+          return WalletConnectionErrors.InternalServerError
+      }
+    } else {
+      return WalletConnectionErrors.InternalServerError
+    }
+  }
+}

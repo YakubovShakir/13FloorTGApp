@@ -103,53 +103,6 @@ const { lang } = useSettingsProvider()
     setActiveProcess(null)
   }
 
-  const getItemSleepParams = () => {
-    const userSleepDuration = levels?.find(
-      (level) => level?.level === userParameters?.level
-    )?.sleep_duration
-    return [
-      [
-        {
-          icon: Icons.clock,
-          value:
-            activeProcess?.type === "sleep" && (activeProcess?.duration || activeProcess?.seconds)
-              ? formatTime(activeProcess?.duration, activeProcess?.seconds)
-              : userSleepDuration,
-          fillPercent:
-            activeProcess?.type === "sleep" && activeProcess?.duration
-              ? countPercentage(
-                  activeProcess?.duration * 60,
-                  userSleepDuration * 60
-                )
-              : null,
-        },
-      ],
-      [
-        {
-          icon: Icons.boosterArrow,
-          value: "Усилений нет",
-        },
-      ],
-    ]
-  }
-
-  const getItemSleepButton = () => {
-    return [
-      {
-        text: activeProcess?.type === "sleep" ? translations.inProgress[lang] : translations.start[lang],
-        active: true,
-        bg:
-          activeProcess?.type === "sleep"
-            ? "linear-gradient(90deg, rgba(233,27,27,1) 0%, rgba(119,1,1,1) 100%)"
-            : "linear-gradient(180deg, rgba(233,78,27,1) 0%, rgba(243,117,0,1) 100%)",
-        shadowColor: "#AF370F",
-        onClick:
-          activeProcess?.type === "sleep"
-            ? () => handleStopSleep()
-            : () => handleStartSleep(),
-      },
-    ]
-  }
   const getItemBoostParams = (boost) => {
     const boostDuration = boost?.duration
     return [
