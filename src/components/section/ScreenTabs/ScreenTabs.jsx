@@ -16,7 +16,7 @@ const ScreenTabs = ({ tabs, initialTab = 0 }) => {
           onClick={() => handleSwitchTab(index, tab.callback)}
           key={index}
           style={{
-            width: `${100 / tabs.length - 3}%`,
+            width: `${100 / tabs.length - 0}%`,
             alignItems: "center",
             display: "flex",
             flexDirection: "column", // Располагаем текст вертикально

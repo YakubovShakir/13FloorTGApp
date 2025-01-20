@@ -1,10 +1,15 @@
 .ScreenTabs {
+  box-shadow: 0px 0px 35px 7px rgb(0 0 0);
+  position: fixed;
   display: flex;
   justify-content: center;
-  width: 100%;
+  margin: 15px 17px 5px 17px;
   max-height: 8%;
-  border-bottom: 1px solid #f37500;
-  z-index: 0;
+  border: 2px solid rgb(57, 57, 57);
+  background-color: #000000;
+  border-radius: 8px;
+  z-index: 1;
+  width: 91%;
 }
 
 .ScreenTab img {
@@ -15,76 +20,49 @@
   transition: filter 1s;
 }
 
-.tab-label-active{
-  margin-top: 10px;
+.tab-label-active {
+  
   font-size: 17px;
-}
-.tab-label{
-  margin-top: 10px;
-  font-size: 17px;
-  color: #ff8800;
-  margin-top: 10px;
 }
 
+.tab-label {
+  
+  font-size: 17px;
+  
+  
+}
 
 .ScreenTab {
-  
-  
-  
-  
   text-align: center;
   padding: 15px 0;
-  
-  /* Эффект 3D-преобразования для вкладки */
-  perspective: 200px;
   display: inline-block;
-  
-  position: relative; /* для псевдо-элемента */
-}
-
-.ScreenTab:before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  
-  transform: rotateX(40deg); /* 3D-преобразование */
-  transform-origin: 50% 100%;
-  border-radius: 10px 10px 0 0;
-  background-color: rgb(243 117 0 / 18%);
-  z-index: -1;
+  position: relative;
 }
 
 .ScreenActiveTab {
-  border-bottom: none;
-  z-index: 2;
-  
-  position: relative;
-  
+  box-shadow: 0px 0px 0px 3px #ff8800;
+  margin: -2px 0px -2px 0px;
+  border: none;
+  border-radius: 12px; /* Скругленные углы */
+  background-color: #ff8800; /* Цвет активной вкладки */
+  color: white; /* Текст белым */
   font-weight: bold;
   font-size: 14px;
-  
-  padding: 10px 20px;
+  padding: 2px 20px;
   text-align: center;
-  
-  
+  position: relative;
+  z-index: 2;
 }
 
-.ScreenActiveTab:before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+.ScreenTab:not(.ScreenActiveTab) {
   
-  transform: rotateX(40deg); /* 3D-преобразование */
-  transform-origin: 50% 100%;
-  border-radius: 10px 10px 0 0;
-  background-color: #ff8800; /* Цвет фона активной вкладки */
-  z-index: -1;
+  color: rgb(116, 116, 116); /* Цвет текста неактивной вкладки */
+  border-radius: 12px; /* Скругленные углы */
+  font-weight: normal;
+  font-size: 14px;
+  padding: 2px 20px;
+  text-align: center;
+  
 }
 
 .ScreenActiveTab::after {
@@ -94,6 +72,5 @@
   left: 0;
   width: 100%;
   height: 100%;
-  
   z-index: -1;
 }

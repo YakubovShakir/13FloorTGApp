@@ -12,7 +12,7 @@ const ScreenBody = ({ children, activity }) => {
         <div className="ScreenBody" style={{ 
             display: 'flex', 
             flexDirection: 'column',
-            height: '110vh',
+            height: '100vh',
             overflow: 'hidden',
             background: 'black'
         }}>
