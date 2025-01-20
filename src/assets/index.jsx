@@ -19,8 +19,8 @@ import cancel from "./IMG/icons/cancel.png"
 import respect from "./IMG/icons/respect.png"
 import book from "./IMG/icons/book.png"
 import phone from "./IMG/icons/phone.png"
-import missingGirl from './IMG/missingGirl.png'
-import missingMan from './IMG/missingMan.png'
+import missingGirl from './IMG/missingGirl.webp'
+import missingMan from './IMG/missingMan.webp'
 import squareButtonShadow from "./IMG/layers/squareButtonShadow.png"
 import winter from './IMG/bg/winter.gif'
 
@@ -122,12 +122,12 @@ import jacket from "./IMG/icons/jacket.png"
 import filter from "./IMG/icons/filter.png"
 import jeans from "./IMG/icons/jeans.png"
 
-import asianMan from "./IMG/avatars/mans/asian.png"
-import euMan from "./IMG/avatars/mans/europe.png"
-import blackMan from "./IMG/avatars/mans/afro.png"
-import euGirl from "./IMG/avatars/girls/europe.png"
-import asianGirl from "./IMG/avatars/girls/asian.png"
-import blackGirl from "./IMG/avatars/girls/afro.png"
+import asianMan from "./IMG/avatars/mans/asian.webp"
+import euMan from "./IMG/avatars/mans/europe.webp"
+import blackMan from "./IMG/avatars/mans/afro.webp"
+import euGirl from "./IMG/avatars/girls/europe.webp"
+import asianGirl from "./IMG/avatars/girls/asian.webp"
+import blackGirl from "./IMG/avatars/girls/afro.webp"
 
 import blackSkin from "./IMG/avatars/girls/clothes/top/blackSkin.png"
 import miniSkirt from "./IMG/avatars/girls/clothes/legs/mini.png"
