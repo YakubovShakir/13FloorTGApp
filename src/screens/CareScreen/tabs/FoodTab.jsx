@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
 import Assets from "../../../assets"
-import ScreenContainer from "../../../components/section/ScreenContainer/ScreenContainer"
+import ScreenContainer from "../../../components/section/ScreenContainer/ScreenContainerFood"
 import ItemCard from "../../../components/simple/ItemCard/ItemCard"
 import { getFoods } from "../../../services/food/food"
 import { getProcesses, startProcess } from "../../../services/process/process"
