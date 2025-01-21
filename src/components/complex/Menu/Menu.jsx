@@ -121,7 +121,7 @@ const Menu = ({ screenMenu, activeName, noButton }) => {
         }
       },
       notify: false,
-      icon: Icons.energyUp,
+      icon: Icons.donatIcon,
       title: translations.boost[lang],
     }
   }

@@ -35,13 +35,15 @@ export function SettingsProvider({ children }) {
   });
 
   const [lang, setLang] = useState(() => {
-    const stored = localStorage.getItem('lang')
-    if(!stored) {
-      localStorage.setItem('lang', 'ru');
-      return 'ru'
-    } else {
-      return 'en'
+    const stored = localStorage.getItem('langc');
+    if (!stored) {
+      // Get Telegram user's language code
+      const userLang = window.Telegram?.WebApp?.initDataUnsafe?.user?.language_code === 'ru' ? 'ru' : 'en';
+      // Store it in localStorage
+      localStorage.setItem('langc', userLang);
+      return userLang;
     }
+    return stored;
   })
 
   // Set initial volume

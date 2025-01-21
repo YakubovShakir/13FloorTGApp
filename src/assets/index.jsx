@@ -100,6 +100,9 @@ import barber from "./IMG/icons/barber.png"
 import calc from "./IMG/icons/calc.png"
 import coffeeShop from "./IMG/icons/coffeeShop.png"
 
+import levelIcon from './IMG/icons/lvl.png'
+import donatIcon from './IMG/icons/donatshop.png'
+
 import cover from "./IMG/layers/cover.png"
 import sleep from "./IMG/icons/sleepIcon.png"
 
@@ -260,6 +263,8 @@ const Assets = {
       goldenCat,
       patCat,
     },
+    levelIcon,
+    donatIcon,
     investManager,
     maleWAfroIcon,
     maleWAsianIcon,

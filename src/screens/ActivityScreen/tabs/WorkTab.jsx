@@ -82,9 +82,12 @@ export const WorkTab = ({
     },
     respectRequired: {
       ru: 'Минимальный Респект',
-      en: 'Minimum Respect'
+      en: 'Minimum respect'
     },
-   
+    requiredLevel: {
+      ru: 'Необходимый уровень',
+      en: 'Required level'
+    }
   }
 
   const [skills, setSkills] = useState(null) // List of skills
@@ -123,7 +126,7 @@ export const WorkTab = ({
       requiredRespect &&
       requiredSkill &&
       isNextLevelWork &&
-      enoughBalance
+      enoughBalance && userParameters.level >= work.work_id
 
     const data = {
       type: "work",
@@ -179,6 +182,16 @@ export const WorkTab = ({
           text: translations.energyDecrease[lang],
           value: (work?.energy_cost_in_hour) + "/" + translations.hour[lang],
         },
+        {
+          icon: Icons.levelIcon,
+          text: translations.requiredLevel[lang],
+          value: work?.work_id,
+          fillPercent: "100%",
+          fillBackground:
+            userParameters?.level < work?.work_id
+              ? "#4E1010" // red
+              : "#0E3228", // green
+        }
       ].filter(Boolean),
       buttons: [
         {
