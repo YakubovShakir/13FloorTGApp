@@ -732,7 +732,7 @@ const CoinsTab = ({ userId }) => {
       >
         <div
           style={{
-            zIndex: "3",
+            zIndex: "5",
             position:" fixed",
             width: "95vw",
             display: "flex",

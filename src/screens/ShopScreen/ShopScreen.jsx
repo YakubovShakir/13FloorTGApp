@@ -1,7 +1,7 @@
 import { useEffect, useState, useContext } from "react"
 import HomeHeader from "../../components/complex/HomeHeader/HomeHeader"
 import Screen from "../../components/section/Screen/Screen"
-import ScreenBody from "../../components/section/ScreenBody/ScreenBody"
+import ScreenBody from "../../components/section/ScreenBody/ScreenBodyCollection"
 import ScreenTabs from "../../components/section/ScreenTabs/ScreenTabs"
 import useTelegram from "../../hooks/useTelegram"
 import { useNavigate } from "react-router-dom"
