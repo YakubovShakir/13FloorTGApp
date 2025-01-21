@@ -281,7 +281,7 @@ export const WorkTab = ({
             ? "rgb(18, 18, 18)"
             : "rgb(18, 18, 18)",
           shadowColor: activeWork ? "rgb(32, 32, 32)" : "rgb(32, 32, 32)",
-          borderColor: activeWork ? "rgb(73 73 73)" : "rgb(255, 0, 0)",
+          borderColor: activeWork ? "rgb(73 73 73)" : "rgb(73 73 73)",
           border: `1px solid rgb(32, 32, 32)`,
           color:'rgb(0, 255, 183)',
           ownColor:'rgb(255, 118, 0)',
