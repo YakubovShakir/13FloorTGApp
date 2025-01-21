@@ -297,10 +297,7 @@ export const WorkTab = ({
                   navigation.navigate('/'); // Переход на основной экран сразу после начала работы
                 },
           icon: buyStatus && Icons.balance,
-          active: true,
-          
-          
-         
+          active: Math.floor(userParameters?.energy) > 0,
         }
       ]
       

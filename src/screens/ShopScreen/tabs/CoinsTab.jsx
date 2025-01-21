@@ -5,7 +5,7 @@ import { getShopItems } from "../../../services/user/user"
 import Button from "../../../components/simple/Button/Button"
 import Modal from "../../../components/complex/Modals/Modal/Modal"
 import { motion } from "framer-motion"
-import UserContext from "../../../UserContext"
+import UserContext, { useUser } from "../../../UserContext"
 import FullScreenSpinner from "../../Home/FullScreenSpinner"
 import FilterModal from "../../../components/complex/FilterModal/FilterModal"
 import { SquareButton } from "../../../components/simple/SquareButton/SquareButton"
@@ -637,6 +637,8 @@ const CoinsTab = ({ userId }) => {
     }
   }
 
+  const { refreshData } = useUser()
+
   const handleStarsBuy = async (item) => {
     try {
       setIsLoading(true)
@@ -652,6 +654,7 @@ const CoinsTab = ({ userId }) => {
         if(status === 'pending') {}
         if(status === 'failed') {}
       })
+      await refreshData()
     } catch (err) {
       console.error(err)
     } finally {
@@ -663,6 +666,7 @@ const CoinsTab = ({ userId }) => {
     try {
       setIsLoading(true)
       await buyItemsForCoins(userId, item.id, item.productType)
+      await refreshData()
       getShopItems(userId)
       .then((data) => {
         // TODO: localize

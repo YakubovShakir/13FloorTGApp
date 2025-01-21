@@ -38,8 +38,8 @@ const Menu = ({ screenMenu, activeName, noButton }) => {
       en: "Start",
     },
     boost: {
-      ru: "Спиды",
-      en: 'Amphetamines'
+      ru: "Бусты",
+      en: 'Boosts'
     }
   }
 
@@ -121,7 +121,7 @@ const Menu = ({ screenMenu, activeName, noButton }) => {
         }
       },
       notify: false,
-      icon: Icons.tasks,
+      icon: Icons.energyUp,
       title: translations.boost[lang],
     }
   }

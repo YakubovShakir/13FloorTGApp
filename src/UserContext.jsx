@@ -109,7 +109,7 @@ export const UserProvider = ({ children }) => {
   const debouncedFetchParams = useMemo(
     () => debounce(
       (isInitial, signal) => fetchParams(isInitial, signal),
-      1000,
+      750,
       { leading: true, trailing: false }
     ),
     [fetchParams]
@@ -146,6 +146,7 @@ export const UserProvider = ({ children }) => {
     }
   }), [state, userId, debouncedFetchParams, updateState, fetchParams])
 
+  //!!!TODO: ERROR SCREEN WITH RETRY
   if (state.error) {
     return (
       <div className="error-container">

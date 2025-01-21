@@ -156,60 +156,6 @@ const BoostTab = ({ userId, userParameters, setUserParameters }) => {
     ]
   }
 
-  const getItemBoostParams = (boost) => {
-    const boostDuration = boost?.duration
-    return [
-      [
-        boostDuration && {
-          icon: Icons.clock,
-          value: boostDuration,
-        },
-      ].filter(Boolean),
-    ]
-  }
-
-  const handleBuyBoost = async (boostId) => {
-    await buyBoost(userId, boostId)
-    const userParameters = await getParameters(userId)
-
-    setUserParameters(userParameters.parameters)
-    const userBoosts = await getUserBoosts(userId)
-    setUserBoosts(userBoosts)
-  }
-
-  const handleUseBoost = async (boostId) => {
-    await useBoost(userId,boostId)
-    const userBoosts = await getUserBoosts(userId)
-    const parameters = await getParameters(userId)
-
-    setUserBoosts(userBoosts)
-    setUserParameters(parameters.parameters)
-  }
-  
-  const checkUserHaveBoost = (boostId) => {
-    return userBoosts?.find((boost) => boost?.boost_id === boostId) || false
-  }
-
-  const getUserBoostAmount = (boostId) => userBoosts?.filter((boost) => boost?.boost_id === boostId)?.length
-
-  const getItemBoostButton = (boost) => { 
-    const starsPrice =  boost.stars_price
-    const buyBoostStatus = userParameters?.coins >= starsPrice
-    const useBoostStatus = checkUserHaveBoost(boost?.boost_id)
-    return [
-      {
-        text: boost.stars_price,
-        active: buyBoostStatus,
-        onClick: buyBoostStatus && (() => handleBuyBoost(boost?.boost_id)),
-        icon: Icons.starsIcon,
-      },
-      {
-        text: "Принять",
-        active: useBoostStatus,
-        onClick: useBoostStatus && (()=> handleUseBoost(boost?.boost_id))
-      },
-    ]
-  }
 
   useEffect(() => {
     getBoosts().then((r) => setBoosts(r))
@@ -217,22 +163,6 @@ const BoostTab = ({ userId, userParameters, setUserParameters }) => {
     getLevels().then((levels) => setLevels(levels))
     getUserBoosts(userId).then((boosts) => setUserBoosts(boosts) )
   }, [])
-
-  const handleStarsBuy = async (item) => {
-    try {
-      const response = await instance.post('/users/request-stars-invoice-link', {
-          productType: 'clothes',
-          id: item.id
-      }).then(res => res.data.invoiceLink)
-      window.Telegram?.WebApp.openInvoice(response, (status) => {
-        setIsLoading(true)
-        if(status === "paid") {}
-        setIsLoading(false)
-      })
-    } catch (err) {
-      console.error(err)
-    }
-  }
 
   useEffect(() => {
     if (activeProcess?.type === "sleep") {

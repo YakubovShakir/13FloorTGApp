@@ -11,6 +11,7 @@ import "swiper/css/pagination";
 import UserContext from "../../../UserContext";
 import { useSettingsProvider } from "../../../hooks";
 import { THEME, useTonConnectModal, useTonConnectUI, useTonWallet } from '@tonconnect/ui-react';
+import { useTonAddress } from "@tonconnect/ui-react";
 
 const walletTranslations = {
   telegram: {
@@ -32,8 +33,9 @@ const TelegramWalletConnection = () => {
   const [isConnected, setIsConnected] = useState(false);
   const { lang } = useSettingsProvider();
   const [tonConnectUI, setOptions] = useTonConnectUI()
-  const { userId } = useContext(UserContext)
+  const { userId, userParameters } = useContext(UserContext)
   const [wallet, setWallet] = useState(useTonWallet())
+  const [friendlyAddress, setFriendlyAddress] = useState(useTonAddress(true))
   const [isDisconnectModalVisible, setIsDisconnectModalVisible] = useState(false)
 
   tonConnectUI.uiOptions = {
@@ -45,6 +47,13 @@ const TelegramWalletConnection = () => {
   
   // tonConnectUI.disconnect()
 
+  useEffect(() => {
+    if(wallet !== null && userParameters.hasWallet === false) {
+      saveUserWallet(userId, wallet)
+    }
+  }, [userParameters])
+
+  // tonConnectUI.disconnect()
   useEffect(() =>
     tonConnectUI.onStatusChange(async w => {
       if(w) {
@@ -63,11 +72,9 @@ const TelegramWalletConnection = () => {
     }), [tonConnectUI, userId]);
 
   const { open } = useTonConnectModal()
-
   const getButtonText = () => {
-    if (isConnecting) return walletTranslations.connecting[lang];
-    if (isConnected) return walletTranslations.connected[lang];
-    return walletTranslations.telegram[lang];
+    if (!wallet) return walletTranslations.telegram[lang];
+    return friendlyAddress.slice(0,4) + '...' + friendlyAddress.slice(-4)
   };
 
   // console.log(wallet?.account.address)
@@ -140,7 +147,7 @@ const Bar = ({ title, onClick, iconLeft, iconRight, isChecked }) => {
   };
 
   return (
-    <div style={styles.container}>
+    <div style={styles.container} onClick={handleClick}>
       <div style={styles.icon}>
         {iconLeft && <img style={styles.icon} src={iconLeft} />}
       </div>
@@ -160,7 +167,6 @@ const Bar = ({ title, onClick, iconLeft, iconRight, isChecked }) => {
             alignItems: 'center',
             padding: 1,
           }}
-          onClick={handleClick}
         >
           {getCorrectIsChecked() === true ? <img style={styles.icon} src={Assets.Icons.checkboxChecked} /> : null}
         </div>
@@ -168,8 +174,6 @@ const Bar = ({ title, onClick, iconLeft, iconRight, isChecked }) => {
     </div>
   );
 }
-
-
 
 export const SettingsModal = ({
   baseStyles,
@@ -433,7 +437,6 @@ const HomeHeader = ({ screenHeader }) => {
   const [activeProcess, setActiveProcess] = useState();
   const { Icons } = Assets;
 
-
   const handleSettingsPress = () => {
     setIsSettingsShown(!isSettingsShown)
   }
@@ -518,19 +521,17 @@ const HomeHeader = ({ screenHeader }) => {
             indicators={[
               {
                 icon: Icons.energy,
-                percentFill:
-                  (userParameters?.energy / userParameters?.energy_capacity) *
-                  100,
+                percentFill: Math.floor((userParameters?.energy / userParameters?.energy_capacity) * 100),
                 width: "30%",
               },
               {
                 icon: Icons.hungry,
-                percentFill: userParameters?.hungry,
+                percentFill: Math.floor(userParameters?.hungry),
                 width: "30%",
               },
               {
                 icon: Icons.happiness,
-                percentFill: userParameters?.mood,
+                percentFill: Math.floor(userParameters?.mood),
                 width: "30%",
               },
             ]}

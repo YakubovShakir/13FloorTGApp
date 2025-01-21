@@ -9,7 +9,7 @@ import ScreenContainer from "../../components/section/ScreenContainer/ScreenCont
 import useTelegram from "../../hooks/useTelegram"
 import { useNavigate, useParams } from "react-router-dom"
 import ItemCard from "../../components/simple/ItemCard/ItemCard"
-import UserContext from "../../UserContext"
+import UserContext, { useUser } from "../../UserContext"
 import Button from "../../components/simple/Button/Button"
 import { motion } from "framer-motion"
 import moment from "moment-timezone"
@@ -461,6 +461,8 @@ const useInvestmentData = (userId) => {
   const [error, setError] = useState(null)
   const pollingRef = useRef(null)
 
+  const { refreshData } = useUser()
+
   const fetchInvestments = useCallback(async () => {
     try {
       const res = await getUserInvestments(userId)
@@ -482,6 +484,7 @@ const useInvestmentData = (userId) => {
 
     try {
       await buyInvestmentLevel(userId, investment_type)
+      await refreshData()
       // Fetch real data after successful claim
       await fetchInvestments()
     } catch (err) {
@@ -500,6 +503,7 @@ const useInvestmentData = (userId) => {
 
     try {
       await claimInvestment(userId, investment_type)
+      await refreshData()
       // Fetch real data after successful claim
       await fetchInvestments()
     } catch (err) {

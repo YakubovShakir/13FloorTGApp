@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useRef, useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./ProcessProgressBar.css";
 import Assets from "../../../assets";
@@ -15,15 +15,16 @@ const ProcessProgressBar = ({
   rate,
 }) => {
   const navigate = useNavigate();
-  const [percentage, setPercentage] = useState(100);
+  const [percentage, setPercentage] = useState(inputPercentage || 100);
   const [labelLeft, setLabelLeft] = useState(null);
   const [labelRight, setLabelRight] = useState(null);
   const [iconLeft, setIconLeft] = useState(null);
   const [iconRight, setIconRight] = useState(null);
-  const [showModal, setShowModal] = useState(false); // Состояние для отображения модального окна
+  const [showModal, setShowModal] = useState(false);
+  const timerRef = useRef(null);
 
-  const { userId, fetchParams } = useContext(UserContext)
-  const { lang } = useSettingsProvider()
+  const { userId } = useContext(UserContext);
+  const { lang } = useSettingsProvider();
 
   const translations = {
     confirm: {
@@ -46,7 +47,7 @@ const ProcessProgressBar = ({
       ru: 'Продолжительный сон',
       en: 'Long Sleep'
     }
-  }
+  };
 
   const getLabels = async (processType, rate) => {
     const works = await getWorks();
@@ -63,63 +64,72 @@ const ProcessProgressBar = ({
   const getIcons = async (processType) => {
     const typeToIconsMap = {
       work: [
-        // <img height={45} width={45} src={works?.find((work) => work?.work_id === activeProcess?.type_id)?.link} />,
-        <img height={20} width={20} src={Assets.Icons.balance} />,
+        <img height={20} width={20} src={Assets.Icons.balance} key="balance" />,
       ],
       training: [
-        // <img
-        //   height={50}
-        //   width={50}
-        //   src={Assets.Icons.training}
-        //   style={{ marginTop: "1px", marginLeft: "7px" }}
-        // />,
-        <img height={20} width={20} src={Assets.Icons.clock} />,
+        <img height={20} width={20} src={Assets.Icons.clock} key="clock-training" />,
       ],
       sleep: [
-        // <img
-        //   height={60}
-        //   width={60}
-        //   src={Assets.Icons.sleep}
-        //   style={{ marginTop: "-1px", marginLeft: "0px" }}
-        // />,
-        <img height={20} width={20} src={Assets.Icons.clock} />,
+        <img height={20} width={20} src={Assets.Icons.clock} key="clock-sleep" />,
       ],
     };
     return typeToIconsMap[processType];
   };
 
-  const updatePercentage = () => {
-    if (percentage === 0) setPercentage(100);
-    else {
-      setPercentage((prevPercentage) => prevPercentage - 2);
-    }
-  };
-
+  // Single responsibility for progress updates
   useEffect(() => {
-    if (!inputPercentage) {
-      updatePercentage();
+    if (inputPercentage !== null) {
+      setPercentage(inputPercentage);
+      return; // Don't start the timer if we have an input percentage
     }
-  }, []);
 
+    const updateProgress = () => {
+      setPercentage(prev => {
+        if (prev <= 0) return 100;
+        return prev - 2;
+      });
+    };
+
+    // Clear any existing timer
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+    }
+
+    // Start new timer
+    timerRef.current = setInterval(updateProgress, 1000);
+
+    // Cleanup
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+      }
+    };
+  }, [inputPercentage]);
+
+  // Separate effect for loading labels and icons
   useEffect(() => {
     if (activeProcess) {
-      getIcons(activeProcess?.type).then(([left, right]) => {
-        setIconLeft(left);
-        setIconRight(right);
-      });
-      getLabels(activeProcess?.type, rate).then(([left, right]) => {
-        setLabelLeft(left);
-        setLabelRight(right);
-      });
+      const loadData = async () => {
+        try {
+          const [icons, labels] = await Promise.all([
+            getIcons(activeProcess.type),
+            getLabels(activeProcess.type, rate)
+          ]);
+
+          setIconLeft(icons[0]);
+          setIconRight(icons[1]);
+          setLabelLeft(labels[0]);
+          setLabelRight(labels[1]);
+        } catch (error) {
+          console.error('Error loading progress bar data:', error);
+        }
+      };
+
+      loadData();
     }
-  }, [activeProcess, rate]);
+  }, [activeProcess, rate, lang]);
 
-  useEffect(() => {
-    if (!inputPercentage) setTimeout(() => updatePercentage(), 1000);
-  }, [percentage]);
-
-  const currentPercentage = inputPercentage || percentage;
-  const displayPercentage = reverse ? 100 - currentPercentage : currentPercentage;
+  const displayPercentage = reverse ? 100 - percentage : percentage;
 
   const handleCloseModal = () => {
     setShowModal(false);
@@ -131,10 +141,9 @@ const ProcessProgressBar = ({
       window.location.href = window.location.origin;
     } catch (error) {
       console.error('Error stopping process:', error);
-      // It's crucial to navigate even on error to prevent the user from being stuck
       navigate('/');
     } finally {
-        setShowModal(false); // Close modal in finally to ensure it closes regardless of success or failure
+      setShowModal(false);
     }
   };
 
