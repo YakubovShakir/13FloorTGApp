@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react"
-import ScreenContainer from "../../../components/section/ScreenContainer/ScreenContainer"
+import ScreenContainer from "../../../components/section/ScreenContainer/ScreenContainerBoost"
+
 import Assets from "../../../assets"
 import ItemCard from "../../../components/simple/ItemCard/ItemCardBoost"
 import sleepIcon from "./../../../assets/IMG/icons/sleepIcon.png"
@@ -19,6 +20,8 @@ import countPercentage from "../../../utils/countPercentage"
 import { useSettingsProvider } from "../../../hooks"
 import HomeHeader from "../../../components/complex/HomeHeader/HomeHeader"
 import ScreenBody from "../../../components/section/ScreenBody/ScreenBodyFood"
+
+
 
 const BoostTab = ({ userId, userParameters, setUserParameters }) => {
   const { lang } = useSettingsProvider()

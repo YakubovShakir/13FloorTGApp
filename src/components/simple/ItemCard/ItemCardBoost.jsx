@@ -52,6 +52,9 @@ const isImageGrayscale = !isAnyButtonActive; // Если кнопка неакт
       )}
 
       <div className="ItemDataBoost">
+
+      <div className="ItemDataPickandDescrip">
+
         <div className="WireframeGridBoost"></div> {/* Добавлено сюда */}
         {/* ItemIcon Section */}
         <div className="ItemIconContainerBoost"
@@ -68,6 +71,17 @@ const isImageGrayscale = !isAnyButtonActive; // Если кнопка неакт
           <div className="ItemTitleBoost" style={{ paddingTop: 8 }}>{ItemBottomAmount}</div>
         </div>
 
+
+        {ItemDescription && (
+              <span className="ItemDescriptionBoost">
+                {ItemDescription}
+              </span>
+            )}
+
+        </div>
+
+
+
         {/* Right Section: ItemParams + ItemButtons */}
         <div className="ItemDetailsContainerBoost"
         style={{ border: borderStyle,backgroundColor: backgroundColor }}
@@ -77,11 +91,7 @@ const isImageGrayscale = !isAnyButtonActive; // Если кнопка неакт
           
           {/* ItemParams Section */}
           <div className="ItemCardParamsBoost">
-            {ItemDescription && (
-              <span className="ItemDescriptionBoost">
-                {ItemDescription}
-              </span>
-            )}
+           
             {ItemParamsBlocks?.map((param, index) => (
               <div key={index} className="ItemCardParamBoost">
                 {param.map((block, blockIndex) => (

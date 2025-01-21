@@ -2,7 +2,7 @@
   border: 1px solid rgb(57, 57, 57);
   background: 0% 0% / cover rgb(32, 32, 32);
   padding: 10px;
-  height: 32vh;
+  /* height: 32vh; */
  
   display: flex;
   flex-direction: column;  
@@ -17,6 +17,17 @@
   text-align: center;
   
 }
+
+
+.ItemDataPickandDescrip{
+  justify-content: space-between;
+  display: flex;
+}
+
+
+
+
+
 
 .ItemTitleBoost {
   padding: 0px 5px 0px 5px;
@@ -52,6 +63,7 @@
 
 
 .ItemCardParamBoost {
+  margin-top: 5px;
   display: flex;
   justify-content: space-around;
   align-items: center;
@@ -63,7 +75,7 @@
   align-items: center;
   justify-content: center;
   height: 22px;
-  margin-left: 13px;
+  margin-left: 7px;
   border-bottom: 1px solid rgba(117, 117, 117, 0.23);
   box-shadow: rgba(0, 0, 0, 0.24) 0px 0px 8px 2px inset;
   background: rgb(18, 18, 18);
@@ -115,7 +127,7 @@
 
 .ItemDataBoost {
  
-  display: flex;
+  /* display: flex; */
   justify-content: space-between;
   align-items: flex-start;
   height: 100%;
@@ -128,15 +140,15 @@
 
 
 .ItemDetailsContainerBoost {
-  padding-right: 13px;
   
+  margin-bottom: 4px;
    
   border-radius: 7px;
   justify-content: center;
   display: flex;
   flex-direction: column;
   gap: 15px;
-  width: 60%; /* Задаем ширину */
+  /* width: 60%;  */
   
   height: 100%; /* Занимает всю высоту доступного пространства */
 }
@@ -148,18 +160,20 @@
 }
 
 .ItemDescriptionBoost {
+  display: flex;
+  align-items: center;
   font-family: "Anonymous pro";
   font-size: 3.4cqw;
   text-align: center;
-  padding: 0 0% 0 6%;
+  padding-left: 6%;
+  width: 53%;
 }
 
 .ItemCardButtonsBoost {
   
-    margin-left: 13px;
-    display: flex
-;
-    flex-direction: column;
+   
+    display: flex;
+    /* flex-direction: column; */
     gap: 17px;
 }
 
@@ -183,7 +197,7 @@
 
 /* Чтобы изображение оставалось поверх сетки */
 .ItemIconContainerBoost img {
-  padding: 9px;
+  padding: 24px 10px 1px 10px;
   align-items: center;
   justify-content: center;
   position: relative;
@@ -203,9 +217,9 @@
   overflow: hidden;
   border-bottom: 1px solid rgba(117, 117, 117, 0.23);
   box-shadow: rgba(0, 0, 0, 0.24) 0px 0px 8px 2px inset;
-    margin: 7px 7px 7px 0px;
+    
     border-radius: 7px;
-  width: 40%; /* Задаем ширину для иконки */
+  width: 47%; /* Задаем ширину для иконки */
   height: 100%;
   position: relative; /* Для корректной работы псевдоэлемента */
   z-index: 0; /* Сетка будет под изображением */
