@@ -697,7 +697,7 @@ const InvestmentScreen = () => {
 
           <h2
             style={{
-              zIndex: "9",
+              zIndex: "9999",
               position: "relative",
               fontSize: "14px",
               fontWeight: "regular",

@@ -57,19 +57,7 @@ const Menu = ({ screenMenu, activeName, noButton }) => {
       icon: Icons.hungry,
       title: translations.food[lang],
     },
-    shop: {
-      onClick: () => {
-        if (currentTab === "shop") {
-          navigate("/#")
-        } else {
-          navigate("/shop")
-          setCurrentTab("shop")
-        }
-      },
-      notify: false,
-      icon: Icons.shopIcon,
-      title: translations.shop[lang],
-    },
+   
     activity: {
       onClick: () => {
         if (currentTab === "activity") {
@@ -96,6 +84,20 @@ const Menu = ({ screenMenu, activeName, noButton }) => {
       notify: false,
       icon: Icons.contacts,
       title: translations.investment[lang],
+    },
+
+    shop: {
+      onClick: () => {
+        if (currentTab === "shop") {
+          navigate("/#")
+        } else {
+          navigate("/shop")
+          setCurrentTab("shop")
+        }
+      },
+      notify: false,
+      icon: Icons.shopIcon,
+      title: translations.shop[lang],
     },
 
     tasks: {
@@ -171,7 +173,7 @@ const Menu = ({ screenMenu, activeName, noButton }) => {
             notify={tabs[tab].notify}
             icon={tabs[tab].icon}
             title={tabs[tab].title}
-            size={45}
+            size={50}
           />
         ))}
       </div>
