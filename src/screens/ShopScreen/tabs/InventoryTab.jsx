@@ -512,7 +512,7 @@ const InventoryTab = ({ userId }) => {
       >
         <div
           style={{
-            zIndex: "3",
+            zIndex: "5",
             position:" fixed",
             width: "90vw",
             display: "flex",
