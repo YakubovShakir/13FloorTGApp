@@ -15,18 +15,18 @@ import {
 import { getSkills } from "../../../services/skill/skill"
 import { a } from "framer-motion/client"
 import { useSettingsProvider } from "../../../hooks"
+import { useUser } from "../../../UserContext"
 export const WorkTab = ({
   modalData,
   setModalData,
   setUserParameters,
   setVisibleModal,
-  userParameters,
   userId,
   borderColor,
 }) => {
 
   const { lang } = useSettingsProvider()
-
+  const { userParameters } = useUser()
   const translations = {
     start: {
       ru: 'Начать',
@@ -109,8 +109,6 @@ export const WorkTab = ({
   // Buy work
   const handleBuyWork = async (workId) => {
     await buyWork(userId, workId)
-    const userParameters = await getParameters(userId)
-    setUserParameters(userParameters.parameters)
     setVisibleModal(false)
   }
 

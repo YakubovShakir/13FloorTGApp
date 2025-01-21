@@ -129,11 +129,14 @@ const SkillTab = ({
   // Handle buy skill
   const handleBuySkill = async (skill) => {
     await startProcess("skill", userId, skill?.skill_id)
-    await refreshData()
+    getProcesses("skill", userId).then(learningSkills => setUserLearningSkills(learningSkills)) // Learning at time skills
+    getUserSkills(userId).then(learnedSkills => setUserLearnedSkills(learnedSkills))
+    getActiveProcess(userId).then(trainingStatus => setActiveProcess(trainingStatus))
     setUserLearningSkills(userLearningSkills)
   }
 
   useEffect(() => {
+    refreshData()
     if (modalData?.type === "skill") {
       const learning = userLearningSkills?.find(
         (skill) => skill?.type_id === modalData?.id
@@ -271,7 +274,7 @@ const SkillTab = ({
     const learning = checkLearningSkill(skill?.skill_id)
     const learnedRequiredSkill = skill.skill_id_required ? checkLearnedSkill(skill.skill_id_required) : true
 
-    const active = !(learned || learning) && learnedRequiredSkill
+    const active = !(learned || learning) && learnedRequiredSkill && userParameters?.coins >= skill.coins_price
 
     return [
       {
@@ -285,24 +288,6 @@ const SkillTab = ({
     ]
   }
 
-
-
-  // Interval update information
-  const updateInformation = () => {
-    try {
-      setInterval(async () => {
-        const learningSkills = await getProcesses("skill", userId) // Learning at time skills
-        const learnedSkills = await getUserSkills(userId) // Already learned skills
-        const trainingStatus = await getActiveProcess(userId) // Check current training status
-
-        setUserLearningSkills(learningSkills)
-        setUserLearnedSkills(learnedSkills)
-        setActiveProcess(trainingStatus)
-      }, 30000)
-    } catch (e) {
-      console.log("Error when updateInfromation", e)
-    }
-  }
   useEffect(() => {
     const updater = updateProcessesTimers(
       userLearningSkills,
@@ -312,6 +297,7 @@ const SkillTab = ({
 
     return () => clearInterval(updater)
   }, [userLearningSkills])
+
   useEffect(() => {
     if (activeProcess?.type === "training") {
       const updater = updateProcessTimers(activeProcess, setActiveProcess)
@@ -326,7 +312,6 @@ const SkillTab = ({
     getActiveProcess(userId).then((r) => setActiveProcess(r)) // Get active training if exist
     getUserSkills(userId).then((r) => setUserLearnedSkills(r)) // Get list of user skills
     getTrainingParameters(userId).then((r) => setTrainingParameters(r)) // Get user training parameters
-    updateInformation() // Start interval update info
   }, [])
 
   return (

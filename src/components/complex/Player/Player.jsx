@@ -1,24 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import "./Player.css";
 import Assets from "../../../assets";
 import {
   RACES,
   GENDERS,
 } from "../../../screens/PersonageCreation/PersonageCreation";
-
-// Helper functions remain the same
-const preloadImages = (imageUrls) => {
-  return Promise.all(
-    imageUrls.map(url => {
-      return new Promise((resolve, reject) => {
-        const img = new Image();
-        img.onload = () => resolve(url);
-        img.onerror = () => reject(url);
-        img.src = url;
-      });
-    })
-  );
-};
 
 const getBases = (race, gender) => {
   const map = {
@@ -52,6 +38,9 @@ const pullGenderedClothingImage = (gender, clothing) => {
   return gender === 'male' ? clothing.male_link : clothing.female_link;
 };
 
+const MAX_RETRIES = 10;
+const RETRY_DELAY = 2000; // 2 seconds
+
 const Player = ({
   width,
   left,
@@ -64,11 +53,13 @@ const Player = ({
   const [loadedImages, setLoadedImages] = useState({});
   const [allImagesLoaded, setAllImagesLoaded] = useState(false);
   const [loadingError, setLoadingError] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
   const [clothing, setClothing] = useState(initialClothing);
 
-  useEffect(() => {
+  const loadImages = useCallback(async () => {
     setAllImagesLoaded(false);
     setLoadedImages({});
+    setLoadingError(false);
 
     if (type === null || personage === null || JSON.stringify(personage) === JSON.stringify({})) {
       setAllImagesLoaded(true);
@@ -97,16 +88,30 @@ const Player = ({
       });
     };
 
-    Promise.all(imagesToLoad.map(loadImage))
-      .then(() => {
-        setClothing(initialClothing);
-        setAllImagesLoaded(true);
-      })
-      .catch((failedUrl) => {
-        console.error(`Failed to load image: ${failedUrl}`);
-        setLoadingError(true);
-      });
-  }, [personage, initialClothing, type]);
+    try {
+      await Promise.all(imagesToLoad.map(loadImage));
+      setClothing(initialClothing);
+      setAllImagesLoaded(true);
+      setRetryCount(0); // Reset retry count on success
+    } catch (failedUrl) {
+      console.error(`Failed to load image: ${failedUrl}. Attempt ${retryCount + 1} of ${MAX_RETRIES}`);
+      setLoadingError(true);
+      
+      if (retryCount < MAX_RETRIES) {
+        setRetryCount(prev => prev + 1);
+        setTimeout(() => {
+          loadImages();
+        }, RETRY_DELAY);
+      } else {
+        console.error('Max retries reached. Showing placeholder.');
+      }
+    }
+  }, [personage, initialClothing, type, retryCount, clothing]);
+
+  useEffect(() => {
+    setRetryCount(0); // Reset retry count when props change
+    loadImages();
+  }, [personage, initialClothing, type, loadImages]);
 
   const commonStyles = {
     width: `${width}`,
@@ -148,6 +153,21 @@ const Player = ({
           objectFit: "contain"
         }}
       />
+      {loadingError && retryCount < MAX_RETRIES && (
+        <div 
+          style={{
+            position: 'absolute',
+            bottom: '-20px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            fontSize: '12px',
+            color: '#666',
+            whiteSpace: 'nowrap'
+          }}
+        >
+          Retrying... ({retryCount + 1}/{MAX_RETRIES})
+        </div>
+      )}
     </div>
   );
 
