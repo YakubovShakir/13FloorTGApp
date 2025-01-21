@@ -462,7 +462,7 @@ const Home = () => {
               }))}
             />
           <Player
-            bottom={"calc(-71vh + 50px)"}
+            bottom={"calc(-468px )"}
             width="81vw"
             left={"5vw"}
             top={"55vmax"}
