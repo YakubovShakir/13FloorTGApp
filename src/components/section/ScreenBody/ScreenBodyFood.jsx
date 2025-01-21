@@ -19,7 +19,7 @@ const ScreenBody = ({ children, activity }) => {
             {/* Fixed Header */}
             <div className="HomeHeaderBottomName" style={{ 
                 boxShadow: 'rgb(0, 0, 0) 2px 2px 21px 8px',
-                zIndex: '1',
+                zIndex: '4',
                 height: '55px',
                 minHeight: '55px',
                 display: 'flex', 

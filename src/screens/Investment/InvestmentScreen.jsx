@@ -25,6 +25,7 @@ import { instance } from "../../services/instance"
 import { useSettingsProvider } from "../../hooks"
 
 const buttonStyle = {
+  width: "100%",
   height: 44,
   shadowColor: "rgb(199, 80, 21)",
   color: "rgb(255, 255, 255)",
@@ -233,6 +234,7 @@ const AutoclaimModal = ({
 }
 
 const ThreeSectionCard = ({
+  data,
   leftImage,
   rightImage,
   index = 0,
@@ -255,6 +257,7 @@ const ThreeSectionCard = ({
   userParameters,
   openAutoclaimModal,
 }) => {
+  
   const isTest = process.env.NODE_ENV === "test"
   const { lang } = useSettingsProvider()
 
@@ -289,9 +292,9 @@ const ThreeSectionCard = ({
       display: "flex",
       width: "90%",
       gap: "8px",
-      margin: "10px auto auto auto",
-      height: "52vh",
-      maxHeight: "22vh",
+      margin: "20px auto auto auto",
+      height: "175px",
+      // maxHeight: "22vh",
       background: ` rgb(32, 32, 32)`,
       border: "solid 1px rgb(57, 57, 57)",
       borderRadius: "8px",
@@ -304,7 +307,7 @@ const ThreeSectionCard = ({
         "repeating-linear-gradient(45deg, rgba(0, 0, 0, 0.21), rgba(0, 0, 0, 0.21) 2px, rgba(57, 57, 57, 0.06) 2px, rgba(57, 57, 57, 0.06) 6px) rgba(0, 0, 0, 0.51)",
       borderBottom: " 1px solid rgba(117, 117, 117, 0.23)",
       boxShadow: "rgba(0, 0, 0, 0.24) 0px 0px 8px 2px inset",
-      width: "33.333%",
+      width: "100px",
       borderRadius: "8px",
       overflow: "hidden",
       position: "relative",
@@ -312,6 +315,7 @@ const ThreeSectionCard = ({
       flexDirection: "column",
       alignItems: "center",
       justifyContent: "center",
+      
     },
 
     image: {
@@ -321,6 +325,10 @@ const ThreeSectionCard = ({
     },
 
     buttonsContainer: {
+      right: "0%",
+      top: "20%",
+    alignItems: "center",
+    position: "absolute",
       margin: "0px 5px 0px 0px",
       
       width: "33.333%",
@@ -365,29 +373,44 @@ const ThreeSectionCard = ({
             ...getBackgroundStyle(),
           }}
         >
-          <p
-            style={{
-              textAlign: "center",
-              fontSize: 12,
-              color: "white",
-              paddingBottom: 8,
-            }}
-          >
-            {title}
-          </p>
-          <img src={leftImage} alt="Investment Type" style={styles.image} />
-          <p
-            style={{
-              textAlign: "center",
-              fontSize: 12,
-              color: "white",
-              paddingTop: 8,
-            }}
-          >
-            {translations.level[lang]} {current_level}
-          </p>
-        </div>
 
+{current_level > 0 ? (
+  <>
+    <p
+      style={{
+        textAlign: "center",
+        fontSize: 16,
+        color: "white",
+        paddingTop: 8,
+      }}
+    >
+      {translations.level[lang]} {current_level}
+    </p>
+    
+  </>
+) : null} 
+
+<img src={leftImage} alt="Investment Type" style={styles.image} />
+
+
+          {current_level > 0 ? (
+            <>
+              {!hideUpgrade && (
+                <Button
+                  {...buttonStyle}
+                  active={true}
+                  onClick={onClick}
+                  text={translations.upgrade[lang]}
+                />
+              )}
+             
+            </>
+          ) :  null}
+
+
+        </div>
+        {current_level > 0 ? (
+  <>
         {/* Manager Image Section */}
         <div
           style={{
@@ -412,44 +435,58 @@ const ThreeSectionCard = ({
             </p>
           )}
         </div>
+        </>
+) : null} 
 
         {/* Buttons Section */}
+        
         <div
-          style={{
-            ...styles.buttonsContainer,
-            border: getBorderStyle(),
-            ...getEmptyBackgroundStyle(),
-          }}
-        >
-          {current_level > 0 ? (
-            <>
-              {!hideUpgrade && (
-                <Button
-                  {...buttonStyle}
-                  active={true}
-                  onClick={onClick}
-                  text={translations.upgrade[lang]}
-                />
-              )}
-              <Button
-                {...buttonStyle}
-                active={shouldShowCollectButton}
-                onClick={shouldShowCollectButton ? handleClaim : undefined}
-                text={
-                  shouldShowCollectButton ? translations.claim[lang] : timer
-                }
-              />
-            </>
-          ) : (
-            <Button
-              {...buttonStyle}
-              active={userParameters.coins >= upgrade_info.price}
-              icon={Assets.Icons.balance}
-              text={upgrade_info.price}
-              onClick={onClick}
-            />
-          )}
-        </div>
+  style={{
+    ...styles.buttonsContainer,
+    border: getBorderStyle(),
+    ...getEmptyBackgroundStyle(),
+  }}
+>
+
+  <p
+    style={{
+      textAlign: "center",
+      fontSize: 16,
+      color: "white",
+      paddingBottom: 8,
+    }}
+  >
+    {title}
+  </p>
+
+   
+     
+   
+
+  {current_level > 0 ? (
+   
+    <>
+
+
+
+    
+      <Button
+        {...buttonStyle}
+        active={shouldShowCollectButton}
+        onClick={shouldShowCollectButton ? handleClaim : undefined}
+        text={
+          shouldShowCollectButton ? translations.claim[lang] : timer
+        }
+      />
+    </>
+  ) : ( <Button
+  {...buttonStyle}
+  active={userParameters.coins >= upgrade_info.price}
+  icon={Assets.Icons.balance}
+  text={upgrade_info.price}
+  onClick={onClick}
+/> )}
+</div>
       </motion.div>
     </div>
   )
@@ -697,7 +734,7 @@ const InvestmentScreen = () => {
 
           <h2
             style={{
-              zIndex: "9999",
+              zIndex: "5",
               position: "relative",
               fontSize: "14px",
               fontWeight: "regular",

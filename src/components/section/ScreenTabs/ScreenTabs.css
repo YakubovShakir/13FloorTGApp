@@ -8,7 +8,7 @@
   border: 2px solid rgb(57, 57, 57);
   background-color: #000000;
   border-radius: 8px;
-  z-index: 9999;
+  z-index: 5;
   width: 91%;
 }
 
