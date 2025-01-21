@@ -82,9 +82,12 @@ export const WorkTab = ({
     },
     respectRequired: {
       ru: 'Минимальный Респект',
-      en: 'Minimum Respect'
+      en: 'Minimum respect'
     },
-   
+    requiredLevel: {
+      ru: 'Необходимый уровень',
+      en: 'Required level'
+    }
   }
 
   const [skills, setSkills] = useState(null) // List of skills
