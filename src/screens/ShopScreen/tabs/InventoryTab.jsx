@@ -452,11 +452,11 @@ const InventoryTab = ({ userId }) => {
 
       const tags = currentComplexFilters.filter(filter => filter.filteredField === 'tag').map(filter => filter.filteredValue)
       const tiers = currentComplexFilters.filter(filter => filter.filteredField === 'tier').map(filter => filter.filteredValue)
-
+      console.log(tags, 'TAGS')
       const filtered = items.filter(item => {
         let shouldTake = false
         const isCorrectByTier = tiers.length > 0 ? tiers.includes(item.tier) : true
-        const isCorrectByTags = tags.length > 0 ? item.tags.some(tag => tags.includes(tag)) : true
+        const isCorrectByTags = tags.length > 0 ? item.tag?.some(tag => tags.includes(tag)) : true
 
         if (isCorrectByTier && isCorrectByTags) {
           shouldTake = true

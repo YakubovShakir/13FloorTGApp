@@ -595,8 +595,7 @@ const CoinsTab = ({ userId }) => {
         let shouldTake = false
         const isCorrectByTier =
           tiers.length > 0 ? tiers.includes(item.tier) : true
-        const isCorrectByTags =
-          tags.length > 0 ? item.tags?.some((tag) => tags.includes(tag)) : true
+        const isCorrectByTags = tags.length > 0 ? item.tag?.some(tag => tags.includes(tag)) : true
 
         if (isCorrectByTier && isCorrectByTags) {
           shouldTake = true
