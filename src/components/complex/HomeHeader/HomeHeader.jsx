@@ -30,64 +30,107 @@ const walletTranslations = {
 
 const TelegramWalletConnection = () => {
   const [isConnecting, setIsConnecting] = useState(false);
-  const [isConnected, setIsConnected] = useState(false);
   const { lang } = useSettingsProvider();
-  const [tonConnectUI, setOptions] = useTonConnectUI()
-  const { userId, userParameters } = useContext(UserContext)
-  const [wallet, setWallet] = useState(useTonWallet())
-  const [friendlyAddress, setFriendlyAddress] = useState(useTonAddress(true))
-  const [isDisconnectModalVisible, setIsDisconnectModalVisible] = useState(false)
+  const [tonConnectUI, setOptions] = useTonConnectUI();
+  const { userId, userParameters } = useContext(UserContext);
+  const wallet = useTonWallet();
+  const friendlyAddress = useTonAddress(true);
 
   tonConnectUI.uiOptions = {
     uiPreferences: {
       theme: THEME.DARK
     },
     language: lang
-  }
-  
-  // tonConnectUI.disconnect()
+  };
 
   useEffect(() => {
     if(wallet !== null && userParameters.hasWallet === false) {
-      saveUserWallet(userId, wallet)
+      saveUserWallet(userId, wallet);
     }
-  }, [userParameters])
+  }, [userParameters, wallet]);
 
-  // tonConnectUI.disconnect()
-  useEffect(() =>
-    tonConnectUI.onStatusChange(async w => {
-      if(w) {
-        setWallet(w)
-        const x = await saveUserWallet(userId, w.account.address)
-        console.log(x)
-        return
-      }
-
+  useEffect(() => {
+    const handleStatusChange = async (w) => {
+      setIsConnecting(true);
       try {
-        await disconnectUserWallet(userId)
-        setWallet(null)
+        if(w) {
+          const x = await saveUserWallet(userId, w.account.address);
+          console.log(x);
+        } else {
+          await disconnectUserWallet(userId);
+        }
       } catch(err) {
-        console.log('Error disconnecting wallet')
+        console.log('Error handling wallet connection:', err);
+      } finally {
+        setIsConnecting(false);
       }
-    }), [tonConnectUI, userId]);
+    };
 
-  const { open } = useTonConnectModal()
+    tonConnectUI.onStatusChange(handleStatusChange);
+  }, [tonConnectUI, userId]);
+
+  const { open } = useTonConnectModal();
+  const [isDisconnectModalVisible, setIsDisconnectModalVisible] = useState(false);
+
   const getButtonText = () => {
-    if (!wallet) return walletTranslations.telegram[lang];
-    return friendlyAddress.slice(0,4) + '...' + friendlyAddress.slice(-4)
+    if (!wallet || !friendlyAddress) return walletTranslations.telegram[lang];
+    return `${friendlyAddress.slice(0, 4)}...${friendlyAddress.slice(-4)}`;
   };
 
-  // console.log(wallet?.account.address)
+  const translations = {
+    yes: {
+      ru: 'Да',
+      en: 'Yes'
+    },
+    no: {
+      ru: 'Нет',
+      en: 'No'
+    },
+    confirm: {
+      ru: `Вы действительно хотите отключить кошелёк ${friendlyAddress ? `${friendlyAddress.slice(0, 4)}...${friendlyAddress.slice(-4)}` : ''}`,
+      en: `Do you really want to disconnect wallet ${friendlyAddress ? `${friendlyAddress.slice(0, 4)}...${friendlyAddress.slice(-4)}` : ''}`
+    }
+  };
 
   return (
     <>
-       <Bar
-          title={getButtonText()}
-          iconLeft={Assets.Icons.telegram || Assets.Icons.wallets}
-          onClick={wallet === null ? open : () => setIsDisconnectModalVisible(true)}
-          isChecked={wallet !== null}
-          isLoading={isConnecting}
-        />
+      <Bar
+        title={getButtonText()}
+        iconLeft={Assets.Icons.telegram || Assets.Icons.wallets}
+        onClick={wallet === null ? open : () => setIsDisconnectModalVisible(true)}
+        isChecked={wallet !== null}
+        isLoading={isConnecting}
+      />
+      {isDisconnectModalVisible && (
+        <div className="modal" style={{ zIndex: 99999999 }}>
+          <div className="modal-content">
+            <p>{translations.confirm[lang]}</p>
+            <div className="modal-buttons">
+              <button 
+                onClick={() => {
+                  setIsDisconnectModalVisible(false);
+                  tonConnectUI.disconnect();
+                }}
+                style={{
+                  border: "2px solid rgb(0, 255, 115)", 
+                  color: "rgb(0, 255, 115)",
+                }}
+              >
+                {translations.yes[lang]}
+              </button>
+              <button 
+                onClick={() => setIsDisconnectModalVisible(false)}
+                style={{
+                  color: "rgb(255, 0, 0)",
+                  border: "2px solid rgb(255, 0, 0)",
+                }}
+              >
+                {translations.no[lang]}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 };
