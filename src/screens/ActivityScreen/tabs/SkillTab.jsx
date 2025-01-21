@@ -19,11 +19,11 @@ import {
 import formatTime from "../../../utils/formatTime"
 import countPercentage from "../../../utils/countPercentage.js"
 import { useSettingsProvider } from "../../../hooks"
+import { useUser } from "../../../UserContext.jsx"
 
 const SkillTab = ({
   modalData,
   setModalData,
-  setUserParameters,
   setVisibleModal,
   userParameters,
   userId,
@@ -82,6 +82,10 @@ const SkillTab = ({
       ru: 'Изучено',
       en: 'Learned'
     },
+    learning: {
+      ru: 'Изучается..',
+      en: 'Learning..'
+    },
     boost: {
       ru: 'Ускорить',
       en: 'Boost'
@@ -120,13 +124,12 @@ const SkillTab = ({
     return learning && skills?.find((skill) => skill?.skill_id === skillId)
   }
 
+  const { refreshData } = useUser()
+
   // Handle buy skill
   const handleBuySkill = async (skill) => {
     await startProcess("skill", userId, skill?.skill_id)
-    const userParameters = await getParameters(userId)
-    const userLearningSkills = await getProcesses("skill", userId)
-
-    setUserParameters(userParameters)
+    await refreshData()
     setUserLearningSkills(userLearningSkills)
   }
 
@@ -144,16 +147,20 @@ const SkillTab = ({
     }
   }, [userLearningSkills])
 
-
-  // Check active status (color) for skill card
-  const checkActiveSkillButton = (skill) => {
-    if (checkLearningSkill(skill?.skill_id)) return true
-    if (checkLearnedSkill(skill?.skill_id)) return false
-    if (userParameters?.coins < skill?.coins_price) return false
-    if (skill?.skill_id_required) {
-      if (!checkLearnedSkill(skill?.skill_id_required)) return false
+  const getButtonInfo = (skill) => {
+    const learning = checkLearningSkill(skill.skill_id)
+    const learned = checkLearnedSkill(skill.skill_id)
+    const icon = learned || learning ? null : Icons.balance
+    
+    let text = skill.coins_price
+    
+    if(learning) text = translations.learning[lang]
+    if(learned) text = translations.learned[lang]
+    
+    return {
+      text,
+      icon,
     }
-    return true
   }
 
   // Build modal data for skill card
@@ -162,6 +169,9 @@ const SkillTab = ({
     const learning = userLearningSkills?.find(
       (sk) => sk?.type_id === skill?.skill_id
     )
+
+
+
     const bottomButtonOnClick = () => handleBuySkill(skill)
 
     const data = {
@@ -183,9 +193,7 @@ const SkillTab = ({
         skill?.skill_id_required && {
           icon: skills?.find((sk) => sk?.skill_id === skill?.skill_id_required)
             ?.link,
-          text: skills?.find((sk) => sk?.skill_id === skill?.skill_id_required)
-            ?.translations.name[lang] || skills?.find((sk) => sk?.skill_id === skill?.skill_id_required)
-            ?.translations.name[lang],
+          text: skills?.find((sk) => sk?.skill_id === skill?.skill_id_required)?.name[lang],
           fillPercent: "100%",
           fillBackground: !checkLearnedSkill(skill?.skill_id_required)
             ? "#4E1010" // red
@@ -209,17 +217,11 @@ const SkillTab = ({
       ].filter(Boolean),
       buttons: [
         // Убираем пока ускорить
-        // {
-        //   icon: !(learned || learning) && Icons.balance,
-        //   text:
-        //     (learned && translations.learned[lang]) ||
-        //     (learning && translations.boost[lang]) ||
-        //     skill?.coins_price,
-        //   onClick: bottomButtonOnClick,
-        //   active: checkActiveSkillButton(skill),
-          
-            
-        // },
+        {
+          ...getButtonInfo(skill),
+          onClick: !(learning || learned) && bottomButtonOnClick,
+          active: !(learning || learned),
+        },
       ],
     }
     return data
@@ -250,7 +252,8 @@ const SkillTab = ({
           : formatTime(skill?.duration),
     }
 
-    let accessStatus = userParameters?.coins >= skill?.coins_price
+    let accessStatus = userParameters?.coins >= skill?.coins_price && (requiredSkill ? checkLearnedSkill(requiredSkill) : true)
+    if(learned) accessStatus = false
 
     if (requiredSkill) accessStatus && checkLearnedSkill(requiredSkill)
 
@@ -266,20 +269,18 @@ const SkillTab = ({
   const getItemSkillButton = (skill) => {
     const learned = checkLearnedSkill(skill?.skill_id)
     const learning = checkLearningSkill(skill?.skill_id)
+    const learnedRequiredSkill = skill.skill_id_required ? checkLearnedSkill(skill.skill_id_required) : true
+
+    const active = !(learned || learning) && learnedRequiredSkill
 
     return [
       {
-        icon: !(learned || learning) && Icons.balance,
-        text:
-          (translations.learned[lang] && translations.learned[lang]) ||
-          (translations.learning[lang] && translations.boost[lang]) ||
-          skill?.coins_price,
+        ...getButtonInfo(skill),
         onClick: () => {
           setModalData(setSkillModalData(skill))
           setVisibleModal(true)
         },
-        active: checkActiveSkillButton(skill),
-        
+        active,
       },
     ]
   }
