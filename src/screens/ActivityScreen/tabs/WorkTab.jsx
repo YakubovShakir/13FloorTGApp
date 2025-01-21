@@ -283,9 +283,9 @@ export const WorkTab = ({
             ? "rgb(18, 18, 18)"
             : "rgb(18, 18, 18)",
           shadowColor: activeWork ? "rgb(32, 32, 32)" : "rgb(32, 32, 32)",
-          borderColor: activeWork ? "rgb(73 73 73)" : "rgba(117, 117, 117, 0.23)",
+          borderColor: activeWork ? "rgb(73 73 73)" : "rgb(255, 0, 0)",
           border: `1px solid rgb(32, 32, 32)`,
-          color:'rgb(10, 255, 186)',
+          color:'rgb(0, 255, 183)',
           ownColor:'rgb(255, 118, 0)',
          
         },
@@ -301,8 +301,8 @@ export const WorkTab = ({
         },
         icon: buyStatus && Icons.balance,
         active: buyStatus,
-        shadowColor: buyStatus && "rgb(243, 117, 0)",
-        borderColor: buyStatus,
+        shadowColor: buyStatus && "rgb(199, 80, 21)",
+        borderColor: "rgb(255, 141, 0)",
       },
     ]
   }
