@@ -183,17 +183,23 @@
 
 /* Чтобы изображение оставалось поверх сетки */
 .ItemIconContainerBoost img {
-  position: relative; 
-  z-index: 1; 
-  top: 14%;
-    max-width: 78%;
-    object-fit: contain;
-   
+  padding: 9px;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 1;
+  /* top: 14%; */
+  /* width: 78%; */
+  /* object-fit: contain; */
+  display: flex
+;
   
 }
 
 
 .ItemIconContainerBoost {
+  display: grid;
+
   overflow: hidden;
   border-bottom: 1px solid rgba(117, 117, 117, 0.23);
   box-shadow: rgba(0, 0, 0, 0.24) 0px 0px 8px 2px inset;

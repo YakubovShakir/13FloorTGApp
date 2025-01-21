@@ -67,7 +67,7 @@ const ScreenBody = ({ children, activity }) => {
                 WebkitOverflowScrolling: 'touch', // For smooth scrolling on iOS
                 msOverflowStyle: 'none', // Hide scrollbar in IE/Edge
                 scrollbarWidth: 'none', // Hide scrollbar in Firefox
-                position: 'relative',
+                // position: 'relative',
                 background: 'none'
             }}>
                 {children}
