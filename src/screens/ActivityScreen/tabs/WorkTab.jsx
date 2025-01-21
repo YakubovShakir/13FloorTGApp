@@ -188,7 +188,7 @@ export const WorkTab = ({
           value: work?.work_id,
           fillPercent: "100%",
           fillBackground:
-            userParameters?.level >= work?.work_id
+            userParameters?.level < work?.work_id
               ? "#4E1010" // red
               : "#0E3228", // green
         }
