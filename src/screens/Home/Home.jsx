@@ -405,6 +405,7 @@ const Home = () => {
             top={"35vh"}
             personage={userPersonage}
             clothing={userClothing}
+            work
           />
           {renderProcessProgressBar(
             state.currentProcess,
@@ -441,11 +442,12 @@ const Home = () => {
             top={"35vh"}
             personage={userPersonage}
             clothing={userClothing}
+            training
           />
           {renderProcessProgressBar(
             state.currentProcess,
             countPercentage(
-              state.currentProcess?.duration * 60,
+              state.currentProcess?.duration * 60 + state.currentProcess.seconds || 0,
               state.trainingParameters.duration * 60
             ),
             progressRate
@@ -479,6 +481,7 @@ const Home = () => {
             top={"55vmax"}
             personage={userPersonage}
             clothing={userClothing}
+            sleep
           />
           <motion.img
             src={Assets.Layers.cover}

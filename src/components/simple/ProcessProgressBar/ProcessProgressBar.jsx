@@ -7,6 +7,7 @@ import Button from "../../simple/Button/Button"
 import { useSettingsProvider } from "../../../hooks";
 import { stopProcess } from "../../../services/process/process";
 import UserContext, { UserProvider } from "../../../UserContext";
+import { motion } from 'framer-motion'
 import { getTrainingParameters } from "../../../services/user/user";
 
 const ProcessProgressBar = ({
@@ -22,6 +23,7 @@ const ProcessProgressBar = ({
   const [iconLeft, setIconLeft] = useState(null);
   const [iconRight, setIconRight] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [hasAnimated, setHasAnimated] = useState(false)
   const timerRef = useRef(null);
 
   const { userId } = useContext(UserContext);
@@ -58,7 +60,7 @@ const ProcessProgressBar = ({
             getIcons(activeProcess.type),
             getLabels(activeProcess.type)
           ]);
-  
+
           setIconLeft(icons[0]);
           setIconRight(icons[1]);
           setLabelLeft(labels[0]);
@@ -67,29 +69,56 @@ const ProcessProgressBar = ({
           console.error('Error loading progress bar data:', error);
         }
       };
-  
+
       loadData();
     }
   }, [activeProcess, rate]); // Add rate to dependencies
-  
+
   // Also modify the getLabels function to directly use the rate prop
   const getLabels = async (processType) => {
     const works = await getWorks();
     const work = works?.find((work) => work?.work_id === activeProcess?.type_id);
-    
+
     const typeToLabel = {
       work: [work?.name[lang], `+${work?.coins_in_hour}/${lang === 'en' ? 'HOUR' : 'ЧАС'}`],
       training: [translations.training[lang], rate],
       sleep: [translations.longSleep[lang], rate]
     };
-  
+
     return typeToLabel[processType];
   };
+
+  const WorkIcon = ({ percentage, hasAnimated }) => {  
+    return (
+      <>
+        {percentage < 1 && !hasAnimated ? (
+          <motion.img
+            height={20}
+            width={20}
+            src={Assets.Icons.balance}
+            key="balance"
+            animate={{
+              y: [0, -20],
+              opacity: [1, 0],
+            }}
+            transition={{
+              duration: 2,
+              ease: "easeInOut",
+            }}
+          />
+        ) : (
+          <img height={20} width={20} src={Assets.Icons.balance} key="balance" />
+        )}
+      </>
+    );
+  }
 
   const getIcons = async (processType) => {
     const typeToIconsMap = {
       work: [
-        <img height={20} width={20} src={Assets.Icons.balance} key="balance" />,
+
+        <WorkIcon percentage={percentage} key={'work'}/>
+        // /> : <img height={20} width={20} src={Assets.Icons.balance} key="balance" />,
       ],
       training: [
         <img height={20} width={20} src={Assets.Icons.clock} key="clock-training" />,
@@ -100,6 +129,16 @@ const ProcessProgressBar = ({
     };
     return typeToIconsMap[processType];
   };
+
+  useEffect(() => {
+    if(percentage < 1) {
+      setHasAnimated(true)
+    }
+
+    if(percentage === 100) {
+      setHasAnimated(false)
+    } 
+  }, [percentage])
 
   // Single responsibility for progress updates
   useEffect(() => {
@@ -155,7 +194,7 @@ const ProcessProgressBar = ({
 
   return (
     <div className="progress-bar-container-fixed-top">
-      <div className="progress-bar-container" style={{ }}>
+      <div className="progress-bar-container" style={{}}>
         <div className="progress-bar-wrapper" style={{ width: "90%", float: "left" }}>
           <div className="progress-bar-header">
             <div className="progress-bar-icon-left">{iconLeft && iconLeft}</div>
@@ -185,14 +224,14 @@ const ProcessProgressBar = ({
             className="process-action-button"
             onClick={() => setShowModal(true)} // Показываем модальное окно при нажатии
             style={{
-              
-              
+
+
               width: "32px", // Кнопка занимает всю оставшуюся ширину
               backgroundColor: "rgb(0 0 0 / 52%)",
-              backdropFilter:" blur(5px)",
+              backdropFilter: " blur(5px)",
               color: "rgb(255, 0, 0)",
               border: "2px solid rgb(255, 0, 0)",
-              
+
               borderRadius: "5px",
               fontSize: "20px",
               cursor: "pointer",
@@ -214,17 +253,17 @@ const ProcessProgressBar = ({
             <div className="modal-buttons">
               <button onClick={() => handleConfirmClose()}
                 style={{
-                  border: "2px solid rgb(0, 255, 115)", 
+                  border: "2px solid rgb(0, 255, 115)",
                   color: "rgb(0, 255, 115)",
                 }}
-                  >{translations.yes[lang]}</button>
+              >{translations.yes[lang]}</button>
               <button onClick={() => handleCloseModal()}
-              
-              style={{
-                color: "rgb(255, 0, 0)",
-              border: "2px solid rgb(255, 0, 0)",
-              
-              }}
+
+                style={{
+                  color: "rgb(255, 0, 0)",
+                  border: "2px solid rgb(255, 0, 0)",
+
+                }}
               >{translations.no[lang]}</button>
             </div>
           </div>
