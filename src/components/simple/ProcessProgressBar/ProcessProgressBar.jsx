@@ -7,6 +7,7 @@ import Button from "../../simple/Button/Button"
 import { useSettingsProvider } from "../../../hooks";
 import { stopProcess } from "../../../services/process/process";
 import UserContext, { UserProvider } from "../../../UserContext";
+import { getTrainingParameters } from "../../../services/user/user";
 
 const ProcessProgressBar = ({
   activeProcess = null,
@@ -49,15 +50,39 @@ const ProcessProgressBar = ({
     }
   };
 
-  const getLabels = async (processType, rate) => {
+  useEffect(() => {
+    if (activeProcess) {
+      const loadData = async () => {
+        try {
+          const [icons, labels] = await Promise.all([
+            getIcons(activeProcess.type),
+            getLabels(activeProcess.type)
+          ]);
+  
+          setIconLeft(icons[0]);
+          setIconRight(icons[1]);
+          setLabelLeft(labels[0]);
+          setLabelRight(labels[1]);
+        } catch (error) {
+          console.error('Error loading progress bar data:', error);
+        }
+      };
+  
+      loadData();
+    }
+  }, [activeProcess, rate]); // Add rate to dependencies
+  
+  // Also modify the getLabels function to directly use the rate prop
+  const getLabels = async (processType) => {
     const works = await getWorks();
     const work = works?.find((work) => work?.work_id === activeProcess?.type_id);
+    
     const typeToLabel = {
-      work: [work?.name[lang], `${"+" + work?.coins_in_hour}/` + (lang === 'en' ? 'Hour' : 'Час')],
+      work: [work?.name[lang], `${"+" + Math.floor(work?.coins_in_hour / 60)} ${lang === 'en' ? 'in' : 'через'} ${rate}`],
       training: [translations.training[lang], rate],
-      sleep: [translations.training[lang], rate],
+      sleep: [translations.longSleep[lang], rate] // Use rate prop directly
     };
-
+  
     return typeToLabel[processType];
   };
 
@@ -78,15 +103,17 @@ const ProcessProgressBar = ({
 
   // Single responsibility for progress updates
   useEffect(() => {
+    console.log('@@@', inputPercentage)
     if (inputPercentage !== null) {
       setPercentage(inputPercentage);
       return; // Don't start the timer if we have an input percentage
     }
 
     const updateProgress = () => {
+      console.log('process update')
       setPercentage(prev => {
         if (prev <= 0) return 100;
-        return prev - 2;
+        return prev - 1;
       });
     };
 
@@ -105,29 +132,6 @@ const ProcessProgressBar = ({
       }
     };
   }, [inputPercentage]);
-
-  // Separate effect for loading labels and icons
-  useEffect(() => {
-    if (activeProcess) {
-      const loadData = async () => {
-        try {
-          const [icons, labels] = await Promise.all([
-            getIcons(activeProcess.type),
-            getLabels(activeProcess.type, rate)
-          ]);
-
-          setIconLeft(icons[0]);
-          setIconRight(icons[1]);
-          setLabelLeft(labels[0]);
-          setLabelRight(labels[1]);
-        } catch (error) {
-          console.error('Error loading progress bar data:', error);
-        }
-      };
-
-      loadData();
-    }
-  }, [activeProcess, rate, lang]);
 
   const displayPercentage = reverse ? 100 - percentage : percentage;
 
