@@ -78,9 +78,9 @@ const ProcessProgressBar = ({
     const work = works?.find((work) => work?.work_id === activeProcess?.type_id);
     
     const typeToLabel = {
-      work: [work?.name[lang], `${"+" + Math.floor(work?.coins_in_hour / 60)} ${lang === 'en' ? 'in' : 'через'} ${rate}`],
+      work: [work?.name[lang], `+${work?.coins_in_hour}/${lang === 'en' ? 'HOUR' : 'ЧАС'}`],
       training: [translations.training[lang], rate],
-      sleep: [translations.longSleep[lang], rate] // Use rate prop directly
+      sleep: [translations.longSleep[lang], rate]
     };
   
     return typeToLabel[processType];
@@ -103,14 +103,12 @@ const ProcessProgressBar = ({
 
   // Single responsibility for progress updates
   useEffect(() => {
-    console.log('@@@', inputPercentage)
     if (inputPercentage !== null) {
       setPercentage(inputPercentage);
       return; // Don't start the timer if we have an input percentage
     }
 
     const updateProgress = () => {
-      console.log('process update')
       setPercentage(prev => {
         if (prev <= 0) return 100;
         return prev - 1;
