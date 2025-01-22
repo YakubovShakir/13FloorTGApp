@@ -143,6 +143,13 @@ import head from "./IMG/icons/head.png"
 import body from "./IMG/icons/body.png"
 import access from "./IMG/icons/accessory.png"
 
+import sleepAfroFemale from './IMG/sleepAfroFemale.png'
+import sleepAfroMale from './IMG/sleepAfroMale.png'
+import sleepEuMale from './IMG/sleepEuMale.png'
+import sleepEuFemale from './IMG/sleepEuFemale.png'
+import sleepAsianMale from './IMG/sleepAsianMale.png'
+import sleepAsianFemale from './IMG/sleepAsianFemale.png'
+
 import personageCreationBg from './IMG/bg/personageCreationBg.webp'
 
 import afro from "./IMG/avatars/girls/clothes/head/afro.png"
@@ -248,7 +255,13 @@ const Assets = {
     missingMan,
     blackHand,
     asianHand,
-    euroHand
+    euroHand,
+    sleepAsianFemale,
+    sleepAfroFemale,
+    sleepEuFemale,
+    sleepAfroMale,
+    sleepEuMale,
+    sleepAsianMale
   },
   Layers: {
     cover,

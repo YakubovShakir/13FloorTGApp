@@ -20,7 +20,7 @@ const getBases = (race, gender) => {
     },
   };
 
-  if(race && gender) {
+  if (race && gender) {
     return map[gender][race];
   }
 };
@@ -34,6 +34,25 @@ const getHand = (race) => {
   return map[race];
 };
 
+const getFaceForSleep = (race, gender) => {
+  const map = {
+    [GENDERS.MALE]: {
+      [RACES.WHITE]: Assets.Images.sleepEuMale,
+      [RACES.BLACK]: Assets.Images.sleepAfroMale,
+      [RACES.ASIAN]: Assets.Images.sleepAsianMale,
+    },
+    [GENDERS.FEMALE]: {
+      [RACES.WHITE]: Assets.Images.sleepEuFemale,
+      [RACES.BLACK]: Assets.Images.sleepAfroFemale,
+      [RACES.ASIAN]: Assets.Images.sleepAsianFemale,
+    },
+  };
+
+  if (race && gender) {
+    return map[gender][race];
+  }
+}
+
 const pullGenderedClothingImage = (gender, clothing) => {
   return gender === 'male' ? clothing.male_link : clothing.female_link;
 };
@@ -42,6 +61,9 @@ const MAX_RETRIES = 10;
 const RETRY_DELAY = 2000; // 2 seconds
 
 const Player = ({
+  sleep,
+  training,
+  work,
   width,
   left,
   top,
@@ -96,7 +118,7 @@ const Player = ({
     } catch (failedUrl) {
       console.error(`Failed to load image: ${failedUrl}. Attempt ${retryCount + 1} of ${MAX_RETRIES}`);
       setLoadingError(true);
-      
+
       if (retryCount < MAX_RETRIES) {
         setRetryCount(prev => prev + 1);
         setTimeout(() => {
@@ -154,7 +176,7 @@ const Player = ({
         }}
       />
       {loadingError && retryCount < MAX_RETRIES && (
-        <div 
+        <div
           style={{
             position: 'absolute',
             bottom: '-20px',
@@ -176,8 +198,8 @@ const Player = ({
   }
 
   return (
-    <div 
-      className="Player" 
+    <div
+      className="Player"
       style={{
         ...commonStyles,
         opacity: 1,
@@ -205,6 +227,15 @@ const Player = ({
         alt="avatar"
         style={{ zIndex: "2" }}
       />
+      {sleep && (
+
+<img
+className="PlayerHead"
+style={{ zIndex: "6" }}
+src={getFaceForSleep(personage?.race, personage?.gender)}
+alt="Head"
+/>
+      )}
       {clothing && (
         <>
           {clothing.hat && (
@@ -224,31 +255,31 @@ const Player = ({
             />
           )}
           {clothing.top && (
-            <img 
-              className="PlayerTop" 
-              src={pullGenderedClothingImage(personage?.gender, clothing.top)} 
-              alt="Top" 
+            <img
+              className="PlayerTop"
+              src={pullGenderedClothingImage(personage?.gender, clothing.top)}
+              alt="Top"
             />
           )}
           {clothing.pants && (
-            <img 
-              className="PlayerLegs" 
-              src={pullGenderedClothingImage(personage?.gender, clothing.pants)} 
-              alt="Legs" 
+            <img
+              className="PlayerLegs"
+              src={pullGenderedClothingImage(personage?.gender, clothing.pants)}
+              alt="Legs"
             />
           )}
           {clothing.shoes && (
-            <img 
-              className="PlayerFeet" 
-              src={pullGenderedClothingImage(personage?.gender, clothing.shoes)} 
-              alt="Feet" 
+            <img
+              className="PlayerFeet"
+              src={pullGenderedClothingImage(personage?.gender, clothing.shoes)}
+              alt="Feet"
             />
           )}
           {personage && personage?.gender === 'female' && personage?.race && (
-            <img 
-              className="PlayerFeet" 
-              src={getHand(personage.race)} 
-              alt="Hand" 
+            <img
+              className="PlayerFeet"
+              src={getHand(personage.race)}
+              alt="Hand"
               style={{ zIndex: 4 }}
             />
           )}
