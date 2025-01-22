@@ -91,24 +91,39 @@ const ProcessProgressBar = ({
   const WorkIcon = ({ percentage, hasAnimated }) => {  
     return (
       <>
-        {percentage < 1 && !hasAnimated ? (
+       
+        <img 
+          height={20} 
+          width={20} 
+          src={Assets.Icons.balance} 
+          style={{ position: "absolute", top: 0, left: 0 }} 
+        />
+    
+        
+        {percentage < 1 && !hasAnimated && (
           <motion.img
             height={20}
             width={20}
             src={Assets.Icons.balance}
-            key="balance"
+            key="animated-balance"
+            style={{ position: "absolute", top: 0, left: 0 }}
+            initial={{
+              y: -50, 
+              opacity: 0, 
+            }}
             animate={{
-              y: [0, -20],
-              opacity: [1, 0],
+              y: 0, 
+              opacity: 1, 
+            }}
+            exit={{
+              opacity: 0, 
             }}
             transition={{
-              duration: 2,
-              ease: "easeInOut",
+              duration: 1, 
+              ease: "easeOut", 
             }}
-          />
-        ) : (
-          <img height={20} width={20} src={Assets.Icons.balance} key="balance" />
-        )}
+            />
+          )}
       </>
     );
   }

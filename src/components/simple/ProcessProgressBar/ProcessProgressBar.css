@@ -44,11 +44,11 @@
 .progress-bar-icon-left,
 .progress-bar-icon-right {
   position: absolute;
-  top: 2px;
+  top: 0px;
 }
 
 .progress-bar-icon-left {
-  right: 3%;
+  right: 9%;
 }
 
 .progress-bar-icon-right {
@@ -59,16 +59,16 @@
 
 font-weight: lighter;
 position: absolute;
-font-size: 13px;
-top: 5px;
+font-size: 15px;
+top: 3px;
 }
 
 .progress-bar-label-right {
   padding-right: 10px;
   font-weight: lighter;
   position: absolute;
-  font-size: 13px;
-  top: 5px;
+  font-size: 15px;
+  top: 3px;
 }
 
 .progress-bar-label-left {
