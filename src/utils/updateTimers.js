@@ -27,39 +27,28 @@ export const updateProcessesTimers = (stateOfProcess, setState) => {
 }
 
 export const updateProcessTimers = (
-  stateOfProcess,
-  setState,
-  infinity,
-  endFunction
+  process,
+  onUpdate,
+  isWorkProcess,
+  updateParametersFunction
 ) => {
-  const inervalId = setInterval(() => {
-    const newState = { ...stateOfProcess }
-    const minuts = newState?.duration
-    const seconds = newState?.seconds
-
-    if (!seconds && !minuts) {
-      if (infinity) {
-        newState.seconds = 59
-      } else {
-        setState(null)
-        return inervalId
-      }
-      endFunction()
+  return setInterval(() => {
+    const updatedProcess = { ...process };
+    
+    if (updatedProcess.seconds > 0) {
+      updatedProcess.seconds--;
+    } else if (updatedProcess.duration > 0) {
+      updatedProcess.duration--;
+      updatedProcess.seconds = 59;
     }
-
-    if (minuts) {
-      if (seconds) {
-        newState.seconds -= 1
-      } else {
-        newState.duration -= 1
-        newState.seconds = 59
-      }
-    } else {
-      newState.seconds -= 1
+    
+    // Add formatted time string
+    updatedProcess.formattedTime = `${String(updatedProcess.duration).padStart(2, '0')}:${String(updatedProcess.seconds).padStart(2, '0')}`;
+    
+    onUpdate(updatedProcess);
+    
+    if (isWorkProcess && updateParametersFunction) {
+      updateParametersFunction();
     }
-
-    setState(newState)
-  }, 1000)
-
-  return inervalId
-}
+  }, 1000);
+};

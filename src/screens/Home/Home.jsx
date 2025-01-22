@@ -63,12 +63,16 @@ const Home = () => {
     }
   }, [])
 
+  const [progressRate, setProgressRate] = useState(null)
+
+  // In your useEffect where you track process updates
   useEffect(() => {
     if (!state.currentProcess?.active || !mountedRef.current) return;
-
+  
     const updateParametersFunction = async () => {
       try {
         const parameters = await getParameters(userId)
+        
         if (mountedRef.current) {
           setUserParameters(parameters.parameters)
         }
@@ -76,18 +80,25 @@ const Home = () => {
         console.error("Error updating parameters:", error)
       }
     }
-
+  
     const timerInterval = updateProcessTimers(
       state.currentProcess,
       (updatedProcess) => {
+        console.log('@', updatedProcess)
         if (mountedRef.current) {
+          console.log(updatedProcess)
+          
+            const formattedDuration = String(updatedProcess.duration).padStart(2, '0')
+            const formattedSeconds = String(updatedProcess.seconds).padStart(2, '0')
+            setProgressRate(`${formattedDuration}:${formattedSeconds}`)
+          
           setState(prev => ({ ...prev, currentProcess: updatedProcess }))
         }
       },
       state.currentProcess?.type === "work",
       updateParametersFunction
     )
-
+  
     return () => {
       if (timerInterval) {
         clearInterval(timerInterval)
@@ -398,7 +409,7 @@ const Home = () => {
           {renderProcessProgressBar(
             state.currentProcess,
             countPercentage(state.currentProcess?.seconds, 60),
-            undefined,
+            progressRate,
             true
           )}
           <Menu noButton />
@@ -434,10 +445,10 @@ const Home = () => {
           {renderProcessProgressBar(
             state.currentProcess,
             countPercentage(
-              state.currentProcess?.duration * 60 + state.currentProcess?.seconds,
-              state.trainingParamters?.duration * 60
+              state.currentProcess?.duration * 60,
+              state.trainingParameters.duration * 60
             ),
-            state.trainingParamters?.mood_profit
+            progressRate
           )}
           <Menu noButton />
           {state.visibleWindow && (
@@ -489,7 +500,7 @@ const Home = () => {
               state.currentProcess?.duration * 60 + state.currentProcess?.seconds,
               getUserSleepDuration() * 60
             ),
-            "Time"
+            progressRate
           )}
           <Menu noButton />
           {state.visibleWindow && (
