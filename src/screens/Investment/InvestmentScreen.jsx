@@ -149,7 +149,7 @@ const Modal = ({ bottom, left, width, height, data, onClose, logoWidth }) => {
         }}
       >
         <p>
-          {data.from} {"->"} {data.to}
+          {data.from} {"->"} {data.to} 
         </p>
       </div>
       <div className="ModalFooter" style={{ marginTop: 10 }}>
@@ -293,7 +293,7 @@ const ThreeSectionCard = ({
       width: "90%",
       gap: "8px",
       margin: "20px auto auto auto",
-      height: "175px",
+      height: "171px",
       // maxHeight: "22vh",
       background: ` rgb(32, 32, 32)`,
       border: "solid 1px rgb(57, 57, 57)",
@@ -326,12 +326,12 @@ const ThreeSectionCard = ({
 
     buttonsContainer: {
       right: "0%",
-      top: "20%",
+      top: "11%",
     alignItems: "center",
     position: "absolute",
       margin: "0px 5px 0px 0px",
       
-      width: "33.333%",
+      width: "35%",
       borderRadius: "8px",
       display: "flex",
       flexDirection: "column",
@@ -347,7 +347,7 @@ const ThreeSectionCard = ({
 
   const getBackgroundStyle = () => ({
     backgroundImage:
-      "repeating-linear-gradient(to right, transparent, transparent 19px, rgb(99 89 80 / 30%) 20px), repeating-linear-gradient(to bottom, transparent, transparent 19px, rgb(103 93 84 / 30%) 20px)",
+      "repeating-linear-gradient(45deg, rgba(0, 0, 0, 0.21), rgba(0, 0, 0, 0.21) 2px, rgba(57, 57, 57, 0.06) 2px, rgba(57, 57, 57, 0.06) 6px) rgba(0, 0, 0, 0.51)",
   })
 
   const getEmptyBackgroundStyle = () => ({
@@ -460,8 +460,45 @@ const ThreeSectionCard = ({
   </p>
 
    
-     
-   
+  <div
+  className="ClaimPrise"
+  style={{
+    background: "rgb(18, 18, 18)",
+    borderRadius: "5px",
+    borderBottom: "1px solid rgba(117, 117, 117, 0.23)",
+    boxShadow:" rgba(0, 0, 0, 0.24) 0px 0px 8px 2px inset",
+    fontSize: 16,
+    color: "white",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    width: "100%",
+  }}
+>
+  
+  <img
+    src={Assets.Icons.balance} 
+    alt="Balance Icon"
+    style={{
+      position: "relative",
+      left: "-6%",
+      width: 24, 
+      height: 24,
+    }}
+  />
+  <p
+  
+  style={{
+    paddingRight: "10px",
+    textAlign: "center",
+    fontSize: 16,
+    color: "white",
+    width:" 100%",
+    
+  }}>
+  {title}
+  </p>
+</div>
 
   {current_level > 0 ? (
    
