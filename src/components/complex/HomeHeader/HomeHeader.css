@@ -1,7 +1,7 @@
 .HomeHeader {
   width: 100%;
   position: fixed;
-  top: calc(10px + 8vh);
+  top: calc(25px + 8vh);
   height: auto;
   overflow-x: hidden;
   z-index: 3;
