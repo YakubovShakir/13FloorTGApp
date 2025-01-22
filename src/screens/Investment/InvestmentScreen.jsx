@@ -149,7 +149,7 @@ const Modal = ({ bottom, left, width, height, data, onClose, logoWidth }) => {
         }}
       >
         <p>
-          {data.from} {"->"} {data.to} 
+          {data.from} {"->"} {data.to}
         </p>
       </div>
       <div className="ModalFooter" style={{ marginTop: 10 }}>
@@ -234,7 +234,7 @@ const AutoclaimModal = ({
 }
 
 const ThreeSectionCard = ({
-  data,
+  from,
   leftImage,
   rightImage,
   index = 0,
@@ -257,7 +257,6 @@ const ThreeSectionCard = ({
   userParameters,
   openAutoclaimModal,
 }) => {
-  
   const isTest = process.env.NODE_ENV === "test"
   const { lang } = useSettingsProvider()
 
@@ -277,6 +276,10 @@ const ThreeSectionCard = ({
     claim: {
       ru: "Забрать",
       en: "Claim",
+    },
+    hour:{
+      ru: "/ЧАС",
+      en: "/HOUR",
     },
   }
 
@@ -315,7 +318,6 @@ const ThreeSectionCard = ({
       flexDirection: "column",
       alignItems: "center",
       justifyContent: "center",
-      
     },
 
     image: {
@@ -327,10 +329,10 @@ const ThreeSectionCard = ({
     buttonsContainer: {
       right: "0%",
       top: "11%",
-    alignItems: "center",
-    position: "absolute",
+      alignItems: "center",
+      position: "absolute",
       margin: "0px 5px 0px 0px",
-      
+
       width: "35%",
       borderRadius: "8px",
       display: "flex",
@@ -373,25 +375,22 @@ const ThreeSectionCard = ({
             ...getBackgroundStyle(),
           }}
         >
+          {current_level > 0 ? (
+            <>
+              <p
+                style={{
+                  textAlign: "center",
+                  fontSize: 16,
+                  color: "white",
+                  paddingTop: 8,
+                }}
+              >
+                {translations.level[lang]} {current_level}
+              </p>
+            </>
+          ) : null}
 
-{current_level > 0 ? (
-  <>
-    <p
-      style={{
-        textAlign: "center",
-        fontSize: 16,
-        color: "white",
-        paddingTop: 8,
-      }}
-    >
-      {translations.level[lang]} {current_level}
-    </p>
-    
-  </>
-) : null} 
-
-<img src={leftImage} alt="Investment Type" style={styles.image} />
-
+          <img src={leftImage} alt="Investment Type" style={styles.image} />
 
           {current_level > 0 ? (
             <>
@@ -403,127 +402,118 @@ const ThreeSectionCard = ({
                   text={translations.upgrade[lang]}
                 />
               )}
-             
             </>
-          ) :  null}
-
-
+          ) : null}
         </div>
         {current_level > 0 ? (
-  <>
-        {/* Manager Image Section */}
+          <>
+            {/* Manager Image Section */}
+            <div
+              style={{
+                ...styles.section,
+                border: getBorderStyle(),
+                ...getEmptyBackgroundStyle(),
+              }}
+              onClick={has_autoclaim ? () => {} : openAutoclaimModal}
+            >
+              <img
+                src={
+                  has_autoclaim
+                    ? Assets.Icons.investManagerActive
+                    : Assets.Icons.investManager
+                }
+                alt="Manager Status"
+                style={styles.image}
+              />
+              {has_autoclaim && (
+                <p style={{ color: "white", paddingTop: 8 }}>
+                  {translations.autoclaim[lang]}
+                </p>
+              )}
+            </div>
+          </>
+        ) : null}
+
+        {/* Buttons Section */}
+
         <div
           style={{
-            ...styles.section,
+            ...styles.buttonsContainer,
             border: getBorderStyle(),
             ...getEmptyBackgroundStyle(),
           }}
-          onClick={has_autoclaim ? () => {} : openAutoclaimModal}
         >
-          <img
-            src={
-              has_autoclaim
-                ? Assets.Icons.investManagerActive
-                : Assets.Icons.investManager
-            }
-            alt="Manager Status"
-            style={styles.image}
-          />
-          {has_autoclaim && (
-            <p style={{ color: "white", paddingTop: 8 }}>
-              {translations.autoclaim[lang]}
+          <p
+            style={{
+              textAlign: "center",
+              fontSize: 16,
+              color: "white",
+              paddingBottom: 8,
+            }}
+          >
+            {title}
+          </p>
+
+          <div
+            className="ClaimPrise"
+            style={{
+              background: "rgb(18, 18, 18)",
+              borderRadius: "5px",
+              borderBottom: "1px solid rgba(117, 117, 117, 0.23)",
+              boxShadow: " rgba(0, 0, 0, 0.24) 0px 0px 8px 2px inset",
+              fontSize: 16,
+              color: "white",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              width: "100%",
+            }}
+          >
+            <img
+              src={Assets.Icons.balance}
+              alt="Balance Icon"
+              style={{
+                position: "relative",
+                left: "-6%",
+                width: 24,
+                height: 24,
+              }}
+            />
+            <p
+              style={{
+                paddingRight: "14px",
+                textAlign: "center",
+                fontSize: 16,
+                color: "white",
+                width: " 100%",
+              }}
+            >
+              {from}{translations.hour[lang]}
+             
             </p>
+          </div>
+
+          {current_level > 0 ? (
+            <>
+              <Button
+                {...buttonStyle}
+                active={shouldShowCollectButton}
+                onClick={shouldShowCollectButton ? handleClaim : undefined}
+                text={
+                  shouldShowCollectButton ? translations.claim[lang] : timer
+                }
+              />
+            </>
+          ) : (
+            <Button
+              {...buttonStyle}
+              active={userParameters.coins >= upgrade_info.price}
+              icon={Assets.Icons.balance}
+              text={upgrade_info.price}
+              onClick={onClick}
+            />
           )}
         </div>
-        </>
-) : null} 
-
-        {/* Buttons Section */}
-        
-        <div
-  style={{
-    ...styles.buttonsContainer,
-    border: getBorderStyle(),
-    ...getEmptyBackgroundStyle(),
-  }}
->
-
-  <p
-    style={{
-      textAlign: "center",
-      fontSize: 16,
-      color: "white",
-      paddingBottom: 8,
-    }}
-  >
-    {title}
-  </p>
-
-   
-  <div
-  className="ClaimPrise"
-  style={{
-    background: "rgb(18, 18, 18)",
-    borderRadius: "5px",
-    borderBottom: "1px solid rgba(117, 117, 117, 0.23)",
-    boxShadow:" rgba(0, 0, 0, 0.24) 0px 0px 8px 2px inset",
-    fontSize: 16,
-    color: "white",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    width: "100%",
-  }}
->
-  
-  <img
-    src={Assets.Icons.balance} 
-    alt="Balance Icon"
-    style={{
-      position: "relative",
-      left: "-6%",
-      width: 24, 
-      height: 24,
-    }}
-  />
-  <p
-  
-  style={{
-    paddingRight: "10px",
-    textAlign: "center",
-    fontSize: 16,
-    color: "white",
-    width:" 100%",
-    
-  }}>
-  {title}
-  </p>
-</div>
-
-  {current_level > 0 ? (
-   
-    <>
-
-
-
-    
-      <Button
-        {...buttonStyle}
-        active={shouldShowCollectButton}
-        onClick={shouldShowCollectButton ? handleClaim : undefined}
-        text={
-          shouldShowCollectButton ? translations.claim[lang] : timer
-        }
-      />
-    </>
-  ) : ( <Button
-  {...buttonStyle}
-  active={userParameters.coins >= upgrade_info.price}
-  icon={Assets.Icons.balance}
-  text={upgrade_info.price}
-  onClick={onClick}
-/> )}
-</div>
       </motion.div>
     </div>
   )
@@ -748,7 +738,7 @@ const InvestmentScreen = () => {
   } else if (investments) {
     return (
       <Screen>
-        <HomeHeader/>
+        <HomeHeader />
         <ScreenBody activity={translations.investments[lang]}>
           {isModalVisible && (
             <Modal
@@ -786,6 +776,8 @@ const InvestmentScreen = () => {
           </h2>
 
           <ThreeSectionCard
+            from={investments?.coffee_shop?.upgrade_info?.from}
+            data={modalData}
             title={titlesMap.coffee_shop[lang]}
             leftImage={Assets.Icons.investmentCoffeeShopIcon}
             rightImage={Assets.Icons.investManager}
@@ -801,6 +793,8 @@ const InvestmentScreen = () => {
             userParameters={userParameters}
           />
           <ThreeSectionCard
+            from={investments?.zoo_shop?.upgrade_info?.from}
+            data={modalData}
             title={titlesMap.zoo_shop[lang]}
             leftImage={Assets.Icons.investmentZooShopIcon}
             rightImage={Assets.Icons.investManager}
@@ -816,6 +810,8 @@ const InvestmentScreen = () => {
             userParameters={userParameters}
           />
           <ThreeSectionCard
+            from={investments?.game_center?.upgrade_info?.from}
+            data={modalData}
             title={titlesMap.game_center[lang]}
             leftImage={Assets.Icons.gameCenter}
             rightImage={Assets.Icons.investManager}
