@@ -4,7 +4,7 @@
   height: 100%;
   width: 100%;
  
-  padding-top: 51%;
+  top: calc(115px + 8vh);
 }
 
 .HomeHeaderBottomName {
