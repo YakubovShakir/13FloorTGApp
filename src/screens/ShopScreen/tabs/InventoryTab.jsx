@@ -269,7 +269,7 @@ const GridLayout = ({ setCurrentItem, items, clothesUnequip, clothesEquip }) => 
         width: "100vw",
         display: "flex",
         justifyContent: "center",
-        paddingTop: 55,
+        paddingBottom: 55,
       }}
     >
       <div
@@ -512,6 +512,9 @@ const InventoryTab = ({ userId }) => {
       >
         <div
           style={{
+            background: "linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 1) 40%)",
+    padding: "20px 0px 20px 0px",
+    bottom:"0%",
             zIndex: "5",
             position:" fixed",
             width: "90vw",
