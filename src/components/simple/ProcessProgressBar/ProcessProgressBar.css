@@ -1,6 +1,6 @@
 .progress-bar-container-fixed-top {
   position: fixed;
-  top: calc(105px + 8vh);
+  top: calc(108px + 8vh);
   width: 100vw;
   z-index: 4;
 }
@@ -48,7 +48,7 @@
 }
 
 .progress-bar-icon-left {
-  right: 9%;
+  right: 4%;
 }
 
 .progress-bar-icon-right {

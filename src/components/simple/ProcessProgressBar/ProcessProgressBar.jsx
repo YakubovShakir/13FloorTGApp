@@ -96,7 +96,7 @@ const ProcessProgressBar = ({
           height={20} 
           width={20} 
           src={Assets.Icons.balance} 
-          style={{ position: "absolute", top: 0, left: 0 }} 
+          style={{ position: "absolute", top: 0, left: -16 }} 
         />
     
         
@@ -106,7 +106,7 @@ const ProcessProgressBar = ({
             width={20}
             src={Assets.Icons.balance}
             key="animated-balance"
-            style={{ position: "absolute", top: 0, left: 0 }}
+            style={{ position: "absolute", top: 0, left: -16 }}
             initial={{
               y: -50, 
               opacity: 0, 
