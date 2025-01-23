@@ -144,6 +144,16 @@ export const WorkTab = ({
             ? "#4E1010" // red
             : "#0E3228", // green
         },
+        {
+          icon: Icons.levelIcon,
+          text: translations.requiredLevel[lang],
+          value: work?.work_id,
+          fillPercent: "100%",
+          fillBackground:
+            userParameters?.level < work?.work_id
+              ? "#4E1010" // red
+              : "#0E3228", // green
+        },
         work?.skill_id_required && {
           icon: skills?.find(
             (skill) => skill?.skill_id === work?.skill_id_required
@@ -182,16 +192,7 @@ export const WorkTab = ({
           text: translations.energyDecrease[lang],
           value: (work?.energy_cost_in_hour) + "/" + translations.hour[lang],
         },
-        {
-          icon: Icons.levelIcon,
-          text: translations.requiredLevel[lang],
-          value: work?.work_id,
-          fillPercent: "100%",
-          fillBackground:
-            userParameters?.level < work?.work_id
-              ? "#4E1010" // red
-              : "#0E3228", // green
-        }
+        
       ].filter(Boolean),
       buttons: [
         {

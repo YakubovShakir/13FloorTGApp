@@ -105,6 +105,10 @@ const SkillTab = ({
     duration: {
       ru: 'Длительность',
       en: 'Duration'
+    },
+    requiredLevel: {
+      ru: 'Необходимый уровень',
+      en: 'Required level'
     }
   }
 
@@ -180,6 +184,7 @@ const SkillTab = ({
     const data = {
       type: "skill",
       id: skill?.skill_id,
+      
       title: skill?.name[lang] || skill?.name,
       image: skill?.link,
       blocks: [
@@ -192,6 +197,16 @@ const SkillTab = ({
           ? "#4E1010" // red
           : "#0E3228", // green
 
+        },
+        {
+          icon: Icons.levelIcon,
+          text: translations.requiredLevel[lang],
+          value: skill?.skill_id,
+          fillPercent: "100%",
+          fillBackground:
+            userParameters?.level < skill?.skill_id
+              ? "#4E1010" // red
+              : "#0E3228", // green
         },
         skill?.skill_id_required && {
           icon: skills?.find((sk) => sk?.skill_id === skill?.skill_id_required)

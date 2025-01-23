@@ -565,18 +565,18 @@ const HomeHeader = ({ screenHeader }) => {
               {
                 icon: Icons.energy,
                 percentFill: Math.floor((userParameters?.energy / userParameters?.energy_capacity) * 100),
-                width: "30%",
+                width: "35%",
                 value: `${Math.floor(userParameters?.energy)}/${userParameters?.energy_capacity}`
               },
               {
                 icon: Icons.hungry,
                 percentFill: Math.floor(userParameters?.hungry),
-                width: "30%",
+                width: "28%",
               },
               {
                 icon: Icons.happiness,
                 percentFill: Math.floor(userParameters?.mood),
-                width: "30%",
+                width: "28%",
               },
             ]}
           />
