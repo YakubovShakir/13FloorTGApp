@@ -10,6 +10,33 @@ import UserContext, { UserProvider } from "../../../UserContext";
 import { motion } from 'framer-motion'
 import { getTrainingParameters } from "../../../services/user/user";
 
+const useWorks = () => {
+  const [works, setWorks] = useState([]);
+
+  useEffect(() => {
+    const fetchWorks = async () => {
+      const fetchedWorks = await getWorks();
+      setWorks(fetchedWorks);
+    };
+    fetchWorks();
+  }, []);
+
+  const getLabels = (processType, activeProcess, lang, rate, translations) => {
+    const work = works?.find((work) => work?.work_id === activeProcess?.type_id);
+
+    const typeToLabel = {
+      work: [work?.name[lang], `+${work?.coins_in_hour}/${lang === 'en' ? 'HOUR' : 'ЧАС'}`],
+      training: [translations.training[lang], rate],
+      sleep: [translations.longSleep[lang], rate]
+    };
+
+    return typeToLabel[processType];
+  };
+
+  return { works, getLabels };
+};
+
+
 const ProcessProgressBar = ({
   activeProcess = null,
   inputPercentage = null,
@@ -52,6 +79,20 @@ const ProcessProgressBar = ({
     }
   };
 
+  // Also modify the getLabels function to directly use the rate prop
+  const getLabels = async (processType) => {
+    const works = await getWorks();
+    const work = works?.find((work) => work?.work_id === activeProcess?.type_id);
+
+    const typeToLabel = {
+      work: [work?.name[lang], `+${work?.coins_in_hour}/${lang === 'en' ? 'HOUR' : 'ЧАС'}`],
+      training: [translations.training[lang], rate],
+      sleep: [translations.longSleep[lang], rate]
+    };
+
+    return typeToLabel[processType];
+  };
+  
   useEffect(() => {
     if (activeProcess) {
       const loadData = async () => {
@@ -74,32 +115,18 @@ const ProcessProgressBar = ({
     }
   }, [activeProcess, rate]); // Add rate to dependencies
 
-  // Also modify the getLabels function to directly use the rate prop
-  const getLabels = async (processType) => {
-    const works = await getWorks();
-    const work = works?.find((work) => work?.work_id === activeProcess?.type_id);
 
-    const typeToLabel = {
-      work: [work?.name[lang], `+${work?.coins_in_hour}/${lang === 'en' ? 'HOUR' : 'ЧАС'}`],
-      training: [translations.training[lang], rate],
-      sleep: [translations.longSleep[lang], rate]
-    };
-
-    return typeToLabel[processType];
-  };
+  const { isSoundEnabled } = useSettingsProvider()
 
   const WorkIcon = ({ percentage, hasAnimated }) => {  
     return (
       <>
-       
         <img 
           height={20} 
           width={20} 
           src={Assets.Icons.balance} 
           style={{ position: "absolute", top: 0, left: 0 }} 
         />
-    
-        
         {percentage < 1 && !hasAnimated && (
           <motion.img
             height={20}
@@ -132,7 +159,7 @@ const ProcessProgressBar = ({
     const typeToIconsMap = {
       work: [
 
-        <WorkIcon percentage={percentage} key={'work'}/>
+        <WorkIcon percentage={percentage} hasAnimated={hasAnimated} key={'work'}/>
         // /> : <img height={20} width={20} src={Assets.Icons.balance} key="balance" />,
       ],
       training: [
@@ -145,12 +172,21 @@ const ProcessProgressBar = ({
     return typeToIconsMap[processType];
   };
 
+  const coinAudio = useRef(new Audio('https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/coin.mp3'))
+
   useEffect(() => {
     if(percentage < 1) {
-      setHasAnimated(true)
+      const id = setTimeout(() => {
+        if(isSoundEnabled) {
+          coinAudio.current.play()
+        }
+        setHasAnimated(true)
+      },500)
+
+      return () => clearTimeout(id)
     }
 
-    if(percentage === 100) {
+    if(percentage > 1) {
       setHasAnimated(false)
     } 
   }, [percentage])

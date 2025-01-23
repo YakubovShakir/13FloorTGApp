@@ -1,6 +1,6 @@
 import "./FillBar.css";
 
-const FillBar = ({ icon, width, percentFill }) => {
+const FillBar = ({ icon, width, percentFill, value }) => {
   const roundedPercent = Math.round(percentFill);
 
   const color =
@@ -16,7 +16,7 @@ const FillBar = ({ icon, width, percentFill }) => {
   style={{ '--fill-width': `${roundedPercent}%` }}
 >
   <div className="FillBarText">
-    {roundedPercent}%
+    {value || roundedPercent + '%'}
   </div>
 </div>
 

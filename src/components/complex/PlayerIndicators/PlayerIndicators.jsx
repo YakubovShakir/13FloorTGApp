@@ -13,6 +13,7 @@ const PlayerIndicators = ({ indicators }) => {
           icon={indicator.icon}
           width={indicator.width}
           percentFill={indicator.percentFill}
+          value={indicator.value}
         />
       ))}
     </div>
