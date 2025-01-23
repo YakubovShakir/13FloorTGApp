@@ -178,9 +178,8 @@ const ProcessProgressBar = ({
         new Audio('https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/coin.mp3').play()
       }
       const id = setTimeout(() => {
-        
         setHasAnimated(true)
-      },500)
+      },1000)
 
       return () => clearTimeout(id)
     }
