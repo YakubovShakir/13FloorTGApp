@@ -172,14 +172,13 @@ const ProcessProgressBar = ({
     return typeToIconsMap[processType];
   };
 
-  const coinAudio = useRef(new Audio('https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/coin.mp3'))
-
   useEffect(() => {
     if(percentage < 1) {
+      if(isSoundEnabled) {
+        new Audio('https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/coin.mp3').play()
+      }
       const id = setTimeout(() => {
-        if(isSoundEnabled) {
-          coinAudio.current.play()
-        }
+        
         setHasAnimated(true)
       },500)
 
