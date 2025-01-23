@@ -55,7 +55,7 @@
 }
 
 .ModalBody {
-  height: 26vh;
+  height: 33vh;
   display: flex;
   flex-direction: column;
   gap: 3%;
