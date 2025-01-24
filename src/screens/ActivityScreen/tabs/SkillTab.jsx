@@ -238,7 +238,7 @@ const SkillTab = ({
         {
           ...getButtonInfo(skill),
           onClick: !(learning || learned) && bottomButtonOnClick,
-          active: !(learning || learned) && skill.skill_id_required ? checkLearnedSkill(skill.skill_id_required) : true,
+          active: !(learning || learned) && (skill.skill_id_required ? checkLearnedSkill(skill.skill_id_required) : true) && userParameters.level >= skill.requiredLevel,
         },
       ],
     }
@@ -269,12 +269,9 @@ const SkillTab = ({
           ? formatTime(learning?.duration, learning?.seconds)
           : formatTime(skill?.duration),
     }
+    const learnedRequiredSkill = skill.skill_id_required ? checkLearnedSkill(skill.skill_id_required) : true
 
-    // Can buy learning or not
-    let accessStatus = 
-      userParameters?.coins >= skill?.coins_price && 
-      (requiredSkill ? checkLearnedSkill(requiredSkill) : true) && 
-      userParameters.level >= skill.requiredLevel 
+    let accessStatus = !(learned || learning) && learnedRequiredSkill && userParameters?.coins >= skill.coins_price && userParameters.level >= skill.requiredLevel
 
     if (learned) accessStatus = false
 

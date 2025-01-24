@@ -137,7 +137,7 @@ const FoodTab = ({ userId, userParameters, setUserParameters }) => {
   const getItemFoodButton = (food) => {
     const price = food?.coins_price
     const enoughCoins = userParameters?.coins >= price
-    const status = enoughCoins && !checkFoodIsEating(food)
+    const status = enoughCoins && !checkFoodIsEating(food) && userParameters.level >= food.user_level_require
     return [
       {
         text: price,
