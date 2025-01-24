@@ -34,7 +34,7 @@ const SkillTab = ({
   const [trainingParamters, setTrainingParameters] = useState(null) // User training parameters
   const [activeProcess, setActiveProcess] = useState(null) //  User active training
 
-  
+
   const { lang } = useSettingsProvider()
 
   const translations = {
@@ -158,12 +158,12 @@ const SkillTab = ({
     const learning = checkLearningSkill(skill.skill_id)
     const learned = checkLearnedSkill(skill.skill_id)
     const icon = learned || learning ? null : Icons.balance
-    
+
     let text = skill.coins_price
-    
-    if(learning) text = translations.learning[lang]
-    if(learned) text = translations.learned[lang]
-    
+
+    if (learning) text = translations.learning[lang]
+    if (learned) text = translations.learned[lang]
+
     return {
       text,
       icon,
@@ -184,7 +184,7 @@ const SkillTab = ({
     const data = {
       type: "skill",
       id: skill?.skill_id,
-      
+
       title: skill?.name[lang] || skill?.name,
       image: skill?.link,
       blocks: [
@@ -194,17 +194,17 @@ const SkillTab = ({
           value: skill?.coins_price,
           fillPercent: '100%',
           fillBackground: userParameters?.coins < skill.coins_price
-          ? "#4E1010" // red
-          : "#0E3228", // green
+            ? "#4E1010" // red
+            : "#0E3228", // green
 
         },
         {
           icon: Icons.levelIcon,
           text: translations.requiredLevel[lang],
-          value: skill?.skill_id,
+          value: skill?.requiredLevel,
           fillPercent: "100%",
           fillBackground:
-            userParameters?.level < skill?.skill_id
+            userParameters?.level < skill?.requiredLevel
               ? "#4E1010" // red
               : "#0E3228", // green
         },
@@ -223,9 +223,9 @@ const SkillTab = ({
           fillPercent:
             learning?.duration || learning?.seconds
               ? countPercentage(
-                  learning?.duration * 60 + learning?.seconds,
-                  skill?.duration * 60
-                )
+                learning?.duration * 60 + learning?.seconds,
+                skill?.duration * 60
+              )
               : false,
           value:
             learning?.duration || learning?.seconds
@@ -260,9 +260,9 @@ const SkillTab = ({
       fillPercent:
         learning?.duration || learning?.seconds
           ? countPercentage(
-              learning?.duration * 60 + learning?.seconds,
-              skill?.duration * 60
-            )
+            learning?.duration * 60 + learning?.seconds,
+            skill?.duration * 60
+          )
           : false,
       value:
         learning?.duration || learning?.seconds
@@ -270,8 +270,15 @@ const SkillTab = ({
           : formatTime(skill?.duration),
     }
 
-    let accessStatus = userParameters?.coins >= skill?.coins_price && (requiredSkill ? checkLearnedSkill(requiredSkill) : true)
-    if(learned) accessStatus = false
+    // Can buy learning or not
+    let accessStatus = 
+      userParameters?.coins >= skill?.coins_price && 
+      (requiredSkill ? checkLearnedSkill(requiredSkill) : true) && 
+      userParameters.level >= skill.requiredLevel && 
+      // Ensures learning one at a time in UI
+      userLearningSkills.length === 0
+
+    if (learned) accessStatus = false
 
     if (requiredSkill) accessStatus && checkLearnedSkill(requiredSkill)
 
@@ -331,7 +338,7 @@ const SkillTab = ({
 
   return (
     <ScreenContainer withTab>
-   
+
 
       {/* List of skills*/}
       {skills?.map((skill, index) => (

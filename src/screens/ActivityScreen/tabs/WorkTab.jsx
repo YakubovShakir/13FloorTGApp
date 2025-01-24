@@ -126,8 +126,7 @@ export const WorkTab = ({
       requiredRespect &&
       requiredSkill &&
       isNextLevelWork &&
-      enoughBalance && userParameters.level >= work.work_id
-
+      enoughBalance && userParameters.level >= work.requiredLevel
     const data = {
       type: "work",
       id: work?.work_id,
@@ -147,10 +146,10 @@ export const WorkTab = ({
         {
           icon: Icons.levelIcon,
           text: translations.requiredLevel[lang],
-          value: work?.work_id,
+          value: work?.requiredLevel,
           fillPercent: "100%",
           fillBackground:
-            userParameters?.level < work?.work_id
+            userParameters?.level < work?.requiredLevel
               ? "#4E1010" // red
               : "#0E3228", // green
         },
@@ -226,7 +225,7 @@ export const WorkTab = ({
     const currentWork = getWorkById(userParameters?.work_id)
     const requiredRespect = userParameters?.respect >= work?.respect_required
     const requiredSkill = checkLearnedSkill(work?.skill_id_required)
-    const requiredLevel = userParameters?.level >= work?.work_id
+    const requiredLevel = userParameters?.level >= work?.requiredLevel
     const isNextLevelWork = workId === userParameters?.work_id + 1
     const enoughBalance = userParameters?.coins >= work?.coins_price
     const buyStatus =

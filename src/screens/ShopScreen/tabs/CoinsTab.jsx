@@ -671,7 +671,7 @@ const CoinsTab = ({ userId }) => {
         // TODO: localize
         const loadedClothesItems = data.clothing.map((item) => ({
           id: item.clothing_id,
-          name: item.name["ru"],
+          name: item.name[lang],
           productType: 'clothes',
           image:
             userPersonage.gender === "male" ? item.male_icon : item.female_icon,
@@ -680,22 +680,21 @@ const CoinsTab = ({ userId }) => {
           tier: item.tier,
           tags: item.tag,
           category: item.type,
-          available: userParameters.coins >= item.price,
+          available: userParameters.coins >= item.price && userParameters.level >= item.requiredLevel,
         }))
         const loadedShelfItems = data.shelf.map((item) => ({
           id: item.id,
           productType: 'shelf',
-          name: item.name["ru"],
+          name: item.name[lang],
           image: item.link,
           price: item.cost.stars || item.cost.coins,
           category: "Shelf",
           isPrem: item.cost.stars > 0,
           available: item.cost.stars > 0 || item.cost.coins === 0 || userParameters.coins >= item.cost.coins,
-          description: item.description['ru']
+          description: item.description && item.description[lang]
         }))
         setClothesItems(loadedClothesItems)
         setShelfItems(loadedShelfItems)
-        console.log("Clothes Items", clothesItems)
       })
       .finally(() => setIsLoading(false))
     } catch (err) {
