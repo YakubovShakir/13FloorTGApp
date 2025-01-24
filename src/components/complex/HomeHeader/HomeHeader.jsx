@@ -504,13 +504,14 @@ const HomeHeader = ({ screenHeader }) => {
   };
 
   useEffect(() => {
+    console.log(window.Telegram?.WebApp.safeAreaInset?.top)
     getLevels().then((levels) => setLevels(levels));
     getUserActiveProcess(userId).then((activeProcess) => setActiveProcess(activeProcess));
   }, []);
 
   return (
     <>
-      <div className="HomeHeader" style={{ borderRadius: screenHeader && "0" }}>
+      <div className="HomeHeader" style={{ borderRadius: screenHeader && "0", paddingTop: window.Telegram?.WebApp.safeAreaInset?.top || 0 + 15 }}>
         <div className="HomeHeaderTopRow">
           <div className="HomeHeaderLevel" onClick={() => setIsStatsShown(true)}>
 
