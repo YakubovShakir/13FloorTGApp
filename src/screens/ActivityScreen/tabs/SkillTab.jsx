@@ -294,7 +294,7 @@ const SkillTab = ({
     const learning = checkLearningSkill(skill?.skill_id)
     const learnedRequiredSkill = skill.skill_id_required ? checkLearnedSkill(skill.skill_id_required) : true
 
-    const active = !(learned || learning) && learnedRequiredSkill && userParameters?.coins >= skill.coins_price
+    const active = !(learned || learning) && learnedRequiredSkill && userParameters?.coins >= skill.coins_price && userParameters.level >= skill.requiredLevel
 
     return [
       {
