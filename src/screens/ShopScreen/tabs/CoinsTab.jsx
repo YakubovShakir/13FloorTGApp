@@ -533,7 +533,7 @@ const CoinsTab = ({ userId }) => {
           tier: item.tier,
           tags: item.tag,
           category: item.type,
-          available: userParameters.coins >= item.price,
+          available: userParameters.coins >= item.price && userParameters.level >= item.requiredLevel,
         }))
         const loadedShelfItems = data.shelf.map((item) => ({
           id: item.id,
