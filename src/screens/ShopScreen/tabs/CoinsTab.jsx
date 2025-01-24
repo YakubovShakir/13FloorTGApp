@@ -732,7 +732,7 @@ const CoinsTab = ({ userId }) => {
         <div
           style={{
             background: "linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 1) 40%)",
-    padding: "20px 0px 20px 0px",
+    padding: "20px 0px 30px 0px",
     bottom:"0%",
             zIndex: "5",
             position:" fixed",
