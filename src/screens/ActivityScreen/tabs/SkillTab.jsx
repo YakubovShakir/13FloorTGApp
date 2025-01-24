@@ -238,7 +238,7 @@ const SkillTab = ({
         {
           ...getButtonInfo(skill),
           onClick: !(learning || learned) && bottomButtonOnClick,
-          active: !(learning || learned),
+          active: !(learning || learned) && userLearningSkills.length === 0,
         },
       ],
     }
@@ -276,7 +276,7 @@ const SkillTab = ({
       (requiredSkill ? checkLearnedSkill(requiredSkill) : true) && 
       userParameters.level >= skill.requiredLevel && 
       // Ensures learning one at a time in UI
-      userLearningSkills.length === 0
+      userLearningSkills?.length === 0
 
     if (learned) accessStatus = false
 
@@ -296,7 +296,7 @@ const SkillTab = ({
     const learning = checkLearningSkill(skill?.skill_id)
     const learnedRequiredSkill = skill.skill_id_required ? checkLearnedSkill(skill.skill_id_required) : true
 
-    const active = !(learned || learning) && learnedRequiredSkill && userParameters?.coins >= skill.coins_price
+    const active = !(learned || learning) && learnedRequiredSkill && userParameters?.coins >= skill.coins_price && userLearningSkills?.length === 0
 
     return [
       {
