@@ -511,7 +511,7 @@ const HomeHeader = ({ screenHeader }) => {
 
   return (
     <>
-      <div className="HomeHeader" style={{ borderRadius: screenHeader && "0", paddingTop: (window.Telegram?.WebApp.safeAreaInset?.top || 0) + 75 }}>
+      <div className="HomeHeader" style={{ borderRadius: screenHeader && "0", paddingTop: (window.Telegram?.WebApp.safeAreaInset?.top || 0) + 55 }}>
         <div className="HomeHeaderTopRow">
           <div className="HomeHeaderLevel" onClick={() => setIsStatsShown(true)}>
 
