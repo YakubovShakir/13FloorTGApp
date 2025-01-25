@@ -1,6 +1,6 @@
 .progress-bar-container-fixed-top {
   position: fixed;
-  top: calc(108px + 8vh);
+  padding-top: 131.5px;
   width: 100vw;
   z-index: 4;
 }

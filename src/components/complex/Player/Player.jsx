@@ -249,7 +249,7 @@ alt="Head"
           {clothing.accessories && (
             <img
               className="PlayerHead"
-              style={{ zIndex: 5 }}
+              style={{ zIndex: 7 }}
               src={pullGenderedClothingImage(personage?.gender, clothing?.accessories)}
               alt="Head"
             />

@@ -318,7 +318,7 @@ const Home = () => {
           <div style={{ position: "absolute", zIndex: 2 }}>
             <Player
               bottom={"calc(-85vh + 50px)"}
-              width="37vw"
+              width="39vw"
               left={"9vw"}
               top={"35vh"}
               personage={userPersonage}
@@ -400,7 +400,7 @@ const Home = () => {
             />
           <Player
             bottom="calc(-1vh + 141px)"
-            width="37vw"
+            width="39vw"
             left={"9vw"}
             top={"35vh"}
             personage={userPersonage}
@@ -437,7 +437,7 @@ const Home = () => {
             />
           <Player
             bottom="calc(-1vh + 141px)"
-            width="37vw"
+            width="39vw"
             left={"9vw"}
             top={"35vh"}
             personage={userPersonage}
