@@ -310,7 +310,7 @@ const ThreeSectionCard = ({
         "repeating-linear-gradient(45deg, rgba(0, 0, 0, 0.21), rgba(0, 0, 0, 0.21) 2px, rgba(57, 57, 57, 0.06) 2px, rgba(57, 57, 57, 0.06) 6px) rgba(0, 0, 0, 0.51)",
       borderBottom: " 1px solid rgba(117, 117, 117, 0.23)",
       boxShadow: "rgba(0, 0, 0, 0.24) 0px 0px 8px 2px inset",
-      width: "100px",
+      width: "12vh",
       borderRadius: "8px",
       overflow: "hidden",
       position: "relative",
@@ -328,12 +328,12 @@ const ThreeSectionCard = ({
 
     buttonsContainer: {
       right: "0%",
-      top: "11%",
+      top: "15%",
       alignItems: "center",
       position: "absolute",
       margin: "0px 5px 0px 0px",
 
-      width: "35%",
+      width: "34%",
       borderRadius: "8px",
       display: "flex",
       flexDirection: "column",
@@ -448,7 +448,7 @@ const ThreeSectionCard = ({
               textAlign: "center",
               fontSize: 16,
               color: "white",
-              paddingBottom: 8,
+              
             }}
           >
             {title}
