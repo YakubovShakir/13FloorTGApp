@@ -1,103 +1,124 @@
-import { useCallback, useEffect, useState, useContext } from "react";
-import PlayerIndicators from "../PlayerIndicators/PlayerIndicators";
-import Assets from "../../../assets";
-import { SwiperSlide, Swiper } from "swiper/react";
-import { Pagination } from "swiper/modules";
-import { getLevels } from "../../../services/levels/levels";
-import { disconnectUserWallet, getUserActiveProcess, saveUserWallet } from "../../../services/user/user";
-import "./HomeHeader.css";
-import "swiper/css";
-import "swiper/css/pagination";
-import UserContext from "../../../UserContext";
-import { useSettingsProvider } from "../../../hooks";
-import { THEME, useTonConnectModal, useTonConnectUI, useTonWallet } from '@tonconnect/ui-react';
-import { useTonAddress } from "@tonconnect/ui-react";
+import { useCallback, useEffect, useState, useContext } from "react"
+import PlayerIndicators from "../PlayerIndicators/PlayerIndicators"
+import Assets from "../../../assets"
+import { SwiperSlide, Swiper } from "swiper/react"
+import { Pagination } from "swiper/modules"
+import { getLevels } from "../../../services/levels/levels"
+import {
+  disconnectUserWallet,
+  getUserActiveProcess,
+  saveUserWallet,
+} from "../../../services/user/user"
+import "./HomeHeader.css"
+import "swiper/css"
+import "swiper/css/pagination"
+import UserContext from "../../../UserContext"
+import { useSettingsProvider } from "../../../hooks"
+import {
+  THEME,
+  useTonConnectModal,
+  useTonConnectUI,
+  useTonWallet,
+} from "@tonconnect/ui-react"
+import { useTonAddress } from "@tonconnect/ui-react"
+import { formatCoins } from "../../../utils/formatCoins"
 
 const walletTranslations = {
   telegram: {
-    ru: 'Подключить через Telegram',
-    en: 'Connect via Telegram'
+    ru: "Подключить через Telegram",
+    en: "Connect via Telegram",
   },
   connecting: {
-    ru: 'Подключение...',
-    en: 'Connecting...'
+    ru: "Подключение...",
+    en: "Connecting...",
   },
   connected: {
-    ru: 'Подключено',
-    en: 'Connected'
-  }
-};
+    ru: "Подключено",
+    en: "Connected",
+  },
+}
 
 const TelegramWalletConnection = () => {
-  const [isConnecting, setIsConnecting] = useState(false);
-  const { lang } = useSettingsProvider();
-  const [tonConnectUI, setOptions] = useTonConnectUI();
-  const { userId, userParameters } = useContext(UserContext);
-  const wallet = useTonWallet();
-  const friendlyAddress = useTonAddress(true);
+  const [isConnecting, setIsConnecting] = useState(false)
+  const { lang } = useSettingsProvider()
+  const [tonConnectUI, setOptions] = useTonConnectUI()
+  const { userId, userParameters } = useContext(UserContext)
+  const wallet = useTonWallet()
+  const friendlyAddress = useTonAddress(true)
 
   tonConnectUI.uiOptions = {
     uiPreferences: {
-      theme: THEME.DARK
+      theme: THEME.DARK,
     },
-    language: lang
-  };
+    language: lang,
+  }
 
   useEffect(() => {
-    if(wallet !== null && userParameters.hasWallet === false) {
-      saveUserWallet(userId, wallet);
+    if (wallet !== null && userParameters.hasWallet === false) {
+      saveUserWallet(userId, wallet)
     }
-  }, [userParameters, wallet]);
+  }, [userParameters, wallet])
 
   useEffect(() => {
     const handleStatusChange = async (w) => {
-      setIsConnecting(true);
+      setIsConnecting(true)
       try {
-        if(w) {
-          const x = await saveUserWallet(userId, w.account.address);
-          console.log(x);
+        if (w) {
+          const x = await saveUserWallet(userId, w.account.address)
+          console.log(x)
         } else {
-          await disconnectUserWallet(userId);
+          await disconnectUserWallet(userId)
         }
-      } catch(err) {
-        console.log('Error handling wallet connection:', err);
+      } catch (err) {
+        console.log("Error handling wallet connection:", err)
       } finally {
-        setIsConnecting(false);
+        setIsConnecting(false)
       }
-    };
+    }
 
-    tonConnectUI.onStatusChange(handleStatusChange);
-  }, [tonConnectUI, userId]);
+    tonConnectUI.onStatusChange(handleStatusChange)
+  }, [tonConnectUI, userId])
 
-  const { open } = useTonConnectModal();
-  const [isDisconnectModalVisible, setIsDisconnectModalVisible] = useState(false);
+  const { open } = useTonConnectModal()
+  const [isDisconnectModalVisible, setIsDisconnectModalVisible] =
+    useState(false)
 
   const getButtonText = () => {
-    if (!wallet || !friendlyAddress) return walletTranslations.telegram[lang];
-    return `${friendlyAddress.slice(0, 4)}...${friendlyAddress.slice(-4)}`;
-  };
+    if (!wallet || !friendlyAddress) return walletTranslations.telegram[lang]
+    return `${friendlyAddress.slice(0, 4)}...${friendlyAddress.slice(-4)}`
+  }
 
   const translations = {
     yes: {
-      ru: 'Да',
-      en: 'Yes'
+      ru: "Да",
+      en: "Yes",
     },
     no: {
-      ru: 'Нет',
-      en: 'No'
+      ru: "Нет",
+      en: "No",
     },
     confirm: {
-      ru: `Вы действительно хотите отключить кошелёк ${friendlyAddress ? `${friendlyAddress.slice(0, 4)}...${friendlyAddress.slice(-4)}` : ''}`,
-      en: `Do you really want to disconnect wallet ${friendlyAddress ? `${friendlyAddress.slice(0, 4)}...${friendlyAddress.slice(-4)}` : ''}`
-    }
-  };
+      ru: `Вы действительно хотите отключить кошелёк ${
+        friendlyAddress
+          ? `${friendlyAddress.slice(0, 4)}...${friendlyAddress.slice(-4)}`
+          : ""
+      }`,
+      en: `Do you really want to disconnect wallet ${
+        friendlyAddress
+          ? `${friendlyAddress.slice(0, 4)}...${friendlyAddress.slice(-4)}`
+          : ""
+      }`,
+    },
+  }
 
   return (
     <>
       <Bar
         title={getButtonText()}
         iconLeft={Assets.Icons.telegram || Assets.Icons.wallets}
-        onClick={wallet === null ? open : () => setIsDisconnectModalVisible(true)}
+        onClick={
+          wallet === null ? open : () => setIsDisconnectModalVisible(true)
+        }
         isChecked={wallet !== null}
         isLoading={isConnecting}
       />
@@ -106,19 +127,19 @@ const TelegramWalletConnection = () => {
           <div className="modal-content">
             <p>{translations.confirm[lang]}</p>
             <div className="modal-buttons">
-              <button 
+              <button
                 onClick={() => {
-                  setIsDisconnectModalVisible(false);
-                  tonConnectUI.disconnect();
+                  setIsDisconnectModalVisible(false)
+                  tonConnectUI.disconnect()
                 }}
                 style={{
-                  border: "2px solid rgb(0, 255, 115)", 
+                  border: "2px solid rgb(0, 255, 115)",
                   color: "rgb(0, 255, 115)",
                 }}
               >
                 {translations.yes[lang]}
               </button>
-              <button 
+              <button
                 onClick={() => setIsDisconnectModalVisible(false)}
                 style={{
                   color: "rgb(255, 0, 0)",
@@ -132,53 +153,54 @@ const TelegramWalletConnection = () => {
         </div>
       )}
     </>
-  );
-};
+  )
+}
 
 const Bar = ({ title, onClick, iconLeft, iconRight, isChecked }) => {
   const styles = {
     container: {
-      display: 'flex',
-      alignItems: 'center',
-      width: '100%',
-      padding: '8px 8px',
-      background: '#121212',
+      display: "flex",
+      alignItems: "center",
+      width: "100%",
+      padding: "8px 8px",
+      background: "#121212",
       borderRadius: 8,
-      borderBottom: 'solid 1px #7575753b',
-      boxShadow: '0px 0px 8px 2px rgba(0, 0, 0, 0.24) inset'
+      borderBottom: "solid 1px #7575753b",
+      boxShadow: "0px 0px 8px 2px rgba(0, 0, 0, 0.24) inset",
     },
     icon: {
-      width: '24px',
-      height: '24px',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
+      width: "24px",
+      height: "24px",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
       borderRadius: 5,
-      color: 'white'
+      color: "white",
     },
     text: {
       flexGrow: 1,
-      marginLeft: '16px',
-      textAlign: 'left',
-      color: 'white',
-      fontSize: '12px'
+      marginLeft: "16px",
+      textAlign: "left",
+      color: "white",
+      fontSize: "12px",
     },
     loading: {
-      animation: 'spin 1s linear infinite',
-    }
-  };
+      animation: "spin 1s linear infinite",
+    },
+  }
 
-  const { isSoundEnabled, toggleSound, isMusicEnabled, toggleMusic } = useSettingsProvider(); // Access context values
+  const { isSoundEnabled, toggleSound, isMusicEnabled, toggleMusic } =
+    useSettingsProvider() // Access context values
 
   const getCorrectIsChecked = () => {
-    if (title === 'Music') return isMusicEnabled
-    if (title === 'Sounds') return isSoundEnabled
+    if (title === "Music") return isMusicEnabled
+    if (title === "Sounds") return isSoundEnabled
     return isChecked
   }
 
   const getCorrectOnClick = () => {
-    if (title === 'Music') return toggleMusic
-    if (title === 'Sounds') return toggleSound
+    if (title === "Music") return toggleMusic
+    if (title === "Sounds") return toggleSound
     return onClick
   }
 
@@ -187,7 +209,7 @@ const Bar = ({ title, onClick, iconLeft, iconRight, isChecked }) => {
     if (clickHandler) {
       await clickHandler()
     }
-  };
+  }
 
   return (
     <div style={styles.container} onClick={handleClick}>
@@ -202,56 +224,55 @@ const Bar = ({ title, onClick, iconLeft, iconRight, isChecked }) => {
         <div
           style={{
             borderRadius: 5,
-            border: '1px solid rgb(57, 57, 57)',
+            border: "1px solid rgb(57, 57, 57)",
             height: 26,
             width: 26,
-            display: 'flex',
-            alignContent: 'center',
-            alignItems: 'center',
+            display: "flex",
+            alignContent: "center",
+            alignItems: "center",
             padding: 1,
           }}
         >
-          {getCorrectIsChecked() === true ? <img style={styles.icon} src={Assets.Icons.checkboxChecked} /> : null}
+          {getCorrectIsChecked() === true ? (
+            <img style={styles.icon} src={Assets.Icons.checkboxChecked} />
+          ) : null}
         </div>
       )}
     </div>
-  );
+  )
 }
 
-export const SettingsModal = ({
-  baseStyles,
-  setIsSettingsShown
-}) => {
+export const SettingsModal = ({ baseStyles, setIsSettingsShown }) => {
   const {
     isSoundEnabled,
     toggleSound,
     toggleMusic,
     isMusicEnabled,
     lang,
-    setLang
-  } = useSettingsProvider();
+    setLang,
+  } = useSettingsProvider()
 
   const translations = {
     settings: {
-      ru: 'Настройки',
-      en: 'Settings'
+      ru: "Настройки",
+      en: "Settings",
     },
     music: {
-      ru: 'Музыка',
-      en: 'Music'
+      ru: "Музыка",
+      en: "Music",
     },
     sound: {
-      ru: 'Звуки',
-      en: 'Sounds'
+      ru: "Звуки",
+      en: "Sounds",
     },
     language: {
-      ru: 'Язык',
-      en: 'Language'
+      ru: "Язык",
+      en: "Language",
     },
     wallet: {
-      ru: 'Подключить кошелек',
-      en: 'Connect wallet'
-    }
+      ru: "Подключить кошелек",
+      en: "Connect wallet",
+    },
   }
 
   return (
@@ -262,7 +283,7 @@ export const SettingsModal = ({
         alignItems: "center",
         justifyContent: "center",
         background: "rgba(0,0,0,0.8)",
-        zIndex: 999999
+        zIndex: 999999,
       }}
     >
       <div
@@ -296,7 +317,9 @@ export const SettingsModal = ({
             paddingBottom: "20px",
           }}
         >
-          <div style={{ display: "flex", flexDirection: "column", width: '90%' }}>
+          <div
+            style={{ display: "flex", flexDirection: "column", width: "90%" }}
+          >
             <p
               style={{
                 fontFamily: "Anonymous pro",
@@ -305,15 +328,39 @@ export const SettingsModal = ({
                 textAlign: "left",
                 marginBottom: 19,
                 fontSize: 18,
-
               }}
             >
               {translations.settings[lang]}
             </p>
-            <div style={{ display: "flex", justifyContent: "center", width: '100%', flexDirection: 'column', rowGap: 8 }}>
-              <Bar title={translations.music[lang]} iconLeft={Assets.Icons.musics} onClick={() => toggleMusic()} isChecked={isMusicEnabled} />
-              <Bar title={translations.sound[lang]} iconLeft={Assets.Icons.sounds} onClick={() => toggleSound()} isChecked={isSoundEnabled} />
-              <Bar title={translations.language[lang]} iconLeft={Assets.Icons.languages} iconRight={lang === 'ru' ? Assets.Icons.rusIcon : Assets.Icons.engIcon} onClick={() => setLang(lang === 'en' ? 'ru' : 'en')} />
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                width: "100%",
+                flexDirection: "column",
+                rowGap: 8,
+              }}
+            >
+              <Bar
+                title={translations.music[lang]}
+                iconLeft={Assets.Icons.musics}
+                onClick={() => toggleMusic()}
+                isChecked={isMusicEnabled}
+              />
+              <Bar
+                title={translations.sound[lang]}
+                iconLeft={Assets.Icons.sounds}
+                onClick={() => toggleSound()}
+                isChecked={isSoundEnabled}
+              />
+              <Bar
+                title={translations.language[lang]}
+                iconLeft={Assets.Icons.languages}
+                iconRight={
+                  lang === "ru" ? Assets.Icons.rusIcon : Assets.Icons.engIcon
+                }
+                onClick={() => setLang(lang === "en" ? "ru" : "en")}
+              />
               <TelegramWalletConnection />
             </div>
           </div>
@@ -326,32 +373,32 @@ export const SettingsModal = ({
 const StatsBar = ({ title, iconLeft, value }) => {
   const styles = {
     container: {
-      display: 'flex',
-      alignItems: 'center',
-      width: '100%',
-      padding: '8px 8px',
-      background: '#121212',
+      display: "flex",
+      alignItems: "center",
+      width: "100%",
+      padding: "8px 8px",
+      background: "#121212",
       borderRadius: 8,
-      borderBottom: 'solid 1px #7575753b',
-      boxShadow: '0px 0px 8px 2px rgba(0, 0, 0, 0.24) inset'
+      borderBottom: "solid 1px #7575753b",
+      boxShadow: "0px 0px 8px 2px rgba(0, 0, 0, 0.24) inset",
     },
     icon: {
-      width: '24px',
-      height: '24px',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
+      width: "24px",
+      height: "24px",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
       borderRadius: 5,
-      color: 'white'
+      color: "white",
     },
     text: {
       flexGrow: 1,
-      marginLeft: '16px',
-      textAlign: 'left',
-      color: 'white',
-      fontSize: '12px'
-    }
-  };
+      marginLeft: "16px",
+      textAlign: "left",
+      color: "white",
+      fontSize: "12px",
+    },
+  }
 
   return (
     <div style={styles.container}>
@@ -360,43 +407,43 @@ const StatsBar = ({ title, iconLeft, value }) => {
       </div>
       <p style={styles.text}>{title}</p>
       <div>
-        <p style={{ fontWeight: 'bold', color: 'white' }}>{value}</p>
+        <p style={{ fontWeight: "bold", color: "white" }}>{value}</p>
       </div>
     </div>
-  );
-};
+  )
+}
 
 export const StatsModal = ({
   baseStyles,
   setIsStatsShown,
   userParameters,
   personage,
-  clothing
+  clothing,
 }) => {
-  const { total_earned, level, energy_capacity, respect } = userParameters;
+  const { total_earned, level, energy_capacity, respect } = userParameters
   const { lang } = useSettingsProvider()
 
   const translations = {
     level: {
-      ru: 'Уровень',
-      en: 'Level'
+      ru: "Уровень",
+      en: "Level",
     },
     respect: {
-      ru: 'Уважение',
-      en: 'Respect'
+      ru: "Уважение",
+      en: "Respect",
     },
     total: {
-      ru: 'Всего заработано',
-      en: 'Total earned'
+      ru: "Всего заработано",
+      en: "Total earned",
     },
     energy: {
-      ru: 'Макс. энергии',
-      en: 'Energy capacity'
+      ru: "Макс. энергии",
+      en: "Energy capacity",
     },
     stats: {
-      ru: 'Статистика',
-      en: 'Stats of'
-    }
+      ru: "Статистика",
+      en: "Stats of",
+    },
   }
 
   return (
@@ -407,7 +454,7 @@ export const StatsModal = ({
         alignItems: "center",
         justifyContent: "center",
         background: "rgba(0,0,0,0.8)",
-        zIndex: 999999
+        zIndex: 999999,
       }}
     >
       <div
@@ -420,7 +467,6 @@ export const StatsModal = ({
           width: 280,
           borderRadius: 6,
           backgroundSize: "cover",
-
         }}
       >
         <div onClick={() => setIsStatsShown(false)}>
@@ -442,9 +488,9 @@ export const StatsModal = ({
             paddingBottom: "20px",
           }}
         >
-
-
-          <div style={{ display: "flex", flexDirection: "column", width: '90%', }}>
+          <div
+            style={{ display: "flex", flexDirection: "column", width: "90%" }}
+          >
             <p
               style={{
                 fontFamily: "Anonymous pro",
@@ -453,16 +499,39 @@ export const StatsModal = ({
                 textAlign: "Left",
                 marginBottom: 19,
                 fontSize: 16,
-
               }}
             >
               {translations.stats[lang]} {personage.name}
             </p>
-            <div style={{ display: "flex", justifyContent: "center", width: '100%', flexDirection: 'column', rowGap: 8 }}>
-              <StatsBar iconLeft={Assets.Icons.boosterArrow} title={translations.level[lang]} value={level} />
-              <StatsBar iconLeft={Assets.Icons.respect} title={translations.respect[lang]} value={respect} />
-              <StatsBar iconLeft={Assets.Icons.balance} title={translations.total[lang]} value={total_earned} />
-              <StatsBar iconLeft={Assets.Icons.energy} title={translations.energy[lang]} value={energy_capacity} />
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                width: "100%",
+                flexDirection: "column",
+                rowGap: 8,
+              }}
+            >
+              <StatsBar
+                iconLeft={Assets.Icons.boosterArrow}
+                title={translations.level[lang]}
+                value={level}
+              />
+              <StatsBar
+                iconLeft={Assets.Icons.respect}
+                title={translations.respect[lang]}
+                value={respect}
+              />
+              <StatsBar
+                iconLeft={Assets.Icons.balance}
+                title={translations.total[lang]}
+                value={formatCoins(total_earned)}
+              />
+              <StatsBar
+                iconLeft={Assets.Icons.energy}
+                title={translations.energy[lang]}
+                value={energy_capacity}
+              />
             </div>
           </div>
         </div>
@@ -472,68 +541,81 @@ export const StatsModal = ({
 }
 
 const HomeHeader = ({ screenHeader }) => {
-
-  const { userId, userParameters, userPersonage, userClothing } = useContext(UserContext);
-  const [levels, setLevels] = useState();
-  const [isSettingsShown, setIsSettingsShown] = useState(false);
+  const { userId, userParameters, userPersonage, userClothing } =
+    useContext(UserContext)
+  const [levels, setLevels] = useState()
+  const [isSettingsShown, setIsSettingsShown] = useState(false)
   const [isStatsShown, setIsStatsShown] = useState(false)
-  const [activeProcess, setActiveProcess] = useState();
-  const { Icons } = Assets;
+  const [levelSpan, setLevelSpan] = useState(null)
+  const [activeProcess, setActiveProcess] = useState()
+
+  const { Icons } = Assets
 
   const handleSettingsPress = () => {
     setIsSettingsShown(!isSettingsShown)
   }
 
   const getLevelByNumber = (number) => {
-    return levels?.find((level) => level?.level === number);
-  };
+    return levels?.find((level) => level?.level === number)
+  }
 
-  const getUserLevelProgress = () => {
-    if (userParameters?.level === 15) {
+
+
+  const getLevelWidth = () => {
+    if (userParameters && levels) {
+      const { level, total_earned: earned } = userParameters
+      const nextLevelRequirement = levels?.find(
+        (level) => level?.level === userParameters?.level + 1
+      )?.required_earned
+      const thisLevelRequirement =
+        level > 0
+          ? levels?.find((level) => level?.level === userParameters?.level)
+              ?.required_earned
+          : 0
+
       return (
-        getLevelByNumber(15)?.required_earned +
-        " / " +
-        getLevelByNumber(15)?.required_earned
-      );
+        ((earned - thisLevelRequirement) /
+          (nextLevelRequirement - thisLevelRequirement)) *
+        100
+      )
     }
-    return (
-      userParameters?.total_earned +
-      " / " +
-      getLevelByNumber(userParameters?.level + 1)?.required_earned
-    );
-  };
+
+    return null
+  }
 
   useEffect(() => {
     console.log(window.Telegram?.WebApp.safeAreaInset?.top)
-    getLevels().then((levels) => setLevels(levels));
-    getUserActiveProcess(userId).then((activeProcess) => setActiveProcess(activeProcess));
-  }, []);
+    getLevels().then((levels) => setLevels(levels))
+    getUserActiveProcess(userId)
+      .then((activeProcess) => setActiveProcess(activeProcess))
+  }, [])
 
   return (
     <>
-      <div className="HomeHeader" style={{ borderRadius: screenHeader && "0", paddingTop: (window.Telegram?.WebApp.safeAreaInset?.top || 0) + 47.5 }}>
+      <div
+        className="HomeHeader"
+        style={{
+          borderRadius: screenHeader && "0",
+          paddingTop: (window.Telegram?.WebApp.safeAreaInset?.top || 0) + 47.5,
+        }}
+      >
         <div className="HomeHeaderTopRow">
-          <div className="HomeHeaderLevel" onClick={() => setIsStatsShown(true)}>
-
+          <div
+            className="HomeHeaderLevel"
+            onClick={() => setIsStatsShown(true)}
+          >
             <span style={{ fontFamily: "Anonymous pro", fontWeight: "100" }}>
               {userPersonage?.name}
             </span>
             <div className="FillBarProgres">
               <span style={{ fontFamily: "Anonymous pro", fontWeight: "100" }}>
-                {userParameters?.level}
+                {userParameters.level}
               </span>
-
 
               <div
                 className="HomeHeaderLevelCapacity"
                 style={{
-                  width:
-                    (userParameters?.total_earned /
-                      levels?.find(
-                        (level) => level?.level === userParameters?.level + 1
-                      )?.required_earned) *
-                    100 +
-                    "%",
+                  width: getLevelWidth() + "%",
                 }}
               />
             </div>
@@ -542,21 +624,39 @@ const HomeHeader = ({ screenHeader }) => {
             <div>
               <img src={Icons.balance} alt="Coin" />
             </div>
-            <div style={{ display: "flex", alignItems: "flex-start", marginLeft: 10 }}>
-              <span style={{ fontSize: 20, fontFamily: "Anonymous pro", fontWeight: "lighter" }}>
-                {userParameters?.coins}
+            <div
+              style={{
+                display: "flex",
+                alignItems: "flex-start",
+                marginLeft: 10,
+              }}
+            >
+              <span
+                style={{
+                  fontSize: 20,
+                  fontFamily: "Anonymous pro",
+                  fontWeight: "lighter",
+                }}
+              >
+                {userParameters.coins && formatCoins(userParameters?.coins)}
               </span>
-
             </div>
           </div>
           <div className="HomeHeaderRespect">
-
             <img src={Icons.respect} alt="RespectIcon" />
 
             <span>{userParameters?.respect}</span>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginLeft: 2.5 }} onClick={handleSettingsPress}>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              marginLeft: 2.5,
+            }}
+            onClick={handleSettingsPress}
+          >
             <img src={Assets.Icons.settings} height={25}></img>
           </div>
         </div>
@@ -565,9 +665,14 @@ const HomeHeader = ({ screenHeader }) => {
             indicators={[
               {
                 icon: Icons.energy,
-                percentFill: Math.floor((userParameters?.energy / userParameters?.energy_capacity) * 100),
+                percentFill: Math.floor(
+                  (userParameters?.energy / userParameters?.energy_capacity) *
+                    100
+                ),
                 width: "35%",
-                value: `${Math.floor(userParameters?.energy)}/${userParameters?.energy_capacity}`
+                value: `${Math.floor(userParameters?.energy)}/${
+                  userParameters?.energy_capacity
+                }`,
               },
               {
                 icon: Icons.hungry,
@@ -593,7 +698,6 @@ const HomeHeader = ({ screenHeader }) => {
             zIndex: 10,
             top: 0,
             left: 0,
-
           }}
           setIsSettingsShown={setIsSettingsShown}
         />
@@ -617,7 +721,7 @@ const HomeHeader = ({ screenHeader }) => {
         />
       )}
     </>
-  );
-};
+  )
+}
 
-export default HomeHeader;
+export default HomeHeader
