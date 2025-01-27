@@ -331,7 +331,7 @@ export const WorkTab = ({
     <ScreenContainer withTab>
       {/* User main work card*/}
 
-      {works?.map((work, index) => (
+      {works?.sort((a, b) => a.work_id - b.work_id).map((work, index) => (
         <ItemCard
           key={index}
           ItemIcon={work?.link}
