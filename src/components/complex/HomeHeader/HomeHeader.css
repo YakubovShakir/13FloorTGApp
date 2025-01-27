@@ -52,7 +52,7 @@
   font-size: 4cqw;
   
  
-    padding-right: 35px;
+    padding-right: 4vh;
 }
 
 .HomeHeaderIncome div:nth-child(2) span:nth-child(1) {
@@ -88,7 +88,7 @@
 
 .HomeHeaderRespect span {
   font-size: 20px;
-  margin-right: 12px;
+  margin-right: 1px;
   text-align: center;
   width: 100%;
   
