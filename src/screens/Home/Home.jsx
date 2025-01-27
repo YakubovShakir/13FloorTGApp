@@ -95,7 +95,7 @@ const Home = () => {
           setState(prev => ({ ...prev, currentProcess: updatedProcess }))
         }
       },
-      state.currentProcess?.type === "work",
+      false,
       updateParametersFunction
     )
   
@@ -104,7 +104,7 @@ const Home = () => {
         clearInterval(timerInterval)
       }
     }
-  }, [state.currentProcess, userId, setUserParameters])
+  }, [state.currentProcess, userId])
 
   const handleProcessStop = async () => {
     try {
@@ -409,7 +409,7 @@ const Home = () => {
           />
           {renderProcessProgressBar(
             state.currentProcess,
-            countPercentage(state.currentProcess?.seconds, 60),
+            countPercentage(state.currentProcess?.duration * 60 + state.currentProcess?.seconds, 60),
             progressRate,
             true
           )}

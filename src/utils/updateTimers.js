@@ -50,5 +50,5 @@ export const updateProcessTimers = (
     if (isWorkProcess && updateParametersFunction) {
       updateParametersFunction();
     }
-  }, 1000);
+  }, 1200);
 };
