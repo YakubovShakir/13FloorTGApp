@@ -638,7 +638,7 @@ const HomeHeader = ({ screenHeader }) => {
                   fontWeight: "lighter",
                 }}
               >
-                {userParameters.coins && formatCoins(userParameters?.coins)}
+                {userParameters.coins && formatCoins(Math.floor(userParameters?.coins))}
               </span>
             </div>
           </div>
