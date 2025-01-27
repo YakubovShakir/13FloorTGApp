@@ -310,7 +310,7 @@ const ThreeSectionCard = ({
         "repeating-linear-gradient(45deg, rgba(0, 0, 0, 0.21), rgba(0, 0, 0, 0.21) 2px, rgba(57, 57, 57, 0.06) 2px, rgba(57, 57, 57, 0.06) 6px) rgba(0, 0, 0, 0.51)",
       borderBottom: " 1px solid rgba(117, 117, 117, 0.23)",
       boxShadow: "rgba(0, 0, 0, 0.24) 0px 0px 8px 2px inset",
-      width: "12vh",
+      width:" 30%",
       borderRadius: "8px",
       overflow: "hidden",
       position: "relative",
@@ -327,19 +327,19 @@ const ThreeSectionCard = ({
     },
 
     buttonsContainer: {
-      right: "0%",
-      top: "15%",
+      
       alignItems: "center",
-      position: "absolute",
-      margin: "0px 5px 0px 0px",
-
-      width: "34%",
-      borderRadius: "8px",
+      position: "relative",
+      marginLeft:" auto", /* Выровняет блок по правому краю */
+      marginRight:" 5px", /* Убирает лишний отступ справа */
+      width:" 33%",
+      borderRadius:" 8px",
       display: "flex",
       flexDirection: "column",
       gap: "16px",
-      padding: "1px 3px 8px 3px",
+      padding: "1px 3px 8px",
       justifyContent: "center",
+      border:" 0",
     },
   }
 
@@ -457,6 +457,7 @@ const ThreeSectionCard = ({
           <div
             className="ClaimPrise"
             style={{
+              margin: "0px 0px 0px 5px",
               background: "rgb(18, 18, 18)",
               borderRadius: "5px",
               borderBottom: "1px solid rgba(117, 117, 117, 0.23)",
@@ -466,7 +467,7 @@ const ThreeSectionCard = ({
               display: "flex",
               justifyContent: "center",
               alignItems: "center",
-              width: "100%",
+              width: "95%",
             }}
           >
             <img
