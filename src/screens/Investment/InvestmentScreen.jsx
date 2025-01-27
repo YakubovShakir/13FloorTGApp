@@ -544,7 +544,7 @@ const useInvestmentData = (userId) => {
     if (!investments) return
 
     // Optimistically update the UI
-    setIsLoading(true)
+
 
     try {
       await buyInvestmentLevel(userId, investment_type)
@@ -556,26 +556,24 @@ const useInvestmentData = (userId) => {
       // Revert optimistic update on failure
       await fetchInvestments()
     }
-    setIsLoading(false)
+
   }
 
   const handleClaim = async (investment_type) => {
     if (!investments) return
 
     // Optimistically update the UI
-    setIsLoading(true)
-
     try {
       await claimInvestment(userId, investment_type)
+      await fetchInvestments()
       await refreshData()
       // Fetch real data after successful claim
-      await fetchInvestments()
     } catch (err) {
       console.error("Failed to claim:", err)
       // Revert optimistic update on failure
       await fetchInvestments()
     }
-    setIsLoading(false)
+
   }
 
   const handleStarsBuyAutoclaim = async (investment_type) => {
@@ -598,6 +596,8 @@ const useInvestmentData = (userId) => {
         resolve()
       })
     })
+    await fetchInvestments()
+    await refreshData()
   }
 
   const handleAutoclaimPurchased = async (investment_type) => {
@@ -625,13 +625,6 @@ const useInvestmentData = (userId) => {
 
   useEffect(() => {
     fetchInvestments()
-    pollingRef.current = setInterval(fetchInvestments, 5000)
-
-    return () => {
-      if (pollingRef.current) {
-        clearInterval(pollingRef.current)
-      }
-    }
   }, [fetchInvestments])
 
   return {
@@ -661,7 +654,17 @@ const InvestmentScreen = () => {
     handleClaim,
     handleAutoclaimPurchased,
   } = useInvestmentData(userId)
+  
   const { lang } = useSettingsProvider()
+
+  // Create a deep comparison function to force re-render
+  const [investmentsKey, setInvestmentsKey] = useState(Date.now())
+
+  // Force re-render when investments change
+  useEffect(() => {
+    setInvestmentsKey(Date.now())
+  }, [investments])
+
 
   const titlesMap = {
     coffee_shop: {
@@ -733,11 +736,9 @@ const InvestmentScreen = () => {
     description: translations.autoclaimDescription[lang],
   }
 
-  if (isLoading) {
-    return <FullScreenSpinner />
-  } else if (investments) {
+ 
     return (
-      <Screen>
+      <Screen key={investmentsKey}>
         <HomeHeader />
         <ScreenBody activity={translations.investments[lang]}>
           {isModalVisible && (
@@ -783,13 +784,13 @@ const InvestmentScreen = () => {
             rightImage={Assets.Icons.investManager}
             onClick={() => handleModalOpen("coffee_shop")}
             tz={investments?.tz}
-            started_at={investments.coffee_shop?.started_at || null}
+            started_at={investments?.coffee_shop?.started_at || null}
             handleClaim={() => handleClaim("coffee_shop")}
             openAutoclaimModal={() => {
               setAutoclaimModalData(autoclaimModalDataFixed)
               setIsAutoClaimModalVisible(true)
             }}
-            {...investments.coffee_shop}
+            {...investments?.coffee_shop}
             userParameters={userParameters}
           />
           <ThreeSectionCard
@@ -801,8 +802,8 @@ const InvestmentScreen = () => {
             onClick={() => handleModalOpen("zoo_shop")}
             handleClaim={() => handleClaim("zoo_shop")}
             tz={investments?.tz}
-            started_at={investments.zoo_shop?.started_at || null}
-            {...investments.zoo_shop}
+            started_at={investments?.zoo_shop?.started_at || null}
+            {...investments?.zoo_shop}
             openAutoclaimModal={() => {
               setAutoclaimModalData(autoclaimModalDataFixed)
               setIsAutoClaimModalVisible(true)
@@ -817,10 +818,10 @@ const InvestmentScreen = () => {
             rightImage={Assets.Icons.investManager}
             onClick={() => handleModalOpen("game_center")}
             tz={investments?.tz}
-            started_at={investments.game_center?.started_at || null}
+            started_at={investments?.game_center?.started_at || null}
             handleClaim={() => handleClaim("game_center")}
             hideUpgrade={true}
-            {...investments.game_center}
+            {...investments?.game_center}
             openAutoclaimModal={() => {
               setAutoclaimModalData(autoclaimModalDataFixed)
               setIsAutoClaimModalVisible(true)
@@ -830,7 +831,7 @@ const InvestmentScreen = () => {
         </ScreenBody>
       </Screen>
     )
-  }
+  
 }
 
 export default InvestmentScreen

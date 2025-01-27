@@ -640,18 +640,20 @@ const CoinsTab = ({ userId }) => {
 
   const handleStarsBuy = async (item) => {
     try {
-      setIsLoading(true)
       const response = await instance.post('/users/request-stars-invoice-link', {
           productType: item.productType,
           id: item.id
       })
-
-      WebApp.openInvoice(response.data.invoiceLink, (status) => {
-        // Можно вызвать попап или анимацию успеха/фейла
-        if(status === "paid") {}
-        if(status === "cancelled") {}
-        if(status === 'pending') {}
-        if(status === 'failed') {}
+      await new Promise((resolve) => {
+        WebApp.openInvoice(response.data.invoiceLink, (status) => {
+          console.log(status)
+          // Можно вызвать попап или анимацию успеха/фейла
+          if(status === "paid") {}
+          if(status === "cancelled") {}
+          if(status === 'pending') {}
+          if(status === 'failed') {}
+          resolve()
+        })
       })
       await refreshData()
     } catch (err) {

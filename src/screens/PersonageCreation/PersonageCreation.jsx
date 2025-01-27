@@ -421,7 +421,7 @@ const PersonageCreationScreen = () => {
                     marginBottom={"5"}
                     color={"rgb(255, 255, 255)"}
                     height={44}
-                    active={personageName.length >= 2}
+                    active={personageName.length >= 2 && personageName.length < 12}
                     fontFamily={"Anonymous pro"}
                     fontWeight={"300"}
                     text={translations.start[lang]}
