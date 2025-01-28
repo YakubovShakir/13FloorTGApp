@@ -113,7 +113,7 @@ const ProcessProgressBar = ({
 
       loadData();
     }
-  }, [activeProcess, rate]); // Add rate to dependencies
+  }, [activeProcess]); // Add rate to dependencies
 
 
   const { isSoundEnabled } = useSettingsProvider()
@@ -191,9 +191,9 @@ const ProcessProgressBar = ({
 
   // Single responsibility for progress updates
   useEffect(() => {
-    if (inputPercentage !== null) {
+    if (inputPercentage !== null && activeProcess.type !== 'work') {
       setPercentage(inputPercentage);
-      return; // Don't start the timer if we have an input percentage
+      
     }
 
     const updateProgress = () => {
@@ -217,7 +217,7 @@ const ProcessProgressBar = ({
         clearInterval(timerRef.current);
       }
     };
-  }, [inputPercentage]);
+  }, [percentage]);
 
   const displayPercentage = reverse ? 100 - percentage : percentage;
 

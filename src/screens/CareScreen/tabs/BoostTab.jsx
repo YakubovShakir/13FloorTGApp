@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useContext } from "react"
 import ScreenContainer from "../../../components/section/ScreenContainer/ScreenContainerBoost"
 
 import Assets from "../../../assets"
@@ -20,10 +20,12 @@ import countPercentage from "../../../utils/countPercentage"
 import { useSettingsProvider } from "../../../hooks"
 import HomeHeader from "../../../components/complex/HomeHeader/HomeHeader"
 import ScreenBody from "../../../components/section/ScreenBody/ScreenBodyFood"
+import UserContext from "../../../UserContext"
 
 
 
-const BoostTab = ({ userId, userParameters, setUserParameters }) => {
+const BoostTab = ({ }) => {
+  const { userId, userParameters } = useContext(UserContext)
   const { lang } = useSettingsProvider()
   const [boosts, setBoosts] = useState(null)
   const [levels, setLevels] = useState(null)
@@ -52,9 +54,9 @@ const BoostTab = ({ userId, userParameters, setUserParameters }) => {
 
   const handleBuyBoost = async (boostId) => {
     await buyBoost(userId, boostId)
-    const userParameters = await getParameters(userId)
+    // const userParameters = await getParameters(userId)
 
-    setUserParameters(userParameters.parameters)
+    // setUserParameters(userParameters.parameters)
     const userBoosts = await getUserBoosts(userId)
     setUserBoosts(userBoosts)
   }
@@ -65,10 +67,11 @@ const BoostTab = ({ userId, userParameters, setUserParameters }) => {
     const parameters = await getParameters(userId)
 
     setUserBoosts(userBoosts)
-    setUserParameters(parameters.parameters)
+    // setUserParameters(parameters.parameters)
   }
   const checkUserHaveBoost = (boostId) => {
-    return userBoosts?.find((boost) => boost?.boost_id === boostId) || false
+    // return userBoosts?.find((boost) => boost?.boost_id === boostId) || false
+    return true
   }
   const getUserBoostAmount = (boostId) => userBoosts?.filter((boost) => boost?.boost_id === boostId)?.length
   const getItemBoostButton = (boost) => { 

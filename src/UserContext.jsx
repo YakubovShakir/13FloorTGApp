@@ -13,23 +13,33 @@ import FullScreenSpinner from "./screens/Home/FullScreenSpinner"
 
 const UserContext = createContext()
 
-const hasDataChanged = (oldData, newData) => {
+const hasParametersChanged = (oldData, newData) => {
   if (!oldData || !newData) return true
-  
-  return ['parameters', 'personage', 'clothing', 'shelf'].some(
+  return JSON.stringify(oldData.parameters) !== JSON.stringify(newData.parameters)
+}
+
+const hasPersonageChanged = (oldData, newData) => {
+  if (!oldData || !newData) return true
+  return ['personage', 'clothing', 'shelf'].some(
     key => JSON.stringify(oldData[key]) !== JSON.stringify(newData[key])
   )
 }
 
 export const UserProvider = ({ children }) => {
   const [state, setState] = useState({
-    userParameters: null,
-    userPersonage: {},
-    userClothing: null,
-    userShelf: null,
-    isInitialized: false,
-    error: null,
-    isLoading: true
+    parameters: {
+      userParameters: null,
+      isParametersLoading: true,
+      parametersError: null
+    },
+    personage: {
+      userPersonage: {},
+      userClothing: null,
+      userShelf: null,
+      isPersonageLoading: true,
+      personageError: null
+    },
+    isInitialized: false
   })
   
   const userId = useMemo(() => 
@@ -48,111 +58,159 @@ export const UserProvider = ({ children }) => {
     }
   }, [])
 
-  const updateState = useCallback((updates) => {
+  const updateParametersState = useCallback((updates) => {
     if (mountedRef.current) {
       setState(prev => ({
         ...prev,
-        ...updates
+        parameters: {
+          ...prev.parameters,
+          ...updates
+        }
       }))
     }
   }, [])
 
-  const handleError = useCallback((error) => {
-    console.error('UserContext Error:', error)
-    updateState({
-      error: error.message,
-      isLoading: false,
-      isInitialized: false
-    })
-  }, [updateState])
+  const updatePersonageState = useCallback((updates) => {
+    if (mountedRef.current) {
+      setState(prev => ({
+        ...prev,
+        personage: {
+          ...prev.personage,
+          ...updates
+        }
+      }))
+    }
+  }, [])
 
-  const fetchParams = useCallback(async (isInitial = false, signal) => {
+  const handleParametersError = useCallback((error) => {
+    console.error('UserContext Parameters Error:', error)
+    updateParametersState({
+      parametersError: error.message,
+      isParametersLoading: false
+    })
+    setState(prev => ({ ...prev, isInitialized: false }))
+  }, [updateParametersState])
+
+  const handlePersonageError = useCallback((error) => {
+    console.error('UserContext Personage Error:', error)
+    updatePersonageState({
+      personageError: error.message,
+      isPersonageLoading: false
+    })
+    setState(prev => ({ ...prev, isInitialized: false }))
+  }, [updatePersonageState])
+
+  const fetchData = useCallback(async (isInitial = false, signal) => {
     if (isFetchingRef.current) return
     isFetchingRef.current = true
 
     try {
-      const parameters = await getParameters(userId, { signal })
-
+      const data = await getParameters(userId, { signal })
       if (!mountedRef.current) return
 
-      if (hasDataChanged(latestDataRef.current, parameters)) {
-        if (isInitial) {
-          useTelegram.setReady()
-        }
-
-        updateState({
-          userParameters: { ...parameters.parameters },
-          userPersonage: parameters.personage || {},
-          userClothing: parameters.clothing,
-          userShelf: parameters.shelf,
-          isInitialized: true,
-          isLoading: false,
-          error: null
-        })
-
-        latestDataRef.current = parameters
-      } else if (isInitial) {
-        updateState({
-          isInitialized: true,
-          isLoading: false
+      // Handle parameters update
+      if (hasParametersChanged(latestDataRef.current, data)) {
+        updateParametersState({
+          userParameters: { ...data.parameters },
+          isParametersLoading: false,
+          parametersError: null
         })
       }
+
+      // Handle personage update
+      if (hasPersonageChanged(latestDataRef.current, data)) {
+        updatePersonageState({
+          userPersonage: data.personage || {},
+          userClothing: data.clothing,
+          userShelf: data.shelf,
+          isPersonageLoading: false,
+          personageError: null
+        })
+      }
+
+      if (isInitial) {
+        useTelegram.setReady()
+        setState(prev => ({ ...prev, isInitialized: true }))
+      }
+
+      latestDataRef.current = data
     } catch (error) {
       if (error.name === 'AbortError') return
       
-      handleError(error)
+      // Determine which part of the state to update based on the error
+      if (error.message.includes('parameters')) {
+        handleParametersError(error)
+      } else if (error.message.includes('personage')) {
+        handlePersonageError(error)
+      } else {
+        // If error type is unclear, update both
+        handleParametersError(error)
+        handlePersonageError(error)
+      }
     } finally {
       isFetchingRef.current = false
     }
-  }, [userId, updateState, handleError])
+  }, [userId, updateParametersState, updatePersonageState, handleParametersError, handlePersonageError])
 
-  const debouncedFetchParams = useMemo(
+  const debouncedFetchData = useMemo(
     () => debounce(
-      (isInitial, signal) => fetchParams(isInitial, signal),
+      (isInitial, signal) => fetchData(isInitial, signal),
       750,
       { leading: true, trailing: false }
     ),
-    [fetchParams]
+    [fetchData]
   )
 
   useEffect(() => {
     const controller = new AbortController()
     
-    debouncedFetchParams(true, controller.signal)
+    debouncedFetchData(true, controller.signal)
     
     const intervalId = setInterval(() => {
-      debouncedFetchParams(false, controller.signal)
-    }, 1000) // Increased interval to reduce server load
+      debouncedFetchData(false, controller.signal)
+    }, 1000)
 
     return () => {
       controller.abort()
       clearInterval(intervalId)
-      debouncedFetchParams.cancel()
+      debouncedFetchData.cancel()
     }
-  }, [debouncedFetchParams])
+  }, [debouncedFetchData])
 
   const contextValue = useMemo(() => ({
-    ...state,
-    userId,
-    fetchParams: (signal) => debouncedFetchParams(false, signal),
+    // Parameters related values
+    userParameters: state.parameters.userParameters,
+    isParametersLoading: state.parameters.isParametersLoading,
+    parametersError: state.parameters.parametersError,
     setUserParameters: (newParams) => 
-      updateState({ userParameters: newParams }),
+      updateParametersState({ userParameters: newParams }),
+
+    // Personage related values
+    userPersonage: state.personage.userPersonage,
+    userClothing: state.personage.userClothing,
+    userShelf: state.personage.userShelf,
+    isPersonageLoading: state.personage.isPersonageLoading,
+    personageError: state.personage.personageError,
     setUserPersonage: (newPersonage) => 
-      updateState({ userPersonage: newPersonage }),
+      updatePersonageState({ userPersonage: newPersonage }),
+
+    // Common values
+    userId,
+    isInitialized: state.isInitialized,
     refreshData: async () => {
       const controller = new AbortController()
-      await fetchParams(false, controller.signal)
+      await fetchData(false, controller.signal)
       return () => controller.abort()
     }
-  }), [state, userId, debouncedFetchParams, updateState, fetchParams])
+  }), [state, userId, updateParametersState, updatePersonageState, fetchData])
 
-  //!!!TODO: ERROR SCREEN WITH RETRY
-  if (state.error) {
+  if (state.parameters.parametersError && state.personage.personageError) {
     return (
       <div className="error-container">
         <h2>Error loading user data</h2>
-        <p>{state.error}</p>
-        <button onClick={() => debouncedFetchParams(true)}>
+        <p>Parameters Error: {state.parameters.parametersError}</p>
+        <p>Personage Error: {state.personage.personageError}</p>
+        <button onClick={() => debouncedFetchData(true)}>
           Retry
         </button>
       </div>
@@ -161,12 +219,13 @@ export const UserProvider = ({ children }) => {
 
   return (
     <UserContext.Provider value={contextValue}>
-      {state.isLoading ? <FullScreenSpinner /> : children}
+      {(state.parameters.isParametersLoading || state.personage.isPersonageLoading) 
+        ? <FullScreenSpinner /> 
+        : children}
     </UserContext.Provider>
   )
 }
 
-// Custom hook for consuming the context
 export const useUser = () => {
   const context = React.useContext(UserContext)
   if (context === undefined) {
