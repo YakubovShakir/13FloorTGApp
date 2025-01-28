@@ -44,7 +44,6 @@ const Home = () => {
     isInitialized,
     userPersonage,
     userClothing,
-    fetchParams,
     setUserParameters,
     userShelf,
   } = useContext(UserContext)
@@ -191,7 +190,6 @@ const Home = () => {
       try {
         // Run all initialization tasks in parallel
         await Promise.all([
-          fetchParams(),
           initializeProcess(),
           preloadImages()
         ])
@@ -233,7 +231,6 @@ const Home = () => {
 
       try {
         await Promise.all([
-          fetchParams(),
           initializeProcess(),
           preloadImages()
         ])
@@ -251,7 +248,7 @@ const Home = () => {
     }
 
     initialize()
-  }, [isInitialized, userPersonage, navigate, fetchParams, userId])
+  }, [isInitialized])
 
   if (isLoading) {
     return <FullScreenSpinner />
