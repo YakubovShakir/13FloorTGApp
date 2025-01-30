@@ -85,7 +85,7 @@ const ProcessProgressBar = ({
     const work = works?.find((work) => work?.work_id === activeProcess?.type_id);
 
     const typeToLabel = {
-      work: [work?.name[lang], `+${work?.coins_in_hour}/${lang === 'en' ? 'HOUR' : 'ЧАС'}`],
+      work: [work?.name[lang], (rate || '') + ` +${work?.coins_in_hour}/${lang === 'en' ? 'HOUR' : 'ЧАС'}`],
       training: [translations.training[lang], rate],
       sleep: [translations.longSleep[lang], rate]
     };
@@ -179,6 +179,7 @@ const ProcessProgressBar = ({
       }
       const id = setTimeout(() => {
         setHasAnimated(true)
+        window.location.href = window.location.origin
       },1000)
 
       return () => clearTimeout(id)
@@ -191,7 +192,7 @@ const ProcessProgressBar = ({
 
   // Single responsibility for progress updates
   useEffect(() => {
-    if (inputPercentage !== null && activeProcess.type !== 'work') {
+    if (inputPercentage !== null) {
       setPercentage(inputPercentage);
       
     }

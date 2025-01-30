@@ -155,7 +155,7 @@ export const UserProvider = ({ children }) => {
   const debouncedFetchData = useMemo(
     () => debounce(
       (isInitial, signal) => fetchData(isInitial, signal),
-      750,
+      100,
       { leading: true, trailing: false }
     ),
     [fetchData]
@@ -168,7 +168,7 @@ export const UserProvider = ({ children }) => {
     
     const intervalId = setInterval(() => {
       debouncedFetchData(false, controller.signal)
-    }, 1000)
+    }, 3000)
 
     return () => {
       controller.abort()

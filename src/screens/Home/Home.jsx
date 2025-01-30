@@ -300,7 +300,7 @@ const Home = () => {
   if (!isInitialized) {
     return <FullScreenSpinner />
   } else {
-    if (state.currentProcess === null) {
+    if (state?.currentProcess === null || state?.currentProcess === 'skill') {
       return renderScene(
         <>
            <HomeHeader
@@ -406,7 +406,7 @@ const Home = () => {
           />
           {renderProcessProgressBar(
             state.currentProcess,
-            countPercentage(state.currentProcess?.duration * 60 + state.currentProcess?.seconds, 60),
+            countPercentage(state.currentProcess?.duration * 60 + state.currentProcess?.seconds, state.currentProcess.target_duration_in_seconds || state.currentProcess.base_duration_in_seconds),
             progressRate,
             true
           )}

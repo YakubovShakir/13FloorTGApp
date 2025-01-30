@@ -70,9 +70,10 @@ const BoostTab = ({ }) => {
     // setUserParameters(parameters.parameters)
   }
   const checkUserHaveBoost = (boostId) => {
-    // return userBoosts?.find((boost) => boost?.boost_id === boostId) || false
-    return true
+    return userBoosts?.find((boost) => boost?.boost_id === boostId) || false
+    // return true
   }
+
   const getUserBoostAmount = (boostId) => userBoosts?.filter((boost) => boost?.boost_id === boostId)?.length
   const getItemBoostButton = (boost) => { 
     const starsPrice =  boost.stars_price
@@ -116,7 +117,7 @@ const BoostTab = ({ }) => {
   }
 
   useEffect(() => {
-    if (activeProcess?.type === "sleep") {
+    if (activeProcess?.type === "boost") {
       const updater = updateProcessTimers(activeProcess, setActiveProcess)
 
       return () => clearInterval(updater)
@@ -143,9 +144,9 @@ const BoostTab = ({ }) => {
           ItemDescription={boost?.description[lang]}
           ItemParamsBlocks={getItemBoostParams(boost)}
           ItemButtons={getItemBoostButton(boost)}
-          ItemAmount={getUserBoostAmount(boost?.boost_id)}
+          ItemBottomAmount={getUserBoostAmount(boost?.boost_id)}
           ItemIndex={index + 1}
-          handleStarsBuy={() => handleStarsBuy({ id: boost.boost_id, processType: 'boosts' })}
+          handleStarsBuy={() => handleStarsBuy({ id: boost.boost_id, productType: 'boosts' })}
         />
       ))}
         </div>

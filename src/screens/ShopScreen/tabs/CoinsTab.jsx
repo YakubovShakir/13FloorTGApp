@@ -522,7 +522,7 @@ const CoinsTab = ({ userId }) => {
     getShopItems(userId)
       .then((data) => {
         // TODO: localize
-        const loadedClothesItems = data.clothing.map((item) => ({
+        const loadedClothesItems = data.clothing.filter(c => c.requiredLevel <= userParameters.level).map((item) => ({
           id: item.clothing_id,
           name: item.name[lang],
           productType: 'clothes',
