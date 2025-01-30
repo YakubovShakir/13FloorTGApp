@@ -192,7 +192,7 @@ const ProcessProgressBar = ({
 
   // Single responsibility for progress updates
   useEffect(() => {
-    if (inputPercentage !== null) {
+    if (inputPercentage !== null && activeProcess?.type !== 'work') {
       setPercentage(inputPercentage);
       
     }

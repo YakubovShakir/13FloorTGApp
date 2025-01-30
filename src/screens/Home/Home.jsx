@@ -300,7 +300,7 @@ const Home = () => {
   if (!isInitialized) {
     return <FullScreenSpinner />
   } else {
-    if (state?.currentProcess === null || state?.currentProcess === 'skill') {
+    if (state?.currentProcess === null) {
       return renderScene(
         <>
            <HomeHeader
