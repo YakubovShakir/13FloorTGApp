@@ -2,7 +2,7 @@
   position: fixed;
   padding-top: 131.5px;
   width: 100vw;
-  z-index: 4;
+  z-index: 1;
 }
 
 .progress-bar-container {
