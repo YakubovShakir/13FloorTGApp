@@ -319,7 +319,7 @@ export const WorkTab = ({
   }
   useEffect(() => {
     getWorks().then((r) => {
-      setWorks(r)
+      setWorks(r.filter(work => work.requiredLevel <= userParameters.level))
     })
     getSkills().then((r) => setSkills(r)) // Get list of skills
     getActiveProcess(userId).then((r) => setActiveProcess(r))

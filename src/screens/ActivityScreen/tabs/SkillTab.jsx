@@ -323,7 +323,7 @@ const SkillTab = ({
   }, [activeProcess])
   useEffect(() => {
     getSkills().then((r) => {
-      setSkills(r)
+      setSkills(r.filter(skill => skill.requiredLevel <= userParameters.level))
     }) // Get list of skills
     getProcesses("skill", userId).then((r) => setUserLearningSkills(r)) // Get current learning skills
     getActiveProcess(userId).then((r) => setActiveProcess(r)) // Get active training if exist
@@ -333,8 +333,6 @@ const SkillTab = ({
 
   return (
     <ScreenContainer withTab>
-
-
       {/* List of skills*/}
       {  }
       {skills?.filter((a) => checkLearningSkill(a.skill_id)).map((skill, index) => (
