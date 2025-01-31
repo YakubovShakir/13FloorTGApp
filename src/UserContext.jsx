@@ -111,7 +111,7 @@ export const UserProvider = ({ children }) => {
       // Handle parameters update
       if (hasParametersChanged(latestDataRef.current, data)) {
         updateParametersState({
-          userParameters: { ...data.parameters },
+          userParameters: { ...data.parameters, work_hourly_income_increase: data.work_hourly_income_increase, work_duration_decrease: data.work_duration_decrease },
           isParametersLoading: false,
           parametersError: null
         })

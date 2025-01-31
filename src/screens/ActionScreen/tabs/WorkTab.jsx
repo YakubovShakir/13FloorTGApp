@@ -14,6 +14,7 @@ import {
 import { getSkills } from "../../../services/skill/skill"
 import { a } from "framer-motion/client"
 import { useSettingsProvider } from "../../../hooks"
+import formatTime from "../../../utils/formatTime"
 
 export const WorkTab = ({
   isActionScreen,
@@ -222,6 +223,7 @@ export const WorkTab = ({
   }
 
   const getItemWorkParams = (workId) => {
+
     const work = getWorkById(workId)
     const currentWork = getWorkById(userParameters?.work_id)
     const requiredRespect = userParameters?.respect >= work?.respect_required
@@ -236,12 +238,27 @@ export const WorkTab = ({
       isNextLevelWork &&
       enoughBalance
 
+      const workDuration = Math.floor(work?.duration * (1 - (userParameters.work_duration_decrease || 0) / 100) * 60);
+    const workIncome = Math.floor(work?.coins_in_hour / 3600 * workDuration)
+    console.log(userParameters)
+    const workAdditionalIncome = Math.floor(userParameters.work_hourly_income_increase / 3600 * workDuration)
+    console.log(userParameters)
+    console.log('@', workAdditionalIncome)
+    const minutes = Math.floor(workDuration / 60);
+    const seconds = workDuration % 60;
     if (currentWork?.work_id === workId) {
       return [
         [
           {
-            value: work?.coins_in_hour + "/h",
+            value: workIncome,
+            adder: workAdditionalIncome,
             icon: Icons.balance,
+          },
+        ],
+        [
+          {
+            value: formatTime(minutes, seconds),
+            icon: Icons.clock,
           },
         ],
         [
@@ -256,7 +273,7 @@ export const WorkTab = ({
     return [
       [
         {
-          value:"/h" + work?.coins_in_hour + "/h",
+          value: work?.coins_in_hour + "/h",
           icon: Icons.balance,
         },
       ],

@@ -103,7 +103,7 @@ const isImageGrayscale = !isAnyButtonActive; // Если кнопка неакт
                       />
                     )}
                     <img src={block.icon} alt="paramIcon" />
-                    <p>{block.value}</p>
+                    <p>{block.value}</p><p style={{ color: '#22c7a3', paddingLeft: 8 }}>{block.adder > 0 && '+ ' + block.adder}</p>
                   </span>
                 ))}
               </div>
