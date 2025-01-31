@@ -138,9 +138,7 @@ const SkillTab = ({
       setSkills(r.filter(skill => skill.requiredLevel <= userParameters.level))
     }) // Get list of skills
     getProcesses("skill", userId).then((r) => setUserLearningSkills(r)) // Get current learning skills
-    getActiveProcess(userId).then((r) => setActiveProcess(r)) // Get active training if exist
     getUserSkills(userId).then((r) => setUserLearnedSkills(r)) // Get list of user skills
-    getTrainingParameters(userId).then((r) => setTrainingParameters(r)) // Get user training parameters
   }
 
   useEffect(() => {

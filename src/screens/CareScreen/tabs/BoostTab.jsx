@@ -64,7 +64,6 @@ const BoostTab = ({ }) => {
   const handleUseBoost = async (boostId) => {
     await useBoost(userId,boostId)
     const userBoosts = await getUserBoosts(userId)
-    const parameters = await getParameters(userId)
 
     setUserBoosts(userBoosts)
     // setUserParameters(parameters.parameters)
