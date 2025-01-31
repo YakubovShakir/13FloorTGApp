@@ -20,6 +20,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import { useNavigate } from "react-router-dom"
 import FullScreenSpinner from "./FullScreenSpinner"
 import getBgByCurrentProcess from "./getBgByCurrentProcess"
+import moment from "moment-timezone"
 
 const Home = () => {
   const navigate = useNavigate()
@@ -64,46 +65,6 @@ const Home = () => {
 
   const [progressRate, setProgressRate] = useState(null)
 
-  // In your useEffect where you track process updates
-  useEffect(() => {
-    if (!state.currentProcess?.active || !mountedRef.current) return;
-  
-    const updateParametersFunction = async () => {
-      try {
-        const parameters = await getParameters(userId)
-        
-        if (mountedRef.current) {
-          setUserParameters(parameters.parameters)
-        }
-      } catch (error) {
-        console.error("Error updating parameters:", error)
-      }
-    }
-  
-    const timerInterval = updateProcessTimers(
-      state.currentProcess,
-      (updatedProcess) => {
-        console.log('@', updatedProcess)
-        if (mountedRef.current) {
-          console.log(updatedProcess)
-          
-            const formattedDuration = String(updatedProcess.duration).padStart(2, '0')
-            const formattedSeconds = String(updatedProcess.seconds).padStart(2, '0')
-            setProgressRate(`${formattedDuration}:${formattedSeconds}`)
-          
-          setState(prev => ({ ...prev, currentProcess: updatedProcess }))
-        }
-      },
-      false,
-      updateParametersFunction
-    )
-  
-    return () => {
-      if (timerInterval) {
-        clearInterval(timerInterval)
-      }
-    }
-  }, [state.currentProcess, userId])
 
   const handleProcessStop = async () => {
     try {
@@ -205,6 +166,39 @@ const Home = () => {
     initialize()
   }, [isInitialized])
 
+    // In your useEffect where you track process updates
+    useEffect(() => {
+      if (!state.currentProcess?.active || !mountedRef.current) return;
+    
+      const timerInterval = updateProcessTimers(
+        state.currentProcess,
+        (updatedProcess) => {
+          console.log('@', updatedProcess)
+          if (mountedRef.current) {
+            console.log(updatedProcess)
+    
+            setProgressRate(updatedProcess.formattedTime)
+            
+            if(updatedProcess.totalSecondsRemaining <= 0) {
+              console.log('hhh')
+              initializeProcess()
+            } else {
+              setState(prev => ({ ...prev, currentProcess: updatedProcess }))
+            }
+          }
+        },
+        true
+      )
+    
+      return () => {
+        if (timerInterval) {
+          clearInterval(timerInterval)
+        }
+      }
+    }, [state, userId])
+
+    
+
   const renderProcessProgressBar = (
     process,
     percentage,
@@ -248,7 +242,7 @@ const Home = () => {
     }
 
     initialize()
-  }, [isInitialized])
+  }, [])
 
   if (isLoading) {
     return <FullScreenSpinner />
@@ -406,7 +400,7 @@ const Home = () => {
           />
           {renderProcessProgressBar(
             state.currentProcess,
-            countPercentage(state.currentProcess?.duration * 60 + state.currentProcess?.seconds, state.currentProcess.target_duration_in_seconds || state.currentProcess.base_duration_in_seconds),
+            countPercentage(moment().diff(moment(state.currentProcess.createdAt), 'second'), state.currentProcess.target_duration_in_seconds || state.currentProcess.base_duration_in_seconds),
             progressRate,
             true
           )}
@@ -444,8 +438,7 @@ const Home = () => {
           {renderProcessProgressBar(
             state.currentProcess,
             countPercentage(
-              state.currentProcess?.duration * 60 + state.currentProcess.seconds || 0,
-              state.trainingParameters.duration * 60
+              countPercentage(moment().diff(moment(state.currentProcess.createdAt), 'second'), state.currentProcess.target_duration_in_seconds || state.currentProcess.base_duration_in_seconds),
             ),
             progressRate
           )}
