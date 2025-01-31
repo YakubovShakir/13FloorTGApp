@@ -1,3 +1,5 @@
+import moment from "moment-timezone"
+
 export const updateProcessesTimers = (stateOfProcess, setState) => {
   const inervalId = setInterval(() => {
     const arr = []
@@ -35,20 +37,28 @@ export const updateProcessTimers = (
   return setInterval(() => {
     const updatedProcess = { ...process };
     
-    if (updatedProcess.seconds > 0) {
-      updatedProcess.seconds--;
-    } else if (updatedProcess.duration > 0) {
-      updatedProcess.duration--;
-      updatedProcess.seconds = 59;
+    const baseDuration = updatedProcess.target_duration_in_seconds || updatedProcess.base_duration_in_seconds
+    const endTime = moment(updatedProcess.createdAt).add(baseDuration, 'seconds'); // Calculate the target end time
+    const now = moment();
+
+    const timeLeft = moment.duration(endTime.diff(now)); // Calculate the difference
+    
+    if(timeLeft > 0) {
+      const minutes = timeLeft.minutes();
+      const seconds = timeLeft.seconds();
+    
+      updatedProcess.duration = minutes; // Store the calculated minutes
+      updatedProcess.seconds = seconds; // Store the calculated seconds
+      updatedProcess.totalSecondsRemaining = timeLeft.asSeconds();
+      updatedProcess.totalSeconds = baseDuration
+      updatedProcess.formattedTime = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+    
+      
+      onUpdate(updatedProcess);
+      
+      if(updateParametersFunction) {
+        updateParametersFunction();
+      }
     }
-    
-    // Add formatted time string
-    updatedProcess.formattedTime = `${String(updatedProcess.duration).padStart(2, '0')}:${String(updatedProcess.seconds).padStart(2, '0')}`;
-    
-    onUpdate(updatedProcess);
-    
-    if (isWorkProcess && updateParametersFunction) {
-      updateParametersFunction();
-    }
-  }, 1200);
+  }, 1000);
 };
