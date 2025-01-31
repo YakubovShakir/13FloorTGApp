@@ -16,6 +16,7 @@ import { a } from "framer-motion/client"
 import { useSettingsProvider } from "../../../hooks"
 
 export const WorkTab = ({
+  isActionScreen,
   modalData,
   setModalData,
   setUserParameters,

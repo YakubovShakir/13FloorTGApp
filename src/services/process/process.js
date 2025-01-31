@@ -51,6 +51,7 @@ export const getActiveProcess = async (userId) => {
   export const checkCanStop = async (userId) => {
     try {
       const response = await instance.get(`/process/check-can-stop/${userId}/`)
+      console.log(response.data)
       return response.data
     } catch (e) {
       console.log("Error in startProcess ", e)
