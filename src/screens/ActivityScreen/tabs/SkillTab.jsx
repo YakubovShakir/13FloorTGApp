@@ -134,10 +134,13 @@ const SkillTab = ({
   // Handle buy skill
   const handleBuySkill = async (skill) => {
     await startProcess("skill", userId, skill?.skill_id)
-    getProcesses("skill", userId).then(learningSkills => setUserLearningSkills(learningSkills)) // Learning at time skills
-    getUserSkills(userId).then(learnedSkills => setUserLearnedSkills(learnedSkills))
-    getActiveProcess(userId).then(trainingStatus => setActiveProcess(trainingStatus))
-    setUserLearningSkills(userLearningSkills)
+    getSkills().then((r) => {
+      setSkills(r.filter(skill => skill.requiredLevel <= userParameters.level))
+    }) // Get list of skills
+    getProcesses("skill", userId).then((r) => setUserLearningSkills(r)) // Get current learning skills
+    getActiveProcess(userId).then((r) => setActiveProcess(r)) // Get active training if exist
+    getUserSkills(userId).then((r) => setUserLearnedSkills(r)) // Get list of user skills
+    getTrainingParameters(userId).then((r) => setTrainingParameters(r)) // Get user training parameters
   }
 
   useEffect(() => {
@@ -259,10 +262,10 @@ const SkillTab = ({
     const { duration, seconds } = learning ? getMinutesAndSeconds(learning?.target_duration_in_seconds || learning?.base_duration_in_seconds) : getMinutesAndSeconds(skill.duration * 60)
     const timerBar = {
       icon: Icons.clock,
-      fillPercent: learning ? countPercentage(
+      fillPercent: learning ? Math.abs(countPercentage(
         moment().diff(moment(learning?.createdAt), 'seconds'),
         learning?.target_duration_in_seconds || learning?.base_duration_in_seconds || skill.duration * 60
-      ) : 0,
+      ) - 100) : 0,
       value: learning ? formatTime(learning.duration, learning.seconds) : formatTime(duration, seconds),
     }
     const learnedRequiredSkill = skill.skill_id_required ? checkLearnedSkill(skill.skill_id_required) : true
