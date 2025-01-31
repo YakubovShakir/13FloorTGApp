@@ -232,6 +232,24 @@ import learn2 from './IMG/bg/learn2.webp'
 import learn3 from './IMG/bg/learn3.webp'
 import learn4 from './IMG/bg/learn4.webp'
 
+import mood9 from './IMG/icons/mood9.png'
+import mood50 from './IMG/icons/mood50.png'
+import mood100 from './IMG/icons/mood100.png'
+
+import energy9 from './IMG/icons/energy9.png'
+import energy50 from './IMG/icons/energy50.png'
+import energy100 from './IMG/icons/energy100.png'
+
+import hungry9 from './IMG/icons/hungry9.png'
+import hungry50 from './IMG/icons/hungry50.png'
+import hungry100 from './IMG/icons/hungry100.png'
+
+import workOne from './IMG/workOneBG.webp'
+import workTwo from './IMG/workTwoBG.webp'
+import workThree from './IMG/workThreeBG.webp'
+import workFour from './IMG/workFourBG.webp'
+
+
 export function getImgUrl(name) {
   return new URL(`${name}`, import.meta.url).href
 }
@@ -276,6 +294,15 @@ const Assets = {
       goldenCat,
       patCat,
     },
+    mood9,
+    mood50,
+    mood100,
+    energy9,
+    energy50,
+    energy100,
+    hungry9,
+    hungry50,
+    hungry100,
     levelIcon,
     donatIcon,
     investManager,
@@ -419,7 +446,11 @@ const Assets = {
     learn1,
     learn2,
     learn3,
-    learn4
+    learn4,
+    workOne,
+    workTwo,
+    workThree,
+    workFour
   },
   nameUnderline,
   HOME: {

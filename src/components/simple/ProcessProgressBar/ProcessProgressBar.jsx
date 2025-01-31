@@ -60,7 +60,7 @@ const ProcessProgressBar = ({
     const work = works?.find((work) => work?.work_id === activeProcess?.type_id);
 
     const typeToLabel = {
-      work: [work?.name[lang], rate + `${activeProcess?.reward_at_the_end || ''}`],
+      work: [work?.name[lang], rate + ` +${activeProcess?.reward_at_the_end || ''}`],
       training: [translations.training[lang], rate],
       sleep: [translations.longSleep[lang], rate]
     };

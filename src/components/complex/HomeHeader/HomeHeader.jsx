@@ -590,6 +590,49 @@ const HomeHeader = ({ screenHeader }) => {
       .then((activeProcess) => setActiveProcess(activeProcess))
   }, [])
 
+
+  const getEnergyIcon = (energy, energy_capacity) => {
+    const percent = Math.floor(energy / energy_capacity * 100)
+  
+    if(percent >= 50) {
+      return Assets.Icons.energy100
+    }
+
+    if(percent >= 9) {
+      return Assets.Icons.energy50
+    }
+
+    if(percent < 9) {
+      return Assets.Icons.energy9
+    }
+  }
+
+  const getMoodIcon = (mood) => {
+    if(mood >= 50) {
+      return Assets.Icons.mood100
+    }
+    if(mood >= 9) {
+      return Assets.Icons.mood50
+    }
+    if(mood < 9) {
+      return Assets.Icons.mood9
+    }
+  }
+
+  const getHungerIcon = (hunger) => {
+    if(hunger >= 50) {
+      return Assets.Icons.hungry100
+    }
+
+    if(hunger >= 9) { 
+      return Assets.Icons.hungry50
+    }
+
+    if(hunger < 9) {
+      return Assets.Icons.hungry9
+    }
+  }
+
   return (
     <>
       <div
@@ -664,7 +707,7 @@ const HomeHeader = ({ screenHeader }) => {
           <PlayerIndicators
             indicators={[
               {
-                icon: Icons.energy,
+                icon: getEnergyIcon(userParameters.energy, userParameters.energy_capacity),
                 percentFill: Math.floor(
                   (userParameters?.energy / userParameters?.energy_capacity) *
                     100
@@ -675,12 +718,12 @@ const HomeHeader = ({ screenHeader }) => {
                 }`,
               },
               {
-                icon: Icons.hungry,
+                icon: getHungerIcon(userParameters.hungry),
                 percentFill: Math.floor(userParameters?.hungry),
                 width: "28%",
               },
               {
-                icon: Icons.happiness,
+                icon: getMoodIcon(userParameters.mood),
                 percentFill: Math.floor(userParameters?.mood),
                 width: "28%",
               },

@@ -22,6 +22,7 @@ import FullScreenSpinner from "./FullScreenSpinner"
 import getBgByCurrentProcess from "./getBgByCurrentProcess"
 import moment from "moment-timezone"
 
+
 const Home = () => {
   const navigate = useNavigate()
   const mountedRef = useRef(false)
@@ -278,7 +279,7 @@ const Home = () => {
             height: "100%",
             width: "100%",
             backgroundImage: state.currentProcess?.type
-              ? getBgByCurrentProcess(state.currentProcess.type)
+              ? getBgByCurrentProcess(state.currentProcess.type, state.currentProcess?.type_id)
               : `url(${Assets.BG.homeBackground})`,
             backgroundSize: "cover",
             backgroundPosition: "bottom right",
