@@ -16,10 +16,11 @@ import {
   startProcess,
   getActiveProcess,
 } from "../../../services/process/process"
-import formatTime from "../../../utils/formatTime"
+import formatTime, { getMinutesAndSeconds } from "../../../utils/formatTime"
 import countPercentage from "../../../utils/countPercentage.js"
 import { useSettingsProvider } from "../../../hooks"
 import { useUser } from "../../../UserContext.jsx"
+import moment from "moment-timezone"
 
 const SkillTab = ({
   modalData,
@@ -255,19 +256,14 @@ const SkillTab = ({
     const learning = userLearningSkills?.find(
       (sk) => sk?.type_id === skill?.skill_id
     )
+    const { duration, seconds } = learning ? getMinutesAndSeconds(learning?.target_duration_in_seconds || learning?.base_duration_in_seconds) : getMinutesAndSeconds(skill.duration * 60)
     const timerBar = {
       icon: Icons.clock,
-      fillPercent:
-        learning?.duration || learning?.seconds
-          ? countPercentage(
-            learning?.duration * 60 + learning?.seconds,
-            skill?.duration * 60
-          )
-          : false,
-      value:
-        learning?.duration || learning?.seconds
-          ? formatTime(learning?.duration, learning?.seconds)
-          : formatTime(skill?.duration),
+      fillPercent: learning ? countPercentage(
+        moment().diff(moment(learning?.createdAt), 'seconds'),
+        learning?.target_duration_in_seconds || learning?.base_duration_in_seconds || skill.duration * 60
+      ) : 0,
+      value: learning ? formatTime(learning.duration, learning.seconds) : formatTime(duration, seconds),
     }
     const learnedRequiredSkill = skill.skill_id_required ? checkLearnedSkill(skill.skill_id_required) : true
 
@@ -334,7 +330,6 @@ const SkillTab = ({
   return (
     <ScreenContainer withTab>
       {/* List of skills*/}
-      {  }
       {skills?.filter((a) => checkLearningSkill(a.skill_id)).map((skill, index) => (
         <ItemCard
           key={index}

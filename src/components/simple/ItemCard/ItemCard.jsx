@@ -92,7 +92,7 @@ const isImageGrayscale = !isAnyButtonActive; // Если кнопка неакт
                     style={{ width: param.length > 1 ? "50%" : "100%", marginTop: 5 , backgroundColor: backgroundColor}}
                     
                   >
-                    {block?.fillPercent && (
+                    {block?.fillPercent > 0 && (
                       <span
                         style={{
                           width: block?.fillPercent + "%",

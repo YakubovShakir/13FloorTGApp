@@ -8,8 +8,16 @@ const formatTime = (timeInMinute, s) => {
 
   let days = d ? d + "d " : ""
   let hours = h ? h + "h " : ""
-  let minuts = m ? m + "m " : ""
+  let minuts = m ? m + "m ": ""
   let seconds = s ? s + "s" : ""
   return days + hours + minuts + seconds
 }
+
+export const getMinutesAndSeconds = (totalSeconds) => {
+    const duration = Math.floor(totalSeconds / 60)
+    const seconds = Math.floor(totalSeconds % 60)
+    return { duration, seconds }
+}
+
+
 export default formatTime
