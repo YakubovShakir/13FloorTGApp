@@ -451,9 +451,11 @@ const SkillTab = ({
       setUserLearningSkills
     )
     getUserSkills(userId).then((r) => setUserLearnedSkills(r)) // Get list of user skills
-
+    getUserConstantEffects(userId).then((r) => {
+      setEffects(r)
+    })
     return () => clearInterval(updater)
-  }, [userLearningSkills])
+  }, [userLearningSkills, effects])
 
   useEffect(() => {
     getUserConstantEffects(userId).then((r) => {
