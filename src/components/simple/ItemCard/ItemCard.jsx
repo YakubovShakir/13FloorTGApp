@@ -65,7 +65,7 @@ const isImageGrayscale = !isAnyButtonActive; // Если кнопка неакт
             alt="ItemIcon"
             className={isImageGrayscale ? 'inactive' : ''}  // Применяем 'inactive' если кнопка неактивна
           />
-          <div className="ItemTitle" style={{ paddingTop: 8 }}>{ItemBottomAmount}</div>
+          <div className="ItemTitleBottom" style={{ paddingTop: 8 }}>{ItemBottomAmount}</div>
         </div>
 
         {/* Right Section: ItemParams + ItemButtons */}

@@ -26,6 +26,14 @@
   z-index: 1; 
 }
 
+.ItemTitleBottom {
+  padding: 0;
+  margin-bottom: 4px;
+  font-size: 15px;
+  position: relative; 
+  z-index: 1; 
+}
+
 
 .ItemCard img {
   max-width: 100%;

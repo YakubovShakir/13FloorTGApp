@@ -168,7 +168,7 @@ export const UserProvider = ({ children }) => {
     
     const intervalId = setInterval(() => {
       debouncedFetchData(false, controller.signal)
-    }, 3000)
+    }, 10000)
 
     return () => {
       controller.abort()

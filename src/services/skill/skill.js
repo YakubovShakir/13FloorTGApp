@@ -30,3 +30,21 @@ export const getUserSkills = async (userId) => {
     console.log("Error while fetch skills ", e)
   }
 }
+
+export const getUserConstantEffects = async (userId) => {
+  try {
+    let skills
+    await instance
+      .get(`/skill/user/${userId}/constant-effects`)
+      .then((response) => {
+        skills = response.data.constant_effects
+        console.log(skills)
+      })
+      .catch((error) => {
+        console.log("Some error on getUserSkills:", error)
+      })
+    return skills
+  } catch (e) {
+    console.log("Error while fetch constant effects ", e)
+  }
+}

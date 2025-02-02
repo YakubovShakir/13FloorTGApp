@@ -2,7 +2,7 @@ import ScreenContainer from "../../../components/section/ScreenContainer/ScreenC
 import ItemCard from "../../../components/simple/ItemCard/ItemCard"
 import Assets from "../../../assets"
 import { useEffect, useState } from "react"
-import { getSkills, getUserSkills } from "../../../services/skill/skill"
+import { getSkills, getUserConstantEffects, getUserSkills } from "../../../services/skill/skill"
 import {
   updateProcessTimers,
   updateProcessesTimers,
@@ -30,6 +30,7 @@ const SkillTab = ({
   userId,
 }) => {
   const [skills, setSkills] = useState(null) // List of skills
+  const [effects, setEffects] = useState(null)
   const [userLearningSkills, setUserLearningSkills] = useState(null) //  User already Learned skills
   const [userLearnedSkills, setUserLearnedSkills] = useState(null) // User learning at this time skills
   const [trainingParamters, setTrainingParameters] = useState(null) // User training parameters
@@ -129,42 +130,84 @@ const SkillTab = ({
     return learning && skills?.find((skill) => skill?.skill_id === skillId)
   }
 
+  const checkLearningEffect = (effectId) => {
+    const learning = userLearningSkills?.find(
+      (skill) => skill?.type_id === effectId && skill?.sub_type === 'constant_effects'
+    )
+
+    return learning
+  }
+
   const { refreshData } = useUser()
 
   // Handle buy skill
-  const handleBuySkill = async (skill) => {
-    await startProcess("skill", userId, skill?.skill_id)
+  const handleBuySkill = async (skill, sub_type) => {
+    await startProcess("skill", userId, skill?.skill_id || skill.id, sub_type)
     getSkills().then((r) => {
       setSkills(r.filter(skill => skill.requiredLevel <= userParameters.level))
     }) // Get list of skills
     getProcesses("skill", userId).then((r) => setUserLearningSkills(r)) // Get current learning skills
     getUserSkills(userId).then((r) => setUserLearnedSkills(r)) // Get list of user skills
+    getUserConstantEffects(userId).then((r) => {
+      console.log('@@@@', r)
+      setEffects(r)
+    }) // Get list of user constant effects
   }
 
   useEffect(() => {
-    refreshData()
+    if (!modalData) return;
+
     if (modalData?.type === "skill") {
-      const learning = userLearningSkills?.find(
-        (skill) => skill?.type_id === modalData?.id
-      )
-      if (learning) {
-        const learningSkill = skills?.find(
-          (skill) => skill?.skill_id === learning?.type_id
+      if (modalData?.sub_type === 'constant_effects') {
+        const learning = userLearningSkills?.find(
+          (skill) => skill?.type_id === modalData?.id && skill.sub_type === 'constant_effects'
         )
-        setModalData(setSkillModalData(learningSkill))
+        
+        if (learning && effects?.work_duration_decrease?.current) {
+          const updatedModalData = setEffectModalData(effects.work_duration_decrease.current)
+          if (updatedModalData) {
+            setModalData(updatedModalData)
+          }
+        }
+      } else {
+        const learning = userLearningSkills?.find(
+          (skill) => skill?.type_id === modalData?.id
+        )
+
+        if (learning) {
+          const learningSkill = skills?.find(
+            (skill) => skill?.skill_id === learning?.type_id
+          )
+          setModalData(setSkillModalData(learningSkill))
+        }
       }
     }
-  }, [userLearningSkills])
+  }, [userLearningSkills, effects])
+
 
   const getButtonInfo = (skill) => {
-    const learning = checkLearningSkill(skill.skill_id)
-    const learned = checkLearnedSkill(skill.skill_id)
+    const learning = checkLearningSkill(skill?.skill_id)
+    const learned = checkLearnedSkill(skill?.skill_id)
     const icon = learned || learning ? null : Icons.balance
 
-    let text = skill.coins_price
+    let text = skill?.coins_price
 
     if (learning) text = translations.learning[lang]
     if (learned) text = translations.learned[lang]
+
+    return {
+      text,
+      icon,
+    }
+  }
+
+  const getEffectButtonInfo = (effect) => {
+    const learning = checkLearningEffect(effect?.id)
+    const icon = learning ? null : Icons.balance
+
+    let text = effect?.price
+
+    if (learning) text = translations.learning[lang]
 
     return {
       text,
@@ -179,14 +222,12 @@ const SkillTab = ({
       (sk) => sk?.type_id === skill?.skill_id
     )
 
-
-
     const bottomButtonOnClick = () => handleBuySkill(skill)
 
     const data = {
       type: "skill",
       id: skill?.skill_id,
-
+      sub_type: null,
       title: skill?.name[lang] || skill?.name,
       image: skill?.link,
       blocks: [
@@ -195,7 +236,7 @@ const SkillTab = ({
           text: translations.cost[lang],
           value: skill?.coins_price,
           fillPercent: '100%',
-          fillBackground: userParameters?.coins < skill.coins_price
+          fillBackground: userParameters?.coins < skill?.coins_price
             ? "#4E1010" // red
             : "#0E3228", // green
 
@@ -240,12 +281,71 @@ const SkillTab = ({
         {
           ...getButtonInfo(skill),
           onClick: !(learning || learned) && bottomButtonOnClick,
-          active: !(learning || learned) && (skill.skill_id_required ? checkLearnedSkill(skill.skill_id_required) : true) && userParameters.level >= skill.requiredLevel,
+          active: !(learning || learned) && (skill?.skill_id_required ? checkLearnedSkill(skill?.skill_id_required) : true) && userParameters?.level >= skill?.requiredLevel,
         },
       ],
     }
     return data
   }
+
+    // Build modal data for skill card
+    const setEffectModalData = (effect) => {
+      if (!effect) return null;
+  
+      const learning = userLearningSkills?.find(
+        (sk) => sk?.type_id === effect?.id && sk?.sub_type === 'constant_effects'
+      )
+      
+      const bottomButtonOnClick = () => handleBuySkill(effect, 'constant_effects')
+      
+      return {
+        type: "skill",
+        sub_type: 'constant_effects',
+        id: effect?.id,
+        title: effect?.name?.[lang] || effect?.name,
+        image: effect?.link,
+        blocks: [
+          {
+            icon: Icons.balance,
+            text: translations.cost[lang],
+            value: effect?.price,
+            fillPercent: '100%',
+            fillBackground: userParameters?.coins < effect?.price
+              ? "#4E1010" 
+              : "#0E3228",
+          },
+          {
+            icon: Icons.levelIcon,
+            text: translations.requiredLevel[lang],
+            value: effect?.required_level,
+            fillPercent: "100%",
+            fillBackground:
+              userParameters?.level < effect?.required_level
+                ? "#4E1010"
+                : "#0E3228",
+          },
+          {
+            icon: Icons.clock,
+            text: translations.duration[lang],
+            fillPercent:
+              learning?.duration || learning?.seconds
+                ? countPercentage(
+                  learning?.duration * 60 + learning?.seconds,
+                  effect?.duration * 60
+                )
+                : false,
+            value: formatTime(effect?.duration)
+          }
+        ].filter(Boolean),
+        buttons: [
+          {
+            ...getEffectButtonInfo(effect),
+            onClick: !learning && bottomButtonOnClick,
+            active: !learning && userParameters?.level >= effect?.required_level,
+          },
+        ],
+      }
+    }
 
   // Get parameters for skill card
   const getItemSkillParamsBlock = (skill) => {
@@ -282,6 +382,32 @@ const SkillTab = ({
     return [[timerBar], [accessBar]]
   }
 
+  const getItemEffectsParamsBlock = (effect) => {
+    console.log('@', effect)
+    const learning = userLearningSkills?.find(
+      (sk) => sk?.type_id === effect?.id && sk?.sub_type === 'constant_effects'
+    )
+
+    const { duration, seconds } = learning ? getMinutesAndSeconds(learning?.target_duration_in_seconds || learning?.base_duration_in_seconds) : getMinutesAndSeconds(effect.duration * 60)
+    const timerBar = {
+      icon: Icons.clock,
+      fillPercent: learning ? Math.abs(countPercentage(
+        moment().diff(moment(learning?.createdAt), 'seconds'),
+        learning?.target_duration_in_seconds || learning?.base_duration_in_seconds || effect.duration * 60
+      ) - 100) : 0,
+      value: learning ? formatTime(learning.duration, learning.seconds) : formatTime(duration, seconds),
+    }
+
+    let accessStatus = !learning && userParameters?.coins >= effect.price && userParameters.level >= effect.required_level
+
+    const accessBar = {
+      icon: accessStatus ? Icons.unlockedIcon : Icons.lockedIcon,
+      value: accessStatus ? translations.available[lang] : translations.unavailable[lang],
+    }
+
+    return [[timerBar], [accessBar]]
+  }
+
   // Get button for skill card
   const getItemSkillButton = (skill) => {
     const learned = checkLearnedSkill(skill?.skill_id)
@@ -302,12 +428,31 @@ const SkillTab = ({
     ]
   }
 
+    // Get button for skill card
+    const getItemEffectButton = (effect) => {
+      const learning = checkLearningEffect(effect?.id)
+  
+      const active = !learning && userParameters?.coins >= effect.price && userParameters.level >= effect.required_level
+  
+      return [
+        {
+          ...getEffectButtonInfo(effect),
+          onClick: () => {
+            console.log('Setting data', effect)
+            setModalData(setEffectModalData(effect))
+            setVisibleModal(true)
+          },
+          active,
+        },
+      ]
+    }
+
   useEffect(() => {
     const updater = updateProcessesTimers(
       userLearningSkills,
       setUserLearningSkills
     )
-    getUserSkills(userId).then((r) => setUserLearnedSkills(r)) // Get list of user skills
+    // getUserSkills(userId).then((r) => setUserLearnedSkills(r)) // Get list of user skills
 
     return () => clearInterval(updater)
   }, [userLearningSkills])
@@ -319,13 +464,15 @@ const SkillTab = ({
     }
   }, [activeProcess])
   useEffect(() => {
+    getUserConstantEffects(userId).then((r) => {
+      setEffects(r)
+    }).catch(r => console.log('error', r)) // Get list of user constant effects
     getSkills().then((r) => {
       setSkills(r.filter(skill => skill.requiredLevel <= userParameters.level))
     }) // Get list of skills
     getProcesses("skill", userId).then((r) => setUserLearningSkills(r)) // Get current learning skills
     getActiveProcess(userId).then((r) => setActiveProcess(r)) // Get active training if exist
     getUserSkills(userId).then((r) => setUserLearnedSkills(r)) // Get list of user skills
-    getTrainingParameters(userId).then((r) => setTrainingParameters(r)) // Get user training parameters
   }, [])
 
   return (
@@ -364,6 +511,21 @@ const SkillTab = ({
           ItemIndex={index + 1}
         />
       ))}
+    
+        
+      {effects && effects?.work_duration_decrease && ( 
+         <ItemCard
+         // key={index}
+         ItemIcon={effects?.work_duration_decrease?.next?.link}
+         ItemTitle={effects?.work_duration_decrease?.current?.name ? effects?.work_duration_decrease?.current?.name[lang] : effects?.work_duration_decrease?.next?.name[lang]}
+         ItemDescription={effects?.work_duration_decrease?.current?.description ? effects?.work_duration_decrease?.current?.description[lang] : effects?.work_duration_decrease?.next?.description[lang]}
+         ItemParamsBlocks={getItemEffectsParamsBlock(effects?.work_duration_decrease?.current || effects?.work_duration_decrease?.next)}
+         ItemButtons={getItemEffectButton(effects?.work_duration_decrease?.current || effects?.work_duration_decrease?.next)}
+         ItemBottomAmount={(lang === 'en' ? 'Level ' : 'Уровень ') + (effects?.work_duration_decrease?.current?.level || 0)}
+         ItemIndex={1}
+       />
+      )}
+    
     </ScreenContainer>
   )
 }
