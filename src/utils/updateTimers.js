@@ -1,31 +1,52 @@
 import moment from "moment-timezone"
 
-export const updateProcessesTimers = (stateOfProcess, setState) => {
-  const inervalId = setInterval(() => {
-    const arr = []
+export const updateProcessesTimers = (stateOfProcess, setState, end) => {
+  if (!stateOfProcess || !stateOfProcess.length) return
 
-    for (let process of stateOfProcess) {
-      const minuts = process?.duration
-      const seconds = process?.seconds
+  const intervalId = setInterval(() => {
+    const updatedProcesses = stateOfProcess.map(process => {
+      // Get total duration in seconds
+      const totalDuration = process.target_duration_in_seconds || process.base_duration_in_seconds
+      if (!totalDuration || !process.createdAt) return process
 
-      if (!(seconds - 1 > 0) && !minuts) continue
+      // Calculate remaining time
+      const elapsedSeconds = moment().diff(moment(process.createdAt), 'seconds')
+      const remainingSeconds = Math.max(0, totalDuration - elapsedSeconds)
 
-      if (minuts) {
-        if (seconds) {
-          process.seconds -= 1
-        } else {
-          process.duration -= 1
-          process.seconds = 59
-        }
-      } else {
-        process.seconds -= 1
+      // Convert to minutes and seconds
+      const duration = Math.floor(remainingSeconds / 60)
+      const seconds = remainingSeconds % 60
+
+      // Check if process is complete
+      if (duration === 0 && seconds === 0) {
+        if (end) end().then(() => console.log('ran end cycle'))
       }
-      arr.push(process)
-    }
-    setState(arr)
+
+      return {
+        ...process,
+        duration,
+        seconds
+      }
+    }).filter(Boolean)
+
+    setState(updatedProcesses)
   }, 1000)
 
-  return inervalId
+  return intervalId
+}
+
+// Helper function to get minutes and seconds for a specific process
+export const getProcessRemainingTime = (process) => {
+  if (!process?.createdAt) return { duration: 0, seconds: 0 }
+
+  const totalDuration = process.target_duration_in_seconds || process.base_duration_in_seconds
+  const elapsedSeconds = moment().diff(moment(process.createdAt), 'seconds')
+  const remainingSeconds = Math.max(0, totalDuration - elapsedSeconds)
+
+  return {
+    duration: Math.floor(remainingSeconds / 60),
+    seconds: remainingSeconds % 60
+  }
 }
 
 export const updateProcessTimers = (

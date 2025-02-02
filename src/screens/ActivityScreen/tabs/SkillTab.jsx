@@ -202,10 +202,10 @@ const SkillTab = ({
   }
 
   const getEffectButtonInfo = (effect) => {
-    const learning = checkLearningEffect(effect?.id)
+    const learning = checkLearningEffect(effect?.next?.id)
     const icon = learning ? null : Icons.balance
 
-    let text = effect?.price
+    let text = effect?.next?.price
 
     if (learning) text = translations.learning[lang]
 
@@ -293,7 +293,7 @@ const SkillTab = ({
       if (!effect) return null;
   
       const learning = userLearningSkills?.find(
-        (sk) => sk?.type_id === effect?.id && sk?.sub_type === 'constant_effects'
+        (sk) => sk?.type_id === effect?.next?.id && sk?.sub_type === 'constant_effects'
       )
       
       const bottomButtonOnClick = () => handleBuySkill(effect, 'constant_effects')
@@ -301,26 +301,26 @@ const SkillTab = ({
       return {
         type: "skill",
         sub_type: 'constant_effects',
-        id: effect?.id,
-        title: effect?.name?.[lang] || effect?.name,
-        image: effect?.link,
+        id: effect?.next?.id,
+        title: effect?.next?.name?.[lang],
+        image: effect?.next?.link,
         blocks: [
           {
             icon: Icons.balance,
             text: translations.cost[lang],
-            value: effect?.price,
+            value: effect?.next?.price,
             fillPercent: '100%',
-            fillBackground: userParameters?.coins < effect?.price
+            fillBackground: userParameters?.coins < effect?.next?.price
               ? "#4E1010" 
               : "#0E3228",
           },
           {
             icon: Icons.levelIcon,
             text: translations.requiredLevel[lang],
-            value: effect?.required_level,
+            value: effect?.next?.required_level,
             fillPercent: "100%",
             fillBackground:
-              userParameters?.level < effect?.required_level
+              userParameters?.level < effect?.next?.required_level
                 ? "#4E1010"
                 : "#0E3228",
           },
@@ -331,10 +331,10 @@ const SkillTab = ({
               learning?.duration || learning?.seconds
                 ? countPercentage(
                   learning?.duration * 60 + learning?.seconds,
-                  effect?.duration * 60
+                  effect?.next?.duration * 60
                 )
                 : false,
-            value: formatTime(effect?.duration)
+            value: formatTime(effect?.next?.duration)
           }
         ].filter(Boolean),
         buttons: [
@@ -357,14 +357,14 @@ const SkillTab = ({
     const learning = userLearningSkills?.find(
       (sk) => sk?.type_id === skill?.skill_id
     )
-    const { duration, seconds } = learning ? getMinutesAndSeconds(learning?.target_duration_in_seconds || learning?.base_duration_in_seconds) : getMinutesAndSeconds(skill.duration * 60)
+    const { duration, seconds } = learning ? getMinutesAndSeconds(Math.max(0, learning?.target_duration_in_seconds || learning?.base_duration_in_seconds - moment().diff(moment(learning?.createdAt), 'seconds'))) : getMinutesAndSeconds(skill.duration * 60)
     const timerBar = {
       icon: Icons.clock,
       fillPercent: learning ? Math.abs(countPercentage(
-        moment().diff(moment(learning?.createdAt), 'seconds'),
+        duration * 60 + seconds,
         learning?.target_duration_in_seconds || learning?.base_duration_in_seconds || skill.duration * 60
-      ) - 100) : 0,
-      value: learning ? formatTime(learning.duration, learning.seconds) : formatTime(duration, seconds),
+      )) - 100: 0,
+      value: formatTime(duration, seconds),
     }
     const learnedRequiredSkill = skill.skill_id_required ? checkLearnedSkill(skill.skill_id_required) : true
 
@@ -384,10 +384,10 @@ const SkillTab = ({
 
   const getItemEffectsParamsBlock = (effect) => {
     const learning = userLearningSkills?.find(
-      (sk) => sk?.type_id === effect?.id && sk?.sub_type === 'constant_effects'
+      (sk) => sk?.type_id === effect?.next?.id && sk?.sub_type === 'constant_effects'
     )
 
-    const { duration, seconds } = learning ? getMinutesAndSeconds(learning?.target_duration_in_seconds || learning?.base_duration_in_seconds) : getMinutesAndSeconds(effect.duration * 60)
+    const { duration, seconds } = learning ? getMinutesAndSeconds(learning?.target_duration_in_seconds || learning?.base_duration_in_seconds) : getMinutesAndSeconds(effect.next.duration * 60)
     const timerBar = {
       icon: Icons.clock,
       fillPercent: learning ? Math.abs(countPercentage(
@@ -429,9 +429,9 @@ const SkillTab = ({
 
     // Get button for skill card
     const getItemEffectButton = (effect) => {
-      const learning = checkLearningEffect(effect?.id)
+      const learning = checkLearningEffect(effect?.next?.id)
   
-      const active = !learning && userParameters?.coins >= effect.price && userParameters.level >= effect.required_level
+      const active = !learning && userParameters?.coins >= effect.next.price && userParameters.level >= effect.next.required_level
   
       return [
         {
@@ -445,17 +445,22 @@ const SkillTab = ({
       ]
     }
 
+  const [isInitialized, setIsInitialized] = useState(false)
+
   useEffect(() => {
     const updater = updateProcessesTimers(
       userLearningSkills,
-      setUserLearningSkills
+      setUserLearningSkills,
+      () => {
+        getUserSkills(userId).then((r) => setUserLearnedSkills(r)) // Get list of user skills
+        getUserConstantEffects(userId).then((r) => {
+          setEffects(r)
+        })
+      }
     )
-    getUserSkills(userId).then((r) => setUserLearnedSkills(r)) // Get list of user skills
-    getUserConstantEffects(userId).then((r) => {
-      setEffects(r)
-    })
+    
     return () => clearInterval(updater)
-  }, [userLearningSkills, effects])
+  }, [isInitialized, userLearningSkills])
 
   useEffect(() => {
     getUserConstantEffects(userId).then((r) => {
@@ -467,6 +472,7 @@ const SkillTab = ({
     getProcesses("skill", userId).then((r) => setUserLearningSkills(r)) // Get current learning skills
     getActiveProcess(userId).then((r) => setActiveProcess(r)) // Get active training if exist
     getUserSkills(userId).then((r) => setUserLearnedSkills(r)) // Get list of user skills
+      setIsInitialized(true)
   }, [])
 
   return (
@@ -507,8 +513,8 @@ const SkillTab = ({
               ItemIcon={displayEffect.link}
               ItemTitle={displayEffect.name[lang]} // Fallback to key if names are missing
               ItemDescription={displayEffect.description[lang]} // Empty string if no description
-              ItemParamsBlocks={getItemEffectsParamsBlock(displayEffect)}
-              ItemButtons={getItemEffectButton(displayEffect)}
+              ItemParamsBlocks={getItemEffectsParamsBlock(effect)}
+              ItemButtons={getItemEffectButton(effect)}
               ItemBottomAmount={(lang === 'en' ? 'Level ' : 'Уровень ') + (effect.current?.level || 0)}
               ItemIndex={1} // Calculate index dynamically
             />
