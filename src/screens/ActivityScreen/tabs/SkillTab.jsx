@@ -149,9 +149,9 @@ const SkillTab = ({
     getProcesses("skill", userId).then((r) => setUserLearningSkills(r)) // Get current learning skills
     getUserSkills(userId).then((r) => setUserLearnedSkills(r)) // Get list of user skills
     getUserConstantEffects(userId).then((r) => {
-      console.log('@@@@', r)
       setEffects(r)
     }) // Get list of user constant effects
+    setVisibleModal(false)
   }
 
   useEffect(() => {
@@ -281,7 +281,7 @@ const SkillTab = ({
         {
           ...getButtonInfo(skill),
           onClick: !(learning || learned) && bottomButtonOnClick,
-          active: !(learning || learned) && (skill?.skill_id_required ? checkLearnedSkill(skill?.skill_id_required) : true) && userParameters?.level >= skill?.requiredLevel,
+          active: !(learning || learned) && (skill?.skill_id_required ? checkLearnedSkill(skill?.skill_id_required) : true) && userParameters?.level >= skill?.requiredLevel && userParameters.coins >= skill.coins_price,
         },
       ],
     }
@@ -341,7 +341,7 @@ const SkillTab = ({
           {
             ...getEffectButtonInfo(effect),
             onClick: !learning && bottomButtonOnClick,
-            active: !learning && userParameters?.level >= effect?.required_level,
+            active: !learning && userParameters?.level >= effect?.required_level && userParameters.coins >= effect?.price,
           },
         ],
       }
@@ -383,7 +383,6 @@ const SkillTab = ({
   }
 
   const getItemEffectsParamsBlock = (effect) => {
-    console.log('@', effect)
     const learning = userLearningSkills?.find(
       (sk) => sk?.type_id === effect?.id && sk?.sub_type === 'constant_effects'
     )
@@ -438,7 +437,6 @@ const SkillTab = ({
         {
           ...getEffectButtonInfo(effect),
           onClick: () => {
-            console.log('Setting data', effect)
             setModalData(setEffectModalData(effect))
             setVisibleModal(true)
           },
@@ -452,17 +450,11 @@ const SkillTab = ({
       userLearningSkills,
       setUserLearningSkills
     )
-    // getUserSkills(userId).then((r) => setUserLearnedSkills(r)) // Get list of user skills
+    getUserSkills(userId).then((r) => setUserLearnedSkills(r)) // Get list of user skills
 
     return () => clearInterval(updater)
   }, [userLearningSkills])
 
-  useEffect(() => {
-    if (activeProcess?.type === "training") {
-      const updater = updateProcessTimers(activeProcess, setActiveProcess)
-      return () => clearInterval(updater)
-    }
-  }, [activeProcess])
   useEffect(() => {
     getUserConstantEffects(userId).then((r) => {
       setEffects(r)
@@ -500,6 +492,29 @@ const SkillTab = ({
           ItemIndex={index + 1}
         />
       ))}
+        
+    {effects ? Object.keys(effects).map(key => {
+        const effect = effects[key];
+
+        // Check if the effect object exists and has the necessary data
+        if (effect && (effect.current || effect.next)) {
+          const displayEffect = effect.current || effect.next; // Prioritize current, fallback to next
+
+          return (
+            <ItemCard
+              ItemIcon={displayEffect.link}
+              ItemTitle={displayEffect.name[lang]} // Fallback to key if names are missing
+              ItemDescription={displayEffect.description[lang]} // Empty string if no description
+              ItemParamsBlocks={getItemEffectsParamsBlock(displayEffect)}
+              ItemButtons={getItemEffectButton(displayEffect)}
+              ItemBottomAmount={(lang === 'en' ? 'Level ' : 'Уровень ') + (effect.current?.level || 0)}
+              ItemIndex={1} // Calculate index dynamically
+            />
+          );
+        }
+        return null; // Return null if the effect data is missing to avoid rendering issues
+      }) : null}
+
       {skills?.filter((a) => !checkLearningSkill(a.skill_id) && checkLearnedSkill(a.skill_id)).map((skill, index) => (
         <ItemCard
           key={index}
@@ -512,19 +527,6 @@ const SkillTab = ({
         />
       ))}
     
-        
-      {effects && effects?.work_duration_decrease && ( 
-         <ItemCard
-         // key={index}
-         ItemIcon={effects?.work_duration_decrease?.next?.link}
-         ItemTitle={effects?.work_duration_decrease?.current?.name ? effects?.work_duration_decrease?.current?.name[lang] : effects?.work_duration_decrease?.next?.name[lang]}
-         ItemDescription={effects?.work_duration_decrease?.current?.description ? effects?.work_duration_decrease?.current?.description[lang] : effects?.work_duration_decrease?.next?.description[lang]}
-         ItemParamsBlocks={getItemEffectsParamsBlock(effects?.work_duration_decrease?.current || effects?.work_duration_decrease?.next)}
-         ItemButtons={getItemEffectButton(effects?.work_duration_decrease?.current || effects?.work_duration_decrease?.next)}
-         ItemBottomAmount={(lang === 'en' ? 'Level ' : 'Уровень ') + (effects?.work_duration_decrease?.current?.level || 0)}
-         ItemIndex={1}
-       />
-      )}
     
     </ScreenContainer>
   )
