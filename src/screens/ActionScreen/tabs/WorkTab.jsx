@@ -261,12 +261,12 @@ export const WorkTab = ({
             icon: Icons.clock,
           },
         ],
-        [
-          {
-            value: translations.noBoosts[lang],
-            icon: Icons?.boosterArrow,
-          },
-        ],
+        // [
+        //   {
+        //     value: translations.noBoosts[lang],
+        //     icon: Icons?.boosterArrow,
+        //   },
+        // ],
       ]
     }
 
