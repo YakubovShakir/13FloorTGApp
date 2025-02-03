@@ -501,13 +501,12 @@ const SkillTab = ({
         />
       ))}
         
-    {effects ? Object.keys(effects).map(key => {
+    {effects ? Object.keys(effects).map((key, index) => {
         const effect = effects[key];
 
         // Check if the effect object exists and has the necessary data
         if (effect && (effect.current || effect.next)) {
           const displayEffect = effect.current || effect.next; // Prioritize current, fallback to next
-
           return (
             <ItemCard
               ItemIcon={displayEffect.link}
@@ -516,7 +515,7 @@ const SkillTab = ({
               ItemParamsBlocks={getItemEffectsParamsBlock(effect)}
               ItemButtons={getItemEffectButton(effect)}
               ItemBottomAmount={(lang === 'en' ? 'Level ' : 'Уровень ') + (effect.current?.level || 0)}
-              ItemIndex={1} // Calculate index dynamically
+              ItemIndex={index} // Calculate index dynamically
               ItemActiveIcon={effect?.current?.level > 0}
             />
           );

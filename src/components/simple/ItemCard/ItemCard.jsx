@@ -14,7 +14,7 @@ const ItemCard = ({
   ItemAmount = undefined,
   ItemBottomAmount,
   isWaiting = false, // Это флаг ожидания,
-  ItemActiveIcon = false,
+  ItemActiveIcon
 }) => {
   // Определяем, активна ли хотя бы одна кнопка
   const isAnyButtonActive = ItemButtons.some(button => button.active);
@@ -38,7 +38,8 @@ if (isWaiting) {
 }
 
 // Логика для обесцвечивания изображений
-const isImageGrayscale =  !(isAnyButtonActive || ItemActiveIcon); // Если кнопка неактивна, изображение будет обесцвечено
+
+const isImageActive = ItemActiveIcon === true ? true : (ItemActiveIcon === false ? false : isAnyButtonActive)
   return (
     <motion.div
       initial={{ opacity: 0, y: 100 }}
@@ -63,7 +64,7 @@ const isImageGrayscale =  !(isAnyButtonActive || ItemActiveIcon); // Если к
             loading="lazy"
             src={ItemIcon}
             alt="ItemIcon"
-            className={isImageGrayscale ? 'inactive' : ''}  // Применяем 'inactive' если кнопка неактивна
+            className={isImageActive === true ? '' : 'inactive'}  // Применяем 'inactive' если кнопка неактивна
           />
           <div className="ItemTitleBottom" style={{ paddingTop: 8 }}>{ItemBottomAmount}</div>
         </div>
