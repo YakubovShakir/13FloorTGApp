@@ -517,6 +517,7 @@ const SkillTab = ({
               ItemButtons={getItemEffectButton(effect)}
               ItemBottomAmount={(lang === 'en' ? 'Level ' : 'Уровень ') + (effect.current?.level || 0)}
               ItemIndex={1} // Calculate index dynamically
+              ItemActiveIcon={effect?.current?.level > 0}
             />
           );
         }
