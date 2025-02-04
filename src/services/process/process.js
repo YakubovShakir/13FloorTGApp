@@ -55,6 +55,6 @@ export const getActiveProcess = async (userId) => {
       return response.data
     } catch (e) {
       console.log("Error in startProcess ", e)
-      throw e.response?.data?.seconds_left
+      throw e
     }
   }

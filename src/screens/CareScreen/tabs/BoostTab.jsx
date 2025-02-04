@@ -15,12 +15,13 @@ import { getParameters } from "../../../services/user/user"
 import { getLevels } from "../../../services/levels/levels"
 import { buyBoost, getBoosts, getUserBoosts, useBoost } from "../../../services/boost/boost"
 import { updateProcessesTimers, updateProcessTimers } from "../../../utils/updateTimers"
-import formatTime from "../../../utils/formatTime"
+import formatTime, { getMinutesAndSeconds } from "../../../utils/formatTime"
 import countPercentage from "../../../utils/countPercentage"
 import { useSettingsProvider } from "../../../hooks"
 import HomeHeader from "../../../components/complex/HomeHeader/HomeHeader"
 import ScreenBody from "../../../components/section/ScreenBody/ScreenBodyFood"
 import UserContext from "../../../UserContext"
+import moment from "moment-timezone"
 
 
 
@@ -43,17 +44,25 @@ const BoostTab = ({ }) => {
 
   const getItemBoostParams = (boost) => {
     const boostProcess = userBoostProcesses?.find((p) => p.type_id === boost.boost_id)
-    const boostDuration = boostProcess ? formatTime(boostProcess.duration, boostProcess.seconds) : boost.duration
+    const boostProcessDuration = boostProcess ? (boostProcess.target_duration_in_seconds || boostProcess.base_duration_in_seconds) / 60 : boost.duration
+    const { duration, seconds } = boostProcess ? getMinutesAndSeconds(Math.max(0, boostProcessDuration * 60 - moment().diff(moment(boostProcess.createdAt), 'seconds'))) : getMinutesAndSeconds(boost.duration * 60)
+    const boostDuration = boostProcess ? formatTime(duration, seconds) : formatTime(boost.duration)
     console.log(boostDuration)
     return [
       [
         boostDuration && {
           icon: Icons.clock,
           value: boostDuration,
+          fillPercent: boostProcess && Math.max(0, 100 - countPercentage(
+            moment().diff(moment(boostProcess.createdAt), 'seconds'),
+            boostProcessDuration * 60
+          )),
         },
       ].filter(Boolean),
     ]
   }
+
+  const { refreshData } = useContext(UserContext)
 
   const handleBuyBoost = async (boostId) => {
     await buyBoost(userId, boostId)
@@ -62,14 +71,18 @@ const BoostTab = ({ }) => {
     // setUserParameters(userParameters.parameters)
     const userBoosts = await getUserBoosts(userId)
     setUserBoosts(userBoosts)
+    await refreshData()
   }
 
   const handleUseBoost = async (boostId) => {
-    await useBoost(userId,boostId)
+    await useBoost(userId, boostId)
     const userBoosts = await getUserBoosts(userId)
 
     setUserBoosts(userBoosts)
     // setUserParameters(parameters.parameters)
+    await refreshData()
+    const boostProcesses = await getProcesses('boost', userId)
+    setUserBoostProcesses(boostProcesses)
   }
   const checkUserHaveBoost = (boostId) => {
     return userBoosts?.find((boost) => boost?.boost_id === boostId) || false
@@ -77,11 +90,11 @@ const BoostTab = ({ }) => {
   }
 
   const getUserBoostAmount = (boostId) => userBoosts?.filter((boost) => boost?.boost_id === boostId)?.length
-  const getItemBoostButton = (boost) => { 
-    const starsPrice =  boost.stars_price
+  const getItemBoostButton = (boost) => {
+    const starsPrice = boost.stars_price
     const buyBoostStatus = userParameters?.coins >= starsPrice
     const useBoostStatus = checkUserHaveBoost(boost?.boost_id)
-   return [
+    return [
       {
         text: boost.stars_price,
         active: buyBoostStatus,
@@ -91,23 +104,23 @@ const BoostTab = ({ }) => {
       {
         text: translations.take[lang],
         active: useBoostStatus,
-        onClick: useBoostStatus && (()=> handleUseBoost(boost?.boost_id))
+        onClick: useBoostStatus && (() => handleUseBoost(boost?.boost_id))
       },
     ]
   }
   useEffect(() => {
-    getBoosts().then((r) => setBoosts(r)) 
+    getBoosts().then((r) => setBoosts(r))
     getActiveProcess(userId).then((process) => setActiveProcess(process))
-    getUserBoosts(userId).then((boosts) => setUserBoosts(boosts) )
+    getUserBoosts(userId).then((boosts) => setUserBoosts(boosts))
     getProcesses('boost', userId).then((processes) => setUserBoostProcesses(processes))
     console.log(userBoostProcesses)
   }, [])
 
   useEffect(() => {
-    if(userBoostProcesses && userBoostProcesses.length > 0) {
+    if (userBoostProcesses && userBoostProcesses.length > 0) {
       const interval = updateProcessesTimers(userBoostProcesses, setUserBoostProcesses, () => {
         getActiveProcess(userId).then((process) => setActiveProcess(process))
-        getUserBoosts(userId).then((boosts) => setUserBoosts(boosts) )
+        getUserBoosts(userId).then((boosts) => setUserBoosts(boosts))
         getProcesses('boost', userId).then((processes) => setUserBoostProcesses(processes))
       })
 
@@ -118,11 +131,11 @@ const BoostTab = ({ }) => {
   const handleStarsBuy = async (item) => {
     try {
       const response = await instance.post('/users/request-stars-invoice-link', {
-          productType: 'boost',
-          id: item.id
+        productType: 'boost',
+        id: item.id
       }).then(res => res.data.invoiceLink)
       window.Telegram?.WebApp?.openInvoice(response, (status) => {
-        if(status === "paid") {
+        if (status === "paid") {
           return
         }
       })
@@ -141,7 +154,7 @@ const BoostTab = ({ }) => {
 
   return (
     <ScreenContainer withTab>
-      <HomeHeader/>
+      <HomeHeader />
       {/* <ItemCard
         ItemIcon={sleepIcon}
         ItemTitle={"Долгий сон"}
@@ -150,20 +163,20 @@ const BoostTab = ({ }) => {
         ItemIndex={0}
       /> */}
       <ScreenBody activity={lang === 'ru' ? 'Бусты' : 'Boosts'}>
-        <div style={{paddingTop: 20}}>
-        {boosts?.map((boost, index) => (
-        <ItemCard
-          key={index}
-          ItemIcon={boost?.link}
-          ItemTitle={boost.name[lang]}
-          ItemDescription={boost?.description[lang]}
-          ItemParamsBlocks={getItemBoostParams(boost)}
-          ItemButtons={getItemBoostButton(boost)}
-          ItemBottomAmount={getUserBoostAmount(boost?.boost_id)}
-          ItemIndex={index + 1}
-          handleStarsBuy={() => handleStarsBuy({ id: boost.boost_id, productType: 'boosts' })}
-        />
-      ))}
+        <div style={{ paddingTop: 20 }}>
+          {boosts?.map((boost, index) => (
+            <ItemCard
+              key={index}
+              ItemIcon={boost?.link}
+              ItemTitle={boost.name[lang]}
+              ItemDescription={boost?.description[lang]}
+              ItemParamsBlocks={getItemBoostParams(boost)}
+              ItemButtons={getItemBoostButton(boost)}
+              ItemBottomAmount={getUserBoostAmount(boost?.boost_id)}
+              ItemIndex={index + 1}
+              handleStarsBuy={() => handleStarsBuy({ id: boost.boost_id, productType: 'boosts' })}
+            />
+          ))}
         </div>
       </ScreenBody>
     </ScreenContainer>

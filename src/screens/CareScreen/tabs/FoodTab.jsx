@@ -156,7 +156,7 @@ const FoodTab = ({ userId, userParameters, setUserParameters }) => {
   }, [userEatingFoods])
 
   useEffect(() => {
-    getFoods().then((r) => setFoods(r))
+    getFoods().then((r) => setFoods(r.filter(food => userParameters.level >= food.user_level_require)))
     getProcesses("food", userId).then((r) => setUserEatingFoods(r))
 
     updateInformation()

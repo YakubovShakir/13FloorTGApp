@@ -9,6 +9,7 @@ import { checkCanStop, stopProcess } from "../../../services/process/process";
 import UserContext, { UserProvider } from "../../../UserContext";
 import { motion } from 'framer-motion'
 import { getTrainingParameters } from "../../../services/user/user";
+import FullScreenSpinner from "../../../screens/Home/FullScreenSpinner";
 
 const COIN_SOUND = new Audio('https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/coin.mp3')
 const ALARM_SOUND = new Audio('https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/alarm.mp3')
@@ -18,7 +19,6 @@ const ProcessProgressBar = ({
   inputPercentage = null,
   reverse = false,
   rate,
-  setIsLoading
 }) => {
   const navigate = useNavigate();
   const [percentage, setPercentage] = useState(100);
@@ -29,7 +29,7 @@ const ProcessProgressBar = ({
   const [showModal, setShowModal] = useState(false);
   const [hasAnimated, setHasAnimated] = useState(true)
   const [works, setWorks] = useState(null)
-
+  const [isLoading, setIsLoading] = useState(false)
   const { userId } = useContext(UserContext);
   const { lang } = useSettingsProvider();
 
@@ -216,15 +216,23 @@ const ProcessProgressBar = ({
         
           while(true) {
             try {
-              await checkCanStop(userId)
+              await new Promise((resolve) => setTimeout(resolve, 500))
+              await checkCanStop(userId) 
               break
             } catch(err) {
-              await new Promise((resolve) => setTimeout(resolve, err * 1000))
+              const code = err.response?.status
+              const wait = err.response?.data?.seconds_left * 1000
+              console.log(code) 
+              if(code === 404) {
+                break
+              }
+
+              await new Promise((resolve) => setTimeout(resolve, wait || 1000))
             }
           }
 
-          setTimeout(() => {window.location.href = window.location.origin}, 1500)
-      },2000)
+          setTimeout(() => {window.location.href = window.location.origin}, 750)
+      },1500)
 
       return () => clearTimeout(id)
     }
@@ -248,89 +256,94 @@ const ProcessProgressBar = ({
     }
   };
 
-  if(activeProcess) {
-    return (
-      <div className="progress-bar-container-fixed-top">
-        <div className="progress-bar-container" style={{}}>
-          <div className="progress-bar-wrapper" style={{ width: "90%", float: "left" }}>
-            <div className="progress-bar-header">
-              <div className="progress-bar-icon-left">{iconLeft && iconLeft}</div>
-              <div className="progress-bar-label-left">{labelLeft}</div>
-              <div className="progress-bar-label-right">{labelRight}</div>
-              <div
-                className="progress-bar-icon-right"
-                style={{ right: '3%' }}
-              >
-                {/* {iconRight && iconRight} */}
-                { activeProcess?.type === 'work' && <WorkIcon percentage={percentage} hasAnimated={hasAnimated} key={'work'}/>}
-                { activeProcess?.type === 'training' && <ClockIcon percentage={percentage} hasAnimated={hasAnimated} key={'work'}/>}
-                { activeProcess?.type === 'sleep' && <ClockIcon percentage={percentage} hasAnimated={hasAnimated} key={'work'}/>}
+  if(isLoading && !activeProcess && !rate) {
+    return <div style={{ position: 'fixed', left: 0, bottom: 0, height: '100vh', width: '100vw', zIndex: 300000 }}>
+      <FullScreenSpinner/>
+    </div>
+  } else {
+      return (
+        <div className="progress-bar-container-fixed-top">
+          <div className="progress-bar-container" style={{}}>
+            <div className="progress-bar-wrapper" style={{ width: "90%", float: "left" }}>
+              <div className="progress-bar-header">
+                <div className="progress-bar-icon-left">{iconLeft && iconLeft}</div>
+                <div className="progress-bar-label-left">{labelLeft}</div>
+                <div className="progress-bar-label-right">{labelRight}</div>
+                <div
+                  className="progress-bar-icon-right"
+                  style={{ right: '3%' }}
+                >
+                  {/* {iconRight && iconRight} */}
+                  { activeProcess?.type === 'work' && <WorkIcon percentage={percentage} hasAnimated={hasAnimated} key={'work'}/>}
+                  { activeProcess?.type === 'training' && <ClockIcon percentage={percentage} hasAnimated={hasAnimated} key={'work'}/>}
+                  { activeProcess?.type === 'sleep' && <ClockIcon percentage={percentage} hasAnimated={hasAnimated} key={'work'}/>}
+                </div>
+              </div>
+              <div className="progress-bar">
+                <div
+                  className="progress-bar-fill"
+                  style={{
+                    width: `${displayPercentage}%`,
+                    transition: "width 0.3s ease-in-out",
+                  }}
+                />
               </div>
             </div>
-            <div className="progress-bar">
-              <div
-                className="progress-bar-fill"
+    
+            {/* Кнопка, которая не является частью прогресс бара */}
+            <div style={{ width: "10%", float: "left", position: "relative" }}>
+              <button
+                className="process-action-button"
+                onClick={() => setShowModal(true)} // Показываем модальное окно при нажатии
                 style={{
-                  width: `${displayPercentage}%`,
-                  transition: "width 0.3s ease-in-out",
+    
+    
+                  width: "32px", // Кнопка занимает всю оставшуюся ширину
+                  backgroundColor: "rgb(0 0 0 / 52%)",
+                  backdropFilter: " blur(5px)",
+                  color: "rgb(255, 0, 0)",
+                  border: "2px solid rgb(255, 0, 0)",
+    
+                  borderRadius: "5px",
+                  fontSize: "20px",
+                  cursor: "pointer",
+                  height: "32px", // Задаем фиксированную высоту кнопки
+                  position: "absolute", // Абсолютное позиционирование кнопки
+                  bottom: "0", // Кнопка располагается внизу
                 }}
-              />
+              >
+                X
+              </button>
             </div>
           </div>
-  
-          {/* Кнопка, которая не является частью прогресс бара */}
-          <div style={{ width: "10%", float: "left", position: "relative" }}>
-            <button
-              className="process-action-button"
-              onClick={() => setShowModal(true)} // Показываем модальное окно при нажатии
-              style={{
-  
-  
-                width: "32px", // Кнопка занимает всю оставшуюся ширину
-                backgroundColor: "rgb(0 0 0 / 52%)",
-                backdropFilter: " blur(5px)",
-                color: "rgb(255, 0, 0)",
-                border: "2px solid rgb(255, 0, 0)",
-  
-                borderRadius: "5px",
-                fontSize: "20px",
-                cursor: "pointer",
-                height: "32px", // Задаем фиксированную высоту кнопки
-                position: "absolute", // Абсолютное позиционирование кнопки
-                bottom: "0", // Кнопка располагается внизу
-              }}
-            >
-              X
-            </button>
-          </div>
-        </div>
-  
-        {/* Всплывающее окно */}
-        {showModal && (
-          <div className="modal">
-            <div className="modal-content">
-              <p>{translations.confirm[lang]}</p>
-              <div className="modal-buttons">
-                <button onClick={() => handleConfirmClose()}
-                  style={{
-                    border: "2px solid rgb(0, 255, 115)",
-                    color: "rgb(0, 255, 115)",
-                  }}
-                >{translations.yes[lang]}</button>
-                <button onClick={() => handleCloseModal()}
-  
-                  style={{
-                    color: "rgb(255, 0, 0)",
-                    border: "2px solid rgb(255, 0, 0)",
-  
-                  }}
-                >{translations.no[lang]}</button>
+    
+          {/* Всплывающее окно */}
+          {showModal && (
+            <div className="modal">
+              <div className="modal-content">
+                <p>{translations.confirm[lang]}</p>
+                <div className="modal-buttons">
+                  <button onClick={() => handleConfirmClose()}
+                    style={{
+                      border: "2px solid rgb(0, 255, 115)",
+                      color: "rgb(0, 255, 115)",
+                    }}
+                  >{translations.yes[lang]}</button>
+                  <button onClick={() => handleCloseModal()}
+    
+                    style={{
+                      color: "rgb(255, 0, 0)",
+                      border: "2px solid rgb(255, 0, 0)",
+    
+                    }}
+                  >{translations.no[lang]}</button>
+                </div>
               </div>
             </div>
-          </div>
-        )}
-      </div>
-    );
+          )}
+        </div>
+      );
+    
   }
 };
 
