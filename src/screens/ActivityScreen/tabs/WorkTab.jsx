@@ -207,18 +207,7 @@ export const WorkTab = ({
   }
 
   // Interval update information
-  const updateInformation = () => {
-    try {
-      setInterval(async () => {
-        const learnedSkills = await getUserSkills(userId) // Already learned skills
-        const userActiveProcess = await getActiveProcess(userId)
-        setUserLearnedSkills(learnedSkills)
-        setActiveProcess(userActiveProcess)
-      }, 30000)
-    } catch (e) {
-      console.log("Error when updateInfromation", e)
-    }
-  }
+
 
   const getItemWorkParams = (workId) => {
     const work = getWorkById(workId)
@@ -317,14 +306,12 @@ export const WorkTab = ({
       },
     ]
   }
-  useEffect(() => {
-    getWorks().then((r) => {
-      setWorks(r.filter(work => work.requiredLevel <= userParameters.level))
-    })
+  useEffect(() => {  
+    getWorks().then((r) => setWorks(r))
     getSkills().then((r) => setSkills(r)) // Get list of skills
     getActiveProcess(userId).then((r) => setActiveProcess(r))
     getUserSkills(userId).then((r) => setUserLearnedSkills(r)) // Get list of user skills
-    updateInformation()
+    // updateInformation()
   }, [])
 
   return (

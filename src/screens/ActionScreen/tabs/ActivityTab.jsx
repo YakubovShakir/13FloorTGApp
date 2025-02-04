@@ -116,7 +116,7 @@ const BoostTab = ({ userId, userParameters, setUserParameters }) => {
           value:
             activeProcess?.type === "sleep" && (activeProcess?.duration || activeProcess?.seconds)
               ? formatTime(activeProcess?.duration, activeProcess?.seconds)
-              : userSleepDuration,
+              : formatTime(userSleepDuration),
           fillPercent:
             activeProcess?.type === "sleep" && activeProcess?.duration
               ? countPercentage(

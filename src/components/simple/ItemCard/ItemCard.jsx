@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import Button from "../Button/Button";
 import { useEffect, useState } from "react";
 import Assets from "../../../assets";
+import formatTime from "../../../utils/formatTime";
 
 const ItemCard = ({
   ItemIcon,
@@ -104,7 +105,9 @@ const isImageActive = ItemActiveIcon === true ? true : (ItemActiveIcon === false
                       />
                     )}
                     <img src={block.icon} alt="paramIcon" />
-                    <p>{block.value}</p><p style={{ color: '#22c7a3', paddingLeft: 8 }}>{block.adder > 0 && '+ ' + block.adder}</p>
+                    <p>{block.value}</p>
+                    <p style={{ color: '#22c7a3', paddingLeft: 5 }}>{block.adder > 0 && '+' + block.adder}</p>
+                    <p style={{ color: '#22c7a3', paddingLeft: 0 }}>{block.substractor > 0 && '-' + formatTime(0, block.substractor)}</p>
                   </span>
                 ))}
               </div>

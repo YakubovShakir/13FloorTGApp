@@ -14,7 +14,7 @@ import {
 import { getParameters } from "../../../services/user/user"
 import { getLevels } from "../../../services/levels/levels"
 import { buyBoost, getBoosts, getUserBoosts, useBoost } from "../../../services/boost/boost"
-import { updateProcessTimers } from "../../../utils/updateTimers"
+import { updateProcessesTimers, updateProcessTimers } from "../../../utils/updateTimers"
 import formatTime from "../../../utils/formatTime"
 import countPercentage from "../../../utils/countPercentage"
 import { useSettingsProvider } from "../../../hooks"
@@ -31,6 +31,7 @@ const BoostTab = ({ }) => {
   const [levels, setLevels] = useState(null)
   const [activeProcess, setActiveProcess] = useState(null)
   const [userBoosts, setUserBoosts] = useState(null)
+  const [userBoostProcesses, setUserBoostProcesses] = useState(null)
   const { Icons } = Assets
 
   const translations = {
@@ -41,7 +42,9 @@ const BoostTab = ({ }) => {
   }
 
   const getItemBoostParams = (boost) => {
-    const boostDuration = boost?.duration
+    const boostProcess = userBoostProcesses?.find((p) => p.type_id === boost.boost_id)
+    const boostDuration = boostProcess ? formatTime(boostProcess.duration, boostProcess.seconds) : boost.duration
+    console.log(boostDuration)
     return [
       [
         boostDuration && {
@@ -93,11 +96,24 @@ const BoostTab = ({ }) => {
     ]
   }
   useEffect(() => {
-    getBoosts().then((r) => setBoosts(r))
+    getBoosts().then((r) => setBoosts(r)) 
     getActiveProcess(userId).then((process) => setActiveProcess(process))
-    getLevels().then((levels) => setLevels(levels))
     getUserBoosts(userId).then((boosts) => setUserBoosts(boosts) )
+    getProcesses('boost', userId).then((processes) => setUserBoostProcesses(processes))
+    console.log(userBoostProcesses)
   }, [])
+
+  useEffect(() => {
+    if(userBoostProcesses && userBoostProcesses.length > 0) {
+      const interval = updateProcessesTimers(userBoostProcesses, setUserBoostProcesses, () => {
+        getActiveProcess(userId).then((process) => setActiveProcess(process))
+        getUserBoosts(userId).then((boosts) => setUserBoosts(boosts) )
+        getProcesses('boost', userId).then((processes) => setUserBoostProcesses(processes))
+      })
+
+      return () => clearInterval(interval)
+    }
+  }, [userBoostProcesses])
 
   const handleStarsBuy = async (item) => {
     try {

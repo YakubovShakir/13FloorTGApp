@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useContext } from "react"
 import ScreenContainer from "../../../components/section/ScreenContainer/ScreenContainer"
 import ItemCard from "../../../components/simple/ItemCard/ItemCard"
 import Assets from "../../../assets"
@@ -15,6 +15,7 @@ import { getSkills } from "../../../services/skill/skill"
 import { a } from "framer-motion/client"
 import { useSettingsProvider } from "../../../hooks"
 import formatTime from "../../../utils/formatTime"
+import UserContext from "../../../UserContext"
 
 export const WorkTab = ({
   isActionScreen,
@@ -238,12 +239,13 @@ export const WorkTab = ({
       isNextLevelWork &&
       enoughBalance
 
+      const workDurationBase = Math.floor(work?.duration * 60);
       const workDuration = Math.floor(work?.duration * (1 - (userParameters.work_duration_decrease || 0) / 100) * 60);
-    const workIncome = Math.floor(work?.coins_in_hour / 3600 * workDuration)
-    console.log(userParameters)
-    const workAdditionalIncome = Math.floor(userParameters.work_hourly_income_increase / 3600 * workDuration)
-    console.log(userParameters)
-    console.log('@', workAdditionalIncome)
+      const timeDiff = workDurationBase - workDuration
+    const workIncome = Math.floor(work?.coins_in_hour / 3600 * workDurationBase)
+
+    const workAdditionalIncome = Math.floor(userParameters.work_hourly_income_increase / 3600 * workDurationBase)
+
     const minutes = Math.floor(workDuration / 60);
     const seconds = workDuration % 60;
     if (currentWork?.work_id === workId) {
@@ -258,6 +260,7 @@ export const WorkTab = ({
         [
           {
             value: formatTime(minutes, seconds),
+            substractor: timeDiff,
             icon: Icons.clock,
           },
         ],
@@ -335,7 +338,11 @@ export const WorkTab = ({
       },
     ]
   }
+
+  const { refreshData } = useContext(UserContext)
+
   useEffect(() => {
+    refreshData().then()
     getWorks().then((r) => {
       setWorks(r)
     })

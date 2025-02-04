@@ -18,6 +18,7 @@ const ProcessProgressBar = ({
   inputPercentage = null,
   reverse = false,
   rate,
+  setIsLoading
 }) => {
   const navigate = useNavigate();
   const [percentage, setPercentage] = useState(100);
@@ -209,9 +210,20 @@ const ProcessProgressBar = ({
         soundToPlay.play()
       }
 
-      const id = setTimeout(() => {
+      const id = setTimeout(async () => {
+        setIsLoading(true)
         setHasAnimated(true)
-        checkCanStop(userId).finally(() => window.location.href = window.location.origin)
+        
+          while(true) {
+            try {
+              await checkCanStop(userId)
+              break
+            } catch(err) {
+              await new Promise((resolve) => setTimeout(resolve, err * 1000))
+            }
+          }
+
+          setTimeout(() => {window.location.href = window.location.origin}, 1500)
       },2000)
 
       return () => clearTimeout(id)
