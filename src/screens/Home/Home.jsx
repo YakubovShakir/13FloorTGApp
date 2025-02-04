@@ -212,6 +212,7 @@ const Home = () => {
       rate={rate}
       reverse={reverse}
       onProcessStop={handleProcessStop}
+      setIsLoading={setIsLoading}
     />
   )
 
@@ -295,7 +296,7 @@ const Home = () => {
   if (!isInitialized) {
     return <FullScreenSpinner />
   } else {
-    if (state?.currentProcess === null || state.currentProcess.type === 'skill') {
+    if (state?.currentProcess === null || state.currentProcess.type === 'skill' || state.currentProcess.type === 'food') {
       return renderScene(
         <>
            <HomeHeader
