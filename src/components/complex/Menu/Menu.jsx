@@ -30,8 +30,8 @@ const Menu = ({ screenMenu, activeName, noButton }) => {
       en: "Invest",
     },
     tasks: {
-      ru: "Задания",
-      en: "Tasks",
+      ru: "Сеть",
+      en: "Social",
     },
     start: {
       ru: "Начать",
@@ -43,7 +43,12 @@ const Menu = ({ screenMenu, activeName, noButton }) => {
     }
   }
 
+
+  
   const tabs = {
+
+   
+
     care: {
       onClick: () => {
         if (currentTab === "care") {
@@ -56,6 +61,20 @@ const Menu = ({ screenMenu, activeName, noButton }) => {
       notify: false,
       icon: Icons.hungry,
       title: translations.food[lang],
+    },
+    
+    shop: {
+      onClick: () => {
+        if (currentTab === "shop") {
+          navigate("/#")
+        } else {
+          navigate("/shop")
+          setCurrentTab("shop")
+        }
+      },
+      notify: false,
+      icon: Icons.shopIcon,
+      title: translations.shop[lang],
     },
    
     activity: {
@@ -86,19 +105,7 @@ const Menu = ({ screenMenu, activeName, noButton }) => {
       title: translations.investment[lang],
     },
 
-    shop: {
-      onClick: () => {
-        if (currentTab === "shop") {
-          navigate("/#")
-        } else {
-          navigate("/shop")
-          setCurrentTab("shop")
-        }
-      },
-      notify: false,
-      icon: Icons.shopIcon,
-      title: translations.shop[lang],
-    },
+   
 
     tasks: {
       onClick: () => {
