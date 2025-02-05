@@ -1,18 +1,22 @@
-import React, { useRef, useContext, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import "./ProcessProgressBar.css";
-import Assets from "../../../assets";
-import { getWorks } from "../../../services/work/work";
+import React, { useRef, useContext, useEffect, useState } from "react"
+import { useNavigate } from "react-router-dom"
+import "./ProcessProgressBar.css"
+import Assets from "../../../assets"
+import { getWorks } from "../../../services/work/work"
 import Button from "../../simple/Button/Button"
-import { useSettingsProvider } from "../../../hooks";
-import { checkCanStop, stopProcess } from "../../../services/process/process";
-import UserContext, { UserProvider } from "../../../UserContext";
-import { motion } from 'framer-motion'
-import { getTrainingParameters } from "../../../services/user/user";
-import FullScreenSpinner from "../../../screens/Home/FullScreenSpinner";
+import { useSettingsProvider } from "../../../hooks"
+import { checkCanStop, stopProcess } from "../../../services/process/process"
+import UserContext, { UserProvider } from "../../../UserContext"
+import { motion } from "framer-motion"
+import { getTrainingParameters } from "../../../services/user/user"
+import FullScreenSpinner from "../../../screens/Home/FullScreenSpinner"
 
-const COIN_SOUND = new Audio('https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/coin.mp3')
-const ALARM_SOUND = new Audio('https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/alarm.mp3')
+const COIN_SOUND = new Audio(
+  "https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/coin.mp3"
+)
+const ALARM_SOUND = new Audio(
+  "https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/alarm.mp3"
+)
 
 const ProcessProgressBar = ({
   activeProcess = null,
@@ -20,88 +24,90 @@ const ProcessProgressBar = ({
   reverse = false,
   rate,
 }) => {
-  const navigate = useNavigate();
-  const [percentage, setPercentage] = useState(100);
-  const [labelLeft, setLabelLeft] = useState(null);
-  const [labelRight, setLabelRight] = useState(null);
-  const [iconLeft, setIconLeft] = useState(null);
-  const [iconRight, setIconRight] = useState(null);
-  const [showModal, setShowModal] = useState(false);
+  const navigate = useNavigate()
+  const [percentage, setPercentage] = useState(100)
+  const [labelLeft, setLabelLeft] = useState(null)
+  const [labelRight, setLabelRight] = useState(null)
+  const [iconLeft, setIconLeft] = useState(null)
+  const [iconRight, setIconRight] = useState(null)
+  const [showModal, setShowModal] = useState(false)
   const [hasAnimated, setHasAnimated] = useState(true)
   const [works, setWorks] = useState(null)
   const [isLoading, setIsLoading] = useState(false)
-  const { userId } = useContext(UserContext);
-  const { lang } = useSettingsProvider();
+  const { userId } = useContext(UserContext)
+  const { lang } = useSettingsProvider()
 
   const translations = {
     confirm: {
-      ru: 'Вы действительно хотите завершить процесс?',
-      en: 'Are you sure you want to stop the process?'
+      ru: "Вы действительно хотите завершить процесс?",
+      en: "Are you sure you want to stop the process?",
     },
     yes: {
-      ru: 'Да',
-      en: 'Yes'
+      ru: "Да",
+      en: "Yes",
     },
     no: {
-      ru: 'Нет',
-      en: 'No'
+      ru: "Нет",
+      en: "No",
     },
     training: {
-      ru: 'Тренировка',
-      en: 'Training'
+      ru: "Тренировка",
+      en: "Training",
     },
     longSleep: {
-      ru: 'Продолжительный сон',
-      en: 'Long Sleep'
-    }
-  };
+      ru: "Продолжительный сон",
+      en: "Long Sleep",
+    },
+  }
 
   // Also modify the getLabels function to directly use the rate prop
   const getLabels = async (processType) => {
-    const work = works?.find((work) => work?.work_id === activeProcess?.type_id);
+    const work = works?.find((work) => work?.work_id === activeProcess?.type_id)
 
     const typeToLabel = {
-      work: [work?.name[lang], rate + ` +${activeProcess?.reward_at_the_end || ''}`],
+      work: [
+        work?.name[lang],
+        rate + ` +${activeProcess?.reward_at_the_end || ""}`,
+      ],
       training: [translations.training[lang], rate],
-      sleep: [translations.longSleep[lang], rate]
-    };
+      sleep: [translations.longSleep[lang], rate],
+    }
 
-    return typeToLabel[processType];
-  };
-  
+    return typeToLabel[processType]
+  }
+
   useEffect(() => {
-    if(works === null) {
-      getWorks().then(works => setWorks(works));
+    if (works === null) {
+      getWorks().then((works) => setWorks(works))
     }
     if (activeProcess && rate) {
       const loadData = async () => {
         try {
           const [icons, labels] = await Promise.all([
             getIcons(activeProcess.type),
-            getLabels(activeProcess.type)
-          ]);
+            getLabels(activeProcess.type),
+          ])
 
-          setIconLeft(icons[0]);
-          setIconRight(icons[1]);
-          setLabelLeft(labels[0]);
-          setLabelRight(labels[1]);
+          setIconLeft(icons[0])
+          setIconRight(icons[1])
+          setLabelLeft(labels[0])
+          setLabelRight(labels[1])
         } catch (error) {
-          console.error('Error loading progress bar data:', error);
+          console.error("Error loading progress bar data:", error)
         }
-      };
+      }
 
-      loadData();
+      loadData()
     }
 
     // if(activeProcess === null && rate === '00:00') {
     //   window.location.href = window.location.origin
     // }
-  }, [rate]); // Add rate to dependencies
-
+  }, [rate]) // Add rate to dependencies
 
   const { isSoundEnabled } = useSettingsProvider()
 
-  const WorkIcon = ({ percentage, hasAnimated }) => {  
+  const WorkIcon = ({ percentage, hasAnimated }) => {
     return (
       <>
         {!hasAnimated ? (
@@ -112,30 +118,28 @@ const ProcessProgressBar = ({
             key="animated-balance"
             style={{ position: "absolute", top: 0, left: -16 }}
             initial={{
-              y: -50, 
-              opacity: 0, 
+              y: -50,
+              opacity: 0,
             }}
             animate={{
-              y: 0, 
-              opacity: 1, 
+              y: 0,
+              opacity: 1,
             }}
             exit={{
-              opacity: 0, 
+              opacity: 0,
             }}
             transition={{
-              duration: 1, 
-              ease: "easeOut", 
+              duration: 1,
+              ease: "easeOut",
             }}
-            />
-          ): <img 
-          height={20} 
-          width={20} 
-          src={Assets.Icons.balance}
-        />}
+          />
+        ) : (
+          <img height={20} width={20} src={Assets.Icons.balance} />
+        )}
       </>
-    );
+    )
   }
-  
+
   const ClockIcon = ({ percentage, hasAnimated }) => {
     const containerVariants = {
       animate: {
@@ -145,11 +149,11 @@ const ProcessProgressBar = ({
         transition: {
           duration: 0.5, // Shorter duration for a snappier shake
           ease: "easeInOut", // More natural easing
-          repeat: 1,       // Shake once
+          repeat: 1, // Shake once
         },
       },
-    };
-  
+    }
+
     return (
       <>
         {!hasAnimated ? (
@@ -160,191 +164,288 @@ const ProcessProgressBar = ({
             initial={{ opacity: 1 }}
             exit={{ opacity: 0 }}
           >
-            <img height={20} width={20} src={Assets.Icons.clock} alt="Clock Icon" /> {/* Add alt text */}
+            <img
+              height={20}
+              width={20}
+              src={Assets.Icons.clock}
+              alt="Clock Icon"
+            />{" "}
+            {/* Add alt text */}
           </motion.div>
         ) : (
-          <img height={20} width={20} src={Assets.Icons.clock} alt="Clock Icon" />
+          <img
+            height={20}
+            width={20}
+            src={Assets.Icons.clock}
+            alt="Clock Icon"
+          />
         )}
       </>
-    );
-  };
+    )
+  }
 
   const getIcons = async (processType) => {
     const typeToIconsMap = {
-      work: [
-        null
-      ],
-      training: [
-        null
-      ],
-      sleep: [
-        null
-      ],
-    };
-    return typeToIconsMap[processType];
-  };
+      work: [null],
+      training: [null],
+      sleep: [null],
+    }
+    return typeToIconsMap[processType]
+  }
+
+  const { userParameters } = useContext(UserContext)
 
   // Single responsibility for progress updates
   useEffect(() => {
-    const newPercentage = activeProcess.totalSecondsRemaining / activeProcess.totalSeconds * 100
-    setPercentage(newPercentage);
-    if(activeProcess.totalSecondsRemaining <= 1) {
+    const newPercentage =
+      (activeProcess.totalSecondsRemaining / activeProcess.totalSeconds) * 100
+    setPercentage(newPercentage)
+    console.log(
+      activeProcess.type,
+      userParameters.energy,
+      userParameters?.energy_capacity
+    )
+
+    let soundToPlay
+    if (activeProcess.type === "work") {
+      soundToPlay = COIN_SOUND
+    }
+
+    if (activeProcess.type === "sleep") {
+      soundToPlay = ALARM_SOUND
+    }
+
+    if (activeProcess.type === "training") {
+      soundToPlay = ALARM_SOUND
+    }
+
+    if (activeProcess.totalSecondsRemaining <= 1) {
       setHasAnimated(false)
-  
-      let soundToPlay
-        if(activeProcess.type === 'work') {
-          soundToPlay = COIN_SOUND
-        }
-
-        if(activeProcess.type === 'sleep') {
-          soundToPlay = ALARM_SOUND
-        }
-
-        if(activeProcess.type === 'training') {
-          soundToPlay = ALARM_SOUND
-        }
-        
-      
       setPercentage(0)
-      if(isSoundEnabled) {
+      if (isSoundEnabled) {
         soundToPlay.play()
       }
 
       const id = setTimeout(async () => {
         setIsLoading(true)
         setHasAnimated(true)
-        
-          while(true) {
-            try {
-              await new Promise((resolve) => setTimeout(resolve, 500))
-              await checkCanStop(userId) 
+
+        while (true) {
+          try {
+            await new Promise((resolve) => setTimeout(resolve, 500))
+            await checkCanStop(userId)
+            break
+          } catch (err) {
+            const code = err.response?.status
+            const wait = err.response?.data?.seconds_left * 1000
+            console.log(code)
+            if (code === 404) {
               break
-            } catch(err) {
-              const code = err.response?.status
-              const wait = err.response?.data?.seconds_left * 1000
-              console.log(code) 
-              if(code === 404) {
-                break
-              }
-
-              await new Promise((resolve) => setTimeout(resolve, wait || 1000))
             }
-          }
 
-          setTimeout(() => {window.location.href = window.location.origin}, 750)
-      },1500)
+            await new Promise((resolve) => setTimeout(resolve, wait || 1000))
+          }
+        }
+
+        setTimeout(() => {
+          window.location.href = window.location.origin
+        }, 750)
+      }, 1500)
 
       return () => clearTimeout(id)
     }
-  }, [activeProcess]);
+  }, [activeProcess])
 
-  const displayPercentage = reverse ? 100 - percentage : percentage;
+  useEffect(() => {
+    let soundToPlay
+    if (activeProcess.type === "work") {
+      soundToPlay = COIN_SOUND
+    }
+
+    if (activeProcess.type === "sleep") {
+      soundToPlay = ALARM_SOUND
+    }
+
+    if (activeProcess.type === "training") {
+      soundToPlay = ALARM_SOUND
+    }
+
+    if (
+      (activeProcess.type === "sleep" &&
+        userParameters?.energy === userParameters?.energy_capacity) ||
+      ((activeProcess.type === "work" || activeProcess.type === 'training') && userParameters?.energy === 0)
+    ) {
+      setHasAnimated(false)
+      if (isSoundEnabled) {
+        soundToPlay.play()
+      }
+      setTimeout(async () => {
+        console.log("s")
+        setIsLoading(true)
+        setHasAnimated(true)
+        
+        while (true) {
+          try {
+            await new Promise((resolve) => setTimeout(resolve, 500))
+            await checkCanStop(userId)
+            break
+          } catch (err) {
+            const code = err.response?.status
+            const wait = err.response?.data?.seconds_left * 1000
+            console.log(code)
+            if (code === 404) {
+              break
+            }
+
+            await new Promise((resolve) => setTimeout(resolve, wait || 1000))
+          }
+        }
+
+        setTimeout(() => {
+          window.location.href = window.location.origin
+        }, 0)
+      }, 1500)
+    }
+  }, [userParameters])
+  const displayPercentage = reverse ? 100 - percentage : percentage
 
   const handleCloseModal = () => {
-    setShowModal(false);
-  };
+    setShowModal(false)
+  }
 
   const handleConfirmClose = async () => {
     try {
-      await stopProcess(userId);
-      window.location.href = window.location.origin;
+      await stopProcess(userId)
+      window.location.href = window.location.origin
     } catch (error) {
-      console.error('Error stopping process:', error);
-      navigate('/');
+      console.error("Error stopping process:", error)
+      navigate("/")
     } finally {
-      setShowModal(false);
+      setShowModal(false)
     }
-  };
+  }
 
-  if(isLoading && !activeProcess && !rate) {
-    return <div style={{ position: 'fixed', left: 0, bottom: 0, height: '100vh', width: '100vw', zIndex: 300000 }}>
-      <FullScreenSpinner/>
-    </div>
+  if (isLoading) {
+    return (
+      <div
+        style={{
+          position: "fixed",
+          left: 0,
+          bottom: 0,
+          height: "100vh",
+          width: "100vw",
+          zIndex: 300000,
+        }}
+      >
+        <FullScreenSpinner />
+      </div>
+    )
   } else {
-      return (
-        <div className="progress-bar-container-fixed-top">
-          <div className="progress-bar-container" style={{}}>
-            <div className="progress-bar-wrapper" style={{ width: "90%", float: "left" }}>
-              <div className="progress-bar-header">
-                <div className="progress-bar-icon-left">{iconLeft && iconLeft}</div>
-                <div className="progress-bar-label-left">{labelLeft}</div>
-                <div className="progress-bar-label-right">{labelRight}</div>
-                <div
-                  className="progress-bar-icon-right"
-                  style={{ right: '3%' }}
-                >
-                  {/* {iconRight && iconRight} */}
-                  { activeProcess?.type === 'work' && <WorkIcon percentage={percentage} hasAnimated={hasAnimated} key={'work'}/>}
-                  { activeProcess?.type === 'training' && <ClockIcon percentage={percentage} hasAnimated={hasAnimated} key={'work'}/>}
-                  { activeProcess?.type === 'sleep' && <ClockIcon percentage={percentage} hasAnimated={hasAnimated} key={'work'}/>}
-                </div>
+    return (
+      <div className="progress-bar-container-fixed-top">
+        <div className="progress-bar-container" style={{}}>
+          <div
+            className="progress-bar-wrapper"
+            style={{ width: "90%", float: "left" }}
+          >
+            <div className="progress-bar-header">
+              <div className="progress-bar-icon-left">
+                {iconLeft && iconLeft}
               </div>
-              <div className="progress-bar">
-                <div
-                  className="progress-bar-fill"
-                  style={{
-                    width: `${displayPercentage}%`,
-                    transition: "width 0.3s ease-in-out",
-                  }}
-                />
+              <div className="progress-bar-label-left">{labelLeft}</div>
+              <div className="progress-bar-label-right">{labelRight}</div>
+              <div className="progress-bar-icon-right" style={{ right: "3%" }}>
+                {/* {iconRight && iconRight} */}
+                {activeProcess?.type === "work" && (
+                  <WorkIcon
+                    percentage={percentage}
+                    hasAnimated={hasAnimated}
+                    key={"work"}
+                  />
+                )}
+                {activeProcess?.type === "training" && (
+                  <ClockIcon
+                    percentage={percentage}
+                    hasAnimated={hasAnimated}
+                    key={"work"}
+                  />
+                )}
+                {activeProcess?.type === "sleep" && (
+                  <ClockIcon
+                    percentage={percentage}
+                    hasAnimated={hasAnimated}
+                    key={"work"}
+                  />
+                )}
               </div>
             </div>
-    
-            {/* Кнопка, которая не является частью прогресс бара */}
-            <div style={{ width: "10%", float: "left", position: "relative" }}>
-              <button
-                className="process-action-button"
-                onClick={() => setShowModal(true)} // Показываем модальное окно при нажатии
+            <div className="progress-bar">
+              <div
+                className="progress-bar-fill"
                 style={{
-    
-    
-                  width: "32px", // Кнопка занимает всю оставшуюся ширину
-                  backgroundColor: "rgb(0 0 0 / 52%)",
-                  backdropFilter: " blur(5px)",
-                  color: "rgb(255, 0, 0)",
-                  border: "2px solid rgb(255, 0, 0)",
-    
-                  borderRadius: "5px",
-                  fontSize: "20px",
-                  cursor: "pointer",
-                  height: "32px", // Задаем фиксированную высоту кнопки
-                  position: "absolute", // Абсолютное позиционирование кнопки
-                  bottom: "0", // Кнопка располагается внизу
+                  width: `${displayPercentage}%`,
+                  transition: "width 0.3s ease-in-out",
                 }}
-              >
-                X
-              </button>
+              />
             </div>
           </div>
-    
-          {/* Всплывающее окно */}
-          {showModal && (
-            <div className="modal">
-              <div className="modal-content">
-                <p>{translations.confirm[lang]}</p>
-                <div className="modal-buttons">
-                  <button onClick={() => handleConfirmClose()}
-                    style={{
-                      border: "2px solid rgb(0, 255, 115)",
-                      color: "rgb(0, 255, 115)",
-                    }}
-                  >{translations.yes[lang]}</button>
-                  <button onClick={() => handleCloseModal()}
-    
-                    style={{
-                      color: "rgb(255, 0, 0)",
-                      border: "2px solid rgb(255, 0, 0)",
-    
-                    }}
-                  >{translations.no[lang]}</button>
-                </div>
+
+          {/* Кнопка, которая не является частью прогресс бара */}
+          <div style={{ width: "10%", float: "left", position: "relative" }}>
+            <button
+              className="process-action-button"
+              onClick={() => setShowModal(true)} // Показываем модальное окно при нажатии
+              style={{
+                width: "32px", // Кнопка занимает всю оставшуюся ширину
+                backgroundColor: "rgb(0 0 0 / 52%)",
+                backdropFilter: " blur(5px)",
+                color: "rgb(255, 0, 0)",
+                border: "2px solid rgb(255, 0, 0)",
+
+                borderRadius: "5px",
+                fontSize: "20px",
+                cursor: "pointer",
+                height: "32px", // Задаем фиксированную высоту кнопки
+                position: "absolute", // Абсолютное позиционирование кнопки
+                bottom: "0", // Кнопка располагается внизу
+              }}
+            >
+              X
+            </button>
+          </div>
+        </div>
+
+        {/* Всплывающее окно */}
+        {showModal && (
+          <div className="modal">
+            <div className="modal-content">
+              <p>{translations.confirm[lang]}</p>
+              <div className="modal-buttons">
+                <button
+                  onClick={() => handleConfirmClose()}
+                  style={{
+                    border: "2px solid rgb(0, 255, 115)",
+                    color: "rgb(0, 255, 115)",
+                  }}
+                >
+                  {translations.yes[lang]}
+                </button>
+                <button
+                  onClick={() => handleCloseModal()}
+                  style={{
+                    color: "rgb(255, 0, 0)",
+                    border: "2px solid rgb(255, 0, 0)",
+                  }}
+                >
+                  {translations.no[lang]}
+                </button>
               </div>
             </div>
-          )}
-        </div>
-      );
-    
+          </div>
+        )}
+      </div>
+    )
   }
-};
+}
 
-export default ProcessProgressBar;
+export default ProcessProgressBar
