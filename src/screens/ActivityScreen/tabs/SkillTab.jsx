@@ -142,7 +142,7 @@ const SkillTab = ({
 
   // Handle buy skill
   const handleBuySkill = async (skill, sub_type) => {
-    await startProcess("skill", userId, skill?.skill_id || skill.id, sub_type)
+    await startProcess("skill", userId, sub_type !== null ? skill.next?.id : skill.skill_id, sub_type)
     getSkills().then((r) => {
       setSkills(r.filter(skill => skill.requiredLevel <= userParameters.level))
     }) // Get list of skills
@@ -219,7 +219,7 @@ const SkillTab = ({
   const setSkillModalData = (skill) => {
     const learned = checkLearnedSkill(skill?.skill_id)
     const learning = userLearningSkills?.find(
-      (sk) => sk?.type_id === skill?.skill_id
+      (sk) => sk?.type_id === skill?.skill_id && sk?.sub_type === null
     )
 
     const bottomButtonOnClick = () => handleBuySkill(skill)
@@ -263,13 +263,11 @@ const SkillTab = ({
         {
           icon: Icons.clock,
           text: translations.duration[lang],
-          fillPercent:
-            learning?.duration || learning?.seconds
-              ? countPercentage(
-                learning?.duration * 60 + learning?.seconds,
-                skill?.duration * 60
-              )
-              : false,
+          fillPercent: learning ? Math.min(100, countPercentage(
+            moment().tz('Europe/Moscow').diff(moment(learning.createdAt).tz('Europe/Moscow'), 'seconds'),
+            learning.target_duration_in_seconds || learning.base_duration_in_seconds
+          )) : false
+          ,
           value:
             learning?.duration || learning?.seconds
               ? formatTime(learning?.duration, learning?.seconds)
@@ -360,10 +358,10 @@ const SkillTab = ({
     const { duration, seconds } = learning ? getMinutesAndSeconds(Math.max(0, learning?.target_duration_in_seconds || learning?.base_duration_in_seconds - moment().diff(moment(learning?.createdAt), 'seconds'))) : getMinutesAndSeconds(skill.duration * 60)
     const timerBar = {
       icon: Icons.clock,
-      fillPercent: learning ? Math.abs(countPercentage(
-        duration * 60 + seconds,
-        learning?.target_duration_in_seconds || learning?.base_duration_in_seconds || skill.duration * 60
-      )) - 100: 0,
+      fillPercent: learning ? Math.max(0, 100 - countPercentage(
+        moment().tz('Europe/Moscow').diff(moment(learning.createdAt).tz('Europe/Moscow'), 'seconds'),
+        learning.target_duration_in_seconds || learning.base_duration_in_seconds
+      )) : false,
       value: formatTime(duration, seconds),
     }
     const learnedRequiredSkill = skill.skill_id_required ? checkLearnedSkill(skill.skill_id_required) : true

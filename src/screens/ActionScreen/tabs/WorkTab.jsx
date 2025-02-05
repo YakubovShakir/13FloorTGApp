@@ -99,6 +99,7 @@ export const WorkTab = ({
   }
 
   const { Icons } = Assets
+  const { refreshData } = useContext(UserContext)
   // Return skill if it already learned
   const checkLearnedSkill = (skillId) => {
     const learned = userLearnedSkills?.find(
@@ -339,7 +340,7 @@ export const WorkTab = ({
     ]
   }
 
-  const { refreshData } = useContext(UserContext)
+
 
   useEffect(() => {
     refreshData().then()

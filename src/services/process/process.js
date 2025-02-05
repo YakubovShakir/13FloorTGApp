@@ -1,7 +1,8 @@
 import { instance } from "../instance"
 
 // Начать процесс
-export const startProcess = async (type, userId, typeId = false, sub_type = null) => {
+export const startProcess = async (type, userId, typeId, sub_type = null) => {
+  console.log(typeId)
   try {
     const response = await instance.post(`/process/start`, null, {
       params: { id: userId, type: type, typeId: typeId, sub_type },

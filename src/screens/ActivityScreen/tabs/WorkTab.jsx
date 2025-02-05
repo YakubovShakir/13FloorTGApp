@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useContext } from "react"
 import ScreenContainer from "../../../components/section/ScreenContainer/ScreenContainer"
 import ItemCard from "../../../components/simple/ItemCard/ItemCard"
 import Assets from "../../../assets"
@@ -15,7 +15,7 @@ import {
 import { getSkills } from "../../../services/skill/skill"
 import { a } from "framer-motion/client"
 import { useSettingsProvider } from "../../../hooks"
-import { useUser } from "../../../UserContext"
+import UserContext, { useUser } from "../../../UserContext"
 export const WorkTab = ({
   modalData,
   setModalData,
@@ -109,9 +109,12 @@ export const WorkTab = ({
     return works?.find((work) => work?.work_id === workId)
   }
 
+  const { refreshData } = useContext(UserContext)
+
   // Buy work
   const handleBuyWork = async (workId) => {
     await buyWork(userId, workId)
+    await refreshData()
     setVisibleModal(false)
   }
 
@@ -307,6 +310,7 @@ export const WorkTab = ({
     ]
   }
   useEffect(() => {  
+    refreshData().catch()
     getWorks().then((r) => setWorks(r))
     getSkills().then((r) => setSkills(r)) // Get list of skills
     getActiveProcess(userId).then((r) => setActiveProcess(r))
