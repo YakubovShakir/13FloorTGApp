@@ -285,7 +285,7 @@ const SkillTab = ({
         },
         ...(learning && !learned ? [ // Spread the conditional array elements
           {
-            icon: "https://13floorgame.ru/images/boosts/learnSpeed20.png",
+            icon: "https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/icons%2F%D1%83%D1%81%D0%BA%D0%BE%D1%80-25.png",
             text: translations.boost[lang] + ' x25%',
             active: userBoosts?.find(boost => boost.boost_id === 7),
             onClick: userBoosts?.find(boost => boost.boost_id === 7) && (async () => {
@@ -312,7 +312,7 @@ const SkillTab = ({
             })
           },
           {
-            icon: "https://13floorgame.ru/images/boosts/learnSpeed50.png",
+            icon: "https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/icons%2F%D1%83%D1%81%D0%BA%D0%BE%D1%80-50.png",
             text: translations.boost[lang] + ' x50%',
             active: userBoosts?.find(boost => boost.boost_id === 8),
             onClick: userBoosts?.find(boost => boost.boost_id === 8) && (async () => {
@@ -407,7 +407,7 @@ const SkillTab = ({
         },
         ...(learning ? [ // Spread the conditional array elements
           {
-            icon: "https://13floorgame.ru/images/boosts/learnSpeed20.png",
+            icon: "https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/icons%2F%D1%83%D1%81%D0%BA%D0%BE%D1%80-25.png",
             text: translations.boost[lang] + ' x25%',
             active: userBoosts?.find(boost => boost.boost_id === 7),
             onClick: userBoosts?.find(boost => boost.boost_id === 7) && (async () => {
@@ -434,7 +434,7 @@ const SkillTab = ({
             })
           },
           {
-            icon: "https://13floorgame.ru/images/boosts/learnSpeed50.png",
+            icon: "https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/icons%2F%D1%83%D1%81%D0%BA%D0%BE%D1%80-50.png",
             text: translations.boost[lang] + ' x50%',
             active: userBoosts?.find(boost => boost.boost_id === 8),
             onClick: userBoosts?.find(boost => boost.boost_id === 8) && (async () => {
