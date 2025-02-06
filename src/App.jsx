@@ -9,7 +9,7 @@ import ActivityScreen from "./screens/ActivityScreen/ActivityScreen"
 import PersonageCreationScreen from './screens/PersonageCreation/PersonageCreation'
 import UserContext, { UserProvider } from "./UserContext"
 import ShopScreen from './screens/ShopScreen/ShopScreen'
-import TaskScreen from "./screens/TaskScreen/TaskScreen"
+import TaskScreen from "./screens/SocialsScreen/SocialsScreen"
 import ActionScreen from "./screens/ActionScreen/ActionScreen";
 import InvestmentScreen from "./screens/Investment/InvestmentScreen";
 import { SettingsProvider } from "./hooks";

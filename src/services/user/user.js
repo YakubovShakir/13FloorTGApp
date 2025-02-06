@@ -217,3 +217,8 @@ export const disconnectUserWallet = async (userId) => {
     }
   }
 }
+
+export const getLeaderboard = async () => {
+  const { data } = await instance.get(`/users/leaderboard`);
+  return data.leaderboard;
+}
