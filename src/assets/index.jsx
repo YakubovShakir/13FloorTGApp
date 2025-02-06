@@ -250,6 +250,7 @@ import workThree from './IMG/workThreeBG.webp'
 import workFour from './IMG/workFourBG.webp'
 
 import womanAva from './IMG/womanAva.png'
+import manAva from './IMG/Man-ava.png'
 
 export function getImgUrl(name) {
   return new URL(`${name}`, import.meta.url).href
@@ -281,7 +282,8 @@ const Assets = {
     sleepAfroMale,
     sleepEuMale,
     sleepAsianMale,
-    womanAva
+    womanAva,
+    manAva
   },
   Layers: {
     cover,

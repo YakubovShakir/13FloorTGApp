@@ -99,7 +99,7 @@ const LeaderboardTab = ({ userId }) => {
           ItemRespect={leader.respect}
           ItemTotalEarned={leader.total_earned}
           ItemNumberLeader={index + 1}
-          Item
+          ItemGender={leader.gender}
           ItemIndex={1} />
       )}
     </ScreenContainer>

@@ -19,6 +19,7 @@ const ItemCard = ({
   ItemNumberLeader,
   ItemTotalEarned,
   ItemRespect,
+  ItemGender,
 }) => {
   // Определяем, активна ли хотя бы одна кнопка
   const isAnyButtonActive = ItemButtons.some((button) => button.active)
@@ -56,7 +57,7 @@ const ItemCard = ({
           <div className="ItemTitleLeader"></div>
           <img
             loading="lazy"
-            src={Images.womanAva}
+            src={ItemGender === 'female' ? Images.womanAva : Images.manAva}
             alt="ItemIconLeader"
             className={isImageGrayscale ? "inactiveLeader" : ""} // Применяем 'inactive' если кнопка неактивна
           />
