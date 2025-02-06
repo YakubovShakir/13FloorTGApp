@@ -1,8 +1,8 @@
 .ItemCardLeader {
   border: 1px solid rgb(57, 57, 57);
   background: 0% 0% / cover rgb(32, 32, 32);
-  padding: 10px;
-  height: 127px;
+  padding: 6px;
+ 
   
   display: flex;
   flex-direction: column;  
@@ -123,36 +123,52 @@
   align-items: center; 
 }
 
-
+.ItemNuberLeader{
+  margin-left: 3px;
+  margin-right: 8px;
+  font-size: 5.4cqw;
+}
 
 
 
 .ItemDetailsContainerLeader{
+  font-size: 4.4cqw;
   padding-right: 13px;
-  padding: 0 0% 0 2%;
-   
+  padding: 0 0% 0 5%;
+  text-align: left;
   border-radius: 7px;
   justify-content: center;
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 8px;
   width: 80%; /* Задаем ширину */
   
   height: 100%; /* Занимает всю высоту доступного пространства */
 }
 
 .ItemCardParamsLeader {
+  font-size: 5cqw;
   text-align: left;
   display: flex;
   flex-direction: column;
   gap: 6px; /* Отступы между параметрами */
 }
 
-.ItemDescriptionLeader {
+.ItemDescriptionMoney {
   font-family: "Anonymous pro";
-  font-size: 3.4cqw;
+  font-size: 4.4cqw;
   text-align: left;
+  display: flex;
+    align-items: center;
+    
   
+}
+.ItemDescriptionRespect {
+  font-family: "Anonymous pro";
+  font-size: 4.4cqw;
+  text-align: left;
+  display: flex;
+    align-items: center;
 }
 
 .ItemCardButtonsLeader {
@@ -185,8 +201,7 @@
 .ItemIconContainerLeader img {
   position: relative; 
   z-index: 1; 
-  top: 4%;
-    max-width: 78%;
+ 
     object-fit: contain;
    
   
@@ -197,9 +212,9 @@
   overflow: hidden;
   border-bottom: 1px solid rgba(117, 117, 117, 0.23);
   box-shadow: rgba(0, 0, 0, 0.24) 0px 0px 8px 2px inset;
-    margin: 7px 7px 7px 0px;
+   
     border-radius: 7px;
-  width: 50%; /* Задаем ширину для иконки */
+  width: 25%; /* Задаем ширину для иконки */
   height: 100%;
   position: relative; /* Для корректной работы псевдоэлемента */
   z-index: 0; /* Сетка будет под изображением */

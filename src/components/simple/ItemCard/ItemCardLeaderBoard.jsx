@@ -4,7 +4,10 @@ import Button from "../Button/Button";
 import { useEffect, useState } from "react";
 import Assets from "../../../assets";
 
+const { Icons } = Assets
+const { Images } = Assets
 const ItemCard = ({
+  
   ItemIcon,
   ItemTitle,
   ItemParamsBlocks,
@@ -40,7 +43,15 @@ const isImageGrayscale = !isAnyButtonActive; // Если кнопка неакт
         <div className="ItemCardAmountLeader" style={{ color: 'white' }}>{ItemAmount}</div>
       )}
 
+
       <div className="ItemDataLeader">
+        
+      <span className="ItemNuberLeader">
+                12
+                
+              </span>
+
+        
         <div className="WireframeGridLeader"></div> {/* Добавлено сюда */}
         {/* ItemIcon Section */}
         <div className="ItemIconContainerLeader"
@@ -50,7 +61,8 @@ const isImageGrayscale = !isAnyButtonActive; // Если кнопка неакт
           <div className="ItemTitleLeader"></div>
           <img
             loading="lazy"
-            src={ItemIcon}
+            
+            src={Images.womanAva}
             alt="ItemIconLeader"
             className={isImageGrayscale ? 'inactiveLeader' : ''}  // Применяем 'inactive' если кнопка неактивна
           />
@@ -58,20 +70,44 @@ const isImageGrayscale = !isAnyButtonActive; // Если кнопка неакт
         </div>
 
         {/* Right Section: ItemParams + ItemButtons */}
-        <div className="ItemDetailsContainerLeader"
+        <div className="ItemDetailsContainerLeader" 
+        
+
         style={{ border: borderStyle,backgroundColor: backgroundColor }}
 
-        
+       
         >
+            Имя Персонажа
           
           {/* ItemParams Section */}
           <div className="ItemCardParamsLeader">
-          {ItemTitle}
+         
+          
             {ItemDescription && (
-              <span className="ItemDescriptionLeader">
-                {ItemDescription}
+              <span className="ItemDescriptionMoney">
+                 <img src={Icons.balance} alt="Coin" 
+                  style={{ width: "25px", marginRight: "10px"}}
+                  />
+                500k 
+                
               </span>
+              
+              
+             
             )}
+              {ItemDescription && (
+              <span className="ItemDescriptionRespect">
+                <img src={Icons.respect} alt="Coin" 
+                  style={{ width: "25px", marginRight: "5px"}}
+                  />
+                10k 
+                
+              </span>
+              
+              
+             
+            )}
+            
             {ItemParamsBlocks?.map((param, index) => (
               <div key={index} className="ItemCardParamLeader">
                 {param.map((block, blockIndex) => (
@@ -92,7 +128,7 @@ const isImageGrayscale = !isAnyButtonActive; // Если кнопка неакт
                         }}
                       />
                     )}
-                    <img src={block.icon} alt="paramIconLeader" />
+                     <img src={Icons.balance} alt="Coin" />
                     <p>{block.value}</p>
                   </span>
                 ))}
