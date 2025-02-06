@@ -94,20 +94,26 @@ const BoostTab = ({ }) => {
     const starsPrice = boost.stars_price
     const buyBoostStatus = userParameters?.coins >= starsPrice
     const useBoostStatus = checkUserHaveBoost(boost?.boost_id)
-    return [
+    const buttons = [
       {
         text: boost.stars_price,
         active: buyBoostStatus,
         onClick: buyBoostStatus && (() => handleBuyBoost(boost?.boost_id)),
         icon: Icons.starsIcon,
       },
-      {
+    ];
+  
+    if (![7, 8].includes(boost.boost_id)) {
+      buttons.push({ // Push the button object only if the condition is met
         text: translations.take[lang],
         active: useBoostStatus,
-        onClick: useBoostStatus && (() => handleUseBoost(boost?.boost_id))
-      },
-    ]
+        onClick: useBoostStatus && (() => handleUseBoost(boost?.boost_id)),
+      });
+    }
+
+    return buttons
   }
+
   useEffect(() => {
     getBoosts().then((r) => setBoosts(r))
     getActiveProcess(userId).then((process) => setActiveProcess(process))

@@ -82,8 +82,12 @@
   height: 10%;
   display: flex;
   font-size: 2cqw;
-
+  flex-direction: column;
+  align-items: center;
   justify-content: center;
+  padding-bottom: 60px;
+  column-gap: 16px;
+  gap: 10px;
 }
 .ModalFooter .Button span {
   font-size: 9cqw;
