@@ -150,7 +150,6 @@
   font-size: 5cqw;
   text-align: left;
   display: flex;
-  flex-direction: column;
   gap: 6px; /* Отступы между параметрами */
 }
 
