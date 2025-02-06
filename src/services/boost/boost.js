@@ -31,10 +31,10 @@ export const buyBoost = async (userId, boostId) => {
   }
 }
 
-export const useBoost = async (userId, boostId) => {
+export const useBoost = async (userId, boostId, skillId, sub_type) => {
   try {
     const response = await instance.post(`/boost/use`, null, {
-      params: { userId: userId, boostId: boostId },
+      params: { userId: userId, boostId: boostId, skillId, sub_type },
     })
     return response.status
   } catch (e) {

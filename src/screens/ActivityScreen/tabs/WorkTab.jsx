@@ -87,6 +87,10 @@ export const WorkTab = ({
     requiredLevel: {
       ru: 'Необходимый уровень',
       en: 'Required level'
+    },
+    unlocked: {
+      ru: 'Завершённая',
+      en: 'Completed'
     }
   }
 
@@ -297,7 +301,7 @@ export const WorkTab = ({
 
     return [
       {
-        text: buyStatus ? work?.coins_price : translations.unlock[lang],
+        text: userParameters.work_id > workId ? translations.unlocked[lang] : (buyStatus ? work?.coins_price : translations.unlock[lang]),
         onClick: () => {
           setModalData(setWorkModalData(work))
           setVisibleModal(true)
@@ -322,7 +326,17 @@ export const WorkTab = ({
     <ScreenContainer withTab>
       {/* User main work card*/}
 
-      {works?.sort((a, b) => a.work_id - b.work_id).map((work, index) => (
+      {works?.sort((a, b) => a.work_id - b.work_id).filter(work => work.work_id >= userParameters.work_id).map((work, index) => (
+        <ItemCard
+          key={index}
+          ItemIcon={work?.link}
+          ItemTitle={work?.name[lang]}
+          ItemParamsBlocks={getItemWorkParams(work?.work_id)}
+          ItemButtons={getItemWorkButton(work?.work_id)}
+          ItemIndex={index}
+        />
+      ))}
+      {works?.sort((a, b) => a.work_id - b.work_id).filter(work => work.work_id < userParameters.work_id).map((work, index) => (
         <ItemCard
           key={index}
           ItemIcon={work?.link}

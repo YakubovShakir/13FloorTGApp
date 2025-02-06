@@ -21,6 +21,8 @@ import countPercentage from "../../../utils/countPercentage.js"
 import { useSettingsProvider } from "../../../hooks"
 import { useUser } from "../../../UserContext.jsx"
 import moment from "moment-timezone"
+import { text } from "framer-motion/client"
+import { getUserBoosts, useBoost } from "../../../services/boost/boost.js"
 
 const SkillTab = ({
   modalData,
@@ -35,6 +37,7 @@ const SkillTab = ({
   const [userLearnedSkills, setUserLearnedSkills] = useState(null) // User learning at this time skills
   const [trainingParamters, setTrainingParameters] = useState(null) // User training parameters
   const [activeProcess, setActiveProcess] = useState(null) //  User active training
+  const [userBoosts, setUserBoosts] = useState(null)
 
 
   const { lang } = useSettingsProvider()
@@ -141,7 +144,7 @@ const SkillTab = ({
   const { refreshData } = useUser()
 
   // Handle buy skill
-  const handleBuySkill = async (skill, sub_type) => {
+  const handleBuySkill = async (skill, sub_type = null) => {
     await startProcess("skill", userId, sub_type !== null ? skill.next?.id : skill.skill_id, sub_type)
     getSkills().then((r) => {
       setSkills(r.filter(skill => skill.requiredLevel <= userParameters.level))
@@ -162,7 +165,7 @@ const SkillTab = ({
         const learning = userLearningSkills?.find(
           (skill) => skill?.type_id === modalData?.id && skill.sub_type === 'constant_effects'
         )
-        
+
         if (learning && effects?.work_duration_decrease?.current) {
           const updatedModalData = setEffectModalData(effects.work_duration_decrease.current)
           if (updatedModalData) {
@@ -224,6 +227,8 @@ const SkillTab = ({
 
     const bottomButtonOnClick = () => handleBuySkill(skill)
 
+    console.log('boosts', userBoosts)
+
     const data = {
       type: "skill",
       id: skill?.skill_id,
@@ -268,10 +273,7 @@ const SkillTab = ({
             learning.target_duration_in_seconds || learning.base_duration_in_seconds
           )) : false
           ,
-          value:
-            learning?.duration || learning?.seconds
-              ? formatTime(learning?.duration, learning?.seconds)
-              : formatTime(skill?.duration),
+          value: formatTime(skill?.duration)
         },
       ].filter(Boolean),
       buttons: [
@@ -281,69 +283,188 @@ const SkillTab = ({
           onClick: !(learning || learned) && bottomButtonOnClick,
           active: !(learning || learned) && (skill?.skill_id_required ? checkLearnedSkill(skill?.skill_id_required) : true) && userParameters?.level >= skill?.requiredLevel && userParameters.coins >= skill.coins_price,
         },
+        ...(learning && !learned ? [ // Spread the conditional array elements
+          {
+            icon: "https://13floorgame.ru/images/boosts/learnSpeed20.png",
+            text: translations.boost[lang] + ' x25%',
+            active: userBoosts?.find(boost => boost.boost_id === 7),
+            onClick: userBoosts?.find(boost => boost.boost_id === 7) && (async () => {
+              setIsInitialized(false)
+              await useBoost(userId, 7, skill.skill_id, null)
+              // Combine multiple API calls
+              const [boosts, constantEffects, skills, processes, activeProcess, userSkills] = await Promise.all([
+                getUserBoosts(userId),
+                getUserConstantEffects(userId),
+                getSkills(),
+                getProcesses("skill", userId),
+                getActiveProcess(userId),
+                getUserSkills(userId)
+              ])
+
+              setUserBoosts(boosts)
+              setEffects(constantEffects)
+              setSkills(skills.filter(skill => skill.requiredLevel <= userParameters.level))
+              setUserLearningSkills(processes)
+              setActiveProcess(activeProcess)
+              setUserLearnedSkills(userSkills)
+              setIsInitialized(true)
+              setVisibleModal(false)
+            })
+          },
+          {
+            icon: "https://13floorgame.ru/images/boosts/learnSpeed50.png",
+            text: translations.boost[lang] + ' x50%',
+            active: userBoosts?.find(boost => boost.boost_id === 8),
+            onClick: userBoosts?.find(boost => boost.boost_id === 8) && (async () => {
+              setIsInitialized(false)
+              await useBoost(userId, 8, skill.skill_id, null)
+
+              // Combine multiple API calls
+              const [boosts, constantEffects, skills, processes, activeProcess, userSkills] = await Promise.all([
+                getUserBoosts(userId),
+                getUserConstantEffects(userId),
+                getSkills(),
+                getProcesses("skill", userId),
+                getActiveProcess(userId),
+                getUserSkills(userId)
+              ])
+
+              setUserBoosts(boosts)
+              setEffects(constantEffects)
+              setSkills(skills.filter(skill => skill.requiredLevel <= userParameters.level))
+              setUserLearningSkills(processes)
+              setActiveProcess(activeProcess)
+              setUserLearnedSkills(userSkills)
+              setIsInitialized(true)
+              setVisibleModal(false)
+            })
+          },
+        ] : []) // If not learning, spread an empty array (no additional buttons)
       ],
     }
     return data
   }
 
-    // Build modal data for skill card
-    const setEffectModalData = (effect) => {
-      if (!effect) return null;
+  const setEffectModalData = (effect) => {
+    // Add additional null checks
+    if (!effect || !effect.next) return null;
   
-      const learning = userLearningSkills?.find(
-        (sk) => sk?.type_id === effect?.next?.id && sk?.sub_type === 'constant_effects'
-      )
-      
-      const bottomButtonOnClick = () => handleBuySkill(effect, 'constant_effects')
-      
-      return {
-        type: "skill",
-        sub_type: 'constant_effects',
-        id: effect?.next?.id,
-        title: effect?.next?.name?.[lang],
-        image: effect?.next?.link,
-        blocks: [
-          {
-            icon: Icons.balance,
-            text: translations.cost[lang],
-            value: effect?.next?.price,
-            fillPercent: '100%',
-            fillBackground: userParameters?.coins < effect?.next?.price
-              ? "#4E1010" 
+    const learning = userLearningSkills?.find(
+      (sk) => sk?.type_id === effect?.next?.id && sk?.sub_type === 'constant_effects'
+    )
+  
+    const bottomButtonOnClick = () => handleBuySkill(effect, 'constant_effects')
+  
+    return {
+      type: "skill",
+      sub_type: 'constant_effects',
+      id: effect?.next?.id,
+      title: effect?.next?.name?.[lang] || 'Unnamed Effect',
+      image: effect?.next?.link,
+      blocks: [
+        {
+          icon: Icons.balance,
+          text: translations.cost[lang],
+          value: effect?.next?.price || 0,
+          fillPercent: '100%',
+          fillBackground: userParameters?.coins < (effect?.next?.price || 0)
+            ? "#4E1010"
+            : "#0E3228",
+        },
+        {
+          icon: Icons.levelIcon,
+          text: translations.requiredLevel[lang],
+          value: effect?.next?.required_level || 0,
+          fillPercent: "100%",
+          fillBackground:
+            userParameters?.level < (effect?.next?.required_level || 0)
+              ? "#4E1010"
               : "#0E3228",
+        },
+        {
+          icon: Icons.clock,
+          text: translations.duration[lang],
+          fillPercent:
+            learning?.duration || learning?.seconds
+              ? countPercentage(
+                learning?.duration * 60 + (learning?.seconds || 0),
+                effect?.next?.duration * 60 || 0
+              )
+              : false,
+          value: formatTime(effect?.next?.duration || 0)
+        }
+      ].filter(Boolean),
+      buttons: [
+        {
+          ...getEffectButtonInfo(effect),
+          onClick: !learning && 
+            userParameters?.level >= (effect?.next?.required_level || 0) && 
+            userParameters.coins >= (effect?.next?.price || 0) && 
+            bottomButtonOnClick,
+          active: !learning && 
+            userParameters?.level >= (effect?.next?.required_level || 0) && 
+            userParameters.coins >= (effect?.next?.price || 0),
+        },
+        ...(learning ? [ // Spread the conditional array elements
+          {
+            icon: "https://13floorgame.ru/images/boosts/learnSpeed20.png",
+            text: translations.boost[lang] + ' x25%',
+            active: userBoosts?.find(boost => boost.boost_id === 7),
+            onClick: userBoosts?.find(boost => boost.boost_id === 7) && (async () => {
+              setIsInitialized(false)
+              await useBoost(userId, 7, effect.next?.id, 'constant_effects')
+              // Combine multiple API calls
+              const [boosts, constantEffects, skills, processes, activeProcess, userSkills] = await Promise.all([
+                getUserBoosts(userId),
+                getUserConstantEffects(userId),
+                getSkills(),
+                getProcesses("skill", userId),
+                getActiveProcess(userId),
+                getUserSkills(userId)
+              ])
+
+              setUserBoosts(boosts)
+              setEffects(constantEffects)
+              setSkills(skills.filter(skill => skill.requiredLevel <= userParameters.level))
+              setUserLearningSkills(processes)
+              setActiveProcess(activeProcess)
+              setUserLearnedSkills(userSkills)
+              setIsInitialized(true)
+              setVisibleModal(false)
+            })
           },
           {
-            icon: Icons.levelIcon,
-            text: translations.requiredLevel[lang],
-            value: effect?.next?.required_level,
-            fillPercent: "100%",
-            fillBackground:
-              userParameters?.level < effect?.next?.required_level
-                ? "#4E1010"
-                : "#0E3228",
+            icon: "https://13floorgame.ru/images/boosts/learnSpeed50.png",
+            text: translations.boost[lang] + ' x50%',
+            active: userBoosts?.find(boost => boost.boost_id === 8),
+            onClick: userBoosts?.find(boost => boost.boost_id === 8) && (async () => {
+              setIsInitialized(false)
+              await useBoost(userId, 8, effect?.next?.id, 'constant_effects')
+
+              // Combine multiple API calls
+              const [boosts, constantEffects, skills, processes, activeProcess, userSkills] = await Promise.all([
+                getUserBoosts(userId),
+                getUserConstantEffects(userId),
+                getSkills(),
+                getProcesses("skill", userId),
+                getActiveProcess(userId),
+                getUserSkills(userId)
+              ])
+
+              setUserBoosts(boosts)
+              setEffects(constantEffects)
+              setSkills(skills.filter(skill => skill.requiredLevel <= userParameters.level))
+              setUserLearningSkills(processes)
+              setActiveProcess(activeProcess)
+              setUserLearnedSkills(userSkills)
+              setIsInitialized(true)
+              setVisibleModal(false)
+            })
           },
-          {
-            icon: Icons.clock,
-            text: translations.duration[lang],
-            fillPercent:
-              learning?.duration || learning?.seconds
-                ? countPercentage(
-                  learning?.duration * 60 + learning?.seconds,
-                  effect?.next?.duration * 60
-                )
-                : false,
-            value: formatTime(effect?.next?.duration)
-          }
-        ].filter(Boolean),
-        buttons: [
-          {
-            ...getEffectButtonInfo(effect),
-            onClick: !learning && bottomButtonOnClick,
-            active: !learning && userParameters?.level >= effect?.next?.required_level && userParameters.coins >= effect?.next?.price,
-          },
-        ],
-      }
+        ] : []) // If not learning, spread an empty array (no additional buttons)
+      ],
     }
+  }
 
   // Get parameters for skill card
   const getItemSkillParamsBlock = (skill) => {
@@ -355,14 +476,14 @@ const SkillTab = ({
     const learning = userLearningSkills?.find(
       (sk) => sk?.type_id === skill?.skill_id
     )
-    const { duration, seconds } = learning ? getMinutesAndSeconds(Math.max(0, learning?.target_duration_in_seconds || learning?.base_duration_in_seconds - moment().diff(moment(learning?.createdAt), 'seconds'))) : getMinutesAndSeconds(skill.duration * 60)
+    const { duration, seconds } = learning ? getMinutesAndSeconds(Math.max(0, (learning?.target_duration_in_seconds ? learning?.target_duration_in_seconds : learning?.base_duration_in_seconds) - moment().tz('Europe/Moscow').diff(moment(learning?.createdAt).tz('Europe/Moscow'), 'seconds'))) : getMinutesAndSeconds(skill?.duration * 60)
     const timerBar = {
       icon: Icons.clock,
       fillPercent: learning ? Math.max(0, 100 - countPercentage(
         moment().tz('Europe/Moscow').diff(moment(learning.createdAt).tz('Europe/Moscow'), 'seconds'),
         learning.target_duration_in_seconds || learning.base_duration_in_seconds
       )) : false,
-      value: formatTime(duration, seconds),
+      value: formatTime(duration, seconds)
     }
     const learnedRequiredSkill = skill.skill_id_required ? checkLearnedSkill(skill.skill_id_required) : true
 
@@ -425,23 +546,23 @@ const SkillTab = ({
     ]
   }
 
-    // Get button for skill card
-    const getItemEffectButton = (effect) => {
-      const learning = checkLearningEffect(effect?.next?.id)
-  
-      const active = !learning && userParameters?.coins >= effect.next.price && userParameters.level >= effect.next.required_level
-  
-      return [
-        {
-          ...getEffectButtonInfo(effect),
-          onClick: () => {
-            setModalData(setEffectModalData(effect))
-            setVisibleModal(true)
-          },
-          active,
+  // Get button for skill card
+  const getItemEffectButton = (effect) => {
+    const learning = checkLearningEffect(effect?.next?.id)
+
+    const active = !learning && userParameters?.coins >= effect.next.price && userParameters.level >= effect.next.required_level
+
+    return [
+      {
+        ...getEffectButtonInfo(effect),
+        onClick: () => {
+          setModalData(setEffectModalData(effect))
+          setVisibleModal(true)
         },
-      ]
-    }
+        active,
+      },
+    ]
+  }
 
   const [isInitialized, setIsInitialized] = useState(false)
 
@@ -450,27 +571,37 @@ const SkillTab = ({
       userLearningSkills,
       setUserLearningSkills,
       () => {
-        getUserSkills(userId).then((r) => setUserLearnedSkills(r)) // Get list of user skills
+        getProcesses("skill", userId).then((r) => setUserLearningSkills(r)) // Get current learning skills
+        getUserBoosts(userId).then((boosts) => setUserBoosts(boosts))
         getUserConstantEffects(userId).then((r) => {
           setEffects(r)
-        })
+        }).catch(r => console.log('error', r)) // Get list of user constant effects
+        getSkills().then((r) => {
+          setSkills(r.filter(skill => skill.requiredLevel <= userParameters.level))
+        }) // Get list of skills
+
+        getActiveProcess(userId).then((r) => setActiveProcess(r)) // Get active training if exist
+        getUserSkills(userId).then((r) => setUserLearnedSkills(r)) // Get list of user skills
+
       }
     )
-    
+
     return () => clearInterval(updater)
-  }, [isInitialized, userLearningSkills])
+  }, [isInitialized, userLearningSkills, effects])
 
   useEffect(() => {
+    getProcesses("skill", userId).then((r) => setUserLearningSkills(r)) // Get current learning skills
+    getUserBoosts(userId).then((boosts) => setUserBoosts(boosts))
     getUserConstantEffects(userId).then((r) => {
       setEffects(r)
     }).catch(r => console.log('error', r)) // Get list of user constant effects
     getSkills().then((r) => {
       setSkills(r.filter(skill => skill.requiredLevel <= userParameters.level))
     }) // Get list of skills
-    getProcesses("skill", userId).then((r) => setUserLearningSkills(r)) // Get current learning skills
+
     getActiveProcess(userId).then((r) => setActiveProcess(r)) // Get active training if exist
     getUserSkills(userId).then((r) => setUserLearnedSkills(r)) // Get list of user skills
-      setIsInitialized(true)
+    setIsInitialized(true)
   }, [])
 
   return (
@@ -498,8 +629,8 @@ const SkillTab = ({
           ItemIndex={index + 1}
         />
       ))}
-        
-    {effects ? Object.keys(effects).map((key, index) => {
+
+      {effects && isInitialized ? Object.keys(effects).map((key, index) => {
         const effect = effects[key];
 
         // Check if the effect object exists and has the necessary data
@@ -531,8 +662,8 @@ const SkillTab = ({
           ItemIndex={index + 1}
         />
       ))}
-    
-    
+
+
     </ScreenContainer>
   )
 }
