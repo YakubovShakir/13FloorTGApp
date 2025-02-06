@@ -596,7 +596,7 @@ const SkillTab = ({
       setEffects(r)
     }).catch(r => console.log('error', r)) // Get list of user constant effects
     getSkills().then((r) => {
-      setSkills(r.filter(skill => skill.requiredLevel <= userParameters.level))
+      setSkills(r)
     }) // Get list of skills
 
     getActiveProcess(userId).then((r) => setActiveProcess(r)) // Get active training if exist
