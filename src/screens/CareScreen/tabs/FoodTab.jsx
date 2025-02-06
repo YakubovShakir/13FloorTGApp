@@ -64,14 +64,14 @@ const FoodTab = ({ userId, userParameters, setUserParameters }) => {
         },
         instantEnergyRestore && {
           icon: Icons.energy,
-          value: "+" + instantEnergyRestore?.value + "%",
+          value: "+" + instantEnergyRestore?.value + "",
         },
         longEnergyRestore && {
           icon: Icons.energyUp,
           value:
             "+" +
             longEnergyRestore?.value +
-            (longEnergyRestore?.percent ? "%" : "") +
+            (longEnergyRestore?.percent ? "" : "") +
             "/h",
         },
         instantMoodRestore && {
