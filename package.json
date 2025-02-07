@@ -20,6 +20,7 @@
     "framer-motion": "^11.11.11",
     "i": "^0.3.7",
     "lodash": "^4.17.21",
+    "lucide-react": "^0.474.0",
     "moment-timezone": "^0.5.46",
     "netlify-cli": "^17.36.0",
     "ngrok": "^5.0.0-beta.2",

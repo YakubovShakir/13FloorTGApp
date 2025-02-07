@@ -21,6 +21,7 @@ import { useNavigate } from "react-router-dom"
 import FullScreenSpinner from "./FullScreenSpinner"
 import getBgByCurrentProcess from "./getBgByCurrentProcess"
 import moment from "moment-timezone"
+import { useVisibilityChange, useWindowFocus } from "../../hooks/userActivities"
 
 
 const Home = () => {
@@ -114,6 +115,7 @@ const Home = () => {
 
   const initializeProcess = async () => {
     try {
+      console.warn(Date.now())
       const process = await getUserActiveProcess(userId)
       
       if (!process) {
@@ -167,36 +169,54 @@ const Home = () => {
     initialize()
   }, [isInitialized])
 
-    // In your useEffect where you track process updates
-    useEffect(() => {
-      if (!state.currentProcess?.active || !mountedRef.current) return;
-    
-      const timerInterval = updateProcessTimers(
-        state.currentProcess,
-        (updatedProcess) => {
-          console.log('@', updatedProcess)
-          if (mountedRef.current) {
-            console.log(updatedProcess)
-    
-            setProgressRate(updatedProcess.formattedTime)
-            
-            if(updatedProcess.totalSecondsRemaining <= 0) {
-              console.log('hhh')
-              initializeProcess()
-            } else {
-              setState(prev => ({ ...prev, currentProcess: updatedProcess }))
-            }
-          }
-        },
-        true
-      )
-    
-      return () => {
-        if (timerInterval) {
-          clearInterval(timerInterval)
-        }
+    useVisibilityChange(() => {
+      console.log(document.visibilityState)
+      if (mountedRef.current && document.visibilityState === 'visible') {
+        initializeProcess()
+        setProgressRate(null) // Force reset progress
       }
-    }, [state, userId])
+    })
+
+    useWindowFocus(() => {
+      if (mountedRef.current) {
+        initializeProcess()
+      }
+    })
+
+  // Modify your existing process tracking useEffect:
+  useEffect(() => {
+    if (!state.currentProcess?.active || !mountedRef.current) return
+
+    const timerInterval = updateProcessTimers(
+      state.currentProcess,
+      (updatedProcess) => {
+        if (!mountedRef.current) return
+        
+        setProgressRate(updatedProcess.formattedTime)
+        
+        const totalSeconds = state.currentProcess.target_duration_in_seconds || 
+                           state.currentProcess.base_duration_in_seconds
+        
+        if(updatedProcess.totalSecondsRemaining <= 0) {
+          initializeProcess()
+        } else {
+          setState(prev => ({
+            ...prev,
+            currentProcess: {
+              ...updatedProcess,
+              // Add actual timestamp verification
+              totalSecondsRemaining: Math.max(0, 
+                totalSeconds - moment().diff(moment(updatedProcess.createdAt), 'seconds')
+              )
+            }
+          }))
+        }
+      },
+      true
+    )
+
+    return () => clearInterval(timerInterval)
+  }, [state.currentProcess?.active]) // More specific dependency
 
     
 
