@@ -316,7 +316,7 @@ export const WorkTab = ({
               ? async () => await handleStopWork()
               : async () => {
                   await handleStartWork();
-                  navigation.navigate('/'); // Переход на основной экран сразу после начала работы
+                 window.location.href = window.location.origin // Переход на основной экран сразу после начала работы
                 },
           icon: buyStatus && Icons.balance,
           active: Math.floor(userParameters?.energy) > 0,

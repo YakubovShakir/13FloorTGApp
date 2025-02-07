@@ -148,7 +148,7 @@ const BoostTab = ({ userId, userParameters, setUserParameters }) => {
             } else {
               handleStartSleep(); // Запустить процесс
             }
-            navigation.navigate('MainScreen'); // Переход на экран
+            window.location.href = window.location.origin
           }
           // Если энергия полная, кнопка неактивна, и ничего не происходит
         },
