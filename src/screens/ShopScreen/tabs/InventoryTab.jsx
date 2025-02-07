@@ -176,7 +176,7 @@ const GridItem = ({
               display: "flex",
               justifyContent: "center",
               alignItems: "center",
-              marginTop: 10,
+              marginTop: 5,
               marginBottom: 10,
               color: 'white'
             }}
@@ -207,12 +207,13 @@ const GridItem = ({
         ) : (<div
           className="clothing-item-respect"
           style={{
+            height: "10px",
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
-            marginTop: 10,
+            marginTop: 5,
             marginBottom: 10,
-            height: 22
+            
           }}
         ></div>)}
 
