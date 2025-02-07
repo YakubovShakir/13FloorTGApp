@@ -186,14 +186,14 @@
 }
 
 /* Стили для неактивных состояний */
-.ItemCardLeader img.inactive,
+/* .ItemCardLeader img.inactive,
 .ItemIconContainerLeader img.inactive {
-  filter: grayscale(100%) opacity(0.5); /* Обезцвечивание и полупрозрачность */
+  filter: grayscale(100%) opacity(0.5); 
 }
 
 .inactiveLeader {
   filter: grayscale(100%) opacity(0.5);
-}
+} */
 
 
 
