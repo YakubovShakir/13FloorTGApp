@@ -111,7 +111,7 @@ export const UserProvider = ({ children }) => {
       // Handle parameters update
       if (hasParametersChanged(latestDataRef.current, data)) {
         updateParametersState({
-          userParameters: { ...data.parameters, work_hourly_income_increase: data.work_hourly_income_increase, work_duration_decrease: data.work_duration_decrease },
+          userParameters: { ...data?.parameters, work_hourly_income_increase: data.work_hourly_income_increase, work_duration_decrease: data.work_duration_decrease },
           isParametersLoading: false,
           parametersError: null
         })
@@ -224,6 +224,174 @@ export const UserProvider = ({ children }) => {
         : children}
     </UserContext.Provider>
   )
+}
+
+export const useForeignUser = (userId) => {
+  const [state, setState] = useState({
+    parameters: {
+      userParameters: null,
+      isParametersLoading: false,
+      parametersError: null
+    },
+    personage: {
+      userPersonage: {},
+      userClothing: null,
+      userShelf: null,
+      isPersonageLoading: false,
+      personageError: null
+    },
+    isInitialized: false
+  })
+
+  const isFetchingRef = useRef(false)
+  const latestDataRef = useRef(null)
+  const mountedRef = useRef(true)
+
+  React.useEffect(() => {
+    mountedRef.current = true
+    return () => {
+      mountedRef.current = false
+    }
+  }, [])
+
+  const updateParametersState = useCallback((updates) => {
+    if (mountedRef.current) {
+      setState(prev => ({
+        ...prev,
+        parameters: {
+          ...prev.parameters,
+          ...updates
+        }
+      }))
+    }
+  }, [])
+
+  const updatePersonageState = useCallback((updates) => {
+    if (mountedRef.current) {
+      setState(prev => ({
+        ...prev,
+        personage: {
+          ...prev.personage,
+          ...updates
+        }
+      }))
+    }
+  }, [])
+
+  const handleParametersError = useCallback((error) => {
+    console.error('useUser Parameters Error:', error)
+    updateParametersState({
+      parametersError: error.message,
+      isParametersLoading: false
+    })
+    setState(prev => ({ ...prev, isInitialized: false }))
+  }, [updateParametersState])
+
+  const handlePersonageError = useCallback((error) => {
+    console.error('useUser Personage Error:', error)
+    updatePersonageState({
+      personageError: error.message,
+      isPersonageLoading: false
+    })
+    setState(prev => ({ ...prev, isInitialized: false }))
+  }, [updatePersonageState])
+
+  const fetchData = useCallback(async (signal) => {
+    if (!userId || isFetchingRef.current) return
+    isFetchingRef.current = true
+
+    // Set loading states
+    updateParametersState({ isParametersLoading: true })
+    updatePersonageState({ isPersonageLoading: true })
+
+    try {
+      const data = await getParameters(userId, { signal })
+      if (!mountedRef.current) return
+
+      // Handle parameters update
+      if (hasParametersChanged(latestDataRef.current, data)) {
+        updateParametersState({
+          userParameters: { 
+            ...data.parameters, 
+            work_hourly_income_increase: data.work_hourly_income_increase, 
+            work_duration_decrease: data.work_duration_decrease 
+          },
+          isParametersLoading: false,
+          parametersError: null
+        })
+      }
+
+      // Handle personage update
+      if (hasPersonageChanged(latestDataRef.current, data)) {
+        updatePersonageState({
+          userPersonage: data.personage || {},
+          userClothing: data.clothing,
+          userShelf: data.shelf,
+          isPersonageLoading: false,
+          personageError: null
+        })
+      }
+
+      setState(prev => ({ ...prev, isInitialized: true }))
+      latestDataRef.current = data
+    } catch (error) {
+      if (error.name === 'AbortError') return
+      
+      if (error.message.includes('parameters')) {
+        handleParametersError(error)
+      } else if (error.message.includes('personage')) {
+        handlePersonageError(error)
+      } else {
+        handleParametersError(error)
+        handlePersonageError(error)
+      }
+    } finally {
+      isFetchingRef.current = false
+    }
+  }, [userId, updateParametersState, updatePersonageState, handleParametersError, handlePersonageError])
+
+  const debouncedFetchData = useMemo(
+    () => debounce(
+      (signal) => fetchData(signal),
+      100,
+      { leading: true, trailing: false }
+    ),
+    [fetchData]
+  )
+
+  // Clear debounce on unmount
+  React.useEffect(() => {
+    return () => {
+      debouncedFetchData.cancel()
+    }
+  }, [debouncedFetchData])
+
+  return {
+    // Parameters related values
+    userParameters: state.parameters.userParameters,
+    isParametersLoading: state.parameters.isParametersLoading,
+    parametersError: state.parameters.parametersError,
+    setUserParameters: (newParams) => 
+      updateParametersState({ userParameters: newParams }),
+
+    // Personage related values
+    userPersonage: state.personage.userPersonage,
+    userClothing: state.personage.userClothing,
+    userShelf: state.personage.userShelf,
+    isPersonageLoading: state.personage.isPersonageLoading,
+    personageError: state.personage.personageError,
+    setUserPersonage: (newPersonage) => 
+      updatePersonageState({ userPersonage: newPersonage }),
+
+    // Common values
+    userId,
+    isInitialized: state.isInitialized,
+    refreshData: async () => {
+      const controller = new AbortController()
+      await fetchData(controller.signal)
+      return () => controller.abort()
+    }
+  }
 }
 
 export const useUser = () => {

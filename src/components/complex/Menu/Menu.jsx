@@ -6,7 +6,7 @@ import Assets from "../../../assets"
 import Button from "../../simple/Button/Button"
 import { useSettingsProvider } from "../../../hooks"
 
-const Menu = ({ screenMenu, activeName, noButton }) => {
+const Menu = ({ screenMenu, activeName, noButton, isForeign }) => {
   const { Icons } = Assets
   const navigate = useNavigate()
   const [currentTab, setCurrentTab] = useState()
@@ -40,6 +40,10 @@ const Menu = ({ screenMenu, activeName, noButton }) => {
     boost: {
       ru: "Бусты",
       en: 'Boosts'
+    },
+    home: {
+      ru: "Домой",
+      en: "Home",
     }
   }
 
@@ -154,21 +158,22 @@ const Menu = ({ screenMenu, activeName, noButton }) => {
               active={true}
               fontFamily={"Anonymous pro"}
               fontWeight={"500"}
-              text={translations.start[lang]}
+              text={isForeign ? translations.home[lang] : translations.start[lang]}
               fontSize={14}
               paddingTop={1}
               borderColor={"rgb(255, 141, 0)"}
               backdropFilter={"blur(5px)"}
               ownColor={"rgb(255, 118, 0)"}
               bgColor={"rgb(255, 118, 0)"}
-              onClick={() => navigate("/action")}
+              onClick={() => isForeign ? navigate('/') : navigate("/action")}
             />
           </div>
         </div>
       )}
 
       {/* Контейнер с иконками кнопок */}
-      <div className="ButtonMenu">
+      {!isForeign && (
+        <div className="ButtonMenu">
         {Object.keys(tabs).map((tab, index) => (
           <IconButton
             color={
@@ -184,6 +189,7 @@ const Menu = ({ screenMenu, activeName, noButton }) => {
           />
         ))}
       </div>
+      )}
     </div>
   )
 }

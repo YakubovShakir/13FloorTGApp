@@ -16,6 +16,7 @@ import { SettingsProvider } from "./hooks";
 import Learning from "./screens/Learning/Learning";
 import BoostTab from "./screens/CareScreen/tabs/BoostTab";
 import { TonConnectUIProvider } from "@tonconnect/ui-react";
+import ForeignHome from "./screens/Home/ForeignHome";
 
 const BlockerMessage = () => (
   <div style={{
@@ -118,7 +119,7 @@ function App() {
       <MemoryRouter>
           <Routes>
             {/* <Route index element={<StartCustomize />} /> */}
-            <Route index path="/" exact element={<Home/>}/>
+            <Route path="/" exact element={<Home/>}/>
             <Route path="/learning/:slideIndex?" element={<Learning/>}/>
             <Route path="/personage-create" element={<PersonageCreationScreen />} />
             {/* <Route index element={<PersonageCreationScreen />} /> */}
@@ -130,6 +131,7 @@ function App() {
             <Route path="/action" element={<ActionScreen/>} />
             <Route path="/investment" element={<InvestmentScreen/>} />
             <Route path="/boost" element={<BoostTab/>} />
+            <Route path="/foreign-user/:userId" element={< ForeignHome />} />
           </Routes>
         </MemoryRouter>
      </SettingsProvider>
