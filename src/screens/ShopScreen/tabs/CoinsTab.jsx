@@ -315,7 +315,7 @@ const GridItemShelf = ({
                 src={icon}
                 alt={title}
                 style={{
-                  maxHeight: 160,
+                  
                   width: "100%",
                   position: "relative",
                   zIndex: 2,

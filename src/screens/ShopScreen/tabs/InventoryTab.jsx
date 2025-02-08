@@ -173,11 +173,11 @@ const GridItem = ({
           <div
             className="clothing-item-respect"
             style={{
+              height: "50px",
               display: "flex",
               justifyContent: "center",
               alignItems: "center",
-              marginTop: 5,
-              marginBottom: 10,
+              
               color: 'white'
             }}
           >
@@ -207,12 +207,11 @@ const GridItem = ({
         ) : (<div
           className="clothing-item-respect"
           style={{
-            height: "10px",
+            height: "50px",
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
-            marginTop: 5,
-            marginBottom: 10,
+            
             
           }}
         ></div>)}
@@ -221,6 +220,7 @@ const GridItem = ({
         {equipped ? (
           <Button
             className="clothing-item-unequip-button"
+           
             shadowColor={"rgba(243, 117, 0, 0)"}
             width={"88%"}
             marginBottom={"5"}
@@ -240,6 +240,7 @@ const GridItem = ({
         ) : (
           <Button
             className="clothing-item-equip-button"
+           
             shadowColor={"rgb(199, 80, 21)"}
             width={"88%"}
             marginBottom={"5"}
