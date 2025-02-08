@@ -212,9 +212,7 @@ const ForeignHome = () => {
                         position: "absolute",
                         height: "100%",
                         width: "100%",
-                        backgroundImage: state.currentProcess?.type
-                            ? getBgByCurrentProcess(state.currentProcess.type, state.currentProcess?.type_id)
-                            : `url(${Assets.BG.homeBackground})`,
+                        backgroundImage: `url(${Assets.BG.homeBackground})`,
                         backgroundSize: "cover",
                         backgroundPosition: "bottom right",
                         zIndex: 0,

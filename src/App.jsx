@@ -126,8 +126,7 @@ function App() {
             <Route path="/care" element={<CareScreen />} />
             <Route path="/shop" element={<ShopScreen />} />
             <Route path="/activity/:type" element={<ActivityScreen />} />
-            <Route path="/tasks" element={<TaskScreen />} />
-            <Route path="/leaderboard" element={<leaderboardScreen />} />
+            <Route path="/tasks/:tab?" element={<TaskScreen />} />
             <Route path="/action" element={<ActionScreen/>} />
             <Route path="/investment" element={<InvestmentScreen/>} />
             <Route path="/boost" element={<BoostTab/>} />
