@@ -634,7 +634,7 @@ const SkillTab = ({
         const effect = effects[key];
 
         // Check if the effect object exists and has the necessary data
-        if (effect && (effect.current || effect.next)) {
+        if (effect && effect.next) {
           const displayEffect = effect.current || effect.next; // Prioritize current, fallback to next
           return (
             <ItemCard
