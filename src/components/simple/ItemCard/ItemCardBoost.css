@@ -189,9 +189,9 @@
   filter: grayscale(0%) opacity(1); /* Обезцвечивание и полупрозрачность */
 }
 
-/* .inactiveBoost {
+.inactiveBoost {
   filter: grayscale(100%) opacity(0.5);
-} */
+}
 
 
 
