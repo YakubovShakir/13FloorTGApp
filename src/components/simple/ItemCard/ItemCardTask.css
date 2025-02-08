@@ -170,14 +170,14 @@
 }
 
 /* Стили для неактивных состояний */
-/* .ItemCardTask img.inactive,
+.ItemCardTask img.inactive,
 .ItemIconContainerTask img.inactive {
   filter: grayscale(100%) opacity(0.5); 
 }
 
 .inactiveTask {
   filter: grayscale(100%) opacity(0.5);
-} */
+}
 
 
 

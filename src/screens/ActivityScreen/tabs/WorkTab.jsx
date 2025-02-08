@@ -280,10 +280,11 @@ export const WorkTab = ({
       requiredLevel &&
       isNextLevelWork &&
       enoughBalance
-    if (currentWork?.work_id === workId) {
+    if ( workId <= currentWork?.work_id ) {
       return [
         {
-          text: translations.currentWork[lang],
+          
+          text: currentWork?.work_id === workId ? translations.currentWork[lang] : translations.unlocked[lang],
           icon: buyStatus && Icons.balance,
           active: true,
           bg: activeWork
@@ -301,7 +302,7 @@ export const WorkTab = ({
 
     return [
       {
-        text: userParameters.work_id > workId ? translations.unlocked[lang] : (buyStatus ? work?.coins_price : translations.unlock[lang]),
+        text: buyStatus ? work?.coins_price : translations.unlock[lang],
         onClick: () => {
           setModalData(setWorkModalData(work))
           setVisibleModal(true)

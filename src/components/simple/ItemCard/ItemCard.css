@@ -178,14 +178,14 @@
 }
 
 /* Стили для неактивных состояний */
-/* .ItemCard img.inactive,
+.ItemCard img.inactive,
 .ItemIconContainer img.inactive {
   filter: grayscale(100%) opacity(0.5); 
 } */
 
-/* .inactive {
+.inactive {
   filter: grayscale(100%) opacity(0.5);
-} */
+}
 
 
 
