@@ -17,7 +17,7 @@ import countPercentage from "../../utils/countPercentage"
 import { updateProcessTimers } from "../../utils/updateTimers"
 import { getLevels } from "../../services/levels/levels"
 import { motion, AnimatePresence } from "framer-motion"
-import { useNavigate } from "react-router-dom"
+import { useNavigate, useParams } from "react-router-dom"
 import FullScreenSpinner from "./FullScreenSpinner"
 import getBgByCurrentProcess from "./getBgByCurrentProcess"
 import moment from "moment-timezone"
@@ -28,7 +28,7 @@ import { formatCoins } from "../../utils/formatCoins"
 const ForeignHome = () => {
     const navigate = useNavigate()
     const mountedRef = useRef(false)
-
+    const { userId = "0" } = useParams()
     const [state, setState] = useState({
         currentWindow: null,
         currentProcess: null,
@@ -43,14 +43,13 @@ const ForeignHome = () => {
     const [isLoading, setIsLoading] = useState(true)
 
     const {
-        userId,
         userParameters,
         isInitialized,
         userPersonage,
         userClothing,
         userShelf,
         refreshData
-    } = useForeignUser(790629328)
+    } = useForeignUser(userId)
 
     const getUserSleepDuration = () => {
         const duration = state.levels?.find(
