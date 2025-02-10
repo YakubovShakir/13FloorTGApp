@@ -1025,6 +1025,8 @@ const InvestmentScreen = () => {
         )}
 
         {renderContent()}
+        <br/>
+        <br/>
       </ScreenBody>
     </Screen>
   )
