@@ -19,10 +19,14 @@ import {
   buyInvestmentLevel,
   claimInvestment,
   getUserInvestments,
+  startInvestment,
 } from "../../services/user/user"
 import WebApp from "@twa-dev/sdk"
 import { instance } from "../../services/instance"
 import { useSettingsProvider } from "../../hooks"
+import { formatCoins } from "../../utils/formatCoins"
+import { useNotification } from "../../NotificationContext"
+import { copyTextToClipboard } from "../../utils/clipboard"
 
 const buttonStyle = {
   width: "100%",
@@ -116,6 +120,35 @@ export const useInvestmentTimer = ({
 
 const Modal = ({ bottom, left, width, height, data, onClose, logoWidth }) => {
   const { Icons } = Assets
+  const { gameCenterValues = null } = data
+  const { lang } = useSettingsProvider()
+
+  const translations = {
+    invite: {
+      en: 'Invite',
+      ru: 'Пригласить'
+    },
+    gameCenter: {
+      en: 'Invite friends to grow Game Center!',
+      ru: 'Приглашай друзей и развивай Игровой Центр!'
+    },
+    level: {
+      en: 'Current Level: ',
+      ru: 'Текущий уровень: '
+    },
+    copied: {
+      en: 'Your referral link has been copied successfully!',
+      ru: 'Ваша реферальная ссылка была успешно скопирована!'
+    }
+  }
+
+  const { userId } = useContext(UserContext)
+  const { showNotification } = useNotification()
+
+  const getRefLink = () => {
+    return process.env.NODE_ENV === 'test' ? `https://t.me/Floor13Game_bot?start=${userId}` : `https://t.me/Floor13th_bot?start=${userId}`
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 100 }}
@@ -148,19 +181,87 @@ const Modal = ({ bottom, left, width, height, data, onClose, logoWidth }) => {
           width: "100%",
         }}
       >
-        <p>
-          {data.from} {"->"} {data.to}
-        </p>
+        {gameCenterValues ? (
+          <>
+            <div>
+              <h4>{translations.gameCenter[lang]}</h4>
+            </div>
+            <br />
+            <div style={{
+              display: 'flex',
+              width: '50%',
+              background: 'grey',
+              borderRadius: 12,
+              alignItems: 'center',
+              position: 'relative',
+            }}>
+              <span
+                style={{
+                  width: data.to ?
+                    Math.min(100, (gameCenterValues.friends - gameCenterValues.thisLevelFriendsRequired / gameCenterValues.nextLevelFriendsRequired - gameCenterValues.thisLevelFriendsRequired) * 100) + "%" : '100%',
+                  height: 30,
+                  background: "linear-gradient(90deg, rgba(233, 78, 27, 1) 0%, rgba(243, 117, 0, 1) 50%)",
+                  borderRadius: 12
+                }}
+              />
+              <p style={{
+                position: 'absolute',
+                width: '100%',
+                textAlign: 'center',
+                margin: 0
+              }}>
+                {
+                  data.to
+                    ? gameCenterValues.friends - gameCenterValues.thisLevelFriendsRequired + '/' + gameCenterValues.nextLevelFriendsRequired
+                    : gameCenterValues.friends
+                }
+              </p>
+            </div>
+            <p style={{
+              paddingTop: 16,
+              width: '100%',
+              textAlign: 'center',
+              margin: 0
+            }}>
+              {translations.level[lang]} {data.current_level}
+            </p>
+            <p>
+              {data.from} {data.to && "-> " + data.to}
+            </p>
+          </>
+
+        ) : (
+          <p>
+            {data.from} {data.to && "-> " + data.to}
+          </p>
+        )}
       </div>
       <div className="ModalFooter" style={{ marginTop: 10 }}>
-        <Button
-          {...buttonStyle}
-          active={data.canUpgrade}
-          onClick={data.canUpgrade ? data.handleUpgrade : () => {}}
-          text={data.price}
-          width={100}
-          icon={Assets.Icons.balance}
-        />
+        {gameCenterValues ? (
+          <Button
+            {...buttonStyle}
+            active={data.canUpgrade}
+            onClick={() => {
+
+              copyTextToClipboard(getRefLink()).then(() => {
+                return showNotification(translations.copied[lang], Assets.Icons.tasks)
+              })
+              //!TODO separate
+              showNotification(translations.copied[lang], Assets.Icons.tasks)
+            }}
+            text={translations.invite[lang]}
+            width={100}
+          />
+        ) : (
+          <Button
+            {...buttonStyle}
+            active={data.canUpgrade}
+            onClick={data.canUpgrade ? data.handleUpgrade : () => { }}
+            text={data.price}
+            width={100}
+            icon={Assets.Icons.balance}
+          />
+        )}
       </div>
     </motion.div>
   )
@@ -223,7 +324,7 @@ const AutoclaimModal = ({
         <Button
           {...buttonStyle}
           active={data.canUpgrade}
-          onClick={data.canUpgrade ? data.handleUpgrade : () => {}}
+          onClick={data.canUpgrade ? data.handleUpgrade : () => { }}
           text={1}
           width={100}
           icon={Assets.Icons.starsIcon}
@@ -256,6 +357,8 @@ const ThreeSectionCard = ({
   title,
   userParameters,
   openAutoclaimModal,
+  handleStart,
+  isGameCenter = false
 }) => {
   const isTest = process.env.NODE_ENV === "test"
   const { lang } = useSettingsProvider()
@@ -277,10 +380,22 @@ const ThreeSectionCard = ({
       ru: "Забрать",
       en: "Claim",
     },
-    hour:{
+    hour: {
       ru: "/ЧАС",
       en: "/HOUR",
     },
+    start: {
+      ru: 'Начать',
+      en: 'Start'
+    },
+    friends: {
+      ru: 'Друзей: ',
+      en: 'Friends: '
+    },
+    invite: {
+      ru: 'Пригласить',
+      en: 'Invite',
+    }
   }
 
   const { timer, shouldShowCollectButton } = useInvestmentTimer({
@@ -310,7 +425,7 @@ const ThreeSectionCard = ({
         "repeating-linear-gradient(45deg, rgba(0, 0, 0, 0.21), rgba(0, 0, 0, 0.21) 2px, rgba(57, 57, 57, 0.06) 2px, rgba(57, 57, 57, 0.06) 6px) rgba(0, 0, 0, 0.51)",
       borderBottom: " 1px solid rgba(117, 117, 117, 0.23)",
       boxShadow: "rgba(0, 0, 0, 0.24) 0px 0px 8px 2px inset",
-      width:" 30%",
+      width: " 30%",
       borderRadius: "8px",
       overflow: "hidden",
       position: "relative",
@@ -327,19 +442,19 @@ const ThreeSectionCard = ({
     },
 
     buttonsContainer: {
-      
+
       alignItems: "center",
       position: "relative",
-      marginLeft:" auto", /* Выровняет блок по правому краю */
-      marginRight:" 5px", /* Убирает лишний отступ справа */
-      width:" 33%",
-      borderRadius:" 8px",
+      marginLeft: " auto", /* Выровняет блок по правому краю */
+      marginRight: " 5px", /* Убирает лишний отступ справа */
+      width: " 33%",
+      borderRadius: " 8px",
       display: "flex",
       flexDirection: "column",
       gap: "16px",
       padding: "1px 3px 8px",
       justifyContent: "center",
-      border:" 0",
+      border: " 0",
     },
   }
 
@@ -375,35 +490,30 @@ const ThreeSectionCard = ({
             ...getBackgroundStyle(),
           }}
         >
-          {current_level > 0 ? (
-            <>
-              <p
-                style={{
-                  textAlign: "center",
-                  fontSize: 16,
-                  color: "white",
-                  paddingTop: 8,
-                }}
-              >
-                {translations.level[lang]} {current_level}
-              </p>
-            </>
-          ) : null}
+          <p
+            style={{
+              textAlign: "center",
+              fontSize: 16,
+              color: "white",
+              paddingTop: 8,
+            }}
+          >
+            {translations.level[lang]} {current_level || 0}
+          </p>
 
           <img src={leftImage} alt="Investment Type" style={styles.image} />
 
           {current_level > 0 ? (
             <>
-              {!hideUpgrade && (
-                <Button
-                  {...buttonStyle}
-                  active={true}
-                  onClick={onClick}
-                  text={translations.upgrade[lang]}
-                />
-              )}
+              <Button
+                {...buttonStyle}
+                active={true}
+                onClick={onClick}
+                text={translations.upgrade[lang]}
+              />
             </>
           ) : null}
+
         </div>
         {current_level > 0 ? (
           <>
@@ -414,7 +524,7 @@ const ThreeSectionCard = ({
                 border: getBorderStyle(),
                 ...getEmptyBackgroundStyle(),
               }}
-              onClick={has_autoclaim ? () => {} : openAutoclaimModal}
+              onClick={has_autoclaim ? () => { } : openAutoclaimModal}
             >
               <img
                 src={
@@ -448,7 +558,7 @@ const ThreeSectionCard = ({
               textAlign: "center",
               fontSize: 16,
               color: "white",
-              
+
             }}
           >
             {title}
@@ -490,29 +600,47 @@ const ThreeSectionCard = ({
               }}
             >
               {from}{translations.hour[lang]}
-             
+
             </p>
           </div>
 
           {current_level > 0 ? (
-            <>
+            started_at ? (
+              <>
+                <Button
+                  {...buttonStyle}
+                  active={shouldShowCollectButton}
+                  onClick={shouldShowCollectButton ? handleClaim : undefined}
+                  text={
+                    shouldShowCollectButton ? translations.claim[lang] : timer
+                  }
+                />
+              </>
+            ) : (
               <Button
                 {...buttonStyle}
-                active={shouldShowCollectButton}
-                onClick={shouldShowCollectButton ? handleClaim : undefined}
-                text={
-                  shouldShowCollectButton ? translations.claim[lang] : timer
-                }
+                active={true}
+                onClick={handleStart}
+                text={translations.start[lang]}
               />
-            </>
+            )
           ) : (
-            <Button
-              {...buttonStyle}
-              active={userParameters.coins >= upgrade_info.price}
-              icon={Assets.Icons.balance}
-              text={upgrade_info.price}
-              onClick={onClick}
-            />
+            isGameCenter ? (
+              <Button
+                {...buttonStyle}
+                active={userParameters.coins >= upgrade_info.price}
+                text={translations.invite[lang]}
+                onClick={onClick}
+              />
+            ) : (
+              <Button
+                {...buttonStyle}
+                active={userParameters.coins >= upgrade_info.price}
+                icon={Assets.Icons.balance}
+                text={upgrade_info.price}
+                onClick={onClick}
+              />
+            )
           )}
         </div>
       </motion.div>
@@ -566,6 +694,23 @@ const useInvestmentData = (userId) => {
     // Optimistically update the UI
     try {
       await claimInvestment(userId, investment_type)
+      await fetchInvestments()
+      await refreshData()
+      // Fetch real data after successful claim
+    } catch (err) {
+      console.error("Failed to claim:", err)
+      // Revert optimistic update on failure
+      await fetchInvestments()
+    }
+
+  }
+
+  const handleStart = async (investment_type) => {
+    if (!investments) return
+
+    // Optimistically update the UI
+    try {
+      await startInvestment(userId, investment_type)
       await fetchInvestments()
       await refreshData()
       // Fetch real data after successful claim
@@ -635,6 +780,7 @@ const useInvestmentData = (userId) => {
     handleUpgrade,
     handleClaim,
     handleAutoclaimPurchased,
+    handleStart
   }
 }
 
@@ -654,8 +800,9 @@ const InvestmentScreen = () => {
     handleUpgrade,
     handleClaim,
     handleAutoclaimPurchased,
+    handleStart
   } = useInvestmentData(userId)
-  
+
   const { lang } = useSettingsProvider()
 
   // Create a deep comparison function to force re-render
@@ -682,11 +829,6 @@ const InvestmentScreen = () => {
     },
   }
 
-  useEffect(() => {
-    useTelegram.setBackButton(() => navigate("/"))
-    console.log(investments)
-  }, [investments])
-
   const handleModalOpen = (investment_type) => {
     if (!investments) return
 
@@ -706,8 +848,16 @@ const InvestmentScreen = () => {
         await handleUpgrade(investment_type)
         setIsModalVisible(false)
       },
+      current_level: investmentData.current_level,
       title: titlesMap[investment_type][lang],
       canUpgrade: userParameters.coins >= investmentData.upgrade_info.price,
+      gameCenterValues: investment_type === 'game_center' && ({
+        friends: investmentData.friends || 0,
+        thisLevelFriendsRequired: investmentData.this_level_friends_required,
+        nextLevelFriendsRequired: investmentData.next_level_friends_required,
+        inviteLink: userParameters.invite_link || "",
+        handleInviteLink: async () => { }
+      })
     })
     setIsModalVisible(true)
   }
@@ -737,102 +887,106 @@ const InvestmentScreen = () => {
     description: translations.autoclaimDescription[lang],
   }
 
- 
-    return (
-      <Screen key={investmentsKey}>
-        <HomeHeader />
-        <ScreenBody activity={translations.investments[lang]}>
-          {isModalVisible && (
-            <Modal
-              onClose={() => setIsModalVisible(false)}
-              data={modalData}
-              bottom={"0"}
-              width={"100%"}
-              height={"80%"}
-            />
-          )}
-          {autoClaimModalVisible && (
-            <AutoclaimModal
-              onClose={() => setIsAutoClaimModalVisible(false)}
-              data={autoclaimModalData}
-              bottom={"0"}
-              width={"100%"}
-              height={"80%"}
-            />
-          )}
 
-          <h2
-            style={{
-              zIndex: "5",
-              position: "relative",
-              fontSize: "14px",
-              fontWeight: "regular",
-              margin: "16px 0",
-              textAlign: "center",
-              color: "#fff",
-              fontFamily: "Anonymous pro",
-              padding: "0 16px",
-            }}
-          >
-            {translations.investmentsDescription[lang]}
-          </h2>
+  return (
+    <Screen key={investmentsKey}>
+      <HomeHeader />
+      <ScreenBody activity={translations.investments[lang]}>
+        {isModalVisible && (
+          <Modal
+            onClose={() => setIsModalVisible(false)}
+            data={modalData}
+            bottom={"0"}
+            width={"100%"}
+            height={"80%"}
+          />
+        )}
+        {autoClaimModalVisible && (
+          <AutoclaimModal
+            onClose={() => setIsAutoClaimModalVisible(false)}
+            data={autoclaimModalData}
+            bottom={"0"}
+            width={"100%"}
+            height={"80%"}
+          />
+        )}
 
-          <ThreeSectionCard
-            from={investments?.coffee_shop?.upgrade_info?.from}
-            data={modalData}
-            title={titlesMap.coffee_shop[lang]}
-            leftImage={Assets.Icons.investmentCoffeeShopIcon}
-            rightImage={Assets.Icons.investManager}
-            onClick={() => handleModalOpen("coffee_shop")}
-            tz={investments?.tz}
-            started_at={investments?.coffee_shop?.started_at || null}
-            handleClaim={() => handleClaim("coffee_shop")}
-            openAutoclaimModal={() => {
-              setAutoclaimModalData(autoclaimModalDataFixed)
-              setIsAutoClaimModalVisible(true)
-            }}
-            {...investments?.coffee_shop}
-            userParameters={userParameters}
-          />
-          <ThreeSectionCard
-            from={investments?.zoo_shop?.upgrade_info?.from}
-            data={modalData}
-            title={titlesMap.zoo_shop[lang]}
-            leftImage={Assets.Icons.investmentZooShopIcon}
-            rightImage={Assets.Icons.investManager}
-            onClick={() => handleModalOpen("zoo_shop")}
-            handleClaim={() => handleClaim("zoo_shop")}
-            tz={investments?.tz}
-            started_at={investments?.zoo_shop?.started_at || null}
-            {...investments?.zoo_shop}
-            openAutoclaimModal={() => {
-              setAutoclaimModalData(autoclaimModalDataFixed)
-              setIsAutoClaimModalVisible(true)
-            }}
-            userParameters={userParameters}
-          />
-          <ThreeSectionCard
-            from={investments?.game_center?.upgrade_info?.from}
-            data={modalData}
-            title={titlesMap.game_center[lang]}
-            leftImage={Assets.Icons.gameCenter}
-            rightImage={Assets.Icons.investManager}
-            onClick={() => handleModalOpen("game_center")}
-            tz={investments?.tz}
-            started_at={investments?.game_center?.started_at || null}
-            handleClaim={() => handleClaim("game_center")}
-            hideUpgrade={true}
-            {...investments?.game_center}
-            openAutoclaimModal={() => {
-              setAutoclaimModalData(autoclaimModalDataFixed)
-              setIsAutoClaimModalVisible(true)
-            }}
-            userParameters={userParameters}
-          />
-        </ScreenBody>
-      </Screen>
-    )
-  
+        <h2
+          style={{
+            zIndex: "5",
+            position: "relative",
+            fontSize: "14px",
+            fontWeight: "regular",
+            margin: "16px 0",
+            textAlign: "center",
+            color: "#fff",
+            fontFamily: "Anonymous pro",
+            padding: "0 16px",
+          }}
+        >
+          {translations.investmentsDescription[lang]}
+        </h2>
+
+        <ThreeSectionCard
+          from={investments?.coffee_shop?.upgrade_info?.from}
+          data={modalData}
+          title={titlesMap.coffee_shop[lang]}
+          leftImage={Assets.Icons.investmentCoffeeShopIcon}
+          rightImage={Assets.Icons.investManager}
+          onClick={() => handleModalOpen("coffee_shop")}
+          tz={investments?.tz}
+          started_at={investments?.coffee_shop?.started_at || null}
+          handleClaim={() => handleClaim("coffee_shop")}
+          openAutoclaimModal={() => {
+            setAutoclaimModalData(autoclaimModalDataFixed)
+            setIsAutoClaimModalVisible(true)
+          }}
+          {...investments?.coffee_shop}
+          userParameters={userParameters}
+          handleStart={() => handleStart('coffee_shop')}
+        />
+        <ThreeSectionCard
+          from={investments?.zoo_shop?.upgrade_info?.from}
+          data={modalData}
+          title={titlesMap.zoo_shop[lang]}
+          leftImage={Assets.Icons.investmentZooShopIcon}
+          rightImage={Assets.Icons.investManager}
+          onClick={() => handleModalOpen("zoo_shop")}
+          handleClaim={() => handleClaim("zoo_shop")}
+          tz={investments?.tz}
+          started_at={investments?.zoo_shop?.started_at || null}
+          {...investments?.zoo_shop}
+          openAutoclaimModal={() => {
+            setAutoclaimModalData(autoclaimModalDataFixed)
+            setIsAutoClaimModalVisible(true)
+          }}
+          userParameters={userParameters}
+          handleStart={() => handleStart('zoo_shop')}
+        />
+        <ThreeSectionCard
+          from={investments?.game_center?.upgrade_info?.from}
+          data={modalData}
+          title={titlesMap.game_center[lang]}
+          leftImage={Assets.Icons.gameCenter}
+          rightImage={Assets.Icons.investManager}
+          onClick={() => handleModalOpen("game_center")}
+          tz={investments?.tz}
+          started_at={investments?.game_center?.started_at || null}
+          handleClaim={() => handleClaim("game_center")}
+          hideUpgrade={true}
+          {...investments?.game_center}
+          openAutoclaimModal={() => {
+            setAutoclaimModalData(autoclaimModalDataFixed)
+            setIsAutoClaimModalVisible(true)
+          }}
+          userParameters={userParameters}
+          handleStart={() => handleStart('game_center')}
+          isGameCenter={true}
+        />
+      </ScreenBody>
+    </Screen>
+  )
+
 }
 
 export default InvestmentScreen
