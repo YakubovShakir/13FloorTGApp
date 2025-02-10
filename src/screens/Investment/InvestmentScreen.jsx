@@ -470,11 +470,11 @@ const ThreeSectionCard = ({
       layout
       initial={{ opacity: 0, y: 50 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ 
+      transition={{
         duration: 0.4,
         delay: index * 0.15, // This creates the stagger effect
         layout: { duration: 0.3 },
-        opacity: { 
+        opacity: {
           duration: 0.3,
           delay: index * 0.15 // Match the delay for opacity
         },
@@ -508,11 +508,11 @@ const ThreeSectionCard = ({
           {translations.level[lang]} {current_level || 0}
         </motion.p>
 
-        <motion.img 
+        <motion.img
           layout
-          src={leftImage} 
-          alt="Investment Type" 
-          style={styles.image} 
+          src={leftImage}
+          alt="Investment Type"
+          style={styles.image}
         />
 
         {current_level > 0 && (
@@ -533,7 +533,7 @@ const ThreeSectionCard = ({
             border: getBorderStyle(),
             ...getEmptyBackgroundStyle(),
           }}
-          onClick={has_autoclaim ? () => {} : openAutoclaimModal}
+          onClick={has_autoclaim ? () => { } : openAutoclaimModal}
         >
           <motion.img
             layout
@@ -542,7 +542,7 @@ const ThreeSectionCard = ({
             style={styles.image}
           />
           {has_autoclaim && (
-            <motion.p 
+            <motion.p
               layout
               style={{ color: "white", paddingTop: 8 }}
             >
@@ -679,8 +679,8 @@ const useInvestmentData = (userId) => {
 
     // Optimistically update the UI
 
-
     try {
+      setIsLoading(true)
       await buyInvestmentLevel(userId, investment_type)
       await refreshData()
       // Fetch real data after successful claim
@@ -689,6 +689,8 @@ const useInvestmentData = (userId) => {
       console.error("Failed to claim:", err)
       // Revert optimistic update on failure
       await fetchInvestments()
+    } finally {
+      setIsLoading(false)
     }
 
   }
@@ -698,6 +700,7 @@ const useInvestmentData = (userId) => {
 
     // Optimistically update the UI
     try {
+      setIsLoading(true)
       await claimInvestment(userId, investment_type)
       await fetchInvestments()
       await refreshData()
@@ -706,6 +709,8 @@ const useInvestmentData = (userId) => {
       console.error("Failed to claim:", err)
       // Revert optimistic update on failure
       await fetchInvestments()
+    } finally {
+      setIsLoading(false)
     }
 
   }
@@ -715,6 +720,7 @@ const useInvestmentData = (userId) => {
 
     // Optimistically update the UI
     try {
+      setIsLoading(true)
       await startInvestment(userId, investment_type)
       await fetchInvestments()
       await refreshData()
@@ -723,6 +729,8 @@ const useInvestmentData = (userId) => {
       console.error("Failed to claim:", err)
       // Revert optimistic update on failure
       await fetchInvestments()
+    } finally {
+      setIsLoading(false)
     }
 
   }
@@ -796,8 +804,6 @@ const InvestmentScreen = () => {
   const [autoClaimModalVisible, setIsAutoClaimModalVisible] = useState(false)
   const [autoclaimModalData, setAutoclaimModalData] = useState()
 
-  const navigate = useNavigate()
-
   const {
     investments,
     isLoading,
@@ -809,15 +815,6 @@ const InvestmentScreen = () => {
   } = useInvestmentData(userId)
 
   const { lang } = useSettingsProvider()
-
-  // Create a deep comparison function to force re-render
-  const [investmentsKey, setInvestmentsKey] = useState(Date.now())
-
-  // Force re-render when investments change
-  useEffect(() => {
-    setInvestmentsKey(Date.now())
-  }, [investments])
-
 
   const titlesMap = {
     coffee_shop: {
@@ -832,6 +829,31 @@ const InvestmentScreen = () => {
       ru: "Игровой центр",
       en: "Game Center",
     },
+  }
+
+  const translations = {
+    autoclaim: {
+      ru: "Автоклейм",
+      en: "Autoclaim",
+    },
+    autoclaimDescription: {
+      ru: "Автоматический сбор инвестиций - лучший способ сэкономить время!",
+      en: "Automated investment claims - the best way to save time!",
+    },
+    investments: {
+      ru: "Инвестиции",
+      en: "Investments",
+    },
+    investmentsDescription: {
+      ru: "Инвестируй немного денег в бизнес, и забирай доход каждый час",
+      en: "Invest a little - collect interest hourly",
+    },
+  }
+
+  const autoclaimModalDataFixed = {
+    image: Assets.Icons.investManagerActive,
+    title: translations.autoclaim[lang],
+    description: translations.autoclaimDescription[lang],
   }
 
   const handleModalOpen = (investment_type) => {
@@ -867,55 +889,30 @@ const InvestmentScreen = () => {
     setIsModalVisible(true)
   }
 
-  const translations = {
-    autoclaim: {
-      ru: "Автоклейм",
-      en: "Autoclaim",
-    },
-    autoclaimDescription: {
-      ru: "Автоматический сбор инвестиций - лучший способ сэкономить время!",
-      en: "Automated investment claims - the best way to save time!",
-    },
-    investments: {
-      ru: "Инвестиции",
-      en: "Investments",
-    },
-    investmentsDescription: {
-      ru: "Инвестируй немного денег в бизнес, и забирай доход каждый час",
-      en: "Invest a little - collect interest hourly",
-    },
-  }
+  // Only render content when we have the data
+  const renderContent = () => {
+    if (isLoading || !investments) {
+      return <>
+        <h2
+          style={{
+            zIndex: "5",
+            position: "relative",
+            fontSize: "14px",
+            fontWeight: "regular",
+            margin: "16px 0",
+            textAlign: "center",
+            color: "#fff",
+            fontFamily: "Anonymous pro",
+            padding: "0 16px",
+          }}
+        >
+          {translations.investmentsDescription[lang]}
+        </h2>
+      </>
+    }
 
-  const autoclaimModalDataFixed = {
-    image: Assets.Icons.investManagerActive,
-    title: translations.autoclaim[lang],
-    description: translations.autoclaimDescription[lang],
-  }
-
-
-  return (
-    <Screen key={investmentsKey}>
-      <HomeHeader />
-      <ScreenBody activity={translations.investments[lang]}>
-        {isModalVisible && (
-          <Modal
-            onClose={() => setIsModalVisible(false)}
-            data={modalData}
-            bottom={"0"}
-            width={"100%"}
-            height={"80%"}
-          />
-        )}
-        {autoClaimModalVisible && (
-          <AutoclaimModal
-            onClose={() => setIsAutoClaimModalVisible(false)}
-            data={autoclaimModalData}
-            bottom={"0"}
-            width={"100%"}
-            height={"80%"}
-          />
-        )}
-
+    return (
+      <>
         <h2
           style={{
             zIndex: "5",
@@ -932,69 +929,105 @@ const InvestmentScreen = () => {
           {translations.investmentsDescription[lang]}
         </h2>
 
-        <ThreeSectionCard
-          from={investments?.coffee_shop?.upgrade_info?.from}
-          data={modalData}
-          title={titlesMap.coffee_shop[lang]}
-          leftImage={Assets.Icons.investmentCoffeeShopIcon}
-          rightImage={Assets.Icons.investManager}
-          onClick={() => handleModalOpen("coffee_shop")}
-          tz={investments?.tz}
-          started_at={investments?.coffee_shop?.started_at || null}
-          handleClaim={() => handleClaim("coffee_shop")}
-          openAutoclaimModal={() => {
-            setAutoclaimModalData(autoclaimModalDataFixed)
-            setIsAutoClaimModalVisible(true)
-          }}
-          {...investments?.coffee_shop}
-          userParameters={userParameters}
-          handleStart={() => handleStart('coffee_shop')}
-          index={0}
-        />
-        <ThreeSectionCard
-          from={investments?.zoo_shop?.upgrade_info?.from}
-          data={modalData}
-          title={titlesMap.zoo_shop[lang]}
-          leftImage={Assets.Icons.investmentZooShopIcon}
-          rightImage={Assets.Icons.investManager}
-          onClick={() => handleModalOpen("zoo_shop")}
-          handleClaim={() => handleClaim("zoo_shop")}
-          tz={investments?.tz}
-          started_at={investments?.zoo_shop?.started_at || null}
-          {...investments?.zoo_shop}
-          openAutoclaimModal={() => {
-            setAutoclaimModalData(autoclaimModalDataFixed)
-            setIsAutoClaimModalVisible(true)
-          }}
-          userParameters={userParameters}
-          handleStart={() => handleStart('zoo_shop')}
-          index={1}
-        />
-        <ThreeSectionCard
-          from={investments?.game_center?.upgrade_info?.from}
-          data={modalData}
-          title={titlesMap.game_center[lang]}
-          leftImage={Assets.Icons.gameCenter}
-          rightImage={Assets.Icons.investManager}
-          onClick={() => handleModalOpen("game_center")}
-          tz={investments?.tz}
-          started_at={investments?.game_center?.started_at || null}
-          handleClaim={() => handleClaim("game_center")}
-          hideUpgrade={true}
-          {...investments?.game_center}
-          openAutoclaimModal={() => {
-            setAutoclaimModalData(autoclaimModalDataFixed)
-            setIsAutoClaimModalVisible(true)
-          }}
-          userParameters={userParameters}
-          handleStart={() => handleStart('game_center')}
-          isGameCenter={true}
-          index={2}
-        />
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.3 }}
+        >
+          <ThreeSectionCard
+            index={0}
+            from={investments?.coffee_shop?.upgrade_info?.from}
+            data={modalData}
+            title={titlesMap.coffee_shop[lang]}
+            leftImage={Assets.Icons.investmentCoffeeShopIcon}
+            rightImage={Assets.Icons.investManager}
+            onClick={() => handleModalOpen("coffee_shop")}
+            tz={investments?.tz}
+            started_at={investments?.coffee_shop?.started_at}
+            handleClaim={() => handleClaim("coffee_shop")}
+            openAutoclaimModal={() => {
+              setAutoclaimModalData(autoclaimModalDataFixed)
+              setIsAutoClaimModalVisible(true)
+            }}
+            {...investments?.coffee_shop}
+            userParameters={userParameters}
+            handleStart={() => handleStart('coffee_shop')}
+          />
+
+          <ThreeSectionCard
+            index={1}
+            from={investments?.zoo_shop?.upgrade_info?.from}
+            data={modalData}
+            title={titlesMap.zoo_shop[lang]}
+            leftImage={Assets.Icons.investmentZooShopIcon}
+            rightImage={Assets.Icons.investManager}
+            onClick={() => handleModalOpen("zoo_shop")}
+            handleClaim={() => handleClaim("zoo_shop")}
+            tz={investments?.tz}
+            started_at={investments?.zoo_shop?.started_at}
+            {...investments?.zoo_shop}
+            openAutoclaimModal={() => {
+              setAutoclaimModalData(autoclaimModalDataFixed)
+              setIsAutoClaimModalVisible(true)
+            }}
+            userParameters={userParameters}
+            handleStart={() => handleStart('zoo_shop')}
+          />
+
+          <ThreeSectionCard
+            index={2}
+            from={investments?.game_center?.upgrade_info?.from}
+            data={modalData}
+            title={titlesMap.game_center[lang]}
+            leftImage={Assets.Icons.gameCenter}
+            rightImage={Assets.Icons.investManager}
+            onClick={() => handleModalOpen("game_center")}
+            tz={investments?.tz}
+            started_at={investments?.game_center?.started_at}
+            handleClaim={() => handleClaim("game_center")}
+            hideUpgrade={true}
+            {...investments?.game_center}
+            openAutoclaimModal={() => {
+              setAutoclaimModalData(autoclaimModalDataFixed)
+              setIsAutoClaimModalVisible(true)
+            }}
+            userParameters={userParameters}
+            handleStart={() => handleStart('game_center')}
+            isGameCenter={true}
+          />
+        </motion.div>
+      </>
+    )
+  }
+
+  return (
+    <Screen>
+      <HomeHeader />
+      <ScreenBody activity={translations.investments[lang]}>
+        {isModalVisible && (
+          <Modal
+            onClose={() => setIsModalVisible(false)}
+            data={modalData}
+            bottom={"0"}
+            width={"100%"}
+            height={"80%"}
+          />
+        )}
+
+        {autoClaimModalVisible && (
+          <AutoclaimModal
+            onClose={() => setIsAutoClaimModalVisible(false)}
+            data={autoclaimModalData}
+            bottom={"0"}
+            width={"100%"}
+            height={"80%"}
+          />
+        )}
+
+        {renderContent()}
       </ScreenBody>
     </Screen>
   )
-
 }
 
 export default InvestmentScreen
