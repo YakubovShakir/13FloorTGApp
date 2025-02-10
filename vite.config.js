@@ -1,11 +1,12 @@
 import { defineConfig } from "vite"
 import react from "@vitejs/plugin-react"
 import * as dotenv from "dotenv"
+import EnvironmentPlugin from 'vite-plugin-environment'
 
 dotenv.config()
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), EnvironmentPlugin('all', { loadEnvFiles: true })],
   server: {
     watch: {
       usePolling: true,
