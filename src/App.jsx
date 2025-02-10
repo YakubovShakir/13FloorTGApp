@@ -17,6 +17,7 @@ import Learning from "./screens/Learning/Learning";
 import BoostTab from "./screens/CareScreen/tabs/BoostTab";
 import { TonConnectUIProvider } from "@tonconnect/ui-react";
 import ForeignHome from "./screens/Home/ForeignHome";
+import { config } from "dotenv"
 
 const BlockerMessage = () => (
   <div style={{
