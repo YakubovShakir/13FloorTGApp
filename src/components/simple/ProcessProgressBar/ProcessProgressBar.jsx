@@ -5,16 +5,21 @@ import Assets from "../../../assets"
 import { getWorks } from "../../../services/work/work"
 import { checkCanStop, stopProcess } from "../../../services/process/process"
 import UserContext from "../../../UserContext"
-import { motion } from "framer-motion"
+import { motion, AnimatePresence } from "framer-motion"
 import FullScreenSpinner from "../../../screens/Home/FullScreenSpinner"
 import { useSettingsProvider } from "../../../hooks"
 
+// Pre-load audio files
 const COIN_SOUND = new Audio(
   "https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/coin.mp3"
 )
 const ALARM_SOUND = new Audio(
   "https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/alarm.mp3"
 )
+
+// Ensure audio files are loaded
+COIN_SOUND.load()
+ALARM_SOUND.load()
 
 const ProcessProgressBar = ({
   activeProcess,
@@ -23,19 +28,12 @@ const ProcessProgressBar = ({
   rate,
 }) => {
   const navigate = useNavigate()
-  console.log(activeProcess)
   const [percentage, setPercentage] = useState(() => {
     return (activeProcess.totalSecondsRemaining / activeProcess.totalSeconds) * 100
   })
   
-  const [labels, setLabels] = useState({
-    left: "",
-    right: "",
-  })
-  const [icons, setIcons] = useState({
-    left: null,
-    right: null,
-  })
+  const [labels, setLabels] = useState({ left: "", right: "" })
+  const [icons, setIcons] = useState({ left: null, right: null })
   const [showModal, setShowModal] = useState(false)
   const [hasAnimated, setHasAnimated] = useState(true)
   const [works, setWorks] = useState([])
@@ -43,6 +41,7 @@ const ProcessProgressBar = ({
   const { userId } = useContext(UserContext)
   const { lang, isSoundEnabled } = useSettingsProvider()
   const { userParameters } = useContext(UserContext)
+  const animationComplete = useRef(false)
 
   const translations = {
     confirm: {
@@ -67,133 +66,140 @@ const ProcessProgressBar = ({
     },
   }
 
-  const WorkIcon = ({ percentage, hasAnimated }) => {
-    return (
-      <>
-        {!hasAnimated ? (
-          <motion.img
-            height={20}
-            width={20}
-            src={Assets.Icons.balance}
-            key="animated-balance"
-            style={{ position: "absolute", top: 0, left: -16 }}
-            initial={{
-              y: -50,
-              opacity: 0,
-            }}
-            animate={{
-              y: 0,
-              opacity: 1,
-            }}
-            exit={{
-              opacity: 0,
-            }}
-            transition={{
-              duration: 1,
-              ease: "easeOut",
-            }}
-          />
-        ) : (
-          <img height={20} width={20} src={Assets.Icons.balance} />
-        )}
-      </>
-    )
-  }
-
-  const ClockIcon = ({ percentage, hasAnimated }) => {
-    const containerVariants = {
-      animate: {
-        x: [0, 2, 0, 3, 0],
-        y: [-2, 2, -1, 1, 0],
-        rotate: [-3, 3, -2, 2, 0],
-        transition: {
-          duration: 0.5,
-          ease: "easeInOut",
-          repeat: 1,
-        },
-      },
+  const WorkIcon = ({ shouldAnimate }) => {
+    if (!shouldAnimate) {
+      return <img height={20} width={20} src={Assets.Icons.balance} />
     }
 
     return (
-      <>
-        {!hasAnimated ? (
-          <motion.div
-            style={{ position: "absolute", top: 0, left: -16 }}
-            variants={containerVariants}
-            animate="animate"
-            initial={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-          >
-            <img
-              height={20}
-              width={20}
-              src={Assets.Icons.clock}
-              alt="Clock Icon"
-            />
-          </motion.div>
-        ) : (
-          <img
-            height={20}
-            width={20}
-            src={Assets.Icons.clock}
-            alt="Clock Icon"
-          />
-        )}
-      </>
+      <AnimatePresence>
+        <motion.img
+          height={20}
+          width={20}
+          src={Assets.Icons.balance}
+          key="animated-balance"
+          style={{ position: "absolute", top: 0, left: -16 }}
+          initial={{ y: -50, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 1, ease: "easeOut" }}
+          onAnimationComplete={() => {
+            animationComplete.current = true
+            setHasAnimated(true)
+          }}
+        />
+      </AnimatePresence>
     )
   }
 
-  // Consolidated data loading function
-  const loadProgressBarData = async () => {
+  const ClockIcon = ({ shouldAnimate }) => {
+    if (!shouldAnimate) {
+      return <img height={20} width={20} src={Assets.Icons.clock} alt="Clock Icon" />
+    }
+
+    return (
+      <AnimatePresence>
+        <motion.div
+          style={{ position: "absolute", top: 0, left: -16 }}
+          animate={{
+            x: [0, 2, 0, 3, 0],
+            y: [-2, 2, -1, 1, 0],
+            rotate: [-3, 3, -2, 2, 0],
+          }}
+          transition={{
+            duration: 0.5,
+            ease: "easeInOut",
+            repeat: 1,
+          }}
+          onAnimationComplete={() => {
+            animationComplete.current = true
+            setHasAnimated(true)
+          }}
+        >
+          <img height={20} width={20} src={Assets.Icons.clock} alt="Clock Icon" />
+        </motion.div>
+      </AnimatePresence>
+    )
+  }
+
+  const playSound = async (type) => {
+    if (!isSoundEnabled) return
+
+    const sound = type === "work" ? COIN_SOUND : ALARM_SOUND
     try {
-      // Load works if not already loaded
-      if (works.length === 0) {
-        const worksData = await getWorks()
-        setWorks(worksData)
-      }
-
-      // Find relevant work
-      const work = works.find((w) => w?.work_id === activeProcess?.type_id)
-
-      // Set labels based on process type
-      const labelMap = {
-        work: [
-          work?.name[lang] || "",
-          `${rate} +${activeProcess?.reward_at_the_end || ""}`,
-        ],
-        training: [translations.training[lang], rate],
-        sleep: [translations.longSleep[lang], rate],
-      }
-
-      const [leftLabel, rightLabel] = labelMap[activeProcess.type] || ["", ""]
-      
-      setLabels({
-        left: leftLabel,
-        right: rightLabel,
-      })
-
-      // Set icons based on process type
-      const iconMap = {
-        work: [null, Assets.Icons.balance],
-        training: [null, Assets.Icons.clock],
-        sleep: [null, Assets.Icons.clock],
-      }
-
-      const [leftIcon, rightIcon] = iconMap[activeProcess.type] || [null, null]
-      
-      setIcons({
-        left: leftIcon,
-        right: rightIcon,
-      })
+      await sound.play()
     } catch (error) {
-      console.error("Error loading progress bar data:", error)
+      console.error("Error playing sound:", error)
     }
+  }
+
+  const handleProcessCompletion = async () => {
+    if (animationComplete.current) return
+
+    setHasAnimated(false)
+    setPercentage(0)
+    
+    await playSound(activeProcess.type)
+
+    await new Promise(resolve => setTimeout(resolve, 1500))
+    setIsLoading(true)
+
+    while (true) {
+      try {
+        await new Promise(resolve => setTimeout(resolve, 500))
+        await checkCanStop(userId)
+        break
+      } catch (err) {
+        if (err.response?.status === 404) break
+        await new Promise(resolve => 
+          setTimeout(resolve, err.response?.data?.seconds_left * 1000 || 1000)
+        )
+      }
+    }
+
+    setTimeout(() => {
+      window.location.href = window.location.origin
+    }, 750)
   }
 
   // Load initial data
   useEffect(() => {
+    const loadProgressBarData = async () => {
+      try {
+        if (works.length === 0) {
+          const worksData = await getWorks()
+          setWorks(worksData)
+        }
+
+        const work = works.find((w) => w?.work_id === activeProcess?.type_id)
+
+        const labelMap = {
+          work: [
+            work?.name[lang] || "",
+            `${rate} +${activeProcess?.reward_at_the_end || ""}`,
+          ],
+          training: [translations.training[lang], rate],
+          sleep: [translations.longSleep[lang], rate],
+        }
+
+        const [leftLabel, rightLabel] = labelMap[activeProcess.type] || ["", ""]
+        setLabels({ left: leftLabel, right: rightLabel })
+
+        const iconMap = {
+          work: [null, Assets.Icons.balance],
+          training: [null, Assets.Icons.clock],
+          sleep: [null, Assets.Icons.clock],
+        }
+
+        const [leftIcon, rightIcon] = iconMap[activeProcess.type] || [null, null]
+        setIcons({ left: leftIcon, right: rightIcon })
+      } catch (error) {
+        console.error("Error loading progress bar data:", error)
+      }
+    }
+
     loadProgressBarData()
-  }, [activeProcess, rate])
+  }, [activeProcess, rate, works.length, lang])
 
   // Handle progress updates
   useEffect(() => {
@@ -203,37 +209,6 @@ const ProcessProgressBar = ({
 
     const newPercentage = (activeProcess.totalSecondsRemaining / activeProcess.totalSeconds) * 100
     setPercentage(newPercentage)
-
-    const handleProcessCompletion = async () => {
-      setHasAnimated(false)
-      setPercentage(0)
-
-      const soundToPlay = activeProcess.type === "work" ? COIN_SOUND : ALARM_SOUND
-      if (isSoundEnabled) {
-        soundToPlay.play()
-      }
-
-      await new Promise(resolve => setTimeout(resolve, 1500))
-      setIsLoading(true)
-      setHasAnimated(true)
-
-      while (true) {
-        try {
-          await new Promise(resolve => setTimeout(resolve, 500))
-          await checkCanStop(userId)
-          break
-        } catch (err) {
-          if (err.response?.status === 404) break
-          await new Promise(resolve => 
-            setTimeout(resolve, err.response?.data?.seconds_left * 1000 || 1000)
-          )
-        }
-      }
-
-      setTimeout(() => {
-        window.location.href = window.location.origin
-      }, 750)
-    }
 
     if (activeProcess.totalSecondsRemaining <= 1) {
       handleProcessCompletion()
@@ -249,17 +224,12 @@ const ProcessProgressBar = ({
         (activeProcess.type === "work" || activeProcess.type === 'training') && 
         userParameters?.energy === 0
 
-      if (isSleepFullyCharged || isWorkOrTrainingExhausted) {
+      if ((isSleepFullyCharged || isWorkOrTrainingExhausted) && !animationComplete.current) {
         setHasAnimated(false)
-        const soundToPlay = activeProcess.type === "work" ? COIN_SOUND : ALARM_SOUND
-        
-        if (isSoundEnabled) {
-          soundToPlay.play()
-        }
+        await playSound(activeProcess.type)
 
         setTimeout(async () => {
           setIsLoading(true)
-          setHasAnimated(true)
           
           while (true) {
             try {
@@ -274,19 +244,15 @@ const ProcessProgressBar = ({
             }
           }
 
-          setTimeout(() => {
-            window.location.href = window.location.origin
-          }, 0)
+          window.location.href = window.location.origin
         }, 1500)
       }
     }
 
     checkProcessCompletionByEnergy()
-  }, [activeProcess, userParameters, isSoundEnabled, userId])
+  }, [activeProcess, userParameters, userId])
 
-  const handleCloseModal = () => {
-    setShowModal(false)
-  }
+  const handleCloseModal = () => setShowModal(false)
 
   const handleConfirmClose = async () => {
     try {
@@ -319,38 +285,24 @@ const ProcessProgressBar = ({
 
   const displayPercentage = reverse ? 100 - percentage : percentage
 
-    // Early return if required props are missing
-    if (!activeProcess || !rate) {
-      return null
-    }
+  if (!activeProcess || !rate) {
+    return null
+  }
 
   return (
     <div className="progress-bar-container-fixed-top">
       <div className="progress-bar-container">
-        <div
-          className="progress-bar-wrapper"
-          style={{ width: "90%", float: "left" }}
-        >
+        <div className="progress-bar-wrapper" style={{ width: "90%", float: "left" }}>
           <div className="progress-bar-header">
-            <div className="progress-bar-icon-left">
-              {icons.left}
-            </div>
+            <div className="progress-bar-icon-left">{icons.left}</div>
             <div className="progress-bar-label-left">{labels.left}</div>
             <div className="progress-bar-label-right">{labels.right}</div>
             <div className="progress-bar-icon-right" style={{ right: "3%" }}>
               {activeProcess?.type === "work" && (
-                <WorkIcon
-                  percentage={percentage}
-                  hasAnimated={hasAnimated}
-                  key={"work"}
-                />
+                <WorkIcon shouldAnimate={!hasAnimated} key="work" />
               )}
               {(activeProcess?.type === "training" || activeProcess?.type === "sleep") && (
-                <ClockIcon
-                  percentage={percentage}
-                  hasAnimated={hasAnimated}
-                  key={"clock"}
-                />
+                <ClockIcon shouldAnimate={!hasAnimated} key="clock" />
               )}
             </div>
           </div>
@@ -394,7 +346,7 @@ const ProcessProgressBar = ({
             <p>{translations.confirm[lang]}</p>
             <div className="modal-buttons">
               <button
-                onClick={() => handleConfirmClose()}
+                onClick={handleConfirmClose}
                 style={{
                   border: "2px solid rgb(0, 255, 115)",
                   color: "rgb(0, 255, 115)",
@@ -403,7 +355,7 @@ const ProcessProgressBar = ({
                 {translations.yes[lang]}
               </button>
               <button
-                onClick={() => handleCloseModal()}
+                onClick={handleCloseModal}
                 style={{
                   color: "rgb(255, 0, 0)",
                   border: "2px solid rgb(255, 0, 0)",
