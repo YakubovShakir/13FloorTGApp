@@ -6,6 +6,7 @@ import { useEffect, useState, useRef, useCallback } from "react"
 import Assets from "../../../assets"
 import { claimTask, getTasks } from "../../../services/user/user"
 import { useSettingsProvider } from "../../../hooks"
+import { useUser } from "../../../UserContext"
 
 const TaskTab = ({ userId, userParameters, setUserParameters }) => {
 
@@ -79,10 +80,13 @@ const TaskTab = ({ userId, userParameters, setUserParameters }) => {
   const [tasks, setTasks] = useState(null)
   const currentUserId = useRef(userId)
 
+  const { refreshData } = useUser()
+
   const fetchTasks = useCallback(async () => {
     if (!currentUserId.current) return
 
     setIsLoading(true)
+    await refreshData()
     try {
       const fetchedTasks = await getTasks(currentUserId.current)
       let socialTasks = fetchedTasks.social_tasks
@@ -115,6 +119,7 @@ const TaskTab = ({ userId, userParameters, setUserParameters }) => {
     try {
       await claimTask(currentUserId.current, taskId)
       await fetchTasks()
+      await refreshData()
     } catch (error) {
       console.log('Failed claiming task')
     }
