@@ -146,7 +146,7 @@ const Modal = ({ bottom, left, width, height, data, onClose, logoWidth }) => {
   const { showNotification } = useNotification()
 
   const getRefLink = () => {
-    return  import.meta.env.VITE_NODE_ENV === 'test' ? `https://t.me/Floor13Game_bot?start=${userId}` : `https://t.me/Floor13th_bot?start=${userId}`
+    return  import.meta.env.VITE_NODE_ENV === 'test' ? `https://t.me/memecoin_multiplier3000_bot?start=${userId}` : `https://t.me/Floor13th_bot?start=${userId}`
   }
 
   return (
