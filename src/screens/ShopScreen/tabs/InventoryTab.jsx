@@ -177,7 +177,6 @@ const GridItem = ({
               display: "flex",
               justifyContent: "center",
               alignItems: "center",
-              
               color: 'white'
             }}
           >
