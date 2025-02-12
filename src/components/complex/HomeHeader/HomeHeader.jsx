@@ -563,14 +563,14 @@ const HomeHeader = ({ screenHeader }) => {
 
   const getLevelWidth = () => {
     if (userParameters && levels) {
-      const { level, total_earned: earned } = userParameters
+      const { level, experience: earned } = userParameters
       const nextLevelRequirement = levels?.find(
         (level) => level?.level === userParameters?.level + 1
-      )?.required_earned
+      )?.experience_required
       const thisLevelRequirement =
         level > 0
           ? levels?.find((level) => level?.level === userParameters?.level)
-              ?.required_earned
+              ?.experience_required
           : 0
 
       return (
