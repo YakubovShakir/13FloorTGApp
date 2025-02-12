@@ -242,7 +242,7 @@ const ForeignHome = () => {
                     <div style={{ display: 'flex', width: '100%', alignItems: 'center', justifyContent: 'center', gap: 16, paddingTop: 12 }}>
                         <div style={{display: 'flex' }}>
                             <img src={Assets.Icons.balance} width={15}/>
-                            <p style={{ paddingLeft: 8 }}>{formatCoins(Math.floor(userParameters.coins))}</p>
+                            <p style={{ paddingLeft: 8 }}>{formatCoins(Math.floor(userParameters.total_earned))}</p>
                         </div>
                         <div style={{display: 'flex' }}>
                             <img src={Assets.Icons.respect} width={15}/>
