@@ -50,8 +50,8 @@ const BlockerMessage = () => (
           This dApp is only available on Telegram mobile app.
         </p>
       </div>
-      
-      <p style={{ 
+
+      <p style={{
         margin: '16px 0',
         color: '#4b5563',
         fontSize: '14px'
@@ -68,7 +68,7 @@ const TelegramPlatformCheck = ({ children }) => {
   useEffect(() => {
     const checkPlatform = () => {
       const tg = window.Telegram?.WebApp;
-      
+
       if (!tg) {
         setShouldBlock(true);
         return;
@@ -77,7 +77,7 @@ const TelegramPlatformCheck = ({ children }) => {
       const platform = (tg.platform || '').toLowerCase();
       // Only allow ios and android explicitly
       const isMobileApp = /^(android|ios)$/.test(platform);
-      
+
       setShouldBlock(!isMobileApp);
 
       if (!isMobileApp) {
@@ -100,42 +100,43 @@ const TelegramPlatformCheck = ({ children }) => {
 function App() {
   useEffect(() => {
     const hash = window.location.hash;
-    
+
     // Check if the hash parameter already exists
     if (!hash.includes('tgWebAppVersion')) {
       // If there's an existing hash, append to it, otherwise create new hash
-      const newHash = hash 
+      const newHash = hash
         ? `${hash}&tgWebAppVersion=7.6`
         : '#tgWebAppVersion=7.6';
-        
+
       // Update the hash without causing a page reload
       window.history.replaceState(null, '', newHash);
     }
   }, []);
-  
+
   return (
     // <TelegramPlatformCheck>
-    <TonConnectUIProvider manifestUrl="https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/tonconnect-manifest.json">
-     <SettingsProvider>
-      <MemoryRouter>
-          <Routes>
-            {/* <Route index element={<StartCustomize />} /> */}
-            <Route path="/" exact element={<Home/>}/>
-            <Route path="/learning/:slideIndex?" element={<Learning/>}/>
-            <Route path="/personage-create" element={<PersonageCreationScreen />} />
-            {/* <Route index element={<PersonageCreationScreen />} /> */}
-            <Route path="/care" element={<CareScreen />} />
-            <Route path="/shop" element={<ShopScreen />} />
-            <Route path="/activity/:type" element={<ActivityScreen />} />
-            <Route path="/tasks/:tab?" element={<TaskScreen />} />
-            <Route path="/action" element={<ActionScreen/>} />
-            <Route path="/investment" element={<InvestmentScreen/>} />
-            <Route path="/boost" element={<BoostTab/>} />
-            <Route path="/foreign-user/:userId" element={< ForeignHome />} />
-          </Routes>
-        </MemoryRouter>
-     </SettingsProvider>
-    </TonConnectUIProvider>
+      <TonConnectUIProvider manifestUrl="https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/tonconnect-manifest.json">
+        <SettingsProvider>
+          <MemoryRouter>
+            <Routes>
+              {/* <Route index element={<StartCustomize />} /> */}
+              <Route path="/" exact element={<Home />} />
+              <Route path="/learning/:slideIndex?" element={<Learning />} />
+              <Route path="/personage-create" element={<PersonageCreationScreen />} />
+              {/* <Route index element={<PersonageCreationScreen />} /> */}
+              <Route path="/care" element={<CareScreen />} />
+              <Route path="/shop" element={<ShopScreen />} />
+              <Route path="/activity/:type" element={<ActivityScreen />} />
+              <Route path="/tasks/:tab?" element={<TaskScreen />} />
+              <Route path="/action" element={<ActionScreen />} />
+              <Route path="/investment" element={<InvestmentScreen />} />
+              <Route path="/boost" element={<BoostTab />} />
+              <Route path="/foreign-user/:userId" element={< ForeignHome />} />
+            </Routes>
+          </MemoryRouter>
+        </SettingsProvider>
+      </TonConnectUIProvider>
+    // </TelegramPlatformCheck>
   )
 }
 
