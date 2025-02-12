@@ -22,17 +22,10 @@ const ProcessProgressBar = ({
   reverse = false,
   rate,
 }) => {
-  // Early return if required props are missing
-  if (!activeProcess || !rate) {
-    return null
-  }
-
   const navigate = useNavigate()
+  console.log(activeProcess)
   const [percentage, setPercentage] = useState(() => {
-    if (activeProcess?.totalSeconds && activeProcess?.totalSecondsRemaining) {
-      return (activeProcess.totalSecondsRemaining / activeProcess.totalSeconds) * 100
-    }
-    return 100
+    return (activeProcess.totalSecondsRemaining / activeProcess.totalSeconds) * 100
   })
   
   const [labels, setLabels] = useState({
@@ -200,7 +193,7 @@ const ProcessProgressBar = ({
   // Load initial data
   useEffect(() => {
     loadProgressBarData()
-  }, [activeProcess, rate, lang, works.length])
+  }, [activeProcess, rate])
 
   // Handle progress updates
   useEffect(() => {
@@ -325,6 +318,11 @@ const ProcessProgressBar = ({
   }
 
   const displayPercentage = reverse ? 100 - percentage : percentage
+
+    // Early return if required props are missing
+    if (!activeProcess || !rate) {
+      return null
+    }
 
   return (
     <div className="progress-bar-container-fixed-top">

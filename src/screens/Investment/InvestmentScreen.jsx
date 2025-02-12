@@ -346,7 +346,7 @@ const ThreeSectionCard = ({
   onCollect,
   has_autoclaim,
   current_level = 1,
-  started_at = "2024-12-23T08:02:40.126Z",
+  started_at,
   tz = "Europe/Moscow",
   upgrade_info = {
     price: 200,

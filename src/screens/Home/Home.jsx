@@ -22,6 +22,7 @@ import FullScreenSpinner from "./FullScreenSpinner"
 import getBgByCurrentProcess from "./getBgByCurrentProcess"
 import moment from "moment-timezone"
 import { useVisibilityChange, useWindowFocus } from "../../hooks/userActivities"
+import formatTime from "../../utils/formatTime"
 
 
 const Home = () => {
@@ -73,10 +74,10 @@ const Home = () => {
       setState(prev => ({ ...prev, isStoppingProcess: true }))
       await stopProcess(userId)
       if (mountedRef.current) {
-        setState(prev => ({ 
-          ...prev, 
+        setState(prev => ({
+          ...prev,
           currentProcess: null,
-          isStoppingProcess: false 
+          isStoppingProcess: false
         }))
         navigate("/")
       }
@@ -100,7 +101,7 @@ const Home = () => {
       Assets.BG.backgroundSun,
       Assets.BG.winter
     ]
-  
+
     return Promise.all(
       imageUrls.map((url) => {
         return new Promise((resolve) => {
@@ -115,11 +116,19 @@ const Home = () => {
 
   const initializeProcess = async () => {
     try {
-      console.warn(Date.now())
+      if (!mountedRef.current) return
+
       const process = await getUserActiveProcess(userId)
-      
+
+      // Important: Set current process to null first
+      setState(prev => ({ ...prev, currentProcess: null }))
+
+      // Wait a frame to ensure the null state is processed
+      await new Promise(resolve => requestAnimationFrame(resolve))
+
+      if (!mountedRef.current) return
+
       if (!process) {
-        setState(prev => ({ ...prev, currentProcess: null }))
         return
       }
 
@@ -127,7 +136,9 @@ const Home = () => {
         getTrainingParameters(userId),
         getLevels()
       ])
-      
+
+      if (!mountedRef.current) return
+
       setState(prev => ({
         ...prev,
         currentProcess: process,
@@ -136,13 +147,122 @@ const Home = () => {
       }))
     } catch (error) {
       console.error("Error initializing process:", error)
-      setState(prev => ({ ...prev, currentProcess: null }))
+      if (mountedRef.current) {
+        setState(prev => ({ ...prev, currentProcess: null }))
+      }
     }
   }
 
+  const [processStartTime, setProcessStartTime] = useState(null); // Store the start time
+
+  function formatTime(seconds) {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+
+    const formattedMinutes = minutes < 10 ? '0' + minutes : minutes;  // Pad minutes
+    const formattedSeconds = remainingSeconds < 10 ? '0' + remainingSeconds : remainingSeconds; // Pad seconds
+
+    return `${formattedMinutes}:${formattedSeconds}`;
+  }
+
+  useEffect(() => {
+    let timerInterval;
+
+    if (state.currentProcess?.active && mountedRef.current) {
+      timerInterval = setInterval(() => {
+        if (!mountedRef.current) return;
+
+        const now = moment();
+        const elapsedSeconds = now.diff(state.currentProcess.createdAt, 'seconds');
+        console.log(processStartTime)
+        const totalSeconds = state.currentProcess.target_duration_in_seconds || state.currentProcess.base_duration_in_seconds;
+        const remainingSeconds = Math.max(0, totalSeconds - elapsedSeconds);
+
+        const updatedProcess = {
+          ...state.currentProcess,
+          totalSecondsRemaining: remainingSeconds,
+          formattedTime: formatTime(remainingSeconds),
+          totalSeconds,
+        };
+
+        setProgressRate(updatedProcess.formattedTime); // Now this should work
+
+        if (remainingSeconds <= 0) {
+          clearInterval(timerInterval);
+          // setState(prev => ({ ...prev, currentProcess: null }));
+          // requestAnimationFrame(initializeProcess);
+          // setProcessStartTime(null);
+        } else {
+          setState(prev => ({
+            ...prev,
+            currentProcess: updatedProcess
+          }));
+        }
+      }, 1000);
+    } else {
+      clearInterval(timerInterval);
+      setProcessStartTime(null);
+      setProgressRate(null); // Reset progress when inactive
+    }
+
+    return () => clearInterval(timerInterval);
+  }, [state.currentProcess?.active]);
+
+
+  // Add a background transition effect
+  const renderScene = (content) => (
+    <AnimatePresence mode="wait">
+      <motion.div
+        className="Home"
+        key={state.currentProcess?.type || "default"}
+        style={{
+          position: "absolute",
+          height: "100%",
+          width: "100%",
+          overflow: "hidden",
+        }}
+      >
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.3 }}
+          style={{
+            filter: "blur(1px)",
+            position: "absolute",
+            height: "53%",
+            width: "53%",
+            backgroundImage: `url(${Assets.BG.winter})`,
+            backgroundSize: "cover",
+            backgroundPosition: "center right",
+            zIndex: 0,
+          }}
+        />
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.3 }}
+          style={{
+            position: "absolute",
+            height: "100%",
+            width: "100%",
+            backgroundImage: state.currentProcess?.type
+              ? getBgByCurrentProcess(state.currentProcess.type, state.currentProcess?.type_id)
+              : `url(${Assets.BG.homeBackground})`,
+            backgroundSize: "cover",
+            backgroundPosition: "bottom right",
+            zIndex: 0,
+          }}
+        />
+        {content}
+      </motion.div>
+    </AnimatePresence>
+  )
+
   useEffect(() => {
     if (!isInitialized) return
-    
+
     const initialize = async () => {
       setIsLoading(true)
 
@@ -169,56 +289,18 @@ const Home = () => {
     initialize()
   }, [isInitialized])
 
-    useVisibilityChange(() => {
-      console.log(document.visibilityState)
-      if (mountedRef.current && document.visibilityState === 'visible') {
-        initializeProcess()
-        setProgressRate(null) // Force reset progress
-      }
-    })
+  useVisibilityChange(() => {
+    console.log(document.visibilityState)
+    if (mountedRef.current && document.visibilityState === 'visible') {
+      initializeProcess()
+    }
+  })
 
-    useWindowFocus(() => {
-      if (mountedRef.current) {
-        initializeProcess()
-      }
-    })
-
-  // Modify your existing process tracking useEffect:
-  useEffect(() => {
-    if (!state.currentProcess?.active || !mountedRef.current) return
-
-    const timerInterval = updateProcessTimers(
-      state.currentProcess,
-      (updatedProcess) => {
-        if (!mountedRef.current) return
-        
-        setProgressRate(updatedProcess.formattedTime)
-        
-        const totalSeconds = state.currentProcess.target_duration_in_seconds || 
-                           state.currentProcess.base_duration_in_seconds
-        
-        if(updatedProcess.totalSecondsRemaining <= 0) {
-          initializeProcess()
-        } else {
-          setState(prev => ({
-            ...prev,
-            currentProcess: {
-              ...updatedProcess,
-              // Add actual timestamp verification
-              totalSecondsRemaining: Math.max(0, 
-                totalSeconds - moment().diff(moment(updatedProcess.createdAt), 'seconds')
-              )
-            }
-          }))
-        }
-      },
-      true
-    )
-
-    return () => clearInterval(timerInterval)
-  }, [state.currentProcess?.active]) // More specific dependency
-
-    
+  // useWindowFocus(() => {
+  //   if (mountedRef.current) {
+  //     initializeProcess()
+  //   }
+  // })
 
   const renderProcessProgressBar = (
     process,
@@ -238,7 +320,7 @@ const Home = () => {
 
   useEffect(() => {
     if (!isInitialized) return
-    
+
     const initialize = async () => {
       if (JSON.stringify(userPersonage) === "{}") {
         navigate("/learning")
@@ -270,61 +352,18 @@ const Home = () => {
     return <FullScreenSpinner />
   }
 
-  const renderScene = (content) => (
-    <AnimatePresence mode="wait">
-      <motion.div
-        className="Home"
-        key={state.currentProcess?.type || "default"}
-        style={{
-          position: "absolute",
-          height: "100%",
-          width: "100%",
-          overflow: "hidden",
-        }}
-      >
-        <motion.div
-          style={{
-            filter: "blur(1px)",
-            position: "absolute",
-            height: "53%",
-            width: "53%",
-            backgroundImage: `url(${Assets.BG.winter})`,
-            backgroundSize: "cover",
-            backgroundPosition: "center right",
-            zIndex: 0,
-          }}
-        />
-        <motion.div
-          style={{
-            position: "absolute",
-            height: "100%",
-            width: "100%",
-            backgroundImage: state.currentProcess?.type
-              ? getBgByCurrentProcess(state.currentProcess.type, state.currentProcess?.type_id)
-              : `url(${Assets.BG.homeBackground})`,
-            backgroundSize: "cover",
-            backgroundPosition: "bottom right",
-            zIndex: 0,
-          }}
-        />
-        {content}
-      </motion.div>
-    </AnimatePresence>
-  )
-
-  
   if (!isInitialized) {
     return <FullScreenSpinner />
   } else {
     if (state?.currentProcess === null || state.currentProcess.type === 'skill' || state.currentProcess.type === 'food') {
       return renderScene(
         <>
-           <HomeHeader
-              onClick={() => setState(prev => ({ 
-                ...prev, 
-                visibleSettingsModal: !prev.visibleSettingsModal 
-              }))}
-            />
+          <HomeHeader
+            onClick={() => setState(prev => ({
+              ...prev,
+              visibleSettingsModal: !prev.visibleSettingsModal
+            }))}
+          />
           <img className="shelf1" src={Assets.HOME.shelf} alt="shelf1" />
           <img className="shelf2" src={Assets.HOME.shelf} alt="shelf2" />
           <img className="couch" src={Assets.HOME.couch} alt="couch" />
@@ -339,78 +378,78 @@ const Home = () => {
             />
           </div>
           <Menu hasBg={false} />
-        
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3, delay: 0.2 }}
-              className="HomeInventory"
-            >
-              {userShelf && (
-                <>
-                  <div className="shelf-container1">
-                    {userShelf.flower?.shelf_link && (
-                      <img
-                        className="shelf-flower"
-                        src={userShelf.flower.shelf_link}
-                        alt="flower"
-                      />
-                    )}
-                    {userShelf.award?.shelf_link && (
-                      <img
-                        className="shelf-award"
-                        src={userShelf.award.shelf_link}
-                        alt="award"
-                      />
-                    )}
-                    {userShelf.event?.shelf_link && (
-                      <img
-                        className="shelf-event"
-                        src={userShelf.event.shelf_link}
-                        alt="event"
-                      />
-                    )}
-                  </div>
-                  <div className="shelf-container2">
-                    {userShelf.neko?.shelf_link && (
-                      <img
-                        className="shelf-neko"
-                        src={userShelf.neko.shelf_link}
-                        alt="neko"
-                      />
-                    )}
-                    {userShelf.flag?.shelf_link && (
-                      <img
-                        className="shelf-flag"
-                        src={userShelf.flag.shelf_link}
-                        alt="flag"
-                      />
-                    )}
-                  </div>
-                </>
-              )}
-            </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: 0.2 }}
+            className="HomeInventory"
+          >
+            {userShelf && (
+              <>
+                <div className="shelf-container1">
+                  {userShelf.flower?.shelf_link && (
+                    <img
+                      className="shelf-flower"
+                      src={userShelf.flower.shelf_link}
+                      alt="flower"
+                    />
+                  )}
+                  {userShelf.award?.shelf_link && (
+                    <img
+                      className="shelf-award"
+                      src={userShelf.award.shelf_link}
+                      alt="award"
+                    />
+                  )}
+                  {userShelf.event?.shelf_link && (
+                    <img
+                      className="shelf-event"
+                      src={userShelf.event.shelf_link}
+                      alt="event"
+                    />
+                  )}
+                </div>
+                <div className="shelf-container2">
+                  {userShelf.neko?.shelf_link && (
+                    <img
+                      className="shelf-neko"
+                      src={userShelf.neko.shelf_link}
+                      alt="neko"
+                    />
+                  )}
+                  {userShelf.flag?.shelf_link && (
+                    <img
+                      className="shelf-flag"
+                      src={userShelf.flag.shelf_link}
+                      alt="flag"
+                    />
+                  )}
+                </div>
+              </>
+            )}
+          </motion.div>
           {state.visibleWindow && (
             <Window
               title={state.currentWindow.title}
               data={state.currentWindow.data}
               tabs={state.currentWindow.tabs}
-              onClose={() => setState(prev => ({...prev, visibleWindow: false}))}
+              onClose={() => setState(prev => ({ ...prev, visibleWindow: false }))}
             />
           )}
         </>
       )
     }
-  
+
     if (state.currentProcess?.type === "work") {
       return renderScene(
         <>
-         <HomeHeader
-              onClick={() => setState(prev => ({ 
-                ...prev, 
-                visibleSettingsModal: !prev.visibleSettingsModal 
-              }))}
-            />
+          <HomeHeader
+            onClick={() => setState(prev => ({
+              ...prev,
+              visibleSettingsModal: !prev.visibleSettingsModal
+            }))}
+          />
           <Player
             bottom="calc(-1vh + 141px)"
             width="39vw"
@@ -432,22 +471,22 @@ const Home = () => {
               title={state.currentWindow.title}
               data={state.currentWindow.data}
               tabs={state.currentWindow.tabs}
-              onClose={() => setState(prev => ({...prev, visibleWindow: false}))}
+              onClose={() => setState(prev => ({ ...prev, visibleWindow: false }))}
             />
           )}
         </>
       )
     }
-  
+
     if (state.currentProcess?.type === "training") {
       return renderScene(
         <>
           <HomeHeader
-              onClick={() => setState(prev => ({ 
-                ...prev, 
-                visibleSettingsModal: !prev.visibleSettingsModal 
-              }))}
-            />
+            onClick={() => setState(prev => ({
+              ...prev,
+              visibleSettingsModal: !prev.visibleSettingsModal
+            }))}
+          />
           <Player
             bottom="calc(-1vh + 141px)"
             width="39vw"
@@ -470,22 +509,22 @@ const Home = () => {
               title={state.currentWindow.title}
               data={state.currentWindow.data}
               tabs={state.currentWindow.tabs}
-              onClose={() => setState(prev => ({...prev, visibleWindow: false}))}
+              onClose={() => setState(prev => ({ ...prev, visibleWindow: false }))}
             />
           )}
         </>
       )
     }
-  
+
     if (state.currentProcess?.type === "sleep") {
       return renderScene(
         <>
-         <HomeHeader
-              onClick={() => setState(prev => ({ 
-                ...prev, 
-                visibleSettingsModal: !prev.visibleSettingsModal 
-              }))}
-            />
+          <HomeHeader
+            onClick={() => setState(prev => ({
+              ...prev,
+              visibleSettingsModal: !prev.visibleSettingsModal
+            }))}
+          />
           <Player
             bottom={"calc(-468px )"}
             width="81vw"
@@ -523,7 +562,7 @@ const Home = () => {
               title={state.currentWindow.title}
               data={state.currentWindow.data}
               tabs={state.currentWindow.tabs}
-              onClose={() => setState(prev => ({...prev, visibleWindow: false}))}
+              onClose={() => setState(prev => ({ ...prev, visibleWindow: false }))}
             />
           )}
         </>

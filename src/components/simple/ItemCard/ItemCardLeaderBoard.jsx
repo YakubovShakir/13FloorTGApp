@@ -3,26 +3,33 @@ import { motion } from "framer-motion"
 import Button from "../Button/Button"
 import { useEffect, useState } from "react"
 import Assets from "../../../assets"
+import { useSettingsProvider } from "../../../hooks"
 
 const { Icons } = Assets
 const { Images } = Assets
 const ItemCard = ({
-  ItemIcon,
   ItemTitle,
   ItemParamsBlocks,
   ItemButtons,
   ItemIndex,
   ItemDescription,
   ItemAmount = undefined,
-  ItemBottomAmount,
-  isWaiting = false, // Это флаг ожидания
   ItemNumberLeader,
   ItemTotalEarned,
   ItemRespect,
   ItemGender,
+  ItemUsername
 }) => {
   // Определяем, активна ли хотя бы одна кнопка
   const isAnyButtonActive = ItemButtons.some((button) => button.active)
+
+  const { lang } = useSettingsProvider()
+  const translations = {
+    anonUser: {
+      en: 'Anonymous Telegram User',
+      ru: 'Анонимный пользователь Telegram'
+    }
+  }
 
   // Логика для установки обводки
   let borderStyle = "" // Стандартный цвет обводки (неактивная кнопка)
@@ -39,12 +46,6 @@ const ItemCard = ({
       className="ItemCardLeader"
       // Применяем обводку в зависимости от состояния
     >
-      {ItemAmount && (
-        <div className="ItemCardAmountLeader" style={{ color: "white" }}>
-          {ItemAmount}
-        </div>
-      )}
-
       <div className="ItemDataLeader">
         <span className="ItemNuberLeader">{ItemNumberLeader}</span>
         <div className="WireframeGridLeader"></div> {/* Добавлено сюда */}
@@ -68,6 +69,7 @@ const ItemCard = ({
           style={{ border: borderStyle, backgroundColor: backgroundColor }}
         >
           {ItemTitle}
+          <p style={{ fontSize: 13, color: '' }}>{!ItemUsername ? translations.anonUser[lang] : '@' + ItemUsername}</p>
 
           {/* ItemParams Section */}
           <div className="ItemCardParamsLeader">

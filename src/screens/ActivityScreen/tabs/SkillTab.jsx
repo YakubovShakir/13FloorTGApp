@@ -142,51 +142,96 @@ const SkillTab = ({
   }
 
   const { refreshData } = useUser()
-
-  // Handle buy skill
-  const handleBuySkill = async (skill, sub_type = null) => {
-    await startProcess("skill", userId, sub_type !== null ? skill.next?.id : skill.skill_id, sub_type)
-    getSkills().then((r) => {
-      setSkills(r.filter(skill => skill.requiredLevel <= userParameters.level))
-    }) // Get list of skills
-    getProcesses("skill", userId).then((r) => setUserLearningSkills(r)) // Get current learning skills
-    getUserSkills(userId).then((r) => setUserLearnedSkills(r)) // Get list of user skills
-    getUserConstantEffects(userId).then((r) => {
-      setEffects(r)
-    }) // Get list of user constant effects
-    setVisibleModal(false)
-  }
-
   useEffect(() => {
     if (!modalData) return;
-
+  
+    // Only update if we're actually showing a skill modal
     if (modalData?.type === "skill") {
       if (modalData?.sub_type === 'constant_effects') {
-        const learning = userLearningSkills?.find(
-          (skill) => skill?.type_id === modalData?.id && skill.sub_type === 'constant_effects'
-        )
-
-        if (learning && effects?.work_duration_decrease?.current) {
-          const updatedModalData = setEffectModalData(effects.work_duration_decrease.current)
-          if (updatedModalData) {
+        // Find the correct effect by iterating through all effects
+        const effectEntry = Object.entries(effects || {}).find(([key, effect]) => 
+          effect?.next?.id === modalData.id || effect?.current?.id === modalData.id
+        );
+        
+        if (effectEntry) {
+          const [effectKey, currentEffect] = effectEntry;
+          const updatedModalData = setEffectModalData(currentEffect)
+          if (updatedModalData && updatedModalData.id === modalData.id) {
             setModalData(updatedModalData)
           }
         }
       } else {
-        const learning = userLearningSkills?.find(
-          (skill) => skill?.type_id === modalData?.id
+        // Regular skills handling remains the same
+        const currentSkill = skills?.find(
+          (skill) => skill?.skill_id === modalData?.id
         )
-
-        if (learning) {
-          const learningSkill = skills?.find(
-            (skill) => skill?.skill_id === learning?.type_id
-          )
-          setModalData(setSkillModalData(learningSkill))
+        
+        if (currentSkill) {
+          const updatedModalData = setSkillModalData(currentSkill)
+          if (updatedModalData && updatedModalData.id === modalData.id) {
+            setModalData(updatedModalData)
+          }
         }
       }
     }
-  }, [userLearningSkills, effects])
-
+  }, [userLearningSkills, effects, skills, userParameters])
+  
+  // Update handleBuySkill to handle any effect type
+  const handleBuySkill = async (skill, sub_type = null) => {
+    try {
+      const skillId = sub_type !== null ? skill.next?.id : skill.skill_id
+      await startProcess("skill", userId, skillId, sub_type)
+      
+      const [
+        newSkills,
+        newProcesses,
+        newUserSkills,
+        newEffects,
+        newBoosts
+      ] = await Promise.all([
+        getSkills(),
+        getProcesses("skill", userId),
+        getUserSkills(userId),
+        getUserConstantEffects(userId),
+        getUserBoosts(userId)
+      ])
+  
+      // Update all state variables
+      setSkills(newSkills)
+      setUserLearningSkills(newProcesses)
+      setUserLearnedSkills(newUserSkills)
+      setEffects(newEffects)
+      setUserBoosts(newBoosts)
+  
+      // Only update modal if we're still looking at the same skill/effect
+      if (modalData && modalData.id === skillId) {
+        if (sub_type === 'constant_effects') {
+          // Find the correct effect in the new effects data
+          const effectEntry = Object.entries(newEffects || {}).find(([key, effect]) => 
+            effect?.next?.id === skillId || effect?.current?.id === skillId
+          );
+          
+          if (effectEntry) {
+            const [effectKey, updatedEffect] = effectEntry;
+            const newModalData = setEffectModalData(updatedEffect)
+            if (newModalData && newModalData.id === modalData.id) {
+              setModalData(newModalData)
+            }
+          }
+        } else {
+          const updatedSkill = newSkills.find(s => s.skill_id === skillId)
+          if (updatedSkill) {
+            const newModalData = setSkillModalData(updatedSkill)
+            if (newModalData && newModalData.id === modalData.id) {
+              setModalData(newModalData)
+            }
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error in handleBuySkill:', error)
+    }
+  }
 
   const getButtonInfo = (skill) => {
     const learning = checkLearningSkill(skill?.skill_id)
@@ -303,7 +348,7 @@ const SkillTab = ({
 
               setUserBoosts(boosts)
               setEffects(constantEffects)
-              setSkills(skills.filter(skill => skill.requiredLevel <= userParameters.level))
+              setSkills(skills)
               setUserLearningSkills(processes)
               setActiveProcess(activeProcess)
               setUserLearnedSkills(userSkills)
@@ -331,7 +376,7 @@ const SkillTab = ({
 
               setUserBoosts(boosts)
               setEffects(constantEffects)
-              setSkills(skills.filter(skill => skill.requiredLevel <= userParameters.level))
+              setSkills(skills)
               setUserLearningSkills(processes)
               setActiveProcess(activeProcess)
               setUserLearnedSkills(userSkills)
@@ -425,12 +470,11 @@ const SkillTab = ({
 
               setUserBoosts(boosts)
               setEffects(constantEffects)
-              setSkills(skills.filter(skill => skill.requiredLevel <= userParameters.level))
+              setSkills(skills)
               setUserLearningSkills(processes)
               setActiveProcess(activeProcess)
               setUserLearnedSkills(userSkills)
               setIsInitialized(true)
-              setVisibleModal(false)
             })
           },
           {
@@ -453,12 +497,11 @@ const SkillTab = ({
 
               setUserBoosts(boosts)
               setEffects(constantEffects)
-              setSkills(skills.filter(skill => skill.requiredLevel <= userParameters.level))
+              setSkills(skills)
               setUserLearningSkills(processes)
               setActiveProcess(activeProcess)
               setUserLearnedSkills(userSkills)
               setIsInitialized(true)
-              setVisibleModal(false)
             })
           },
         ] : []) // If not learning, spread an empty array (no additional buttons)
@@ -577,12 +620,11 @@ const SkillTab = ({
           setEffects(r)
         }).catch(r => console.log('error', r)) // Get list of user constant effects
         getSkills().then((r) => {
-          setSkills(r.filter(skill => skill.requiredLevel <= userParameters.level))
+          setSkills(r)
         }) // Get list of skills
 
         getActiveProcess(userId).then((r) => setActiveProcess(r)) // Get active training if exist
         getUserSkills(userId).then((r) => setUserLearnedSkills(r)) // Get list of user skills
-
       }
     )
 
@@ -606,10 +648,10 @@ const SkillTab = ({
 
   return (
     <ScreenContainer withTab>
-      {/* List of skills*/}
-      {skills?.filter((a) => checkLearningSkill(a.skill_id)).map((skill, index) => (
+      {/* Currently Learning Items (both skills and effects) */}
+      {skills?.filter(a => checkLearningSkill(a.skill_id) && !checkLearnedSkill(a.skill_id)).map((skill, index) => (
         <ItemCard
-          key={index}
+          key={`learning-skill-${skill.skill_id}`}
           ItemIcon={skill?.link}
           ItemTitle={skill.name[lang]}
           ItemDescription={skill?.description && skill?.description[lang]}
@@ -618,54 +660,73 @@ const SkillTab = ({
           ItemIndex={index + 1}
         />
       ))}
-      {skills?.filter((a) => !checkLearningSkill(a.skill_id) && !checkLearnedSkill(a.skill_id)).map((skill, index) => (
-        <ItemCard
-          key={index}
-          ItemIcon={skill?.link}
-          ItemTitle={skill.name[lang]}
-          ItemDescription={skill?.description && skill?.description[lang]}
-          ItemParamsBlocks={getItemSkillParamsBlock(skill)}
-          ItemButtons={getItemSkillButton(skill)}
-          ItemIndex={index + 1}
-        />
-      ))}
-
-      {effects && isInitialized ? Object.keys(effects).map((key, index) => {
-        const effect = effects[key];
-
-        // Check if the effect object exists and has the necessary data
-        if (effect && effect.next) {
-          const displayEffect = effect.current || effect.next; // Prioritize current, fallback to next
+  
+      {effects && isInitialized ? Object.entries(effects)
+        .filter(([key, effect]) => effect?.next && checkLearningEffect(effect?.next?.id))
+        .map(([key, effect], index) => {
+          const displayEffect = effect.current || effect.next;
           return (
             <ItemCard
+              key={`learning-effect-${displayEffect.id}`}
               ItemIcon={displayEffect.link}
-              ItemTitle={displayEffect.name[lang]} // Fallback to key if names are missing
-              ItemDescription={displayEffect.description[lang]} // Empty string if no description
+              ItemTitle={displayEffect.name[lang]}
+              ItemDescription={displayEffect.description[lang]}
               ItemParamsBlocks={getItemEffectsParamsBlock(effect)}
               ItemButtons={getItemEffectButton(effect)}
               ItemBottomAmount={(lang === 'en' ? 'Level ' : 'Уровень ') + (effect.current?.level || 0)}
-              ItemIndex={index} // Calculate index dynamically
+              ItemIndex={index + 1}
             />
           );
-        }
-        return null; // Return null if the effect data is missing to avoid rendering issues
       }) : null}
-
-      {skills?.filter((a) => !checkLearningSkill(a.skill_id) && checkLearnedSkill(a.skill_id)).map((skill, index) => (
-        <ItemCard
-          key={index}
-          ItemIcon={skill?.link}
-          ItemTitle={skill.name[lang]}
-          ItemDescription={skill?.description && skill?.description[lang]}
-          ItemParamsBlocks={getItemSkillParamsBlock(skill)}
-          ItemButtons={getItemSkillButton(skill)}
-          ItemIndex={index + 1}
-        />
+  
+      {/* Available (not learned/learning) Skills */}
+      {skills?.filter(a => !checkLearningSkill(a.skill_id) && !checkLearnedSkill(a.skill_id))
+        .map((skill, index) => (
+          <ItemCard
+            key={`available-skill-${skill.skill_id}`}
+            ItemIcon={skill?.link}
+            ItemTitle={skill.name[lang]}
+            ItemDescription={skill?.description && skill?.description[lang]}
+            ItemParamsBlocks={getItemSkillParamsBlock(skill)}
+            ItemButtons={getItemSkillButton(skill)}
+            ItemIndex={index + 1}
+          />
       ))}
-
-
+  
+      {/* Available Effects */}
+      {effects && isInitialized ? Object.entries(effects)
+        .filter(([key, effect]) => effect?.next && !checkLearningEffect(effect?.next?.id))
+        .map(([key, effect], index) => {
+          const displayEffect = effect.current || effect.next;
+          return (
+            <ItemCard
+              key={`available-effect-${displayEffect.id}`}
+              ItemIcon={displayEffect.link}
+              ItemTitle={displayEffect.name[lang]}
+              ItemDescription={displayEffect.description[lang]}
+              ItemParamsBlocks={getItemEffectsParamsBlock(effect)}
+              ItemButtons={getItemEffectButton(effect)}
+              ItemBottomAmount={(lang === 'en' ? 'Level ' : 'Уровень ') + (effect.current?.level || 0)}
+              ItemIndex={index + 1}
+            />
+          );
+      }) : null}
+  
+      {/* Learned Skills */}
+      {skills?.filter(a => !checkLearningSkill(a.skill_id) && checkLearnedSkill(a.skill_id))
+        .map((skill, index) => (
+          <ItemCard
+            key={`learned-skill-${skill.skill_id}`}
+            ItemIcon={skill?.link}
+            ItemTitle={skill.name[lang]}
+            ItemDescription={skill?.description && skill?.description[lang]}
+            ItemParamsBlocks={getItemSkillParamsBlock(skill)}
+            ItemButtons={getItemSkillButton(skill)}
+            ItemIndex={index + 1}
+          />
+      ))}
     </ScreenContainer>
-  )
+  );
 }
 
 export default SkillTab

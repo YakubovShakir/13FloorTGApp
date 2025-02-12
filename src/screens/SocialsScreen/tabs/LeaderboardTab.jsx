@@ -49,6 +49,7 @@ const LeaderboardTab = () => {
               key={leader.name}
               ItemButtons={[]}
               ItemTitle={leader.name}
+              ItemUsername={leader.tg_username}
               ItemDescription={true}
               ItemRespect={leader.respect}
               ItemTotalEarned={formatCoins(leader.total_earned)}
