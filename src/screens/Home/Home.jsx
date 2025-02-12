@@ -12,7 +12,7 @@ import {
   getUserActiveProcess,
 } from "../../services/user/user"
 import { stopProcess } from "../../services/process/process"
-import UserContext from "../../UserContext"
+import UserContext, { useUser } from "../../UserContext"
 import countPercentage from "../../utils/countPercentage"
 import { updateProcessTimers } from "../../utils/updateTimers"
 import { getLevels } from "../../services/levels/levels"
@@ -289,18 +289,22 @@ const Home = () => {
     initialize()
   }, [isInitialized])
 
+  const { refreshData } = useUser()
+
   useVisibilityChange(() => {
     console.log(document.visibilityState)
     if (mountedRef.current && document.visibilityState === 'visible') {
+      refreshData()
       initializeProcess()
     }
   })
 
-  // useWindowFocus(() => {
-  //   if (mountedRef.current) {
-  //     initializeProcess()
-  //   }
-  // })
+  useWindowFocus(() => {
+    if (mountedRef.current) {
+      refreshData()
+      initializeProcess()
+    }
+  })
 
   const renderProcessProgressBar = (
     process,
