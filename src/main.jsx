@@ -8,11 +8,11 @@ import { NotificationProvider } from "./NotificationContext.jsx"
 // config()
 
 createRoot(document.getElementById("root")).render(
-  <StrictMode>
+  // <StrictMode>
     <NotificationProvider>
       <UserProvider>
         <App />
       </UserProvider>
     </NotificationProvider>
-  </StrictMode>
+  // </StrictMode> 
 )
