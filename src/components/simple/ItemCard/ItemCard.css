@@ -2,7 +2,7 @@
   border: 1px solid rgb(57, 57, 57);
   background: 0% 0% / cover rgb(32, 32, 32);
   padding: 10px;
-  height: 26vh;
+  height: 24vh;
  
   display: flex;
   flex-direction: column;  
@@ -28,7 +28,7 @@
 
 .ItemTitleBottom {
   padding: 0;
-  margin-bottom: 4px;
+  margin-bottom: 12px;
   font-size: 15px;
   position: relative; 
   z-index: 1; 
@@ -114,8 +114,8 @@
   padding-bottom: 3px;
   width: 10%; /* Зависит от ширины кнопки */
   height: auto; /* Сохраняет пропорции */
-  max-width: 24px; /* Максимальный размер */
-  min-width: 16px; /* Минимальный размер */
+  max-width: 28px; /* Максимальный размер */
+  min-width: 26px; /* Минимальный размер */
   object-fit: contain; /* Сохраняет пропорции изображения */
 }
 
