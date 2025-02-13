@@ -157,13 +157,11 @@ const ProcessProgressBar = ({
         setHasIconAnimated(false);
         console.log('handleProcessCompletion - setHasIconAnimated(false)');
         setPercentage(0);
+        await playSound(activeProcess.type)
         await new Promise(resolve => setTimeout(resolve, 1000))
         setHasIconAnimated(true)
         console.log('handleProcessCompletion - setHasIconAnimated(true)');
-        // setHasAnimated(false); // Removed
-
-
-        await playSound(activeProcess.type)
+        // setHasAnimated(false); // Remove
 
         setIsLoading(true)
 
