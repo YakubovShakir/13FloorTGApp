@@ -16,6 +16,7 @@ import { a } from "framer-motion/client"
 import { useSettingsProvider } from "../../../hooks"
 import formatTime from "../../../utils/formatTime"
 import UserContext from "../../../UserContext"
+import { useNavigate } from "react-router-dom"
 
 export const WorkTab = ({
   isActionScreen,
@@ -32,7 +33,7 @@ export const WorkTab = ({
   const [works, setWorks] = useState(null) // List of works
   const [activeProcess, setActiveProcess] = useState(null) // Current work status if exist
   const [userLearnedSkills, setUserLearnedSkills] = useState(null) // User learning at this time skills
-
+  const navigate = useNavigate()
   const { lang } = useSettingsProvider()
 
   const translations = {
@@ -128,8 +129,7 @@ export const WorkTab = ({
   // Buy work
   const handleBuyWork = async (workId) => {
     await buyWork(userId, workId)
-    const userParameters = await getParameters(userId)
-    setUserParameters(userParameters.parameters)
+    await refreshData()
     setVisibleModal(false)
   }
 
@@ -316,7 +316,7 @@ export const WorkTab = ({
               ? async () => await handleStopWork()
               : async () => {
                   await handleStartWork();
-                 window.location.href = window.location.origin // Переход на основной экран сразу после начала работы
+                  navigate('/')
                 },
           icon: buyStatus && Icons.balance,
           active: Math.floor(userParameters?.energy) > 0,

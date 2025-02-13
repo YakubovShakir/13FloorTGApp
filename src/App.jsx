@@ -120,7 +120,7 @@ function App() {
           <MemoryRouter>
             <Routes>
               {/* <Route index element={<StartCustomize />} /> */}
-              <Route path="/" exact element={<Home />} />
+              <Route path="/" index element={<Home />} />
               <Route path="/learning/:slideIndex?" element={<Learning />} />
               <Route path="/personage-create" element={<PersonageCreationScreen />} />
               {/* <Route index element={<PersonageCreationScreen />} /> */}

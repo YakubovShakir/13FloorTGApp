@@ -28,7 +28,7 @@ const ProcessProgressBar = ({
     rate,
     hasIconAnimated,
     setHasIconAnimated,
-    unmountSelf
+    unmountSelf,
 }) => {
     const navigate = useNavigate()
     const [percentage, setPercentage] = useState(() => {
@@ -274,12 +274,11 @@ const ProcessProgressBar = ({
     const handleConfirmClose = async () => {
         try {
             await stopProcess(userId)
-            window.location.href = window.location.origin
         } catch (error) {
             console.error("Error stopping process:", error)
-            navigate("/")
         } finally {
             setShowModal(false)
+            unmountSelf()
         }
     }
 
