@@ -184,7 +184,12 @@ const Home = () => {
                     clearInterval(timerInterval);
                     console.log("Timer useEffect - clearInterval - remainingSeconds <= 0");
                     setState(prev => ({...prev, currentProcess: null}))
-                    refreshData()
+                    Promise.all(
+                      [
+                        refreshData(),
+                        initializeProcess()
+                      ]
+                    )
                 } else {
                     setState(prev => {
                         if (prev.currentProcess && prev.currentProcess.id === state.currentProcess.id) {
