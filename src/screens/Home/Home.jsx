@@ -336,12 +336,6 @@ const Home = () => {
         rate,
         reverse = false
     ) => {
-        if (!state.currentProcess) {
-            console.log("renderProcessProgressBar - process INVALID - NOT rendering ProcessProgressBar", process);
-            return null;
-        }
-
-        console.log("renderProcessProgressBar - process:", process, "percentage:", percentage, "rate:", rate, "hasIconAnimated:", state.hasIconAnimated);
         return (
             <ProcessProgressBar
                 activeProcess={process}
