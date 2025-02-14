@@ -336,7 +336,7 @@ const Home = () => {
         rate,
         reverse = false
     ) => {
-        if (!process) {
+        if (!state.currentProcess) {
             console.log("renderProcessProgressBar - process INVALID - NOT rendering ProcessProgressBar", process);
             return null;
         }
@@ -354,7 +354,7 @@ const Home = () => {
                     console.log("Home - setHasIconAnimated called, newState:", newState);
                     setState(prev => ({ ...prev, hasIconAnimated: newState }))
                 }}
-                unmountSelf={() => setState(prev => ({ ...prev, currentProcess: null }))}
+                unmountSelf={() => window.location.href = window.location.origin}
             />
         );
     };

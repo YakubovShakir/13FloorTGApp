@@ -55,7 +55,7 @@ export const getActiveProcess = async (userId) => {
       console.log(response.data)
       return response.data
     } catch (e) {
-      console.log("Error in startProcess ", e)
+      console.log("Error in checkCanStop ", e)
       throw e
     }
   }

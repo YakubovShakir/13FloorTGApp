@@ -142,7 +142,9 @@ const ProcessProgressBar = ({
 
         const sound = type === "work" ? COIN_SOUND : ALARM_SOUND
         try {
-            await sound.play()
+            if(!hasIconAnimated) {
+              await sound.play()
+            }
         } catch (error) {
             console.error("Error playing sound:", error)
         }
@@ -173,6 +175,7 @@ const ProcessProgressBar = ({
                 await checkCanStop(userId)
                 break
             } catch (err) {
+                console.log(err)
                 await new Promise(resolve =>
                     setTimeout(resolve, err.response?.data?.seconds_left * 1000 || 1000)
                 )
