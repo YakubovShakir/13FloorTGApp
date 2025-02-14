@@ -255,9 +255,11 @@ const Home = () => {
                               position: "absolute",
                               height: "100%",
                               width: "100%",
-                              backgroundImage: state.currentProcess?.type && state.currentProcess?.type !== 'default' // Conditionally apply other backgrounds
-                                  ? getBgByCurrentProcess(state.currentProcess.type, state.currentProcess?.type_id)
-                                  : `url(${Assets.BG.homeBackground})`, // Default home background
+                              backgroundImage: state.currentProcess?.type && 
+                                            state.currentProcess?.type !== 'default' && 
+                                            state.currentProcess?.active
+                                ? getBgByCurrentProcess(state.currentProcess.type, state.currentProcess?.type_id)
+                                : `url(${Assets.BG.homeBackground})`,
                               backgroundSize: "cover",
                               backgroundPosition: "bottom right",
                               zIndex: 0,
