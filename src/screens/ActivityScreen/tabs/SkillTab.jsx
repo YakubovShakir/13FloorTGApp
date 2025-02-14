@@ -610,41 +610,91 @@ const SkillTab = ({
   const [isInitialized, setIsInitialized] = useState(false)
 
   useEffect(() => {
+    // Timer update function
     const updater = updateProcessesTimers(
       userLearningSkills,
       setUserLearningSkills,
-      () => {
-        getProcesses("skill", userId).then((r) => setUserLearningSkills(r)) // Get current learning skills
-        getUserBoosts(userId).then((boosts) => setUserBoosts(boosts))
-        getUserConstantEffects(userId).then((r) => {
-          setEffects(r)
-        }).catch(r => console.log('error', r)) // Get list of user constant effects
-        getSkills().then((r) => {
-          setSkills(r)
-        }) // Get list of skills
-
-        getActiveProcess(userId).then((r) => setActiveProcess(r)) // Get active training if exist
-        getUserSkills(userId).then((r) => setUserLearnedSkills(r)) // Get list of user skills
+      async () => {
+        const retryRequest = async (fn, maxRetries = 3) => {
+          for (let i = 0; i < maxRetries; i++) {
+            try {
+              return await fn();
+            } catch (error) {
+              console.error(`Attempt ${i + 1} failed:`, error);
+              if (i < maxRetries - 1) {
+                await new Promise(resolve => setTimeout(resolve, 3000)); // 3s delay between retries
+              }
+            }
+          }
+          throw new Error('Max retries reached');
+        };
+  
+        try {
+          const [
+            learningSkills,
+            boosts,
+            constantEffects,
+            skillsList,
+            activeProc,
+            userSkills
+          ] = await Promise.all([
+            retryRequest(() => getProcesses("skill", userId)),
+            retryRequest(() => getUserBoosts(userId)),
+            retryRequest(() => getUserConstantEffects(userId)),
+            retryRequest(() => getSkills()),
+            retryRequest(() => getActiveProcess(userId)),
+            retryRequest(() => getUserSkills(userId))
+          ]);
+  
+          setUserLearningSkills(learningSkills);
+          setUserBoosts(boosts);
+          setEffects(constantEffects);
+          setSkills(skillsList);
+          setActiveProcess(activeProc);
+          setUserLearnedSkills(userSkills);
+        } catch (error) {
+          console.error('Failed to update after max retries:', error);
+        }
       }
-    )
-
-    return () => clearInterval(updater)
-  }, [isInitialized, userLearningSkills, effects])
-
+    );
+  
+    return () => clearInterval(updater);
+  }, [isInitialized, userLearningSkills, effects]);
+  
+  // Separate initialization effect
   useEffect(() => {
-    getProcesses("skill", userId).then((r) => setUserLearningSkills(r)) // Get current learning skills
-    getUserBoosts(userId).then((boosts) => setUserBoosts(boosts))
-    getUserConstantEffects(userId).then((r) => {
-      setEffects(r)
-    }).catch(r => console.log('error', r)) // Get list of user constant effects
-    getSkills().then((r) => {
-      setSkills(r)
-    }) // Get list of skills
-
-    getActiveProcess(userId).then((r) => setActiveProcess(r)) // Get active training if exist
-    getUserSkills(userId).then((r) => setUserLearnedSkills(r)) // Get list of user skills
-    setIsInitialized(true)
-  }, [])
+    const initializeData = async () => {
+      try {
+        const [
+          learningSkills,
+          boosts,
+          constantEffects,
+          skillsList,
+          activeProc,
+          userSkills
+        ] = await Promise.all([
+          getProcesses("skill", userId),
+          getUserBoosts(userId),
+          getUserConstantEffects(userId),
+          getSkills(),
+          getActiveProcess(userId),
+          getUserSkills(userId)
+        ]);
+  
+        setUserLearningSkills(learningSkills);
+        setUserBoosts(boosts);
+        setEffects(constantEffects);
+        setSkills(skillsList);
+        setActiveProcess(activeProc);
+        setUserLearnedSkills(userSkills);
+        setIsInitialized(true);
+      } catch (error) {
+        console.error('Error in initialization:', error);
+      }
+    };
+  
+    initializeData();
+  }, []);
 
   return (
     <ScreenContainer withTab>

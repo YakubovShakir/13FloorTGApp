@@ -171,7 +171,6 @@ const ProcessProgressBar = ({
                 await checkCanStop(userId)
                 break
             } catch (err) {
-                if (err.response?.status === 404) break
                 await new Promise(resolve =>
                     setTimeout(resolve, err.response?.data?.seconds_left * 1000 || 1000)
                 )
