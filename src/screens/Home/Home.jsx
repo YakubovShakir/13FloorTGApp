@@ -183,13 +183,6 @@ const Home = () => {
                 if (remainingSeconds <= 0) {
                     clearInterval(timerInterval);
                     console.log("Timer useEffect - clearInterval - remainingSeconds <= 0");
-                    setState(prev => ({...prev, currentProcess: null}))
-                    Promise.all(
-                      [
-                        refreshData(),
-                        initializeProcess()
-                      ]
-                    )
                 } else {
                     setState(prev => {
                         if (prev.currentProcess && prev.currentProcess.id === state.currentProcess.id) {
@@ -206,9 +199,9 @@ const Home = () => {
             }, 1000);
             console.log("Timer useEffect - setInterval started");
         } else {
-            clearInterval(timerInterval);
-            setProgressRate(null);
-            console.log("Timer useEffect - clearInterval - process not active or component unmounted or no createdAt");
+            // clearInterval(timerInterval);
+            // setProgressRate(null);
+            // console.log("Timer useEffect - clearInterval - process not active or component unmounted or no createdAt");
         }
 
         return () => {

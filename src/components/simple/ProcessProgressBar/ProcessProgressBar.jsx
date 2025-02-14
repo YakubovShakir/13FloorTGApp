@@ -4,7 +4,7 @@ import "./ProcessProgressBar.css"
 import Assets from "../../../assets"
 import { getWorks } from "../../../services/work/work"
 import { checkCanStop, stopProcess } from "../../../services/process/process"
-import UserContext from "../../../UserContext"
+import UserContext, { useUser } from "../../../UserContext"
 import { motion, AnimatePresence } from "framer-motion"
 import FullScreenSpinner from "../../../screens/Home/FullScreenSpinner"
 import { useSettingsProvider } from "../../../hooks"
@@ -148,6 +148,8 @@ const ProcessProgressBar = ({
         }
     }
 
+    const { refreshData } = useUser()
+
     const handleProcessCompletion = async () => {
         console.log("handleProcessCompletion - entry, animationComplete:", animationComplete.current, "hasIconAnimated:", hasIconAnimated);
         if (animationComplete.current) {
@@ -164,7 +166,7 @@ const ProcessProgressBar = ({
         // setHasAnimated(false); // Remove
 
         setIsLoading(true)
-
+  
         while (true) {
             try {
                 await new Promise(resolve => setTimeout(resolve, 500))
@@ -178,8 +180,11 @@ const ProcessProgressBar = ({
         }
 
         setTimeout(() => {
-          setIsLoading(false)
-          unmountSelf()
+          
+          refreshData().finally(() => {
+            setIsLoading(false)
+            unmountSelf()
+          })
             // window.location.href = window.location.origin
         }, 750)
     }
