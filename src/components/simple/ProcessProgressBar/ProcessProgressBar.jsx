@@ -33,7 +33,7 @@ const ProcessProgressBar = ({
     const navigate = useNavigate()
     const [percentage, setPercentage] = useState(() => {
         if (!activeProcess || typeof activeProcess.totalSecondsRemaining !== 'number' || typeof activeProcess.totalSeconds !== 'number') {
-            return NaN; // or 0, depending on desired default
+            return reverse ? 0 : 100; // or 0, depending on desired default
         }
         return (activeProcess.totalSecondsRemaining / activeProcess.totalSeconds) * 100;
     });
@@ -167,7 +167,7 @@ const ProcessProgressBar = ({
         console.log('handleProcessCompletion - setHasIconAnimated(true)');
         // setHasAnimated(false); // Remove
 
-        setIsLoading(true)
+        // setIsLoading(true)
   
         while (true) {
             try {
@@ -186,7 +186,8 @@ const ProcessProgressBar = ({
           
           refreshData().finally(() => {
             setIsLoading(false)
-            unmountSelf()
+            console.log('here')
+            // unmountSelf()
           })
             // window.location.href = window.location.origin
         }, 750)
@@ -234,15 +235,15 @@ const ProcessProgressBar = ({
 
     // Handle progress updates
     useEffect(() => {
-        if (!activeProcess || !activeProcess.totalSeconds || !activeProcess.totalSecondsRemaining) {
-            console.log("useEffect [activeProcess] - early return - activeProcess, totalSeconds or totalSecondsRemaining invalid:", activeProcess);
-            return
-        }
+        // if (!activeProcess || !activeProcess.totalSeconds || !activeProcess.totalSecondsRemaining) {
+        //     console.log("useEffect [activeProcess] - early return - activeProcess, totalSeconds or totalSecondsRemaining invalid:", activeProcess);
+        //     return
+        // }
 
-        if (typeof activeProcess.totalSecondsRemaining !== 'number' || typeof activeProcess.totalSeconds !== 'number') {
-            console.error("useEffect [activeProcess] - totalSecondsRemaining or totalSeconds is not a number:", activeProcess);
-            return; // Prevent further execution if these are not numbers
-        }
+        // if (typeof activeProcess.totalSecondsRemaining !== 'number' || typeof activeProcess.totalSeconds !== 'number') {
+        //     console.error("useEffect [activeProcess] - totalSecondsRemaining or totalSeconds is not a number:", activeProcess);
+        //     return; // Prevent further execution if these are not numbers
+        // }
 
 
         const newPercentage = (activeProcess.totalSecondsRemaining / activeProcess.totalSeconds) * 100
@@ -255,6 +256,7 @@ const ProcessProgressBar = ({
         if (activeProcess.totalSecondsRemaining <= 1) {
             console.log("useEffect [activeProcess] - handleProcessCompletion triggered, animationComplete:", animationComplete.current);
             handleProcessCompletion()
+            return 
         }
 
         // Check for process completion based on energy
@@ -267,7 +269,7 @@ const ProcessProgressBar = ({
                 (activeProcess.type === "work" || activeProcess.type === 'training') &&
                 (userParameters?.energy === 0 || userParameters?.hungry === 0)
 
-            if ((isSleepFullyCharged || isWorkOrTrainingExhausted) && !animationComplete.current) {
+            if ((isSleepFullyCharged || isWorkOrTrainingExhausted)) {
                 handleProcessCompletion()
             }
         }
@@ -284,7 +286,7 @@ const ProcessProgressBar = ({
             console.error("Error stopping process:", error)
         } finally {
             setShowModal(false)
-            unmountSelf()
+            // unmountSelf()
         }
     }
 

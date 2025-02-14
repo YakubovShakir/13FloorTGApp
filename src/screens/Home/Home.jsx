@@ -180,9 +180,9 @@ const Home = () => {
 
                 setProgressRate(formattedTime);
 
-                if (remainingSeconds <= 0) {
-                    clearInterval(timerInterval);
+                if (remainingSeconds < 1) {
                     console.log("Timer useEffect - clearInterval - remainingSeconds <= 0");
+                    initializeProcess()
                 } else {
                     setState(prev => {
                         if (prev.currentProcess && prev.currentProcess.id === state.currentProcess.id) {
@@ -354,7 +354,11 @@ const Home = () => {
                     console.log("Home - setHasIconAnimated called, newState:", newState);
                     setState(prev => ({ ...prev, hasIconAnimated: newState }))
                 }}
-                unmountSelf={() => window.location.href = window.location.origin}
+                unmountSelf={() => 
+                  {
+                    setState(prev => ({ ...prev, currentProcess: null, activeProcess: null}))
+                    initializeProcess()
+                  }}
             />
         );
     };
@@ -478,7 +482,7 @@ const Home = () => {
                     clothing={userClothing}
                     work
                 />
-                {renderProcessProgressBar(
+                {state.currentProcess && renderProcessProgressBar(
                     state.currentProcess,
                     countPercentage(moment().diff(moment(state.currentProcess?.createdAt), 'second'), state.currentProcess?.target_duration_in_seconds || state.currentProcess?.base_duration_in_seconds),
                     progressRate,
