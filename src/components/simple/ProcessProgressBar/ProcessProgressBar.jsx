@@ -178,6 +178,7 @@ const ProcessProgressBar = ({
         }
 
         setTimeout(() => {
+          setIsLoading(false)
           unmountSelf()
             // window.location.href = window.location.origin
         }, 750)
