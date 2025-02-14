@@ -52,6 +52,7 @@ const isImageGrayscale = !isAnyButtonActive; // Если кнопка неакт
       )}
 
       <div className="ItemDataBoost">
+      <div className="ItemTitleBoost">  {ItemTitle}</div>
 
       <div className="ItemDataPickandDescrip">
 
@@ -61,20 +62,21 @@ const isImageGrayscale = !isAnyButtonActive; // Если кнопка неакт
         style={{ border: borderStyle, backgroundImage: backgroundImageStyle }}
         >
           {/* {ItemTitle Section} */}
-          <div className="ItemTitleBoost">{ItemTitle}</div>
-          <img
-            loading="lazy"
-            src={ItemIcon}
-            alt="ItemIcon"
-            className={isImageGrayscale ? 'inactive' : ''}  // Применяем 'inactive' если кнопка неактивна
-          />
-          <div className="ItemTitleBoost" style={{ paddingTop: 8 }}>{ItemBottomAmount}</div>
+          
+          {ItemDescription}
         </div>
 
 
         {ItemDescription && (
               <span className="ItemDescriptionBoost">
-                {ItemDescription}
+                <img
+            loading="lazy"
+            src={ItemIcon}
+            alt="ItemIcon"
+            className={isImageGrayscale ? 'inactive' : ''}  // Применяем 'inactive' если кнопка неактивна
+          />
+          <div className="ItemTitleBoost2" style={{ paddingTop: 8 }}> X {ItemBottomAmount}</div>
+               
               </span>
             )}
 
@@ -126,6 +128,7 @@ const isImageGrayscale = !isAnyButtonActive; // Если кнопка неакт
               <Button
                 key={index}
                 width="100%"
+               
                 height={44}
                 fontSize={16}
                 fontFamily={"Anonymous pro"}

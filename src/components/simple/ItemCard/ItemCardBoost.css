@@ -19,10 +19,7 @@
 }
 
 
-.ItemDataPickandDescrip{
-  justify-content: space-between;
-  display: flex;
-}
+
 
 
 
@@ -30,15 +27,33 @@
 
 
 .ItemTitleBoost {
+  font-weight: 800;
+  text-align: left;
   padding: 0px 5px 20px 5px;
   margin: 10px 0px -10px 0px;
+  font-size: 20px;
+  position: relative;
+  z-index: 1;
+}
+
+.ItemTitleBoost2 {
+  margin: 2px auto 8px auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  border-radius: 13px;
+  width: 67px;
+  background-color: #202020;
+  padding: 0px 5px 8px 5px;
   font-size: 15px;
-  position: relative; 
-  z-index: 1; 
+  position: relative;
+  z-index: 1;
 }
 
 
 .ItemCardBoost img {
+ 
   max-width: 100%;
   object-fit: contain;
 }
@@ -160,7 +175,9 @@
 }
 
 .ItemDescriptionBoost {
-  display: flex;
+  margin-top: -35px;
+  z-index: 2;
+  display: grid;
   align-items: center;
   font-family: "Anonymous pro";
   font-size: 3.4cqw;
@@ -168,6 +185,7 @@
   padding-left: 6%;
   width: 53%;
 }
+
 
 .ItemCardButtonsBoost {
   
@@ -210,26 +228,35 @@
   
 }
 
-
-.ItemIconContainerBoost {
-  display: grid;
-
-  overflow: hidden;
+.ItemDataPickandDescrip{
+  justify-content: space-between;
+  display: flex;
   border-bottom: 1px solid rgba(117, 117, 117, 0.23);
   box-shadow: rgba(0, 0, 0, 0.24) 0px 0px 8px 2px inset;
-    
-    border-radius: 7px;
-  width: 47%; /* Задаем ширину для иконки */
+  background: repeating-linear-gradient(45deg, #49ebe4, #49ebe4 12px, #2cd1e4 12px, #2cd1e4 22px);
   height: 100%;
   position: relative; /* Для корректной работы псевдоэлемента */
   z-index: 0; /* Сетка будет под изображением */
+  border-radius: 7px;
   
-  /* Сетка из пересекающихся оранжевых линий */
-  background: repeating-linear-gradient(45deg, #00000036, #00000036 2px, #3939390f 2px, #3939390f 6px);
+  
+}
+
+.ItemIconContainerBoost {
+  font-weight: 800;
+  padding-left: 4%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  z-index: 2;
+  width: 47%;
+  
 }
 
 /* Псевдоэлемент для градиента */
-.ItemIconContainerBoost::before {
+.ItemDataPickandDescrip::before {
+  border-radius: 7px;
   content: "";
   position: absolute;
   top: 0;
@@ -238,8 +265,8 @@
   bottom: 0;
   z-index: 1; /* Над сеткой */
   background: linear-gradient(
-    to bottom,
-    #000000 0%,
+    to right,
+    rgb(0, 174, 255) 0%,
     transparent 100%
   );
 }
