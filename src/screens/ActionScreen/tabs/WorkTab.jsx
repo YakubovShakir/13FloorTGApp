@@ -17,6 +17,7 @@ import { useSettingsProvider } from "../../../hooks"
 import formatTime from "../../../utils/formatTime"
 import UserContext from "../../../UserContext"
 import { useNavigate } from "react-router-dom"
+import { canStartWorking } from "../../../utils/paramDep"
 
 export const WorkTab = ({
   isActionScreen,
@@ -240,9 +241,9 @@ export const WorkTab = ({
       isNextLevelWork &&
       enoughBalance
 
-      const workDurationBase = Math.floor(work?.duration * 60);
-      const workDuration = Math.floor(work?.duration * (1 - (userParameters.work_duration_decrease || 0) / 100) * 60);
-      const timeDiff = workDurationBase - workDuration
+    const workDurationBase = Math.floor(work?.duration * 60);
+    const workDuration = Math.floor(work?.duration * (1 - (userParameters.work_duration_decrease || 0) / 100) * 60);
+    const timeDiff = workDurationBase - workDuration
     const workIncome = Math.floor(work?.coins_in_hour / 3600 * workDurationBase)
 
     const workAdditionalIncome = Math.floor(userParameters.work_hourly_income_increase / 3600 * workDurationBase)
@@ -300,6 +301,8 @@ export const WorkTab = ({
     const requiredLevel = userParameters?.level >= work?.work_id
     const isNextLevelWork = workId === userParameters?.work_id + 1
     const enoughBalance = userParameters?.coins >= work?.coins_price
+    const canStart = canStartWorking(userParameters)
+
 
     const buyStatus =
       requiredRespect &&
@@ -310,19 +313,19 @@ export const WorkTab = ({
     if (currentWork?.work_id === workId) {
       return [
         {
-          text: activeWork ?  translations.inProgress[lang] : translations.start[lang],
+          text: activeWork ? translations.inProgress[lang] : translations.start[lang],
           onClick:
             activeWork
               ? async () => await handleStopWork()
-              : async () => {
-                  await handleStartWork();
-                  navigate('/')
-                },
+              : (canStart ? async () => {
+                await handleStartWork();
+                navigate('/')
+              } : null),
           icon: buyStatus && Icons.balance,
-          active: Math.floor(userParameters?.energy) > 0,
+          active: canStart,
         }
       ]
-      
+
     }
 
     return [
@@ -333,9 +336,9 @@ export const WorkTab = ({
           setVisibleModal(true)
         },
         icon: buyStatus && Icons.balance,
-        active: buyStatus ,
+        active: buyStatus,
         shadowColor: buyStatus && "rgb(243, 117, 0)",
-       
+
       },
     ]
   }
@@ -364,10 +367,10 @@ export const WorkTab = ({
         ItemParamsBlocks={getItemWorkParams(userParameters?.work_id)}
         ItemButtons={getItemWorkButton(userParameters?.work_id)}
         ItemIndex={0}
-      
+
       />}
 
-     
+
     </>
   )
 }

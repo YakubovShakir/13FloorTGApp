@@ -17,6 +17,8 @@ import { updateProcessTimers } from "../../../utils/updateTimers"
 import formatTime from "../../../utils/formatTime"
 import countPercentage from "../../../utils/countPercentage"
 import { useSettingsProvider } from "../../../hooks.jsx"
+import { canStartSleeping } from "../../../utils/paramDep.js"
+import { useNavigate } from "react-router-dom"
 
 const BoostTab = ({ userId, userParameters, setUserParameters }) => {
   const [boosts, setBoosts] = useState(null)
@@ -134,23 +136,23 @@ const BoostTab = ({ userId, userParameters, setUserParameters }) => {
       ],
     ]
   }
+  const navigate = useNavigate()
 
-  const getItemSleepButton = () => {
-    const isEnergyFull = userParameters.energy >= userParameters.energy_capacity
+  const getItemSleepButton = () => {  
+    const canStart = canStartSleeping(userParameters)
     return [
       {
         text: activeProcess?.type === "sleep" ? translations.inProgress[lang] : translations.start[lang],
-        active: !isEnergyFull, // Кнопка активна только если энергия не полная
+        active: canStart,
         onClick: () => {
-          if (!isEnergyFull) { // Если энергия не полная, то кнопка активна
+          if (canStart) {
             if (activeProcess?.type === "sleep") {
-              handleStopSleep(); // Остановить процесс
+              handleStopSleep();
             } else {
-              handleStartSleep(); // Запустить процесс
+              handleStartSleep();
+              navigate('/')
             }
-            window.location.href = window.location.origin
           }
-          // Если энергия полная, кнопка неактивна, и ничего не происходит
         },
       }
     ]

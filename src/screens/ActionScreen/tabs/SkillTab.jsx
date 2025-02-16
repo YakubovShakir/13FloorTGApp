@@ -19,6 +19,7 @@ import {
 import formatTime from "../../../utils/formatTime"
 import countPercentage from "../../../utils/countPercentage.js"
 import { useSettingsProvider } from "../../../hooks.jsx"
+import { canStartTraining } from "../../../utils/paramDep.js"
 
 
 const SkillTab = ({
@@ -168,11 +169,12 @@ const SkillTab = ({
 
   // Get button for static training card
   const getItemTrainingButton = () => {
+    const canStart = canStartTraining(userParameters)
     return [
       {
         text: activeProcess?.type === "training" ? translations.inProgress[lang] : translations.start[lang],
-        active: checkTrainingButtonActive(), // Set button active status based on mood
-        onClick: checkTrainingButtonActive() && (() => {
+        active: canStart, // Set button active status based on mood
+        onClick: canStart && (() => {
           handleStartTraining();
         }),
       },

@@ -151,7 +151,7 @@ const FoodTab = ({ userId, userParameters, setUserParameters }) => {
 
   useEffect(() => {
 
-    const updater = updateProcessesTimers(userEatingFoods, setUserEatingFoods)
+    const updater = updateProcessesTimers(userEatingFoods, setUserEatingFoods, updateInformation)
     return () => clearInterval(updater)
   }, [userEatingFoods])
 
