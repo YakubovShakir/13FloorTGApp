@@ -1,4 +1,4 @@
-import React, { useState, createContext, useCallback, useContext } from 'react';
+import React, { useState, createContext, useCallback, useContext, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const NotificationContext = createContext(null);
@@ -9,7 +9,7 @@ const notificationStyles = {
     bottom: 25,
     width: '100%',
     transform: 'translateX(-50%)',
-    zIndex: 50,
+    zIndex: 9999999999,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center'
@@ -43,23 +43,43 @@ const notificationStyles = {
 };
 
 const NotificationProvider = ({ children }) => {
-  const [notification, setNotification] = useState({
-    message: '',
-    icon: null,
-    isVisible: false
-  });
+  const [notificationQueue, setNotificationQueue] = useState([]);
+  const [currentNotification, setCurrentNotification] = useState(null);
+  const timeoutRef = useRef(null);
 
   const showNotification = useCallback((message, icon = null) => {
-    setNotification({ message, icon, isVisible: true });
-    setTimeout(() => {
-      setNotification(prev => ({ ...prev, isVisible: false }));
-    }, 3000);
+    setNotificationQueue(prevQueue => [...prevQueue, { message, icon }]);
   }, []);
+
+  React.useEffect(() => {
+    if (notificationQueue.length > 0 && !currentNotification) {
+      const nextNotification = notificationQueue[0];
+      setCurrentNotification(nextNotification);
+
+      // CRITICAL CHANGE: Update the queue *BEFORE* setting the timeout
+      setNotificationQueue(prevQueue => prevQueue.slice(1));
+
+      timeoutRef.current = setTimeout(() => {
+        setCurrentNotification(null); // Clear notification
+      }, 5000); // 5-second delay
+    }
+
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, [notificationQueue, currentNotification]); // Dependency array remains [notificationQueue]
+
+
+  const handleDismiss = () => {
+    setCurrentNotification(null);
+  }
 
   return (
     <NotificationContext.Provider value={{ showNotification }}>
       <AnimatePresence>
-        {notification.isVisible && (
+        {currentNotification && (
           <motion.div
             initial={{ opacity: 0, y: -200 }}
             animate={{ opacity: 1, y: 0 }}
@@ -67,18 +87,19 @@ const NotificationProvider = ({ children }) => {
             transition={{ type: "spring", stiffness: 200, damping: 20 }}
             style={notificationStyles.container}
           >
-           <div style={notificationStyles.innerContainer}>
-           <div style={notificationStyles.notification}>
-              {notification.icon && (
-                <img 
-                  src={notification.icon} 
-                  alt="notification icon" 
-                  style={notificationStyles.icon}
-                />
-              )}
-              <p style={notificationStyles.text}>{notification.message}</p>
+            <div style={notificationStyles.innerContainer}>
+              <div style={notificationStyles.notification}>
+                {currentNotification.icon && (
+                  <img
+                    src={currentNotification.icon}
+                    alt="notification icon"
+                    style={notificationStyles.icon}
+                  />
+                )}
+                <p style={notificationStyles.text}>{currentNotification.message}</p>
+                 <button onClick={handleDismiss} style={{marginLeft: 'auto'}}>X</button> {/* Dismiss button */}
+              </div>
             </div>
-           </div>
           </motion.div>
         )}
       </AnimatePresence>

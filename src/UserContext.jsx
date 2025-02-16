@@ -5,25 +5,26 @@ import React, {
   useRef,
   useCallback,
   useMemo
-} from "react"
-import { debounce } from 'lodash'
-import { getParameters } from "./services/user/user"
-import useTelegram from "./hooks/useTelegram"
-import FullScreenSpinner from "./screens/Home/FullScreenSpinner"
+} from "react";
+import { debounce } from 'lodash';
+import { getParameters } from "./services/user/user";
+import useTelegram from "./hooks/useTelegram";
+import FullScreenSpinner from "./screens/Home/FullScreenSpinner";
+import { useNotification } from "./NotificationContext";
 
-const UserContext = createContext()
+const UserContext = createContext();
 
 const hasParametersChanged = (oldData, newData) => {
-  if (!oldData || !newData) return true
-  return JSON.stringify(oldData.parameters) !== JSON.stringify(newData.parameters)
-}
+  if (!oldData || !newData) return true;
+  return JSON.stringify(oldData.parameters) !== JSON.stringify(newData.parameters);
+};
 
 const hasPersonageChanged = (oldData, newData) => {
-  if (!oldData || !newData) return true
+  if (!oldData || !newData) return true;
   return ['personage', 'clothing', 'shelf'].some(
     key => JSON.stringify(oldData[key]) !== JSON.stringify(newData[key])
-  )
-}
+  );
+};
 
 export const UserProvider = ({ children }) => {
   const [state, setState] = useState({
@@ -40,23 +41,23 @@ export const UserProvider = ({ children }) => {
       personageError: null
     },
     isInitialized: false
-  })
-  
-  const userId = useMemo(() => 
+  });
+
+  const userId = useMemo(() =>
     window.Telegram?.WebApp?.initDataUnsafe?.user?.id || 790629329,
     []
-  )
-  
-  const isFetchingRef = useRef(false)
-  const latestDataRef = useRef(null)
-  const mountedRef = useRef(true)
+  );
+
+  const isFetchingRef = useRef(false);
+  const latestDataRef = useRef(null);
+  const mountedRef = useRef(true);
 
   useEffect(() => {
-    mountedRef.current = true
+    mountedRef.current = true;
     return () => {
-      mountedRef.current = false
-    }
-  }, [])
+      mountedRef.current = false;
+    };
+  }, []);
 
   const updateParametersState = useCallback((updates) => {
     if (mountedRef.current) {
@@ -66,9 +67,9 @@ export const UserProvider = ({ children }) => {
           ...prev.parameters,
           ...updates
         }
-      }))
+      }));
     }
-  }, [])
+  }, []);
 
   const updatePersonageState = useCallback((updates) => {
     if (mountedRef.current) {
@@ -78,46 +79,118 @@ export const UserProvider = ({ children }) => {
           ...prev.personage,
           ...updates
         }
-      }))
+      }));
     }
-  }, [])
+  }, []);
 
   const handleParametersError = useCallback((error) => {
-    console.error('UserContext Parameters Error:', error)
+    console.error('UserContext Parameters Error:', error);
     updateParametersState({
       parametersError: error.message,
       isParametersLoading: false
-    })
-    setState(prev => ({ ...prev, isInitialized: false }))
-  }, [updateParametersState])
+    });
+    setState(prev => ({ ...prev, isInitialized: false }));
+  }, [updateParametersState]);
 
   const handlePersonageError = useCallback((error) => {
-    console.error('UserContext Personage Error:', error)
+    console.error('UserContext Personage Error:', error);
     updatePersonageState({
       personageError: error.message,
       isPersonageLoading: false
-    })
-    setState(prev => ({ ...prev, isInitialized: false }))
-  }, [updatePersonageState])
+    });
+    setState(prev => ({ ...prev, isInitialized: false }));
+  }, [updatePersonageState]);
+
+
+  const [notificationsSent, setNotificationsSent] = useState({
+    moodBelow49: false,
+    hungryBelow49: false,
+    moodBelow9: false,
+    hungryBelow9: false,
+    allZero: false,
+  });
+
+  const resetNotifications = useCallback(() => {
+    setNotificationsSent({
+      moodBelow49: false,
+      hungryBelow49: false,
+      moodBelow9: false,
+      hungryBelow9: false,
+      allZero: false,
+    });
+  }, []);
+
+  const { showNotification } = useNotification()
+
+  const checkAndSendNotifications = useCallback(() => {
+    const { userParameters } = state.parameters;
+
+    if (!userParameters) return;
+
+    const { mood, hungry } = userParameters;
+
+    const updatedNotificationsSent = { ...notificationsSent };
+    let hasChanged = false;
+
+    if (mood <= 49 && !notificationsSent.moodBelow49) {
+      console.log("Sending notification for mood below 49!");
+      showNotification("moodBelow49");
+      updatedNotificationsSent.moodBelow49 = true;
+      hasChanged = true;
+    }
+
+    if (hungry <= 49 && !notificationsSent.hungryBelow49) {
+      console.log("Sending notification for hungry below 49!");
+      showNotification("hungryBelow49");
+      updatedNotificationsSent.hungryBelow49 = true;
+      hasChanged = true;
+    }
+
+    if (mood <= 9 && !notificationsSent.moodBelow9) {
+      console.log("Sending notification for mood below 9!");
+      showNotification("moodBelow9");
+      updatedNotificationsSent.moodBelow9 = true;
+      hasChanged = true;
+    }
+
+    if (hungry <= 9 && !notificationsSent.hungryBelow9) {
+      console.log("Sending notification for hungry below 9!");
+      showNotification("hungryBelow9");
+      updatedNotificationsSent.hungryBelow9 = true;
+      hasChanged = true;
+    }
+
+    if (mood === 0 && hungry === 0 && !notificationsSent.allZero) {
+      console.log("Sending notification for all zeroes!");
+      showNotification("allZero");
+      updatedNotificationsSent.allZero = true;
+      hasChanged = true;
+    }
+
+    if (hasChanged) {
+      setNotificationsSent(updatedNotificationsSent);
+    }
+    console.log(notificationsSent)
+
+  }, [state.parameters, notificationsSent, resetNotifications]);
+
 
   const fetchData = useCallback(async (isInitial = false, signal) => {
-    if (isFetchingRef.current) return
-    isFetchingRef.current = true
+    if (isFetchingRef.current) return;
+    isFetchingRef.current = true;
 
     try {
-      const data = await getParameters(userId, { signal })
-      if (!mountedRef.current) return
+      const data = await getParameters(userId, { signal });
+      if (!mountedRef.current) return;
 
-      // Handle parameters update
       if (hasParametersChanged(latestDataRef.current, data)) {
         updateParametersState({
           userParameters: { ...data?.parameters, work_hourly_income_increase: data.work_hourly_income_increase, work_duration_decrease: data.work_duration_decrease },
           isParametersLoading: false,
           parametersError: null
-        })
+        });
       }
 
-      // Handle personage update
       if (hasPersonageChanged(latestDataRef.current, data)) {
         updatePersonageState({
           userPersonage: data.personage || {},
@@ -125,32 +198,32 @@ export const UserProvider = ({ children }) => {
           userShelf: data.shelf,
           isPersonageLoading: false,
           personageError: null
-        })
+        });
       }
 
       if (isInitial) {
-        useTelegram.setReady()
-        setState(prev => ({ ...prev, isInitialized: true }))
+        useTelegram.setReady();
+        setState(prev => ({ ...prev, isInitialized: true }));
       }
 
-      latestDataRef.current = data
+      latestDataRef.current = data; // Moved this line
+      checkAndSendNotifications();
+
     } catch (error) {
-      if (error.name === 'AbortError') return
-      
-      // Determine which part of the state to update based on the error
+      if (error.name === 'AbortError') return;
+
       if (error.message.includes('parameters')) {
-        handleParametersError(error)
+        handleParametersError(error);
       } else if (error.message.includes('personage')) {
-        handlePersonageError(error)
+        handlePersonageError(error);
       } else {
-        // If error type is unclear, update both
-        handleParametersError(error)
-        handlePersonageError(error)
+        handleParametersError(error);
+        handlePersonageError(error);
       }
     } finally {
-      isFetchingRef.current = false
+      isFetchingRef.current = false;
     }
-  }, [userId, updateParametersState, updatePersonageState, handleParametersError, handlePersonageError])
+  }, [userId, updateParametersState, updatePersonageState, handleParametersError, handlePersonageError, checkAndSendNotifications]);
 
   const debouncedFetchData = useMemo(
     () => debounce(
@@ -159,23 +232,23 @@ export const UserProvider = ({ children }) => {
       { leading: true, trailing: false }
     ),
     [fetchData]
-  )
+  );
 
   useEffect(() => {
-    const controller = new AbortController()
-    
-    debouncedFetchData(true, controller.signal)
-    
+    const controller = new AbortController();
+
+    debouncedFetchData(true, controller.signal);
+
     const intervalId = setInterval(() => {
-      debouncedFetchData(false, controller.signal)
-    }, 0)
+      debouncedFetchData(false, controller.signal);
+    }, 0);
 
     return () => {
-      controller.abort()
-      clearInterval(intervalId)
-      debouncedFetchData.cancel()
-    }
-  }, [debouncedFetchData])
+      controller.abort();
+      clearInterval(intervalId);
+      debouncedFetchData.cancel();
+    };
+  }, [debouncedFetchData]);
 
   const contextValue = useMemo(() => ({
     // Parameters related values
@@ -200,6 +273,7 @@ export const UserProvider = ({ children }) => {
     refreshData: async () => {
       const controller = new AbortController()
       await fetchData(false, controller.signal)
+      checkAndSendNotifications();
       return () => controller.abort()
     }
   }), [state, userId, updateParametersState, updatePersonageState, fetchData])
