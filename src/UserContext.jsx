@@ -134,35 +134,35 @@ export const UserProvider = ({ children }) => {
 
     if (mood <= 49 && !notificationsSent.moodBelow49) {
       console.log("Sending notification for mood below 49!");
-      showNotification("moodBelow49");
+      showNotification("The mood is below 49%! Now you get a small penalty to the income");
       updatedNotificationsSent.moodBelow49 = true;
       hasChanged = true;
     }
 
     if (hungry <= 49 && !notificationsSent.hungryBelow49) {
       console.log("Sending notification for hungry below 49!");
-      showNotification("hungryBelow49");
+      showNotification("The hunger rate is below 49%! Now you get a small mood penalty");
       updatedNotificationsSent.hungryBelow49 = true;
       hasChanged = true;
     }
 
     if (mood <= 9 && !notificationsSent.moodBelow9) {
       console.log("Sending notification for mood below 9!");
-      showNotification("moodBelow9");
+      showNotification("The mood is below 9%! Now you get a big penalty to the income");
       updatedNotificationsSent.moodBelow9 = true;
       hasChanged = true;
     }
 
     if (hungry <= 9 && !notificationsSent.hungryBelow9) {
       console.log("Sending notification for hungry below 9!");
-      showNotification("hungryBelow9");
+      showNotification("The hunger rate is below 9%. Now you get a big mood penalty");
       updatedNotificationsSent.hungryBelow9 = true;
       hasChanged = true;
     }
 
     if (mood === 0 && hungry === 0 && !notificationsSent.allZero) {
       console.log("Sending notification for all zeroes!");
-      showNotification("allZero");
+      showNotification("Critical condition. Work and other activities have big penalty");
       updatedNotificationsSent.allZero = true;
       hasChanged = true;
     }

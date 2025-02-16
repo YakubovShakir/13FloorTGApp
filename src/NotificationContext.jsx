@@ -6,7 +6,7 @@ const NotificationContext = createContext(null);
 const notificationStyles = {
   container: {
     position: 'fixed',
-    bottom: 25,
+    bottom: 105,
     width: '100%',
     transform: 'translateX(-50%)',
     zIndex: 9999999999,
@@ -97,7 +97,14 @@ const NotificationProvider = ({ children }) => {
                   />
                 )}
                 <p style={notificationStyles.text}>{currentNotification.message}</p>
-                 <button onClick={handleDismiss} style={{marginLeft: 'auto'}}>X</button> {/* Dismiss button */}
+                 <button onClick={handleDismiss} style={{marginLeft: 'auto',
+                  color: 'red',
+                  padding: '4px',
+                  borderRadius: '4px',
+                  border: '1px solid red',
+                  backgroundColor: '#00000000',
+                  width: '35px',
+                 }}>X</button> {/* Dismiss button */}
               </div>
             </div>
           </motion.div>
