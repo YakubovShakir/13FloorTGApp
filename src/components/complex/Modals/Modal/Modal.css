@@ -15,7 +15,8 @@
   max-width: 100%;
 }
 .ModalTitle {
-  
+  margin: auto;
+    width: 76%;
   text-align: center;
   font-size: 5cqw;
   height: 10%;
