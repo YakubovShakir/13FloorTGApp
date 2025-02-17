@@ -16,7 +16,7 @@ import formatTime from "../../../utils/formatTime"
 import Button from "../../../components/simple/Button/Button"
 import Modal from "../../../components/complex/Modals/Modal/Modal"
 import { motion, AnimatePresence, complex } from "framer-motion"
-import UserContext from "../../../UserContext"
+import UserContext, { useUser } from "../../../UserContext"
 import FullScreenSpinner from "../../Home/FullScreenSpinner"
 import FilterModal from "../../../components/complex/FilterModal/FilterModal"
 import { SquareButton } from '../../../components/simple/SquareButton/SquareButton'
@@ -403,6 +403,8 @@ const InventoryTab = ({ userId }) => {
     }
   }
 
+  const { refreshData } = useUser()
+
   const clothesEquip = async (clothing_id, type, productType) => {
     try {
       setIsLoading(true)
@@ -422,6 +424,7 @@ const InventoryTab = ({ userId }) => {
             loadedShelfItems.sort((a, b) => b.equipped - a.equipped)
           )
         })
+        .then(() => refreshData())
         .finally(() => setTimeout(() => setIsLoading(false), 1000))
     }
   }
