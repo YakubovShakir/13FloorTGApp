@@ -20,6 +20,8 @@ import getBgByCurrentProcess from "./getBgByCurrentProcess"
 import moment from "moment-timezone"
 import { useVisibilityChange, useWindowFocus } from "../../hooks/userActivities"
 import formatTime from "../../utils/formatTime"
+import { useNotification } from "../../NotificationContext"
+import { useSettingsProvider } from "../../hooks"
 
 const Home = () => {
     console.log("Home Component Rendered");
@@ -307,6 +309,7 @@ const Home = () => {
 
     const { refreshData } = useUser();
 
+    // !REFOCUS
     useVisibilityChange(() => {
         console.log("Visibility Change Hook - visibilityState:", document.visibilityState);
         if (mountedRef.current && document.visibilityState === 'visible') {
@@ -328,7 +331,6 @@ const Home = () => {
             console.log("Window Focus Hook - window not focused or component unmounted - NOT calling initializeProcess");
         }
     });
-
 
     const renderProcessProgressBar = (
         process,

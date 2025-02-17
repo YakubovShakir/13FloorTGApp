@@ -3,9 +3,7 @@ const SettingsContext = createContext(null);
 
 export function SettingsProvider({ children }) {
   const backgroundMusicRef = useRef(new Audio("https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/Music.mp3"));
-  const clickSoundPoolRef = useRef(
-    Array(5).fill(null).map(() => new Audio("https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/click.mp3"))
-  );
+  const clickSoundPoolRef = useRef(new Audio("https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/click.mp3"));
 
   const currentSoundIndexRef = useRef(0);
   const hasInteractedRef = useRef(false);
@@ -36,6 +34,7 @@ export function SettingsProvider({ children }) {
 
   const [lang, setLang] = useState(() => {
     const stored = localStorage.getItem('langc');
+    console.log('@', stored)
     if (!stored) {
       // Get Telegram user's language code
       const userLang = window.Telegram?.WebApp?.initDataUnsafe?.user?.language_code === 'ru' ? 'ru' : 'en';
@@ -46,12 +45,14 @@ export function SettingsProvider({ children }) {
     return stored;
   })
 
+  useEffect(() => localStorage.setItem('langc', lang), [lang])
+
   // Set initial volume
   useEffect(() => {
     backgroundMusicRef.current.volume = 0.25;
     // Preload audio
     backgroundMusicRef.current.load();
-    clickSoundPoolRef.current.forEach(sound => sound.load());
+    clickSoundPoolRef.current.load();
   }, []);
 
   const playClickSound = () => {
@@ -139,10 +140,8 @@ export function SettingsProvider({ children }) {
 
     return () => {
       document.removeEventListener('click', handleGlobalClick);
-      clickSoundPoolRef.current.forEach(sound => {
-        sound.pause();
-        sound.currentTime = 0;
-      });
+      clickSoundPoolRef.current.pause();
+      clickSoundPoolRef.current.currentTime = 0;
     };
   }, [isSoundEnabled]);
 

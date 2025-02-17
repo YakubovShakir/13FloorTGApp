@@ -11,6 +11,7 @@ import { getParameters } from "./services/user/user";
 import useTelegram from "./hooks/useTelegram";
 import FullScreenSpinner from "./screens/Home/FullScreenSpinner";
 import { useNotification } from "./NotificationContext";
+import { useSettingsProvider } from "./hooks";
 
 const UserContext = createContext();
 
@@ -101,80 +102,6 @@ export const UserProvider = ({ children }) => {
     setState(prev => ({ ...prev, isInitialized: false }));
   }, [updatePersonageState]);
 
-
-  const [notificationsSent, setNotificationsSent] = useState({
-    moodBelow49: false,
-    hungryBelow49: false,
-    moodBelow9: false,
-    hungryBelow9: false,
-    allZero: false,
-  });
-
-  const resetNotifications = useCallback(() => {
-    setNotificationsSent({
-      moodBelow49: false,
-      hungryBelow49: false,
-      moodBelow9: false,
-      hungryBelow9: false,
-      allZero: false,
-    });
-  }, []);
-
-  const { showNotification } = useNotification()
-
-  const checkAndSendNotifications = useCallback(() => {
-    const { userParameters } = state.parameters;
-
-    if (!userParameters) return;
-
-    const { mood, hungry } = userParameters;
-
-    const updatedNotificationsSent = { ...notificationsSent };
-    let hasChanged = false;
-
-    if (mood <= 49 && !notificationsSent.moodBelow49) {
-      console.log("Sending notification for mood below 49!");
-      showNotification("The mood is below 49%! Now you get a small penalty to the income");
-      updatedNotificationsSent.moodBelow49 = true;
-      hasChanged = true;
-    }
-
-    if (hungry <= 49 && !notificationsSent.hungryBelow49) {
-      console.log("Sending notification for hungry below 49!");
-      showNotification("The hunger rate is below 49%! Now you get a small mood penalty");
-      updatedNotificationsSent.hungryBelow49 = true;
-      hasChanged = true;
-    }
-
-    if (mood <= 9 && !notificationsSent.moodBelow9) {
-      console.log("Sending notification for mood below 9!");
-      showNotification("The mood is below 9%! Now you get a big penalty to the income");
-      updatedNotificationsSent.moodBelow9 = true;
-      hasChanged = true;
-    }
-
-    if (hungry <= 9 && !notificationsSent.hungryBelow9) {
-      console.log("Sending notification for hungry below 9!");
-      showNotification("The hunger rate is below 9%. Now you get a big mood penalty");
-      updatedNotificationsSent.hungryBelow9 = true;
-      hasChanged = true;
-    }
-
-    if (mood === 0 && hungry === 0 && !notificationsSent.allZero) {
-      console.log("Sending notification for all zeroes!");
-      showNotification("Critical condition. Work and other activities have big penalty");
-      updatedNotificationsSent.allZero = true;
-      hasChanged = true;
-    }
-
-    if (hasChanged) {
-      setNotificationsSent(updatedNotificationsSent);
-    }
-    console.log(notificationsSent)
-
-  }, [state.parameters, notificationsSent, resetNotifications]);
-
-
   const fetchData = useCallback(async (isInitial = false, signal) => {
     if (isFetchingRef.current) return;
     isFetchingRef.current = true;
@@ -207,8 +134,6 @@ export const UserProvider = ({ children }) => {
       }
 
       latestDataRef.current = data; // Moved this line
-      checkAndSendNotifications();
-
     } catch (error) {
       if (error.name === 'AbortError') return;
 
@@ -223,7 +148,7 @@ export const UserProvider = ({ children }) => {
     } finally {
       isFetchingRef.current = false;
     }
-  }, [userId, updateParametersState, updatePersonageState, handleParametersError, handlePersonageError, checkAndSendNotifications]);
+  }, [userId, updateParametersState, updatePersonageState, handleParametersError, handlePersonageError]);
 
   const debouncedFetchData = useMemo(
     () => debounce(

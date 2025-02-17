@@ -4,15 +4,17 @@ import UserContext, { UserProvider } from "./UserContext.jsx"
 import App from "./App.jsx"
 import "./index.css"
 import { NotificationProvider } from "./NotificationContext.jsx"
+import { SettingsProvider } from "./hooks.jsx"
 
 // config()
 
 createRoot(document.getElementById("root")).render(
-  // <StrictMode>
-    <NotificationProvider>
-      <UserProvider>
+  <UserProvider>
+    <SettingsProvider>
+      <NotificationProvider>
+
         <App />
-      </UserProvider>
-    </NotificationProvider>
-  // </StrictMode> 
+      </NotificationProvider>
+    </SettingsProvider>
+  </UserProvider>
 )
