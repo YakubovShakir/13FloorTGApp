@@ -198,7 +198,6 @@ export const UserProvider = ({ children }) => {
     refreshData: async () => {
       const controller = new AbortController()
       await fetchData(false, controller.signal)
-      checkAndSendNotifications();
       return () => controller.abort()
     }
   }), [state, userId, updateParametersState, updatePersonageState, fetchData])
