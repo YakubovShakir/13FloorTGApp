@@ -228,7 +228,7 @@ function App() {
   useEffect(() => {
     const submitUserData = async () => {
       try {
-        await submitProfileData(WebApp?.initData, userId)
+        await submitProfileData(userId, WebApp)
       } catch (err) {
         console.error('Error submitting user data:', err);
       }
