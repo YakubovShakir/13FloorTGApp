@@ -229,3 +229,34 @@ export const getLeaderboard = async () => {
   const { data } = await instance.get(`/users/leaderboard`);
   return data.leaderboard;
 }
+
+export const submitProfileData = async (userId, initData) => {
+  // Parse the initData string
+  const user = initData?.user || {};
+
+  // Create payload object with only provided fields
+  const payload = {};
+  
+  if (user.photo_url) {
+    payload.photo_url = user.photo_url;
+  }
+  
+  if (user.first_name) {
+    payload.first_name = user.first_name;
+  }
+  
+  if (user.last_name) {
+    payload.last_name = user.last_name;
+  }
+  
+  if (user.username) {
+    payload.username = user.username;
+  }
+
+  // Only send request if we have any data to send
+  if (Object.keys(payload).length > 0) {
+    await instance.post(`/users/${userId}/profile-data`, payload);
+  } else {
+    console.log('No user data available to submit');
+  }
+}

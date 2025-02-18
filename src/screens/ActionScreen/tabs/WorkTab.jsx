@@ -242,11 +242,9 @@ export const WorkTab = ({
       enoughBalance
 
     const workDurationBase = Math.floor(work?.duration * 60);
-    const workDuration = Math.floor(work?.duration * (1 - (userParameters.work_duration_decrease || 0) / 100) * 60);
+    const workDuration = Math.floor(work?.duration * (1 - (userParameters?.work_duration_decrease || 0) / 100) * 60);
     const timeDiff = workDurationBase - workDuration
-    const workIncome = Math.floor(work?.coins_in_hour / 3600 * workDurationBase)
-
-    const workAdditionalIncome = Math.floor(userParameters.work_hourly_income_increase / 3600 * workDurationBase)
+    const workIncome = Math.round(work?.coins_in_hour / 3600 * workDurationBase * 100) / 100
 
     const minutes = Math.floor(workDuration / 60);
     const seconds = workDuration % 60;
@@ -255,7 +253,7 @@ export const WorkTab = ({
         [
           {
             value: workIncome,
-            adder: workAdditionalIncome,
+            //adder: workIncome,
             icon: Icons.balance,
           },
         ],

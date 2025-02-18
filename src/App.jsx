@@ -19,7 +19,8 @@ import { TonConnectUIProvider } from "@tonconnect/ui-react";
 import ForeignHome from "./screens/Home/ForeignHome";
 import { config } from "dotenv"
 import { NotificationProvider, useNotification } from "./NotificationContext";
-
+import { WebApp } from '@twa-dev/sdk';
+import { submitProfileData } from "./services/user/user";
 const BlockerMessage = () => (
   <div style={{
     height: '100vh',
@@ -125,6 +126,8 @@ function App() {
     allZero: false,
   });
 
+  WebApp?.initData
+
   const resetNotifications = useCallback(() => {
     setNotificationsSent({
       moodBelow49: false,
@@ -220,6 +223,19 @@ function App() {
   }, [userParameters, notificationsSent, resetNotifications, showNotification, lang]); // Add lang to dependencies
 
   useEffect(() => checkAndSendNotifications(), [userParameters])
+  
+  const { userId } = useContext(UserContext)
+  useEffect(() => {
+    const submitUserData = async () => {
+      try {
+        await submitProfileData(WebApp?.initData, userId)
+      } catch (err) {
+        console.error('Error submitting user data:', err);
+      }
+    };
+
+    submitUserData();
+  }, []);
 
   return (
     // <TelegramPlatformCheck>
