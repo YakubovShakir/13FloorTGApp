@@ -232,6 +232,7 @@ export const getLeaderboard = async () => {
 
 export const submitProfileData = async (userId, initData) => {
   // Parse the initData string
+  console.log(initData.user);
   const user = initData?.user || {};
 
   // Create payload object with only provided fields
