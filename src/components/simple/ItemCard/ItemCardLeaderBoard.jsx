@@ -18,6 +18,7 @@ const ItemCard = ({
   ItemTotalEarned,
   ItemRespect,
   ItemGender,
+  ItemAvatar,
   ItemUsername
 }) => {
   // Определяем, активна ли хотя бы одна кнопка
@@ -35,6 +36,13 @@ const ItemCard = ({
   let borderStyle = "" // Стандартный цвет обводки (неактивная кнопка)
   let backgroundImageStyle = "" // Стиль фона
   let backgroundColor = "" // Цвет фона по умолчанию
+
+  const getAvatarImage = () => {
+    if (ItemAvatar) {
+      return ItemAvatar
+    }
+    return ItemGender === 'female'? Images.womanAva : Images.manAva
+  }
 
   // Логика для обесцвечивания изображений
   const isImageGrayscale = !isAnyButtonActive // Если кнопка неактивна, изображение будет обесцвечено
@@ -58,7 +66,7 @@ const ItemCard = ({
           <div className="ItemTitleLeader"></div>
           <img
             loading="lazy"
-            src={ItemGender === 'female' ? Images.womanAva : Images.manAva}
+            src={getAvatarImage()}
             alt="ItemIconLeader"
             className={isImageGrayscale ? "inactiveLeader" : ""} // Применяем 'inactive' если кнопка неактивна
           />

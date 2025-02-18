@@ -54,6 +54,7 @@ const LeaderboardTab = () => {
         return (
           <div onClick={() => leader.user_id !== userId ? navigate('/foreign-user/' + leader.user_id) : null}>
             <ItemCard
+              ItemAvatar={leader.photo_url}
               key={leader.name}
               ItemButtons={[]}
               ItemTitle={formUsername(leader)}
