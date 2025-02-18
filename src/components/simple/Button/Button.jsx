@@ -1,3 +1,4 @@
+import { useSettingsProvider } from "../../../hooks";
 import "./Button.css";
 import { useState } from "react";
 
@@ -23,10 +24,12 @@ const Button = ({
   const [isPressed, setIsPressed] = useState(false);
   const shadowColorValue = active ? shadowColor || "rgb(199, 80, 21)" : "rgb(24 24 24)";
   const borderColorValue = active ? borderColor || "rgb(255, 141, 0)" : "rgb(73 73 73)";
-  
+  const { playClickSound } = useSettingsProvider()
+
   return (
     <button
       onClick={() => {
+        playClickSound()
         if (onClick) onClick();
       }}
       onMouseDown={() => setIsPressed(true)}

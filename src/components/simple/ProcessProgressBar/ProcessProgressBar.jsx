@@ -173,17 +173,6 @@ const ProcessProgressBar = ({
 
     const handleCloseModal = () => setShowModal(false)
 
-    const handleConfirmClose = async () => {
-        try {
-            await stopProcess(userId)
-        } catch (error) {
-            console.error("Error stopping process:", error)
-        } finally {
-            setShowModal(false)
-            // unmountSelf()
-        }
-    }
-
     if (isLoading) {
         return (
             <div

@@ -57,10 +57,7 @@ export function SettingsProvider({ children }) {
 
   const playClickSound = () => {
     if (!isSoundEnabled) return;
-    const sounds = clickSoundPoolRef.current;
-    sounds[currentSoundIndexRef.current].currentTime = 0;
-    sounds[currentSoundIndexRef.current].play().catch(console.error);
-    currentSoundIndexRef.current = (currentSoundIndexRef.current + 1) % sounds.length;
+    clickSoundPoolRef.current.play().catch(console.error);
   };
 
   const toggleSound = () => {
@@ -134,19 +131,13 @@ export function SettingsProvider({ children }) {
       playClickSound();
     };
 
-    if (isSoundEnabled) {
-      document.addEventListener('click', handleGlobalClick);
-    }
-
     return () => {
-      document.removeEventListener('click', handleGlobalClick);
       clickSoundPoolRef.current.pause();
-      clickSoundPoolRef.current.currentTime = 0;
     };
   }, [isSoundEnabled]);
 
   return (
-    <SettingsContext.Provider value={{ isSoundEnabled, toggleSound, toggleMusic, isMusicEnabled, lang, setLang }}>
+    <SettingsContext.Provider value={{ isSoundEnabled, toggleSound, toggleMusic, isMusicEnabled, lang, setLang, playClickSound }}>
       {children}
     </SettingsContext.Provider>
   );
