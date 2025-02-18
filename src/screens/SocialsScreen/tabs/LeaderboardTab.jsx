@@ -41,7 +41,9 @@ const LeaderboardTab = () => {
   const formUsername = (leader) => {
     const { first_name = '', last_name = '' } = leader
 
-    return (first_name + ' ' + last_name).trimStart().trimEnd()
+    const formattedName = (first_name + ' ' + last_name).trimStart().trimEnd()
+
+    return formattedName === '' ? 'Anon' : formattedName
   }
 
   if (isLoading) {

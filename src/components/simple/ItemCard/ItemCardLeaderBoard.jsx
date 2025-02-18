@@ -26,8 +26,8 @@ const ItemCard = ({
   const { lang } = useSettingsProvider()
   const translations = {
     anonUser: {
-      en: 'Anonymous Telegram User',
-      ru: 'Анонимный пользователь Telegram'
+      en: 'Anonymous player',
+      ru: 'Анонимный игрок'
     }
   }
 
@@ -68,9 +68,7 @@ const ItemCard = ({
           className="ItemDetailsContainerLeader"
           style={{ border: borderStyle, backgroundColor: backgroundColor }}
         >
-          {ItemTitle}
-          <p style={{ fontSize: 13, color: '' }}>{!ItemUsername ? translations.anonUser[lang] : '@' + ItemUsername}</p>
-
+          {ItemTitle === '' ? translations.anonUser[lang] : ItemTitle}
           {/* ItemParams Section */}
           <div className="ItemCardParamsLeader">
             {ItemDescription && (
