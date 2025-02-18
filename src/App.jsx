@@ -227,6 +227,8 @@ function App() {
   const { userId } = useContext(UserContext)
   useEffect(() => {
     const submitUserData = async () => {
+      console.log('@@@', WebApp.initData)
+      console.log('@@@', window.WebApp.initData)
       try {
         await submitProfileData(WebApp?.initData, userId)
       } catch (err) {
