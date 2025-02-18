@@ -11,6 +11,7 @@ import Button from "../../../components/simple/Button/Button"
 import { useNavigate, UNSAFE_NavigationContext } from "react-router-dom";
 import { formatCoins } from "../../../utils/formatCoins"
 import UserContext from "../../../UserContext"
+import { formUsername } from "../../../utils/formUsername"
 
 const LeaderboardTab = () => {
   const [isLoading, setIsLoading] = useState(true)
@@ -18,6 +19,8 @@ const LeaderboardTab = () => {
   const [leaders, setLeaders] = useState(null)
 
   const { userId } = useContext(UserContext)
+  const { lang } = useSettingsProvider()
+
 
   // Fix for MemoryRouter navigation stack
   function useCustomNavigate() {
@@ -38,13 +41,7 @@ const LeaderboardTab = () => {
     getLeaderboard().then(leaders => setLeaders(leaders)).then(() => setIsLoading(false))
   }, []) // Remove userId dependency
 
-  const formUsername = (leader) => {
-    const { first_name = '', last_name = '' } = leader
 
-    const formattedName = (first_name + ' ' + last_name).trimStart().trimEnd()
-
-    return formattedName === '' ? 'Anon' : formattedName
-  }
 
   if (isLoading) {
     return <FullScreenSpinner />
@@ -57,7 +54,7 @@ const LeaderboardTab = () => {
               ItemAvatar={leader.photo_url}
               key={leader.name}
               ItemButtons={[]}
-              ItemTitle={formUsername(leader)}
+              ItemTitle={formUsername(leader, lang)}
               ItemDescription={true}
               ItemRespect={leader.respect}
               ItemTotalEarned={formatCoins(leader.total_earned)}

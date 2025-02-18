@@ -23,12 +23,15 @@ import getBgByCurrentProcess from "./getBgByCurrentProcess"
 import moment from "moment-timezone"
 import { useVisibilityChange, useWindowFocus } from "../../hooks/userActivities"
 import { formatCoins } from "../../utils/formatCoins"
+import { formUsername } from "../../utils/formUsername"
+import { useSettingsProvider } from "../../hooks"
 
 
 const ForeignHome = () => {
     const navigate = useNavigate()
     const mountedRef = useRef(false)
     const { userId = "0" } = useParams()
+    const { lang } = useSettingsProvider()
     const [state, setState] = useState({
         currentWindow: null,
         currentProcess: null,
@@ -238,7 +241,7 @@ const ForeignHome = () => {
                     key={userId}
                 /> */}
                 <div style={{ position: 'fixed', textAlign: 'center', width: '100%', color: 'white', top: '15%'}} >
-                    <h1>{userPersonage.name}</h1>
+                    <h1>{formUsername(userParameters, lang)}</h1>
                     <div style={{ display: 'flex', width: '100%', alignItems: 'center', justifyContent: 'center', gap: 16, paddingTop: 12 }}>
                         <div style={{display: 'flex' }}>
                             <img src={Assets.Icons.balance} width={15}/>

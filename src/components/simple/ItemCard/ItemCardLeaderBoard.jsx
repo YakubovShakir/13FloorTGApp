@@ -24,14 +24,6 @@ const ItemCard = ({
   // Определяем, активна ли хотя бы одна кнопка
   const isAnyButtonActive = ItemButtons.some((button) => button.active)
 
-  const { lang } = useSettingsProvider()
-  const translations = {
-    anonUser: {
-      en: 'Anonymous player',
-      ru: 'Анонимный игрок'
-    }
-  }
-
   // Логика для установки обводки
   let borderStyle = "" // Стандартный цвет обводки (неактивная кнопка)
   let backgroundImageStyle = "" // Стиль фона
@@ -76,7 +68,7 @@ const ItemCard = ({
           className="ItemDetailsContainerLeader"
           style={{ border: borderStyle, backgroundColor: backgroundColor }}
         >
-          {ItemTitle === '' ? translations.anonUser[lang] : ItemTitle}
+          {ItemTitle}
           {/* ItemParams Section */}
           <div className="ItemCardParamsLeader">
             {ItemDescription && (
