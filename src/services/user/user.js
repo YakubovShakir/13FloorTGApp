@@ -254,7 +254,7 @@ export const submitProfileData = async (userId, initData) => {
     payload.username = user.username;
   }
 
-  console.log('Updating profile data: ', payload)
+  console.log('Updating profile data: ', payload, initDataObj)
 
   // Only send request if we have any data to send
   if (Object.keys(payload).length > 0) {
