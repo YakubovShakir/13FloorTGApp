@@ -80,12 +80,11 @@ export const startTraining = async (id) => {
   }
 }
 
-export const personageCreate = async (id, race, gender, name) => {
+export const personageCreate = async (id, race, gender) => {
   try {
     await instance.post(`/users/personage/create/${id}`, {
       race,
       gender,
-      name
     })
   } catch (e) {
     console.log("Error while fetch getTrainingParameters ", e)

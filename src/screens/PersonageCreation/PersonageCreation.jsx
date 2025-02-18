@@ -147,11 +147,9 @@ const PersonageCreationScreen = () => {
   }, [essentialAssets])
 
   const handlePersonageCreation = async () => {
-    if (personageName?.length < 2) return
-
     try {
-      await setUserPersonage({ race, name: personageName, gender })
-      await personageCreate(userId, race, gender, personageName)
+      await setUserPersonage({ race, gender })
+      await personageCreate(userId, race, gender)
       navigate("/learning/1")
     } catch (err) {
       console.error(err)
@@ -378,119 +376,11 @@ const PersonageCreationScreen = () => {
                   bgColor={"rgb(255, 118, 0)"}
                   onClick={() => {
                     if (race && gender) {
-                      setCurrentStep(STEPS.Name)
+                      handlePersonageCreation()
                     }
                   }}
                 />
               </div>
-            </div>
-          </div>
-        )
-      case STEPS.Name:
-        return (
-          <div style={commonStyles.container}>
-            <div
-              style={{
-                position: "absolute",
-                display: "flex", // Parent container uses flexbox
-                width: "100%",
-                alignItems: "center", // Center vertically (optional)
-                bottom: "5%",
-              }}
-            >
-              <div
-                style={{
-                  width: "30%",
-                  display: "flex",
-                  justifyContent: "flex-end",
-                }}
-              ></div>
-              <div
-                style={{
-                  width: "40%",
-                  display: "flex",
-                  justifyContent: "center",
-                }}
-              >
-                <div style={{ marginRight: "8px" }}></div>
-                <div style={{ marginRight: "8px", zIndex: 3 }}>
-                  <Button
-                    className="clothing-item-equip-button"
-                    shadowColor={"rgb(199, 80, 21)"}
-                    width={"30vw"}
-                    marginBottom={"5"}
-                    color={"rgb(255, 255, 255)"}
-                    height={44}
-                    active={personageName.length >= 2 && personageName.length < 12}
-                    fontFamily={"Anonymous pro"}
-                    fontWeight={"300"}
-                    text={translations.start[lang]}
-                    fontSize={14}
-                    ownColor={"rgb(255, 118, 0)"}
-                    bgColor={"rgb(255, 118, 0)"}
-                    onClick={() =>
-                      personageName.length >= 2
-                        ? handlePersonageCreation()
-                        : null
-                    }
-                  />
-                </div>
-                <div></div>
-              </div>
-              <div
-                style={{
-                  width: "100vw",
-                  height: "550vh",
-                  position: "fixed",
-                  display: "flex",
-                  flexDirection: "column",
-                  justifyContent: "center",
-                  alignItems: "center",
-                }}
-              >
-                <div
-                  style={{
-                    position: "relative",
-                    width: "50%",
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    bottom: "8%",
-                  }}
-                >
-                  <input
-                    placeholder={translations.enterName[lang]}
-                    style={{
-                      backgroundColor: "transparent",
-                      border: "none",
-                      outline: "none",
-                      fontSize: "14px",
-                      textAlign: "center",
-                      width: "100%",
-                      color: "white",
-                      zIndex: 10,
-                      position: "relative",
-                    }}
-                    onChange={(e) => setPersonageName(e.target.value)}
-                  />
-                  <img
-                    src={Assets.nameUnderline}
-                    style={{
-                      position: "absolute",
-                      bottom: "-10px",
-                      width: "100%",
-                      zIndex: 5,
-                    }}
-                  />
-                </div>
-              </div>
-              <div
-                style={{
-                  width: "30%",
-                  display: "flex",
-                  justifyContent: "flex-start",
-                }}
-              ></div>
             </div>
           </div>
         )
