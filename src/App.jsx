@@ -19,7 +19,7 @@ import { TonConnectUIProvider } from "@tonconnect/ui-react";
 import ForeignHome from "./screens/Home/ForeignHome";
 import { config } from "dotenv"
 import { NotificationProvider, useNotification } from "./NotificationContext";
-import { WebApp } from '@twa-dev/sdk';
+import WebApp from '@twa-dev/sdk';
 import { submitProfileData } from "./services/user/user";
 const BlockerMessage = () => (
   <div style={{
@@ -237,7 +237,7 @@ function App() {
     };
 
     submitUserData();
-  }, []);
+  }, [userId, WebApp]);
 
   return (
     // <TelegramPlatformCheck>
