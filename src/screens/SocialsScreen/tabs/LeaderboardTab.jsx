@@ -38,6 +38,12 @@ const LeaderboardTab = () => {
     getLeaderboard().then(leaders => setLeaders(leaders)).then(() => setIsLoading(false))
   }, []) // Remove userId dependency
 
+  const formUsername = (leader) => {
+    const { first_name = null, last_name = null } = leader
+
+    return (first_name + ' ' + last_name).trimStart()
+  }
+
   if (isLoading) {
     return <FullScreenSpinner />
   } else {
@@ -48,8 +54,7 @@ const LeaderboardTab = () => {
             <ItemCard
               key={leader.name}
               ItemButtons={[]}
-              ItemTitle={leader.name}
-              ItemUsername={leader.tg_username}
+              ItemTitle={formUsername(leader)}
               ItemDescription={true}
               ItemRespect={leader.respect}
               ItemTotalEarned={formatCoins(leader.total_earned)}
