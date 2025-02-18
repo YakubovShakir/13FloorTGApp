@@ -22,6 +22,19 @@ import { useVisibilityChange, useWindowFocus } from "../../hooks/userActivities"
 import formatTime from "../../utils/formatTime"
 import { useNotification } from "../../NotificationContext"
 import { useSettingsProvider } from "../../hooks"
+import { checkCanStop } from "../../services/process/process"
+
+// Pre-load audio files
+const COIN_SOUND = new Audio(
+    "https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/coin.mp3"
+)
+const ALARM_SOUND = new Audio(
+    "https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/alarm.mp3"
+)
+
+// Ensure audio files are loaded
+COIN_SOUND.load()
+ALARM_SOUND.load()
 
 const Home = () => {
     console.log("Home Component Rendered");
@@ -69,48 +82,48 @@ const Home = () => {
     const [progressRate, setProgressRate] = useState(null);
 
     const preloadImages = useCallback(async () => {
-      const imageUrls = [
-          Assets.Layers.cover,
-          Assets.BG.workScreenBG,
-          Assets.BG.sleepScreenBG,
-          Assets.BG.trainScreenBG,
-          Assets.BG.homeBackground,
-          Assets.HOME.shelf,
-          Assets.HOME.couch,
-          Assets.BG.backgroundSun,
-          Assets.BG.winter // Ensure Assets.BG.winter is here
-      ];
+        const imageUrls = [
+            Assets.Layers.cover,
+            Assets.BG.workScreenBG,
+            Assets.BG.sleepScreenBG,
+            Assets.BG.trainScreenBG,
+            Assets.BG.homeBackground,
+            Assets.HOME.shelf,
+            Assets.HOME.couch,
+            Assets.BG.backgroundSun,
+            Assets.BG.winter // Ensure Assets.BG.winter is here
+        ];
 
-      const imagePromises = imageUrls.map((url, index) => {
-          return new Promise((resolve, reject) => {
-              const img = new Image();
-              const imageName = url.split('/').pop(); // Extract image name for logging
+        const imagePromises = imageUrls.map((url, index) => {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                const imageName = url.split('/').pop(); // Extract image name for logging
 
-              console.log(`[Preload Image] Start loading: ${imageName}`); // LOG - Start loading
+                console.log(`[Preload Image] Start loading: ${imageName}`); // LOG - Start loading
 
-              img.onload = () => {
-                  setLoadingProgress((prevProgress) => {
-                      const newProgress = prevProgress + (100 / imageUrls.length);
-                      return newProgress;
-                  });
-                  console.log(`[Preload Image] Loaded successfully: ${imageName}`); // LOG - Loaded success
-                  resolve();
-              };
-              img.onerror = () => {
-                  console.error(`[Preload Image] Failed to load: ${imageName}`); // LOG - Load failed
-                  setLoadingProgress((prevProgress) => {
-                      const newProgress = prevProgress + (100 / imageUrls.length);
-                      return newProgress;
-                  });
-                  resolve(); // Resolve even on error
-              };
-              img.src = url;
-              console.log(`[Preload Image] Set src for: ${imageName} to ${url}`); // LOG - Set src
-          });
-      });
+                img.onload = () => {
+                    setLoadingProgress((prevProgress) => {
+                        const newProgress = prevProgress + (100 / imageUrls.length);
+                        return newProgress;
+                    });
+                    console.log(`[Preload Image] Loaded successfully: ${imageName}`); // LOG - Loaded success
+                    resolve();
+                };
+                img.onerror = () => {
+                    console.error(`[Preload Image] Failed to load: ${imageName}`); // LOG - Load failed
+                    setLoadingProgress((prevProgress) => {
+                        const newProgress = prevProgress + (100 / imageUrls.length);
+                        return newProgress;
+                    });
+                    resolve(); // Resolve even on error
+                };
+                img.src = url;
+                console.log(`[Preload Image] Set src for: ${imageName} to ${url}`); // LOG - Set src
+            });
+        });
 
-      return Promise.all(imagePromises);
-  }, []);
+        return Promise.all(imagePromises);
+    }, []);
 
     const initializeProcess = useCallback(async () => {
         console.log("initializeProcess - Start");
@@ -153,13 +166,80 @@ const Home = () => {
         }
     }, [userId]);
 
+    const { isSoundEnabled } = useSettingsProvider()
+
+    const playSound = async (type) => {
+        if (!isSoundEnabled) return
+
+        const sound = type === "work" ? COIN_SOUND : ALARM_SOUND
+        try {
+            await sound.play()
+        } catch (error) {
+            console.error("Error playing sound:", error)
+        }
+    }
+
+    const completionInProgressRef = useRef(false);
+
+    const handleProcessCompletion = async () => {
+        // Prevent multiple simultaneous executions
+        if (completionInProgressRef.current) {
+            console.log('Process completion already in progress, skipping');
+            return;
+        }
+
+        try {
+            completionInProgressRef.current = true;
+            console.log('handleProcessCompletion - started');
+
+            try {
+                await playSound(state.currentProcess?.type)
+            } catch (err) {
+                console.error('Error playing sound:', err);
+            }
+
+            await new Promise(resolve => setTimeout(resolve, 1000))
+
+            setIsLoading(true)
+
+            // Wait for process to be stoppable
+            while (true) {
+                try {
+                    await new Promise(resolve => setTimeout(resolve, 500))
+                    await checkCanStop(userId)
+                    break
+                } catch (err) {
+                    console.log('checkCanStop error:', err)
+                    if (err.status === 404) {
+                        console.log('Process not found, breaking loop')
+                        break
+                    }
+                    const waitTime = err.response?.data?.seconds_left * 1000 || 1000;
+                    await new Promise(resolve => setTimeout(resolve, waitTime))
+                }
+            }
+
+            // Only proceed with cleanup if component is still mounted
+            if (mountedRef.current) {
+                setTimeout(() => {
+                    setIsLoading(false)
+                    setState(prevState => ({ ...prevState, currentProcess: null }))
+                    refreshData()
+                }, 750)
+            }
+        } finally {
+            completionInProgressRef.current = false;
+            console.log('handleProcessCompletion - completed');
+        }
+    }
 
     useEffect(() => {
         let timerInterval;
         const isActive = state.currentProcess?.active;
         const currentProcessCreatedAt = state.currentProcess?.createdAt;
+        const processId = state.currentProcess?.id;
 
-        console.log("Timer useEffect - Start - isActive:", isActive, "createdAt:", currentProcessCreatedAt);
+        console.log("Timer useEffect - Start", { isActive, currentProcessCreatedAt, processId });
 
         if (isActive && mountedRef.current && currentProcessCreatedAt) {
             timerInterval = setInterval(() => {
@@ -174,105 +254,99 @@ const Home = () => {
                 const remainingSeconds = Math.max(0, totalSeconds - elapsedSeconds);
                 const formattedTime = formatTime(remainingSeconds / 60, remainingSeconds % 60);
 
-                const timerUpdates = {
-                    totalSecondsRemaining: remainingSeconds,
-                    formattedTime: formattedTime,
-                    totalSeconds
-                };
-
                 setProgressRate(formattedTime);
 
-                if (remainingSeconds < 1) {
-                    console.log("Timer useEffect - clearInterval - remainingSeconds <= 0");
-                    initializeProcess()
+                if (remainingSeconds === 0) {
+                    console.log("Timer useEffect - Process completed");
+                    clearInterval(timerInterval);
+                    handleProcessCompletion();
                 } else {
                     setState(prev => {
-                        if (prev.currentProcess && prev.currentProcess.id === state.currentProcess.id) {
-                            const updatedProcess = { ...prev.currentProcess, ...timerUpdates };
-                            const updatedState = { ...prev, currentProcess: updatedProcess };
-                            console.log("Timer useEffect - setState - updatedState.currentProcess.formattedTime:", updatedState.currentProcess?.formattedTime, "remainingSeconds:", remainingSeconds, "processId:", updatedState.currentProcess.id);
-                            return updatedState;
-                        } else {
-                            console.log("Timer useEffect - setState - process ID changed or no currentProcess, skipping update");
-                            return prev;
+                        if (prev.currentProcess?.id === processId) {
+                            return {
+                                ...prev,
+                                currentProcess: {
+                                    ...prev.currentProcess,
+                                    totalSecondsRemaining: remainingSeconds,
+                                    formattedTime: formattedTime,
+                                    totalSeconds
+                                }
+                            };
                         }
+                        return prev;
                     });
                 }
             }, 1000);
-            console.log("Timer useEffect - setInterval started");
-        } else {
-            clearInterval(timerInterval);
-            setProgressRate(null);
-            console.log("Timer useEffect - clearInterval - process not active or component unmounted or no createdAt");
         }
 
         return () => {
-            clearInterval(timerInterval);
-            console.log("Timer useEffect - Cleanup - clearInterval");
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                console.log("Timer useEffect - Cleanup - interval cleared");
+            }
         };
     }, [state.currentProcess?.active, state.currentProcess?.createdAt, state.currentProcess?.id]);
 
-
     const renderScene = (content) => (
-      <AnimatePresence mode="wait">
-          <motion.div
-              className="Home"
-              key={state.currentProcess?.type || "default"}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.5, ease: "easeInOut" }}
-              style={{
-                  position: "absolute",
-                  height: "100%",
-                  width: "100%",
-                  overflow: "hidden",
-                  backgroundColor: isLoading ? "#f0f0f0" : "transparent", // Placeholder background
-              }}
-          >
-              {state.imagesLoaded && (
-                  <>
-                      <motion.div
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          exit={{ opacity: 0 }}
-                          transition={{ duration: 0.5, ease: "easeInOut" }}
-                          style={{
-                              filter: "blur(1px)",
-                              position: "absolute",
-                              height: "53%",
-                              width: "53%",
-                              backgroundImage: `url(${Assets.BG.winter})`, // Explicitly target winter background
-                              backgroundSize: "cover",
-                              backgroundPosition: "center right",
-                              zIndex: 0,
-                          }}
-                      />
-                      <motion.div
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          exit={{ opacity: 0 }}
-                          transition={{ duration: 0.5, ease: "easeInOut" }}
-                          style={{
-                              position: "absolute",
-                              height: "100%",
-                              width: "100%",
-                              backgroundImage: state.currentProcess?.type && 
-                                            state.currentProcess?.type !== 'default' && 
-                                            state.currentProcess?.active
-                                ? getBgByCurrentProcess(state.currentProcess.type, state.currentProcess?.type_id)
-                                : `url(${Assets.BG.homeBackground})`,
-                              backgroundSize: "cover",
-                              backgroundPosition: "bottom right",
-                              zIndex: 0,
-                          }}
-                      />
-                  </>
-              )}
-              {content}
-          </motion.div>
-      </AnimatePresence>
-  );
+        <AnimatePresence mode="wait">
+            <motion.div
+                className="Home"
+                key={state.currentProcess?.type || "default"}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.5, ease: "easeInOut" }}
+                style={{
+                    position: "absolute",
+                    height: "100%",
+                    width: "100%",
+                    overflow: "hidden",
+                    backgroundColor: isLoading ? "#f0f0f0" : "transparent", // Placeholder background
+                }}
+            >
+                {state.imagesLoaded && (
+                    <>
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.5, ease: "easeInOut" }}
+                            style={{
+                                filter: "blur(1px)",
+                                position: "absolute",
+                                height: "53%",
+                                width: "53%",
+                                backgroundImage: `url(${Assets.BG.winter})`, // Explicitly target winter background
+                                backgroundSize: "cover",
+                                backgroundPosition: "center right",
+                                zIndex: 0,
+                            }}
+                        />
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.5, ease: "easeInOut" }}
+                            style={{
+                                position: "absolute",
+                                height: "100%",
+                                width: "100%",
+                                backgroundImage: state.currentProcess?.type &&
+                                    state.currentProcess?.type !== 'default' &&
+                                    state.currentProcess?.active
+                                    ? getBgByCurrentProcess(state.currentProcess.type, state.currentProcess?.type_id)
+                                    : `url(${Assets.BG.homeBackground})`,
+                                backgroundSize: "cover",
+                                backgroundPosition: "bottom right",
+                                zIndex: 0,
+                            }}
+                        />
+                    </>
+                )}
+                {content}
+            </motion.div>
+        </AnimatePresence>
+    );
 
     useEffect(() => {
         if (!isInitialized) return;
@@ -289,7 +363,7 @@ const Home = () => {
 
             try {
                 await preloadImages(); // Await image preloading first
-                setState(prev => ({...prev, imagesLoaded: true}));
+                setState(prev => ({ ...prev, imagesLoaded: true }));
                 console.log("Home Initialize useEffect - Images preloaded");
                 await initializeProcess(); // Then initialize process
                 console.log("Home Initialize useEffect - Process initialized");
@@ -341,20 +415,8 @@ const Home = () => {
         return (
             <ProcessProgressBar
                 activeProcess={process}
-                inputPercentage={percentage}
                 rate={rate}
                 reverse={reverse}
-                setIsLoading={setIsLoading}
-                hasIconAnimated={state.hasIconAnimated}
-                setHasIconAnimated={(newState) => {
-                    console.log("Home - setHasIconAnimated called, newState:", newState);
-                    setState(prev => ({ ...prev, hasIconAnimated: newState }))
-                }}
-                unmountSelf={() => 
-                  {
-                    setState(prev => ({ ...prev, currentProcess: null, activeProcess: null}))
-                    initializeProcess()
-                  }}
             />
         );
     };
@@ -365,7 +427,7 @@ const Home = () => {
     }
 
     if (!isInitialized) {
-        return <FullScreenSpinner progress={loadingProgress}/>;
+        return <FullScreenSpinner progress={loadingProgress} />;
     } else {
         const homeContent = (
             <>

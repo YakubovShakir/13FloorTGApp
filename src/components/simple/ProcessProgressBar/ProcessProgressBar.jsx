@@ -9,17 +9,62 @@ import { motion, AnimatePresence } from "framer-motion"
 import FullScreenSpinner from "../../../screens/Home/FullScreenSpinner"
 import { useSettingsProvider } from "../../../hooks"
 
-// Pre-load audio files
-const COIN_SOUND = new Audio(
-    "https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/coin.mp3"
-)
-const ALARM_SOUND = new Audio(
-    "https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/alarm.mp3"
-)
 
-// Ensure audio files are loaded
-COIN_SOUND.load()
-ALARM_SOUND.load()
+const WorkIcon = ({ hasIconAnimated = true, onAnimationComplete }) => {
+    if (hasIconAnimated) {
+        return <img height={20} width={20} src={Assets.Icons.balance} alt="Balance Icon" />;
+    }
+
+    return (
+        <AnimatePresence>
+            <motion.img
+                height={20}
+                width={20}
+                src={Assets.Icons.balance}
+                key="animated-balance"
+                style={{ position: "absolute", top: 0, left: -16 }}
+                initial={{ y: -50, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 1, ease: "easeOut" }}
+                onAnimationComplete={() => {
+                  onAnimationComplete()
+                }}
+                onEnded={() => onAnimationComplete()}
+            />
+        </AnimatePresence>
+    );
+}
+
+const ClockIcon = ({ hasIconAnimated = true, onAnimationComplete }) => {
+    if (hasIconAnimated) {
+        return <img height={20} width={20} src={Assets.Icons.clock} alt="Clock Icon" />;
+    }
+
+    return (
+        <AnimatePresence>
+            <motion.div
+                style={{ position: "absolute", top: 0, left: -16 }}
+                animate={{
+                    x: [0, 2, 0, 3, 0],
+                    y: [-2, 2, -1, 1, 0],
+                    rotate: [-3, 3, -2, 2, 0],
+                }}
+                transition={{
+                    duration: 0.5,
+                    ease: "easeInOut",
+                    repeat: 1,
+                }}
+                onAnimationComplete={() => {
+                    onAnimationComplete()
+                  }}
+                onEnded={() => onAnimationComplete()}
+            >
+                <img height={20} width={20} src={Assets.Icons.clock} alt="Clock Icon" />
+            </motion.div>
+        </AnimatePresence>
+    );
+}
 
 const ProcessProgressBar = ({
     activeProcess,
@@ -78,124 +123,13 @@ const ProcessProgressBar = ({
         },
     }
 
-    const WorkIcon = ({ onAnimationComplete }) => {
-        console.log("WorkIcon Render - shouldAnimate:", hasIconAnimated);
-        if (hasIconAnimated) {
-            return <img height={20} width={20} src={Assets.Icons.balance} alt="Balance Icon" />;
+    useEffect(() => {
+        if (!activeProcess || typeof activeProcess.totalSecondsRemaining !== 'number' || typeof activeProcess.totalSeconds !== 'number') {
+            setPercentage(reverse ? 0 : 100); // or 0, depending on desired default
         }
+        setPercentage((activeProcess.totalSecondsRemaining / activeProcess.totalSeconds) * 100);
+    },[activeProcess])
 
-        return (
-            <AnimatePresence>
-                <motion.img
-                    height={20}
-                    width={20}
-                    src={Assets.Icons.balance}
-                    key="animated-balance"
-                    style={{ position: "absolute", top: 0, left: -16 }}
-                    initial={{ y: -50, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 1, ease: "easeOut" }}
-                    onAnimationComplete={() => {
-                      console.log('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
-                      onAnimationComplete()
-                    }}
-                    onEnded={() => console.log('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')}
-                />
-            </AnimatePresence>
-        );
-    }
-
-    const ClockIcon = ({ shouldAnimate, onAnimationComplete }) => {
-        console.log("ClockIcon Render - shouldAnimate:", shouldAnimate);
-        if (hasIconAnimated) {
-            return <img height={20} width={20} src={Assets.Icons.clock} alt="Clock Icon" />;
-        }
-
-        return (
-            <AnimatePresence>
-                <motion.div
-                    style={{ position: "absolute", top: 0, left: -16 }}
-                    animate={{
-                        x: [0, 2, 0, 3, 0],
-                        y: [-2, 2, -1, 1, 0],
-                        rotate: [-3, 3, -2, 2, 0],
-                    }}
-                    transition={{
-                        duration: 0.5,
-                        ease: "easeInOut",
-                        repeat: 1,
-                    }}
-                    onAnimationComplete={() => {
-                        console.log("ClockIcon - onAnimationComplete callback");
-                        onAnimationComplete();
-                    }}
-                >
-                    <img height={20} width={20} src={Assets.Icons.clock} alt="Clock Icon" />
-                </motion.div>
-            </AnimatePresence>
-        );
-    }
-
-    const playSound = async (type) => {
-        if (!isSoundEnabled) return
-
-        const sound = type === "work" ? COIN_SOUND : ALARM_SOUND
-        try {
-            if(!hasIconAnimated) {
-              await sound.play()
-            }
-        } catch (error) {
-            console.error("Error playing sound:", error)
-        }
-    }
-
-    const { refreshData } = useUser()
-
-    const handleProcessCompletion = async () => {
-        console.log("handleProcessCompletion - entry, animationComplete:", animationComplete.current, "hasIconAnimated:", hasIconAnimated);
-        if (animationComplete.current) {
-            console.log("handleProcessCompletion - early return due to animationComplete.current");
-            return;
-        }
-        setHasIconAnimated(false);
-        console.log('handleProcessCompletion - setHasIconAnimated(false)');
-        setPercentage(0);
-        try {
-          await playSound(activeProcess.type)
-        } catch(err) {
-          
-        }
-        await new Promise(resolve => setTimeout(resolve, 1000))
-        setHasIconAnimated(true)
-        console.log('handleProcessCompletion - setHasIconAnimated(true)');
-        // setHasAnimated(false); // Remove
-
-        // setIsLoading(true)
-  
-        while (true) {
-            try {
-                await new Promise(resolve => setTimeout(resolve, 500))
-                await checkCanStop(userId)
-                break
-            } catch (err) {
-                console.log(err)
-                await new Promise(resolve =>
-                    setTimeout(resolve, err.response?.data?.seconds_left * 1000 || 1000)
-                )
-            }
-        }
-
-        setTimeout(() => {
-          
-          refreshData().finally(() => {
-            setIsLoading(false)
-            console.log('here')
-            // unmountSelf()
-          })
-            // window.location.href = window.location.origin
-        }, 750)
-    }
 
     // Load initial data
     useEffect(() => {
@@ -236,50 +170,6 @@ const ProcessProgressBar = ({
         loadProgressBarData()
         console.log("useEffect [activeProcess, rate, works.length, lang] - loadProgressBarData triggered");
     }, [activeProcess, rate, works.length, lang])
-
-    // Handle progress updates
-    useEffect(() => {
-        // if (!activeProcess || !activeProcess.totalSeconds || !activeProcess.totalSecondsRemaining) {
-        //     console.log("useEffect [activeProcess] - early return - activeProcess, totalSeconds or totalSecondsRemaining invalid:", activeProcess);
-        //     return
-        // }
-
-        // if (typeof activeProcess.totalSecondsRemaining !== 'number' || typeof activeProcess.totalSeconds !== 'number') {
-        //     console.error("useEffect [activeProcess] - totalSecondsRemaining or totalSeconds is not a number:", activeProcess);
-        //     return; // Prevent further execution if these are not numbers
-        // }
-
-
-        const newPercentage = (activeProcess.totalSecondsRemaining / activeProcess.totalSeconds) * 100
-        setPercentage(newPercentage)
-        console.log("useEffect [activeProcess] - percentage updated to:", newPercentage,
-            "totalSecondsRemaining:", activeProcess.totalSecondsRemaining,
-            "totalSeconds:", activeProcess.totalSeconds);
-
-
-        if (activeProcess.totalSecondsRemaining <= 1) {
-            console.log("useEffect [activeProcess] - handleProcessCompletion triggered, animationComplete:", animationComplete.current);
-            handleProcessCompletion()
-            return 
-        }
-
-        // Check for process completion based on energy
-        const checkProcessCompletionByEnergy = async () => {
-            const isSleepFullyCharged =
-                activeProcess.type === "sleep" &&
-                userParameters?.energy === userParameters?.energy_capacity
-
-            const isWorkOrTrainingExhausted =
-                (activeProcess.type === "work" || activeProcess.type === 'training') &&
-                (userParameters?.energy === 0 || userParameters?.hungry === 0)
-
-            if ((isSleepFullyCharged || isWorkOrTrainingExhausted)) {
-                handleProcessCompletion()
-            }
-        }
-
-        checkProcessCompletionByEnergy()
-    }, [activeProcess, userParameters, userId])
 
     const handleCloseModal = () => setShowModal(false)
 
