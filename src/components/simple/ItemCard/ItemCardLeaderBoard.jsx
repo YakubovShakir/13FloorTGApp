@@ -36,8 +36,9 @@ const ItemCard = ({
     return ItemGender === 'female'? Images.womanAva : Images.manAva
   }
 
-  // Логика для обесцвечивания изображений
-  const isImageGrayscale = !isAnyButtonActive // Если кнопка неактивна, изображение будет обесцвечено
+
+  const isImageGrayscale = false
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 100 }}
