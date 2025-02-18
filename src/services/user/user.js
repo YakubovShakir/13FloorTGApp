@@ -232,7 +232,8 @@ export const getLeaderboard = async () => {
 
 export const submitProfileData = async (userId, initData) => {
   // Parse the initData string
-  const initDataObj = Object.fromEntries(new URLSearchParams(initData));
+  console.log('DECODED', decodeURIComponent(initData))
+  const initDataObj = Object.fromEntries(new decodeURIComponent(initData));
   const user = JSON.parse(initDataObj.user || '{}');
 
   // Create payload object with only provided fields
