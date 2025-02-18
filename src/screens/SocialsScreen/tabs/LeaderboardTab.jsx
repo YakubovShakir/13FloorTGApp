@@ -39,9 +39,9 @@ const LeaderboardTab = () => {
   }, []) // Remove userId dependency
 
   const formUsername = (leader) => {
-    const { first_name = null, last_name = null } = leader
+    const { first_name = '', last_name = '' } = leader
 
-    return (first_name + ' ' + last_name).trimStart()
+    return (first_name + ' ' + last_name).trimStart().trimEnd()
   }
 
   if (isLoading) {
