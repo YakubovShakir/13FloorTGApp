@@ -45,7 +45,7 @@ const BoostTab = ({ }) => {
   const getItemBoostParams = (boost) => {
     const boostProcess = userBoostProcesses?.find((p) => p.type_id === boost.boost_id)
     const boostProcessDuration = boostProcess ? (boostProcess.target_duration_in_seconds || boostProcess.base_duration_in_seconds) / 60 : boost.duration
-    const { duration, seconds } = boostProcess ? getMinutesAndSeconds(Math.max(0, boostProcessDuration * 60 - moment().diff(moment(boostProcess.createdAt), 'seconds'))) : getMinutesAndSeconds(boost.duration * 60)
+    const { duration, seconds } = boostProcess ? getMinutesAndSeconds(Math.max(0, boostProcessDuration * 60 - moment().tz('Europe/Moscow').diff(moment(boostProcess.createdAt).tz('Europe/Moscow'), 'seconds'))) : getMinutesAndSeconds(boost.duration * 60)
     const boostDuration = boostProcess ? formatTime(duration, seconds) : formatTime(boost.duration)
     console.log(boostDuration)
     return [
@@ -54,7 +54,7 @@ const BoostTab = ({ }) => {
           icon: Icons.clock,
           value: boostDuration,
           fillPercent: boostProcess && Math.max(0, 100 - countPercentage(
-            moment().diff(moment(boostProcess.createdAt), 'seconds'),
+            moment().tz('Europe/Moscow').diff(moment(boostProcess.createdAt).tz('Europe/Moscow'), 'seconds'),
             boostProcessDuration * 60
           )),
         },

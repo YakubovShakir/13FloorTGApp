@@ -69,9 +69,9 @@ export const useInvestmentTimer = ({
   }
 
   const calculateTimeLeft = useCallback(() => {
-    const now = moment().tz(tz)
+    const now = moment().tz('Europe/Moscow')
     const duration = 3600 
-    const startMoment = moment(virtualStartTime).tz(tz)
+    const startMoment = moment(virtualStartTime).tz('Europe/Moscow')
     const end = startMoment.add(duration, "seconds")
 
     // Calculate the exact difference in seconds

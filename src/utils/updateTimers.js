@@ -40,7 +40,7 @@ export const getProcessRemainingTime = (process) => {
   if (!process?.createdAt) return { duration: 0, seconds: 0 }
 
   const totalDuration = process.target_duration_in_seconds || process.base_duration_in_seconds
-  const elapsedSeconds = moment().diff(moment(process.createdAt), 'seconds')
+  const elapsedSeconds = moment().tz('Europe/Moscow').diff(moment(process.createdAt).tz('Europe/Moscow'), 'seconds')
   const remainingSeconds = Math.max(0, totalDuration - elapsedSeconds)
 
   return {
@@ -59,8 +59,8 @@ export const updateProcessTimers = (
     const updatedProcess = { ...process };
     
     const baseDuration = updatedProcess.target_duration_in_seconds || updatedProcess.base_duration_in_seconds
-    const endTime = moment(updatedProcess.createdAt).add(baseDuration, 'seconds'); // Calculate the target end time
-    const now = moment();
+    const endTime = moment(updatedProcess.createdAt).tz('Europe/Moscow').add(baseDuration, 'seconds'); // Calculate the target end time
+    const now = moment().tz('Europe/Moscow');
 
     const timeLeft = moment.duration(endTime.diff(now)); // Calculate the difference
     

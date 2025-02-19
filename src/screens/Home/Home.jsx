@@ -267,8 +267,8 @@ const Home = () => {
                     return;
                 }
 
-                const now = moment();
-                const elapsedSeconds = now.diff(moment(currentProcessCreatedAt), 'seconds');
+                const now = moment().tz('Europe/Moscow');
+                const elapsedSeconds = now.diff(moment(currentProcessCreatedAt).tz('Europe/Moscow'), 'seconds');
                 const totalSeconds = state.currentProcess.target_duration_in_seconds || state.currentProcess.base_duration_in_seconds;
                 const remainingSeconds = Math.max(0, totalSeconds - elapsedSeconds);
                 const formattedTime = formatTime(remainingSeconds / 60, remainingSeconds % 60);
@@ -562,7 +562,7 @@ const Home = () => {
                 />
                 {state.currentProcess && renderProcessProgressBar(
                     state.currentProcess,
-                    countPercentage(moment().diff(moment(state.currentProcess?.createdAt), 'second'), state.currentProcess?.target_duration_in_seconds || state.currentProcess?.base_duration_in_seconds),
+                    countPercentage(moment().tz('Europe/Moscow').diff(moment(state.currentProcess?.createdAt).tz('Europe/Moscow'), 'second'), state.currentProcess?.target_duration_in_seconds || state.currentProcess?.base_duration_in_seconds),
                     progressRate,
                     true
                 )}
@@ -597,7 +597,7 @@ const Home = () => {
                 />
                 {renderProcessProgressBar(
                     state.currentProcess,
-                    countPercentage(moment().diff(moment(state.currentProcess?.createdAt), 'second'), state.currentProcess?.target_duration_in_seconds || state.currentProcess?.base_duration_in_seconds),
+                    countPercentage(moment().tz('Europe/Moscow').diff(moment(state.currentProcess?.createdAt).tz('Europe/Moscow'), 'second'), state.currentProcess?.target_duration_in_seconds || state.currentProcess?.base_duration_in_seconds),
                     progressRate
                 )}
                 <Menu noButton />
@@ -646,7 +646,7 @@ const Home = () => {
                 {renderProcessProgressBar(
                     state.currentProcess,
                     countPercentage(
-                        moment().diff(moment(state.currentProcess?.createdAt), 'second'),
+                        moment().tz('Europe/Moscow').diff(moment(state.currentProcess?.createdAt).tz('Europe/Moscow'), 'second'),
                         getUserSleepDuration() * 60
                     ),
                     progressRate
