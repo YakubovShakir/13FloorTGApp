@@ -22,7 +22,7 @@ import { useVisibilityChange, useWindowFocus } from "../../hooks/userActivities"
 import formatTime from "../../utils/formatTime"
 import { useNotification } from "../../NotificationContext"
 import { useSettingsProvider } from "../../hooks"
-import { checkCanStop } from "../../services/process/process"
+import { checkCanStop, stopProcess } from "../../services/process/process"
 
 // Pre-load audio files
 const COIN_SOUND = new Audio(
@@ -180,6 +180,25 @@ const Home = () => {
     }
 
     const completionInProgressRef = useRef(false);
+
+    const handleConfirmClose = async () => {
+        setIsLoading(true)
+        try {
+            await stopProcess(userId)
+            setState(prev => {
+                return {
+                   ...prev,
+                    currentProcess: null,
+                }
+            })
+            console.log("handleConfirmClose - Stopping process");
+        } catch (error) {
+            console.error("Error stopping process:", error);
+        } finally {
+            setIsLoading(false)
+            console.log('handleConfirmClose - ended');
+        }
+    }
 
     const handleProcessCompletion = async () => {
         // Prevent multiple simultaneous executions
@@ -409,7 +428,7 @@ const Home = () => {
     const renderProcessProgressBar = (
         process,
         percentage,
-        rate,
+        rate,   
         reverse = false
     ) => {
         return (
@@ -417,6 +436,7 @@ const Home = () => {
                 activeProcess={process}
                 rate={rate}
                 reverse={reverse}
+                handleConfirmClose={handleConfirmClose}
             />
         );
     };

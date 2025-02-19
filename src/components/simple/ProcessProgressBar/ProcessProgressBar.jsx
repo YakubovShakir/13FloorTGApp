@@ -68,12 +68,11 @@ const ClockIcon = ({ hasIconAnimated = true, onAnimationComplete }) => {
 
 const ProcessProgressBar = ({
     activeProcess,
-    inputPercentage = null,
     reverse = false,
     rate,
     hasIconAnimated,
     setHasIconAnimated,
-    unmountSelf,
+    handleConfirmClose
 }) => {
     const navigate = useNavigate()
     const [percentage, setPercentage] = useState(() => {
