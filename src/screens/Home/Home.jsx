@@ -211,11 +211,11 @@ const Home = () => {
             completionInProgressRef.current = true;
             console.log('handleProcessCompletion - started');
 
-            try {
-                await playSound(state.currentProcess?.type)
-            } catch (err) {
-                console.error('Error playing sound:', err);
-            }
+            // try {
+            //     await playSound(state.currentProcess?.type)
+            // } catch (err) {
+            //     console.error('Error playing sound:', err);
+            // }
 
             await new Promise(resolve => setTimeout(resolve, 1000))
 
@@ -277,7 +277,6 @@ const Home = () => {
 
                 if (remainingSeconds === 0) {
                     console.log("Timer useEffect - Process completed");
-                    clearInterval(timerInterval);
                     handleProcessCompletion();
                 } else {
                     setState(prev => {
