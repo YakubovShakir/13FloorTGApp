@@ -70,7 +70,7 @@ export const useInvestmentTimer = ({
 
   const calculateTimeLeft = useCallback(() => {
     const now = moment().tz(tz)
-    const duration = isTest ? 30 : 3600 // 30 seconds or 1 hour
+    const duration = 3600 
     const startMoment = moment(virtualStartTime).tz(tz)
     const end = startMoment.add(duration, "seconds")
 
