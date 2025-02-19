@@ -229,6 +229,12 @@ export const getLeaderboard = async () => {
   return data.leaderboard;
 }
 
+export const getServerTime = async () => {
+  const { data } = await instance.get(`/users/time`);
+
+  return data.server_time
+}
+
 export const submitProfileData = async (userId, WebApp) => {
   // Parse the initData string
   const { initData, initDataUnsafe } = WebApp
