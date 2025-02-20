@@ -196,14 +196,15 @@ const Home = () => {
 
   useEffect(() => {
     let timerInterval
+    let driftCorrectionInterval
 
     const isActive = state.currentProcess?.active
     const currentProcessCreatedAt = state.currentProcess?.createdAt
     const processId = state.currentProcess?.id
 
-    const updateTimer = (currentTime) => {
+    const updateTimer = (displayTime) => {
       const processStart = moment(currentProcessCreatedAt).tz("Europe/Moscow")
-      const elapsedSeconds = currentTime.diff(processStart, "seconds")
+      const elapsedSeconds = displayTime.diff(processStart, "seconds")
       
       const totalSeconds = state.currentProcess.target_duration_in_seconds ||
                           state.currentProcess.base_duration_in_seconds
@@ -221,6 +222,7 @@ const Home = () => {
         console.log("Timer useEffect - Process completed")
         handleProcessCompletion()
         clearInterval(timerInterval)
+        clearInterval(driftCorrectionInterval)
       } else {
         setState((prev) => {
           if (prev.currentProcess?.id === processId) {
@@ -241,18 +243,55 @@ const Home = () => {
 
     const initializeTimer = async () => {
       try {
+        // Get initial server time
         const serverTime = await getServerTime()
-        const initialTime = serverTime ? 
-          serverTime.tz("Europe/Moscow") : 
-          moment().tz("Europe/Moscow")
+        if (!serverTime) {
+          throw new Error("Failed to get server time")
+        }
+
+        let startTime = serverTime.tz("Europe/Moscow") // Base time from server
+        let lastSyncTime = moment() // Time of last sync
+        let accumulatedDrift = 0 // Track accumulated time drift
+        let displayTime = startTime.clone() // Time used for display/calculations
 
         // Initial update
-        updateTimer(initialTime)
+        updateTimer(displayTime)
 
-        // Start ticking
+        // Regular timer updates
         timerInterval = setInterval(() => {
-          updateTimer(moment().tz("Europe/Moscow"))
+          const now = moment()
+          const timeSinceLastSync = now.diff(lastSyncTime, "milliseconds")
+          displayTime = startTime.clone().add(timeSinceLastSync + accumulatedDrift, "milliseconds")
+          updateTimer(displayTime)
         }, 1000)
+
+        // Periodic server sync (every 5 minutes)
+        driftCorrectionInterval = setInterval(async () => {
+          try {
+            const newServerTime = await getServerTime()
+            if (!newServerTime) return
+
+            const newStartTime = newServerTime.tz("Europe/Moscow")
+            const now = moment()
+            
+            // Calculate current drift
+            const expectedTime = startTime.clone().add(now.diff(lastSyncTime))
+            const currentDrift = newStartTime.diff(expectedTime)
+            
+            // Update tracking variables
+            accumulatedDrift = currentDrift
+            startTime = newStartTime
+            lastSyncTime = now
+
+            console.log(
+              "Timer drift correction:",
+              "currentDrift:", currentDrift,
+              "accumulatedDrift:", accumulatedDrift
+            )
+          } catch (error) {
+            console.error("Drift correction failed:", error)
+          }
+        }, 5 * 60 * 1000) // 5 minutes
 
       } catch (error) {
         console.error("Error initializing timer:", error)
@@ -273,8 +312,11 @@ const Home = () => {
     return () => {
       if (timerInterval) {
         clearInterval(timerInterval)
-        console.log("Timer useEffect - Cleanup - interval cleared")
       }
+      if (driftCorrectionInterval) {
+        clearInterval(driftCorrectionInterval)
+      }
+      console.log("Timer useEffect - Cleanup - intervals cleared")
     }
   }, [
     state.currentProcess?.active,
