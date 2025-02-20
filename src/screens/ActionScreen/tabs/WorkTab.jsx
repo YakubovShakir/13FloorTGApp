@@ -14,10 +14,10 @@ import {
 import { getSkills } from "../../../services/skill/skill"
 import { a } from "framer-motion/client"
 import { useSettingsProvider } from "../../../hooks"
-import formatTime from "../../../utils/formatTime"
 import UserContext from "../../../UserContext"
 import { useNavigate } from "react-router-dom"
 import { canStartWorking } from "../../../utils/paramDep"
+import { getCoinRewardAndColor, getDurationAndColor } from "../../../utils/paramBlockUtils"
 
 export const WorkTab = ({
   isActionScreen,
@@ -225,6 +225,8 @@ export const WorkTab = ({
     }
   }
 
+  
+
   const getItemWorkParams = (workId) => {
 
     const work = getWorkById(workId)
@@ -242,34 +244,21 @@ export const WorkTab = ({
       enoughBalance
 
     const workDurationBase = Math.floor(work?.duration * 60);
-    const workDuration = Math.floor(work?.duration * (1 - (userParameters?.work_duration_decrease || 0) / 100) * 60);
-    const timeDiff = workDurationBase - workDuration
-    const workIncome = Math.round(work?.coins_in_hour / 3600 * workDurationBase * 100) / 100
 
-    const minutes = Math.floor(workDuration / 60);
-    const seconds = workDuration % 60;
     if (currentWork?.work_id === workId) {
       return [
         [
           {
-            value: workIncome,
-            //adder: workIncome,
+            ...getCoinRewardAndColor(workDurationBase, work.coins_in_hour / 3600 * workDurationBase, userParameters ),
             icon: Icons.balance,
           },
         ],
         [
           {
-            value: formatTime(minutes, seconds),
-            substractor: timeDiff,
+            ...getDurationAndColor('work', workDurationBase, userParameters),
             icon: Icons.clock,
           },
         ],
-        // [
-        //   {
-        //     value: translations.noBoosts[lang],
-        //     icon: Icons?.boosterArrow,
-        //   },
-        // ],
       ]
     }
 

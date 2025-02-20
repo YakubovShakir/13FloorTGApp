@@ -1,7 +1,7 @@
 import ScreenContainer from "../../../components/section/ScreenContainer/ScreenContainer"
 import ItemCard from "../../../components/simple/ItemCard/ItemCard"
 import Assets from "../../../assets"
-import { useEffect, useState } from "react"
+import { useContext, useEffect, useState } from "react"
 import { getSkills, getUserSkills } from "../../../services/skill/skill"
 import {
   updateProcessTimers,
@@ -20,22 +20,19 @@ import formatTime from "../../../utils/formatTime"
 import countPercentage from "../../../utils/countPercentage.js"
 import { useSettingsProvider } from "../../../hooks.jsx"
 import { canStartTraining } from "../../../utils/paramDep.js"
+import { getDurationAndColor } from "../../../utils/paramBlockUtils.js"
+import UserContext from "../../../UserContext.jsx"
+import { useNavigate } from "react-router-dom"
 
 
-const SkillTab = ({
-  modalData,
-  setModalData,
-  setUserParameters,
-  setVisibleModal,
-  userParameters,
-  userId,
-}) => {
+const SkillTab = () => {
   const [skills, setSkills] = useState(null) // List of skills
   const [userLearningSkills, setUserLearningSkills] = useState(null) // User already Learned skills
   const [userLearnedSkills, setUserLearnedSkills] = useState(null) // User learning at this time skills
   const [trainingParamters, setTrainingParameters] = useState(null) // User training parameters
   const [activeProcess, setActiveProcess] = useState(null) // User active training
 
+  const { userParameters, userId } = useContext(UserContext)
   const { lang } = useSettingsProvider()
 
   const translations = {
@@ -102,60 +99,31 @@ const SkillTab = ({
   }
 
   const { Icons } = Assets
-
-  // Return skill if it already learned
-  const checkLearnedSkill = (skillId) => {
-    const learned = userLearnedSkills?.find(
-      (skill) => skill?.skill_id === skillId
-    )
-    return learned && skills?.find((skill) => skill?.skill_id === skillId)
-  }
-  
-  // Return skill if it in study
-  const checkLearningSkill = (skillId) => {
-    const learning = userLearningSkills?.find(
-      (skill) => skill?.type_id === skillId
-    )
-    return learning && skills?.find((skill) => skill?.skill_id === skillId)
-  }
-
   // Check if the training button should be active
   const checkTrainingButtonActive = () => {
     // If user's mood is 100%, disable the button
-    return userParameters?.mood < 100;
+    return canStartTraining(userParameters);
   }
+
+  const navigate = useNavigate()
 
   // Handle start training
   const handleStartTraining = async () => {
     if (checkTrainingButtonActive()) {
       await startProcess("training", userId);
-      const activeProcess = await getActiveProcess(userId);
-      setActiveProcess(activeProcess);
-      // Navigate to the MainScreen after starting the process
-      window.location.href = window.location.origin
+      navigate('/')
     }
   };
 
   // Get parameters for static training card
   const getItemTrainingParams = () => {
-    const activeTraining = activeProcess?.type === "training"
+    const trainingDurationInSeconds = trainingParamters?.duration * 60
+    console.log(userParameters)
     return [
       [
         {
           icon: Icons.clock,
-          value:
-            activeTraining &&
-            (activeProcess?.duration || activeProcess?.seconds)
-              ? formatTime(activeProcess?.duration, activeProcess?.seconds)
-              : formatTime(trainingParamters?.duration),
-          fillPercent:
-            activeTraining &&
-            (activeProcess?.duration || activeProcess?.seconds)
-              ? countPercentage(
-                  activeProcess?.duration * 60 + activeProcess?.seconds,
-                  trainingParamters?.duration * 60
-                )
-              : false,
+          ...getDurationAndColor('training', trainingDurationInSeconds, userParameters)
         },
       ],
       [

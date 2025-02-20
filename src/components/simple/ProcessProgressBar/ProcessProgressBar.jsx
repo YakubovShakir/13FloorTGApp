@@ -8,6 +8,7 @@ import UserContext, { useUser } from "../../../UserContext"
 import { motion, AnimatePresence } from "framer-motion"
 import FullScreenSpinner from "../../../screens/Home/FullScreenSpinner"
 import { useSettingsProvider } from "../../../hooks"
+import { getCoinRewardAndColor } from "../../../utils/paramBlockUtils"
 
 
 const WorkIcon = ({ hasIconAnimated = true, onAnimationComplete }) => {
@@ -144,7 +145,7 @@ const ProcessProgressBar = ({
                 const labelMap = {
                     work: [
                         work?.name[lang] || "",
-                        `${rate} +${activeProcess?.reward_at_the_end || ""}`,
+                        `${rate} +${getCoinRewardAndColor(work.duration * 60, activeProcess?.reward_at_the_end, userParameters).value || ""}`,
                     ],
                     training: [translations.training[lang], rate],
                     sleep: [translations.longSleep[lang], rate],

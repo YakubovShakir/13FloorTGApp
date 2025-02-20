@@ -105,9 +105,7 @@ const isImageActive = ItemActiveIcon === true ? true : (ItemActiveIcon === false
                       />
                     )}
                     <img src={block.icon} alt="paramIcon" />
-                    <p>{block.value}</p>
-                    <p style={{ color: '#22c7a3', paddingLeft: 5 }}>{block.adder > 0 && '+' + block.adder}</p>
-                    <p style={{ color: '#22c7a3', paddingLeft: 0 }}>{block.substractor > 0 && '-' + formatTime(0, block.substractor)}</p>
+                    <p style={{ color: block.color || 'white' }}>{block.value}</p>
                   </span>
                 ))}
               </div>

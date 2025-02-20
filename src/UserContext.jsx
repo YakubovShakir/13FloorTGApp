@@ -112,7 +112,7 @@ export const UserProvider = ({ children }) => {
 
       if (hasParametersChanged(latestDataRef.current, data)) {
         updateParametersState({
-          userParameters: { ...data?.parameters, work_hourly_income_increase: data.work_hourly_income_increase, work_duration_decrease: data.work_duration_decrease },
+          userParameters: { ...data?.parameters, work_hourly_income_increase: data.work_hourly_income_increase, work_duration_decrease: data.work_duration_decrease, sleeping_duration_decrease: data.sleeping_duration_decrease, training_duration_decrease: data.training_duration_decrease },
           isParametersLoading: false,
           parametersError: null
         });

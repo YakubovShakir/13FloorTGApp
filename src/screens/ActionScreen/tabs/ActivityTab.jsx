@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useContext } from "react"
 import ScreenContainer from "../../../components/section/ScreenContainer/ScreenContainer"
 import Assets from "../../../assets"
 import ItemCard from "../../../components/simple/ItemCard/ItemCard"
@@ -19,14 +19,17 @@ import countPercentage from "../../../utils/countPercentage"
 import { useSettingsProvider } from "../../../hooks.jsx"
 import { canStartSleeping } from "../../../utils/paramDep.js"
 import { useNavigate } from "react-router-dom"
+import { getDurationAndColor } from "../../../utils/paramBlockUtils.js"
+import UserContext from "../../../UserContext.jsx"
 
-const BoostTab = ({ userId, userParameters, setUserParameters }) => {
+const BoostTab = () => {
   const [boosts, setBoosts] = useState(null)
   const [levels, setLevels] = useState(null)
   const [activeProcess, setActiveProcess] = useState(null)
   const [userBoosts, setUserBoosts] = useState(null)
   const { Icons } = Assets
 
+  const { userId, userParameters } = useContext(UserContext)
   const { lang } = useSettingsProvider()
   
   const translations = {
@@ -115,17 +118,7 @@ const BoostTab = ({ userId, userParameters, setUserParameters }) => {
       [
         {
           icon: Icons.clock,
-          value:
-            activeProcess?.type === "sleep" && (activeProcess?.duration || activeProcess?.seconds)
-              ? formatTime(activeProcess?.duration, activeProcess?.seconds)
-              : formatTime(userSleepDuration),
-          fillPercent:
-            activeProcess?.type === "sleep" && activeProcess?.duration
-              ? countPercentage(
-                  activeProcess?.duration * 60,
-                  userSleepDuration * 60
-                )
-              : null,
+          ...getDurationAndColor('sleep', userSleepDuration * 60, userParameters)
         },
       ],
       [
