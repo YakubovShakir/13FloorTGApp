@@ -1,3 +1,4 @@
+import moment from 'moment-timezone'
 import { instance } from "../instance"
 
 export const getParameters = async (id) => {
@@ -232,7 +233,7 @@ export const getLeaderboard = async () => {
 export const getServerTime = async () => {
   const { data } = await instance.get(`/users/time`);
 
-  return data.server_time
+  return moment(data.server_time)
 }
 
 export const submitProfileData = async (userId, WebApp) => {
