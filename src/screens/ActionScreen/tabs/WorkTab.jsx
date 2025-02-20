@@ -187,15 +187,15 @@ export const WorkTab = ({
 
         {
           icon: Icons.hungryDecrease,
-          text: (work?.hungry_cost_in_hour / 60).toFixed(2) + " / " + translations.minute[lang],
+          text: (work?.hungry_cost_per_minute / 60).toFixed(2) + " / " + translations.minute[lang],
         },
         {
           icon: Icons.moodDecrease,
-          text: (work?.mood_cost_in_hour / 60).toFixed(2) + " / " + translations.minute[lang],
+          text: (work?.mood_cost_per_minute / 60).toFixed(2) + " / " + translations.minute[lang],
         },
         {
           icon: Icons.energyDecrease,
-          text: (work?.energy_cost_in_hour / 60).toFixed(2) + " / " + translations.minute[lang],
+          text: (work?.energy_cost_per_minute / 60).toFixed(2) + " / " + translations.minute[lang],
         },
       ].filter(Boolean),
       buttons: [
