@@ -13,6 +13,7 @@ import Window from "../../components/complex/Windows/Window/Window"
 import Assets from "../../assets/index"
 import ProcessProgressBar from "../../components/simple/ProcessProgressBar/ProcessProgressBar"
 import {
+  getServerTime,
   getTrainingParameters,
   getUserActiveProcess,
 } from "../../services/user/user"
@@ -130,6 +131,24 @@ const Home = () => {
     return Promise.all(imagePromises)
   }, [])
 
+  const calculateInitialTime = useCallback((process) => {
+    if (!process?.createdAt) return null;
+
+    const moscowNow = moment().tz("Europe/Moscow");
+    const processStart = moment(process.createdAt).tz("Europe/Moscow");
+    const elapsedSeconds = moscowNow.diff(processStart, "seconds");
+    
+    const totalSeconds = process.target_duration_in_seconds || 
+                        process.base_duration_in_seconds;
+    
+    const remainingSeconds = Math.max(0, totalSeconds - elapsedSeconds);
+    
+    return formatTime(
+      Math.floor(remainingSeconds / 60),
+      remainingSeconds % 60
+    );
+  }, []);
+
   const initializeProcess = useCallback(async () => {
     console.log("initializeProcess - Start")
     try {
@@ -143,6 +162,7 @@ const Home = () => {
       if (!process) {
         console.log("initializeProcess - No active process found")
         setState((prev) => ({ ...prev, currentProcess: null }))
+        setProgressRate(null)
         return
       }
 
@@ -150,30 +170,118 @@ const Home = () => {
         getTrainingParameters(userId),
         getLevels(),
       ])
-      console.log(
-        "initializeProcess - getTrainingParameters & getLevels results:",
-        trainingParams,
-        levelsData
-      )
 
       if (!mountedRef.current) return
 
+      const initialTime = calculateInitialTime(process);
+      setProgressRate(initialTime);
+
       setState((prev) => ({
         ...prev,
-        currentProcess: process,
+        currentProcess: {
+          ...process,
+          formattedTime: initialTime,
+        },
         trainingParameters: trainingParams,
         levels: levelsData,
       }))
-      console.log("initializeProcess - setState with process", process)
     } catch (error) {
       console.error("Error initializing process:", error)
       if (mountedRef.current) {
         setState((prev) => ({ ...prev, currentProcess: null }))
+        setProgressRate(null)
       }
-    } finally {
-      console.log("initializeProcess - End")
     }
-  }, [userId])
+  }, [userId, calculateInitialTime])
+
+  useEffect(() => {
+    let timerInterval
+
+    const isActive = state.currentProcess?.active
+    const currentProcessCreatedAt = state.currentProcess?.createdAt
+    const processId = state.currentProcess?.id
+
+    const updateTimer = (currentTime) => {
+      const processStart = moment(currentProcessCreatedAt).tz("Europe/Moscow")
+      const elapsedSeconds = currentTime.diff(processStart, "seconds")
+      
+      const totalSeconds = state.currentProcess.target_duration_in_seconds ||
+                          state.currentProcess.base_duration_in_seconds
+      
+      const remainingSeconds = Math.max(0, totalSeconds - elapsedSeconds)
+      
+      const formattedTime = formatTime(
+        Math.floor(remainingSeconds / 60),
+        remainingSeconds % 60
+      )
+
+      setProgressRate(formattedTime)
+
+      if (remainingSeconds === 0) {
+        console.log("Timer useEffect - Process completed")
+        handleProcessCompletion()
+        clearInterval(timerInterval)
+      } else {
+        setState((prev) => {
+          if (prev.currentProcess?.id === processId) {
+            return {
+              ...prev,
+              currentProcess: {
+                ...prev.currentProcess,
+                totalSecondsRemaining: remainingSeconds,
+                formattedTime: formattedTime,
+                totalSeconds,
+              },
+            }
+          }
+          return prev
+        })
+      }
+    }
+
+    const initializeTimer = async () => {
+      try {
+        const serverTime = await getServerTime()
+        const initialTime = serverTime ? 
+          serverTime.tz("Europe/Moscow") : 
+          moment().tz("Europe/Moscow")
+
+        // Initial update
+        updateTimer(initialTime)
+
+        // Start ticking
+        timerInterval = setInterval(() => {
+          updateTimer(moment().tz("Europe/Moscow"))
+        }, 1000)
+
+      } catch (error) {
+        console.error("Error initializing timer:", error)
+        // Fallback to local time if server time fails
+        const localTime = moment().tz("Europe/Moscow")
+        updateTimer(localTime)
+        
+        timerInterval = setInterval(() => {
+          updateTimer(moment().tz("Europe/Moscow"))
+        }, 1000)
+      }
+    }
+
+    if (isActive && mountedRef.current && currentProcessCreatedAt) {
+      initializeTimer()
+    }
+
+    return () => {
+      if (timerInterval) {
+        clearInterval(timerInterval)
+        console.log("Timer useEffect - Cleanup - interval cleared")
+      }
+    }
+  }, [
+    state.currentProcess?.active,
+    state.currentProcess?.createdAt,
+    state.currentProcess?.id,
+  ])
+
 
   const { isSoundEnabled } = useSettingsProvider()
 
@@ -260,176 +368,6 @@ const Home = () => {
       console.log("handleProcessCompletion - completed")
     }
   }
-
-  useEffect(() => {
-    let timerInterval
-
-    const isActive = state.currentProcess?.active
-
-    const currentProcessCreatedAt = state.currentProcess?.createdAt
-
-    const processId = state.currentProcess?.id
-
-    console.log("Timer useEffect - Start", {
-      isActive,
-      currentProcessCreatedAt,
-      processId,
-    })
-
-    const getServerTime = async () => {
-      try {
-        const response = await fetch("/api/serverTime") // Replace with your actual API endpoint
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`)
-        }
-
-        const data = await response.json()
-
-        return moment(data.serverTime) // Ensure your server sends time in a parsable format
-      } catch (error) {
-        console.error("Error fetching server time:", error)
-
-        return null
-      }
-    }
-
-    const initializeTimer = async () => {
-      const serverTime = await getServerTime()
-
-      if (!serverTime) {
-        console.warn(
-          "Falling back to client time because server time fetch failed."
-        )
-
-        const now = moment().tz("Europe/Moscow")
-
-        startTimer(now)
-
-        return
-      }
-
-      const serverTimeMoscow = serverTime.tz("Europe/Moscow")
-
-      startTimer(serverTimeMoscow)
-    }
-
-    const startTimer = (initialServerTime) => {
-      let startTime = initialServerTime // The base time, initially from the server
-      let lastSyncTime = moment() // Time of the last server sync
-      let accumulatedDrift = 0 // Accumulated difference between client and server
-      let displayTime = initialServerTime.clone() // The time used for display and calculations
-
-      timerInterval = setInterval(async () => {
-        if (!mountedRef.current) {
-          clearInterval(timerInterval)
-
-          return
-        }
-
-        const now = moment().tz("Europe/Moscow") // Current client time
-
-        const timeSinceLastSync = now.diff(lastSyncTime, "seconds") // Periodic Resynchronization (e.g., every 5 minutes)
-
-        if (timeSinceLastSync >= 300) {
-          // Adjust the interval (300 seconds) as needed
-
-          const newServerTime = await getServerTime()
-
-          if (newServerTime) {
-            const newStartTime = newServerTime.tz("Europe/Moscow")
-
-            const currentExpectedTime = startTime
-              .clone()
-              .add(now.diff(lastSyncTime, "seconds"))
-
-            const currentDrift = newStartTime.diff(
-              currentExpectedTime,
-              "seconds"
-            )
-
-            accumulatedDrift = accumulatedDrift * 0.8 + currentDrift * 0.2 // Weighted average
-
-            startTime = newStartTime // Update base time with the new server time
-            lastSyncTime = moment() // Reset the last sync time
-            displayTime = startTime.clone().add(accumulatedDrift) // Update display time
-
-            console.log(
-              "Timer resynchronized with server, drift:",
-              currentDrift,
-              "accumulatedDrift:",
-              accumulatedDrift,
-              "displayTime:",
-              displayTime.format()
-            )
-          } else {
-            console.warn("Resynchronization with server failed.")
-          }
-        } // Calculate elapsed time using displayTime
-
-        const nowForCalc = moment().tz("Europe/Moscow")
-
-        const elapsedSeconds = nowForCalc.diff(displayTime, "seconds")
-
-        const totalSeconds =
-          state.currentProcess.target_duration_in_seconds ||
-          state.currentProcess.base_duration_in_seconds
-
-        const remainingSeconds = Math.max(0, totalSeconds - elapsedSeconds)
-
-        const formattedTime = formatTime(
-          remainingSeconds / 60,
-          remainingSeconds % 60
-        )
-
-        setProgressRate(formattedTime)
-
-        if (remainingSeconds === 0) {
-          console.log("Timer useEffect - Process completed")
-
-          handleProcessCompletion()
-
-          clearInterval(timerInterval)
-        } else {
-          setState((prev) => {
-            if (prev.currentProcess?.id === processId) {
-              return {
-                ...prev,
-
-                currentProcess: {
-                  ...prev.currentProcess,
-
-                  totalSecondsRemaining: remainingSeconds,
-
-                  formattedTime: formattedTime,
-
-                  totalSeconds,
-                },
-              }
-            }
-
-            return prev
-          })
-        }
-      }, 1000)
-    }
-
-    if (isActive && mountedRef.current && currentProcessCreatedAt) {
-      initializeTimer()
-    }
-
-    return () => {
-      if (timerInterval) {
-        clearInterval(timerInterval)
-
-        console.log("Timer useEffect - Cleanup - interval cleared")
-      }
-    }
-  }, [
-    state.currentProcess?.active,
-    state.currentProcess?.createdAt,
-    state.currentProcess?.id,
-  ])
 
   const renderScene = (content) => (
     <AnimatePresence mode="wait">
