@@ -66,7 +66,7 @@ const BoostTab = ({ }) => {
   const { refreshData } = useContext(UserContext)
 
   const handleBuyBoost = async (boostId) => {
-    await handleStarsPayment(userId, 'boost', boostId)
+    await handleStarsPayment(userId, 'boost', boostId, lang)
     const userBoosts = await getUserBoosts(userId)
     setUserBoosts(userBoosts)
     await refreshData()

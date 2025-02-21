@@ -643,7 +643,7 @@ const CoinsTab = () => {
 
   const handleStarsBuy = async (item) => {
     try {
-      await handleStarsPayment(userId, item.productType, item.id)
+      await handleStarsPayment(userId, item.productType, item.id, lang)
       await refreshData()
       getShopItems(userId)
       .then((data) => {

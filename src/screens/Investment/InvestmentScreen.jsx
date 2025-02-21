@@ -736,8 +736,10 @@ const useInvestmentData = (userId) => {
 
   }
 
+  const { lang } = useSettingsProvider()
+
   const handleStarsBuyAutoclaim = async (investment_type) => {
-    await handleStarsPayment(userId, 'autoclaim', investment_type)
+    await handleStarsPayment(userId, 'autoclaim', investment_type, lang)
     await fetchInvestments()
     await refreshData()
   }
