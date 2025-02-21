@@ -276,6 +276,7 @@ const AutoclaimModal = ({
   data,
   onClose,
   logoWidth,
+  handleAutoclaimPurchased
 }) => {
   const { Icons } = Assets
   return (
@@ -325,7 +326,7 @@ const AutoclaimModal = ({
         <Button
           {...buttonStyle}
           active={data.canUpgrade}
-          onClick={data.canUpgrade ? data.handleUpgrade : () => { }}
+          onClick={handleAutoclaimPurchased}
           text={1}
           width={100}
           icon={Assets.Icons.starsIcon}
@@ -914,6 +915,10 @@ const InvestmentScreen = () => {
             {...investments?.coffee_shop}
             userParameters={userParameters}
             handleStart={() => handleStart('coffee_shop')}
+            handleAutoclaimPurchased={async () => {
+              setIsAutoClaimModalVisible(false)
+              handleAutoclaimPurchased('coffee_shop') 
+            }}
           />
 
           <ThreeSectionCard
@@ -934,6 +939,10 @@ const InvestmentScreen = () => {
             }}
             userParameters={userParameters}
             handleStart={() => handleStart('zoo_shop')}
+            handleAutoclaimPurchased={async () => {
+              setIsAutoClaimModalVisible(false)
+              handleAutoclaimPurchased('zoo_shop') 
+            }}
           />
 
           <ThreeSectionCard
@@ -956,6 +965,10 @@ const InvestmentScreen = () => {
             userParameters={userParameters}
             handleStart={() => handleStart('game_center')}
             isGameCenter={true}
+            handleAutoclaimPurchased={async () => {
+              setIsAutoClaimModalVisible(false)
+              handleAutoclaimPurchased('game_center') 
+            }}
           />
         </motion.div>
       </>
