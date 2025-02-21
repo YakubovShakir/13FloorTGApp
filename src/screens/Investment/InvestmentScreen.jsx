@@ -738,33 +738,10 @@ const useInvestmentData = (userId) => {
 
   const { lang } = useSettingsProvider()
 
-  const handleStarsBuyAutoclaim = async (investment_type) => {
+  const handleAutoclaimPurchased = async (investment_type) => {
     await handleStarsPayment(userId, 'autoclaim', investment_type, lang)
     await fetchInvestments()
     await refreshData()
-  }
-
-  const handleAutoclaimPurchased = async (investment_type) => {
-    if (!investments) return
-
-    // Optimistically update the UI
-    setIsLoading(true)
-
-    try {
-      await handleStarsBuyAutoclaim(userId, investment_type)
-      // Fetch real data after successful claim
-      await fetchInvestments()
-    } catch (err) {
-      console.error("Failed to claim:", err)
-      // Revert optimistic update on failure
-      await fetchInvestments()
-    }
-    await new Promise((resolve) =>
-      setTimeout(() => {
-        setIsLoading(false)
-        resolve()
-      }, 2500)
-    )
   }
 
   useEffect(() => {
