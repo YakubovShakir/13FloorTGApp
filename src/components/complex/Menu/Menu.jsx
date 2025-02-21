@@ -39,11 +39,11 @@ const Menu = ({ screenMenu, activeName, noButton, isForeign }) => {
     },
     boost: {
       ru: "Бусты",
-      en: 'Boosts'
+      en: "Boosts",
     },
     home: {
-      ru: "Домой",
-      en: "Home",
+      ru: "Назад",
+      en: "Back",
     }
   }
 
