@@ -1,5 +1,5 @@
 import WebApp from "@twa-dev/sdk"
-import { instance } from "./services/instance"
+import { instance } from "../services/instance"
 
 export const handleStarsPayment = async (userId, productType, productId) => {
     const response = await instance.post('/users/request-stars-invoice-link', {
