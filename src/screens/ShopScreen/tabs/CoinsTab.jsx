@@ -14,6 +14,7 @@ import { buyItemsForCoins } from '../../../services/user/user'
 import WebApp from "@twa-dev/sdk"
 import { useSettingsProvider } from "../../../hooks"
 import { useNotification } from "../../../NotificationContext"
+import { handleStarsPayment } from "../../../utils/handleStarsPayment"
 
 const GridItem = ({
   id,
@@ -643,22 +644,8 @@ const CoinsTab = () => {
 
   const handleStarsBuy = async (item) => {
     try {
-      const response = await instance.post('/users/request-stars-invoice-link', {
-          productType: item.productType,
-          id: item.id,
-          userId
-      })
-      await new Promise((resolve) => {
-        WebApp.openInvoice(response.data.invoiceLink, (status) => {
-          console.log(status)
-          // Можно вызвать попап или анимацию успеха/фейла
-          if(status === "paid") {
-          }
-          if(status === "cancelled") {}
-          if(status === 'pending') {}
-          if(status === 'failed') {}
-        })
-      })
+      await handleStarsPayment(userId, item.productType, item.id)
+      await showNotification(`Thanks for purchasing ${item.name[lang]}!`)
       await refreshData()
       getShopItems(userId)
       .then((data) => {
