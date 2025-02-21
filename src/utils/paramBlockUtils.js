@@ -52,7 +52,7 @@ export const getCoinRewardAndColor = (workDuration, workReward, parameters) => {
 
   if (rewardIncreasePerSecond > 0) {
     color = COLORS.GREEN
-    targetReward += rewardIncreasePerSecond * workDuration
+    targetReward = rewardIncreasePerSecond * workDuration
   } else {
     color = COLORS.WHITE
   }

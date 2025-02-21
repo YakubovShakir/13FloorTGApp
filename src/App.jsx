@@ -104,15 +104,12 @@ function App() {
     const hash = window.location.hash;
 
     // Check if the hash parameter already exists
-    if (!hash.includes('tgWebAppVersion')) {
-      // If there's an existing hash, append to it, otherwise create new hash
       const newHash = hash
         ? `${hash}&tgWebAppVersion=7.6`
         : '#tgWebAppVersion=7.6';
 
-      // Update the hash without causing a page reload
       window.history.replaceState(null, '', newHash);
-    }
+    
   }, []);
 
 
@@ -125,8 +122,6 @@ function App() {
     hungryBelow9: false,
     allZero: false,
   });
-
-  WebApp?.initData
 
   const resetNotifications = useCallback(() => {
     setNotificationsSent({

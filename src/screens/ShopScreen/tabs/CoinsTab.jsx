@@ -13,6 +13,7 @@ import { instance } from "../../../services/instance"
 import { buyItemsForCoins } from '../../../services/user/user'
 import WebApp from "@twa-dev/sdk"
 import { useSettingsProvider } from "../../../hooks"
+import { useNotification } from "../../../NotificationContext"
 
 const GridItem = ({
   id,
@@ -489,7 +490,7 @@ const GridLayout = ({ items, handleCoinsBuy, handleStarsBuy }) => {
   )
 }
 
-const CoinsTab = ({ userId }) => {
+const CoinsTab = () => {
   const [userEatingFoods, setUserEatingFoods] = useState(null)
   const [foods, setFoods] = useState(null)
   const [shopItems, setShopItems] = useState(null)
@@ -637,26 +638,59 @@ const CoinsTab = ({ userId }) => {
     }
   }
 
-  const { refreshData } = useUser()
+  const { refreshData, userId } = useUser()
+  const { showNotification } = useNotification()
 
   const handleStarsBuy = async (item) => {
     try {
       const response = await instance.post('/users/request-stars-invoice-link', {
           productType: item.productType,
-          id: item.id
+          id: item.id,
+          userId
       })
       await new Promise((resolve) => {
         WebApp.openInvoice(response.data.invoiceLink, (status) => {
           console.log(status)
           // Можно вызвать попап или анимацию успеха/фейла
-          if(status === "paid") {}
+          if(status === "paid") {
+          }
           if(status === "cancelled") {}
           if(status === 'pending') {}
           if(status === 'failed') {}
-          resolve()
         })
       })
       await refreshData()
+      getShopItems(userId)
+      .then((data) => {
+        const loadedClothesItems = data.clothing.filter(c => c.requiredLevel <= userParameters.level).map((item) => ({
+          id: item.clothing_id,
+          name: item.name[lang],
+          productType: 'clothes',
+          image:
+            userPersonage.gender === "male" ? item.male_icon : item.female_icon,
+          price: item.price,
+          respect: item.respect,
+          tier: item.tier,
+          tags: item.tag,
+          category: item.type,
+          available: userParameters.coins >= item.price && userParameters.level >= item.requiredLevel,
+        }))
+        const loadedShelfItems = data.shelf.map((item) => ({
+          id: item.id,
+          productType: 'shelf',
+          name: item.name[lang],
+          image: item.link,
+          price: item.cost.stars || item.cost.coins,
+          category: "Shelf",
+          isPrem: item.cost.stars > 0,
+          available: item.cost.stars > 0 || item.cost.coins === 0 || userParameters.coins >= item.cost.coins,
+          description: item.description['ru']
+        }))
+        setClothesItems(loadedClothesItems)
+        setShelfItems(loadedShelfItems)
+        console.log("Clothes Items", clothesItems)
+      })
+      .finally(() => setIsLoading(false))
     } catch (err) {
       console.error(err)
     } finally {
