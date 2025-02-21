@@ -240,7 +240,7 @@ const ForeignHome = () => {
                     }))}
                     key={userId}
                 /> */}
-                <div style={{ position: 'fixed', textAlign: 'center', width: '100%', color: 'white', top: '15%'}} >
+                <div style={{ position: 'fixed', textAlign: 'center', width: '100%', color: 'white', top: '10%'}} >
                     <h1>{formUsername(userParameters, lang)}</h1>
                     <div style={{ display: 'flex', width: '100%', alignItems: 'center', justifyContent: 'center', gap: 16, paddingTop: 12 }}>
                         <div style={{display: 'flex' }}>
