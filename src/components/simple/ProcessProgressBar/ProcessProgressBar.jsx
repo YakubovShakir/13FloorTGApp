@@ -145,7 +145,7 @@ const ProcessProgressBar = ({
                 const labelMap = {
                     work: [
                         work?.name[lang] || "",
-                        `${rate} +${getCoinRewardAndColor(work.duration * 60, activeProcess?.reward_at_the_end, userParameters).value || ""}`,
+                        `${rate} +${activeProcess?.reward_at_the_end || ""}`,
                     ],
                     training: [translations.training[lang], rate],
                     sleep: [translations.longSleep[lang], rate],
