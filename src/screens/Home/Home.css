@@ -39,14 +39,14 @@
 
 
   .shelf-container1 {
-    bottom: calc(29vh);
+    bottom: calc(28.8vh);
     
     position: absolute;
     z-index: 1000;
   }
 
   .shelf-container2 {
-    bottom: calc(13vh);
+    bottom: calc(12.8vh);
     
     position: absolute;
     z-index: 1000;
