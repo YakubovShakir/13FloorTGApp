@@ -22,6 +22,7 @@ import HomeHeader from "../../../components/complex/HomeHeader/HomeHeader"
 import ScreenBody from "../../../components/section/ScreenBody/ScreenBodyFood"
 import UserContext from "../../../UserContext"
 import moment from "moment-timezone"
+import { handleStarsPayment } from "../../../utils/handleStarsPayment"
 
 
 
@@ -65,10 +66,7 @@ const BoostTab = ({ }) => {
   const { refreshData } = useContext(UserContext)
 
   const handleBuyBoost = async (boostId) => {
-    await buyBoost(userId, boostId)
-    // const userParameters = await getParameters(userId)
-
-    // setUserParameters(userParameters.parameters)
+    await handleStarsPayment(userId, 'boost', boostId)
     const userBoosts = await getUserBoosts(userId)
     setUserBoosts(userBoosts)
     await refreshData()

@@ -640,12 +640,10 @@ const CoinsTab = () => {
   }
 
   const { refreshData, userId } = useUser()
-  const { showNotification } = useNotification()
 
   const handleStarsBuy = async (item) => {
     try {
       await handleStarsPayment(userId, item.productType, item.id)
-      await showNotification(`Thanks for purchasing ${item.name[lang]}!`)
       await refreshData()
       getShopItems(userId)
       .then((data) => {

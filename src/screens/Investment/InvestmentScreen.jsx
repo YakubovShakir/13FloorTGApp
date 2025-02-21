@@ -27,6 +27,7 @@ import { useSettingsProvider } from "../../hooks"
 import { formatCoins } from "../../utils/formatCoins"
 import { useNotification } from "../../NotificationContext"
 import { copyTextToClipboard } from "../../utils/clipboard"
+import { handleStarsPayment } from "../../utils/handleStarsPayment"
 
 const buttonStyle = {
   width: "100%",
@@ -736,25 +737,7 @@ const useInvestmentData = (userId) => {
   }
 
   const handleStarsBuyAutoclaim = async (investment_type) => {
-    const response = await instance.post("/users/request-stars-invoice-linkF", {
-      productType: "autoclaim",
-      id: investment_type,
-    })
-
-    await new Promise((resolve) => {
-      WebApp.openInvoice(response.data.invoiceLink, (status) => {
-        // Можно вызвать попап или анимацию успеха/фейла
-        if (status === "paid") {
-        }
-        if (status === "cancelled") {
-        }
-        if (status === "pending") {
-        }
-        if (status === "failed") {
-        }
-        resolve()
-      })
-    })
+    await handleStarsPayment(userId, 'autoclaim', investment_type)
     await fetchInvestments()
     await refreshData()
   }
