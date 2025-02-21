@@ -917,7 +917,7 @@ const InvestmentScreen = () => {
             handleStart={() => handleStart('coffee_shop')}
             handleAutoclaimPurchased={async () => {
               setIsAutoClaimModalVisible(false)
-              handleAutoclaimPurchased('coffee_shop') 
+              await handleAutoclaimPurchased('coffee_shop') 
             }}
           />
 
@@ -941,7 +941,7 @@ const InvestmentScreen = () => {
             handleStart={() => handleStart('zoo_shop')}
             handleAutoclaimPurchased={async () => {
               setIsAutoClaimModalVisible(false)
-              handleAutoclaimPurchased('zoo_shop') 
+              await handleAutoclaimPurchased('zoo_shop') 
             }}
           />
 
@@ -967,7 +967,7 @@ const InvestmentScreen = () => {
             isGameCenter={true}
             handleAutoclaimPurchased={async () => {
               setIsAutoClaimModalVisible(false)
-              handleAutoclaimPurchased('game_center') 
+              await handleAutoclaimPurchased('game_center') 
             }}
           />
         </motion.div>
