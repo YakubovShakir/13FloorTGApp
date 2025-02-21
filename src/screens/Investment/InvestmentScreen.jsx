@@ -326,7 +326,7 @@ const AutoclaimModal = ({
         <Button
           {...buttonStyle}
           active={data.canUpgrade}
-          onClick={handleAutoclaimPurchased}
+          onClick={() => handleAutoclaimPurchased(data.type)}
           text={1}
           width={100}
           icon={Assets.Icons.starsIcon}
@@ -360,7 +360,8 @@ const ThreeSectionCard = ({
   userParameters,
   openAutoclaimModal,
   handleStart,
-  isGameCenter = false
+  isGameCenter = false,
+  handleAutoclaimPurchased
 }) => {
   const isTest =  import.meta.env.VITE_NODE_ENV === "test"
   const { lang } = useSettingsProvider()
@@ -909,16 +910,13 @@ const InvestmentScreen = () => {
             started_at={investments?.coffee_shop?.started_at}
             handleClaim={() => handleClaim("coffee_shop")}
             openAutoclaimModal={() => {
-              setAutoclaimModalData(autoclaimModalDataFixed)
+              setAutoclaimModalData({...autoclaimModalDataFixed, type: 'coffee_shop'})
               setIsAutoClaimModalVisible(true)
             }}
             {...investments?.coffee_shop}
             userParameters={userParameters}
             handleStart={() => handleStart('coffee_shop')}
-            handleAutoclaimPurchased={async () => {
-              setIsAutoClaimModalVisible(false)
-              await handleAutoclaimPurchased('coffee_shop') 
-            }}
+           
           />
 
           <ThreeSectionCard
@@ -934,15 +932,12 @@ const InvestmentScreen = () => {
             started_at={investments?.zoo_shop?.started_at}
             {...investments?.zoo_shop}
             openAutoclaimModal={() => {
-              setAutoclaimModalData(autoclaimModalDataFixed)
+              setAutoclaimModalData({...autoclaimModalDataFixed, type: 'zoo_shop'})
               setIsAutoClaimModalVisible(true)
             }}
             userParameters={userParameters}
             handleStart={() => handleStart('zoo_shop')}
-            handleAutoclaimPurchased={async () => {
-              setIsAutoClaimModalVisible(false)
-              await handleAutoclaimPurchased('zoo_shop') 
-            }}
+          
           />
 
           <ThreeSectionCard
@@ -959,16 +954,13 @@ const InvestmentScreen = () => {
             hideUpgrade={true}
             {...investments?.game_center}
             openAutoclaimModal={() => {
-              setAutoclaimModalData(autoclaimModalDataFixed)
+              setAutoclaimModalData({...autoclaimModalDataFixed, type: 'game_center'})
               setIsAutoClaimModalVisible(true)
             }}
             userParameters={userParameters}
             handleStart={() => handleStart('game_center')}
             isGameCenter={true}
-            handleAutoclaimPurchased={async () => {
-              setIsAutoClaimModalVisible(false)
-              await handleAutoclaimPurchased('game_center') 
-            }}
+           
           />
         </motion.div>
       </>
@@ -993,6 +985,10 @@ const InvestmentScreen = () => {
           <AutoclaimModal
             onClose={() => setIsAutoClaimModalVisible(false)}
             data={autoclaimModalData}
+            handleAutoclaimPurchased={async (type) => {
+              setIsAutoClaimModalVisible(false)
+              await handleAutoclaimPurchased(type)
+            }}
             bottom={"0"}
             width={"100%"}
             height={"80%"}
