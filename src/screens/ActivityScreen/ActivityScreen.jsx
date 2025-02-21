@@ -21,6 +21,7 @@ import formatTime from "../../utils/formatTime"
 import ActivityTab from "./tabs/ActivityTab"
 import SkillTab from "./tabs/SkillTab"
 import WorkTab from "./tabs/WorkTab"
+import PerksTab from "./tabs/PerksTab"
 import { useSettingsProvider } from "../../hooks"
 const ActivityScreen = () => {
 
@@ -35,6 +36,10 @@ const ActivityScreen = () => {
       ru: 'Обучение',
       en: 'Skills'
     },
+    perks: {
+      ru: 'Навыки',
+      en: 'Perks'
+    },
     development: {
       ru: 'Развитие',
       en: 'Progress'
@@ -45,6 +50,7 @@ const ActivityScreen = () => {
   const tabTitles = {
     works: translations.career[lang],
     skills: translations.learning[lang],
+    perks: translations.perks[lang],
   };
 
   // Modal showed on button click
@@ -63,6 +69,7 @@ const ActivityScreen = () => {
   const tabs = [
     { icon: Icons.workTabIcon, label: tabTitles.works, callback: () => setActiveTab("works"), type: "works" },
     { icon: Icons.skillTabIcon, label: tabTitles.skills, callback: () => setActiveTab("skills"), type: "skills" },
+    { icon: Icons.perksTabIcon, label: tabTitles.perks, callback: () => setActiveTab("perks"), type: "perks" },
   ];
 
   const [activeTab, setActiveTab] = useState(type || 'works');
@@ -93,8 +100,8 @@ const ActivityScreen = () => {
         <ScreenTabs tabs={tabs} initialTab={initialTabIndex} />
 
         {/* Контент для вкладки "Активности" */}
-        {activeTab === "activities" && (
-          <ActivityTab
+        {activeTab === "perks" && (
+          <PerksTab
             modalData={modalData}
             setModalData={setModalData}
             setUserParameters={setUserParameters}

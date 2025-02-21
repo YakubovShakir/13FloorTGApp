@@ -19,11 +19,12 @@
 }
 
 .ItemTitle {
-  padding: 0px 5px 0px 5px;
-  margin: 10px 0px -10px 0px;
-  font-size: 15px;
-  position: relative; 
-  z-index: 1; 
+  height: 30px;
+    padding: 0px 7px 0px 7px;
+    margin: 10px 0px 0px 0px;
+    font-size: 15px;
+    position: relative;
+    z-index: 1;
 }
 
 .ItemTitleBottom {
@@ -196,7 +197,7 @@
   
     
     object-fit: contain;
-    padding: 20px 12px 2px 12px;
+    padding: 0px 12px 2px 12px;
     align-items: center;
     justify-content: center;
   

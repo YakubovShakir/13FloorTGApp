@@ -1,30 +1,30 @@
-import ScreenContainer from "../../../components/section/ScreenContainer/ScreenContainer"
-import ItemCard from "../../../components/simple/ItemCard/ItemCard"
-import Assets from "../../../assets"
+import ScreenContainer from "../../../components/section/ScreenContainer/ScreenContainer.jsx"
+import ItemCard from "../../../components/simple/ItemCard/ItemCard.jsx"
+import Assets from "../../../assets/index.jsx"
 import { useEffect, useState } from "react"
-import { getSkills, getUserConstantEffects, getUserSkills } from "../../../services/skill/skill"
+import { getSkills, getUserConstantEffects, getUserSkills } from "../../../services/skill/skill.js"
 import {
   updateProcessTimers,
   updateProcessesTimers,
-} from "../../../utils/updateTimers"
+} from "../../../utils/updateTimers.js"
 import {
   getTrainingParameters,
   getParameters,
-} from "../../../services/user/user"
+} from "../../../services/user/user.js"
 import {
   getProcesses,
   startProcess,
   getActiveProcess,
-} from "../../../services/process/process"
-import formatTime, { getMinutesAndSeconds } from "../../../utils/formatTime"
+} from "../../../services/process/process.js"
+import formatTime, { getMinutesAndSeconds } from "../../../utils/formatTime.js"
 import countPercentage from "../../../utils/countPercentage.js"
-import { useSettingsProvider } from "../../../hooks"
+import { useSettingsProvider } from "../../../hooks.jsx"
 import { useUser } from "../../../UserContext.jsx"
 import moment from "moment-timezone"
 import { text } from "framer-motion/client"
 import { getUserBoosts, useBoost } from "../../../services/boost/boost.js"
 
-const SkillTab = ({
+const PerksTab = ({
   modalData,
   setModalData,
   setVisibleModal,
@@ -698,8 +698,8 @@ const SkillTab = ({
 
   return (
     <ScreenContainer withTab>
-      {/* Currently Learning Items (both skills and effects) */}
-      {skills?.filter(a => checkLearningSkill(a.skill_id) && !checkLearnedSkill(a.skill_id)).map((skill, index) => (
+     
+      {/* {skills?.filter(a => checkLearningSkill(a.skill_id) && !checkLearnedSkill(a.skill_id)).map((skill, index) => (
         <ItemCard
           key={`learning-skill-${skill.skill_id}`}
           ItemIcon={skill?.link}
@@ -709,9 +709,9 @@ const SkillTab = ({
           ItemButtons={getItemSkillButton(skill)}
           ItemIndex={index + 1}
         />
-      ))}
+      ))} */}
   
-      {/* {effects && isInitialized ? Object.entries(effects)
+      {effects && isInitialized ? Object.entries(effects)
         .filter(([key, effect]) => effect?.next && checkLearningEffect(effect?.next?.id))
         .map(([key, effect], index) => {
           const displayEffect = effect.current || effect.next;
@@ -727,10 +727,10 @@ const SkillTab = ({
               ItemIndex={index + 1}
             />
           );
-      }) : null} */}
+      }) : null}
   
-      {/* Available (not learned/learning) Skills */}
-      {skills?.filter(a => !checkLearningSkill(a.skill_id) && !checkLearnedSkill(a.skill_id))
+      
+      {/* {skills?.filter(a => !checkLearningSkill(a.skill_id) && !checkLearnedSkill(a.skill_id))
         .map((skill, index) => (
           <ItemCard
             key={`available-skill-${skill.skill_id}`}
@@ -741,9 +741,9 @@ const SkillTab = ({
             ItemButtons={getItemSkillButton(skill)}
             ItemIndex={index + 1}
           />
-      ))}
+      ))} */}
   
-{/*      
+     
       {effects && isInitialized ? Object.entries(effects)
         .filter(([key, effect]) => effect?.next && !checkLearningEffect(effect?.next?.id))
         .map(([key, effect], index) => {
@@ -760,10 +760,10 @@ const SkillTab = ({
               ItemIndex={index + 1}
             />
           );
-      }) : null} */}
+      }) : null}
   
-      {/* Learned Skills */}
-      {skills?.filter(a => !checkLearningSkill(a.skill_id) && checkLearnedSkill(a.skill_id))
+     
+      {/* {skills?.filter(a => !checkLearningSkill(a.skill_id) && checkLearnedSkill(a.skill_id))
         .map((skill, index) => (
           <ItemCard
             key={`learned-skill-${skill.skill_id}`}
@@ -774,9 +774,9 @@ const SkillTab = ({
             ItemButtons={getItemSkillButton(skill)}
             ItemIndex={index + 1}
           />
-      ))}
+      ))}  */}
     </ScreenContainer>
   );
 }
 
-export default SkillTab
+export default PerksTab
