@@ -30,6 +30,7 @@ import formatTime from "../../utils/formatTime"
 import { useNotification } from "../../NotificationContext"
 import { useSettingsProvider } from "../../hooks"
 import { checkCanStop, stopProcess } from "../../services/process/process"
+import { canStartSleeping, canStartTraining, canStartWorking } from "../../utils/paramDep"
 
 // Pre-load audio files
 const COIN_SOUND = new Audio(
@@ -194,6 +195,20 @@ const Home = () => {
     }
   }, [userId, calculateInitialTime])
 
+  const canContinue = (processType) => {
+    if(processType === 'training') {
+      return canStartTraining(userParameters) && userParameters?.mood < 100
+    }
+
+    if(processType === 'work') {
+      return canStartWorking(userParameters)
+    }
+
+    if(processType === 'sleep') {
+      return canStartSleeping(userParameters)
+    }
+  }
+
   useEffect(() => {
     let timerInterval
     let driftCorrectionInterval
@@ -218,7 +233,7 @@ const Home = () => {
 
       setProgressRate(formattedTime)
 
-      if (remainingSeconds === 0) {
+      if (remainingSeconds === 0 || !canContinue(state.currentProcess?.type)) {
         console.log("Timer useEffect - Process completed")
         handleProcessCompletion()
         clearInterval(timerInterval)

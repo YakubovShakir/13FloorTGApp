@@ -36,7 +36,8 @@ export const getDurationAndColor = (
   if (targetDuration > durationInSeconds) color = COLORS.RED
 
   const minutes = Math.floor(targetDuration / 60)
-  const seconds = targetDuration % 60
+  const seconds = Math.ceil(targetDuration % 60)
+  
   console.log(targetDuration, durationInSeconds)
   return {
     value: formatTime(minutes, seconds),
@@ -52,7 +53,7 @@ export const getCoinRewardAndColor = (workDuration, workReward, parameters) => {
 
   if (rewardIncreasePerSecond > 0) {
     color = COLORS.GREEN
-    targetReward = rewardIncreasePerSecond * workDuration
+    targetReward += rewardIncreasePerSecond * workDuration
   } else {
     color = COLORS.WHITE
   }
