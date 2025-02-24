@@ -233,7 +233,7 @@ export const getLeaderboard = async () => {
 export const getServerTime = async () => {
   const { data } = await instance.get(`/users/time`);
 
-  return moment(data.server_time)
+  return moment(data.server_time).tz('Europe/Moscow')
 }
 
 export const submitProfileData = async (userId, WebApp) => {
