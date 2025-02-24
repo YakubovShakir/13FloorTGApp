@@ -339,20 +339,6 @@ const Home = () => {
     state.currentProcess?.id,
   ])
 
-
-  const { isSoundEnabled } = useSettingsProvider()
-
-  const playSound = async (type) => {
-    if (!isSoundEnabled) return
-
-    const sound = type === "work" ? COIN_SOUND : ALARM_SOUND
-    try {
-      await sound.play()
-    } catch (error) {
-      console.error("Error playing sound:", error)
-    }
-  }
-
   const completionInProgressRef = useRef(false)
 
   const handleConfirmClose = async () => {

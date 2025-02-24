@@ -4,254 +4,251 @@ import ScreenContainer from "../../../components/section/ScreenContainer/ScreenC
 import ItemCard from "../../../components/simple/ItemCard/ItemCard";
 import Assets from "../../../assets";
 import {
-  getSkills,
-  getUserConstantEffects,
-  getUserSkills,
+    getSkills,
+    getUserConstantEffects,
+    getUserSkills,
 } from "../../../services/skill/skill";
 import {
-  getServerTime,
-  getTrainingParameters,
+    getServerTime,
+    getTrainingParameters,
 } from "../../../services/user/user";
 import {
-  getProcesses,
-  startProcess,
-  getActiveProcess,
+    getProcesses,
+    startProcess,
+    getActiveProcess,
 } from "../../../services/process/process";
 import { getUserBoosts, useBoost } from "../../../services/boost/boost.js";
 import formatTime from "../../../utils/formatTime";
 import countPercentage from "../../../utils/countPercentage.js";
 import { useSettingsProvider } from "../../../hooks";
 
-const SYNC_INTERVAL = 5 * 60 * 1000; // 5 minutes in ms
-const TICK_INTERVAL = 1000; // 1 second in ms
+const SYNC_INTERVAL = 5 * 60 * 1000;
+const TICK_INTERVAL = 1000;
 
 const SkillTab = ({
-  modalData,
-  setModalData,
-  setVisibleModal,
-  userParameters,
-  userId,
+    modalData,
+    setModalData,
+    setVisibleModal,
+    userParameters,
+    userId,
 }) => {
-  const { lang } = useSettingsProvider();
-  const { Icons } = Assets;
-  const mountedRef = useRef(true);
-  const timerRef = useRef(null);
-  const lastSkillsRef = useRef(null); // Track last userLearningSkills state
-  const isInitializingRef = useRef(false); // Track initialization status
-  const modalUpdateRef = useRef(false); // Track if modal update is in progress
+    const { lang } = useSettingsProvider();
+    const { Icons } = Assets;
+    const mountedRef = useRef(true);
+    const timerRef = useRef(null);
+    const lastSkillsRef = useRef(null);
+    const isInitializingRef = useRef(false);
+    const modalUpdateRef = useRef(false);
 
-  const [state, setState] = useState({
-    skills: null,
-    effects: null,
-    userLearningSkills: null,
-    userLearnedSkills: null,
-    trainingParameters: null,
-    activeProcess: null,
-    userBoosts: null,
-    isInitialized: false,
-  });
-
-  const translations = {
-    start: { ru: 'Начать', en: 'Start' },
-    stop: { ru: 'Стоп', en: 'Stop' },
-    available: { ru: 'Доступно', en: 'Available' },
-    unavailable: { ru: 'Недоступно', en: 'Unavailable' },
-    cost: { ru: 'Стоимость', en: 'Cost' },
-    hour: { ru: 'ЧАС', en: 'HOUR' },
-    minute: { ru: 'м.', en: 'm.' },
-    currentWork: { ru: 'Текущая работа', en: 'Current work' },
-    unlock: { ru: 'Открыть', en: 'Unlock' },
-    noBoosts: { ru: 'Усилений нет', en: 'No boosts' },
-    learned: { ru: 'Изучено', en: 'Learned' },
-    learning: { ru: 'Изучается..', en: 'Learning..' },
-    boost: { ru: 'Ускорить', en: 'Boost' },
-    training: { ru: 'Тренировка', en: 'Training' },
-    inProgress: { ru: 'В процессе', en: 'In progress' },
-    trainingDesc: {
-      ru: "Хорошая тренировка поднимает настроение!",
-      en: "A good workout lifts your mood!"
-    },
-    duration: { ru: 'Длительность', en: 'Duration' },
-    requiredLevel: { ru: 'Необходимый уровень', en: 'Required level' }
-  };
-
-  const calculateTime = useCallback((skills, displayTime) => {
-    return skills.map(skill => {
-      const processStart = moment(skill.createdAt).tz("Europe/Moscow");
-      const elapsedSeconds = displayTime.diff(processStart, "seconds");
-      const totalSeconds = skill.target_duration_in_seconds || skill.base_duration_in_seconds;
-      const remainingSeconds = Math.max(0, totalSeconds - elapsedSeconds);
-      
-      return {
-        ...skill,
-        remainingSeconds,
-        totalSeconds,
-        formattedTime: formatTime(
-          Math.floor(remainingSeconds / 60),
-          remainingSeconds % 60
-        ),
-      };
+    const [state, setState] = useState({
+        skills: null,
+        effects: null,
+        userLearningSkills: [], // Initialize as empty array
+        userLearnedSkills: null,
+        trainingParameters: null,
+        activeProcess: null,
+        userBoosts: null,
+        isInitialized: false,
+        timerRunning: false, // Add timer running flag
     });
-  }, []); // Empty deps since this function is stable and doesn't depend on external state
 
-  const initializeData = useCallback(async () => {
-    if (isInitializingRef.current) return; // Prevent concurrent initializations
-    isInitializingRef.current = true;
-
-    try {
-      const [
-        learningSkills,
-        boosts,
-        constantEffects,
-        skillsList,
-        activeProc,
-        userSkills,
-        trainingParams,
-      ] = await Promise.all([
-        getProcesses("skill", userId),
-        getUserBoosts(userId),
-        getUserConstantEffects(userId),
-        getSkills(),
-        getActiveProcess(userId),
-        getUserSkills(userId),
-        getTrainingParameters(userId),
-      ]);
-
-      if (mountedRef.current) {
-        setState(prev => ({
-          ...prev,
-          skills: skillsList,
-          effects: constantEffects,
-          userLearningSkills: learningSkills,
-          userLearnedSkills: userSkills,
-          trainingParameters: trainingParams,
-          activeProcess: activeProc,
-          userBoosts: boosts,
-          isInitialized: true,
-        }));
-      }
-    } catch (error) {
-      console.error("Initialization failed:", error);
-    } finally {
-      isInitializingRef.current = false;
-    }
-  }, []); // Only depends on userId, which is stable
-
-  useEffect(() => {
-    mountedRef.current = true;
-    initializeData();
-    return () => {
-      mountedRef.current = false;
-    };
-  }, [initializeData]);
-
-  const setupTimer = useCallback(async () => {
-    if (!state.userLearningSkills?.length || !state.isInitialized || timerRef.current) {
-      if (timerRef.current) {
-        timerRef.current.clear();
-      }
-      return;
-    }
-
-    let baseTime = await getServerTime(); // Use the Promise directly, already in the correct timezone
-    let lastSyncTime = moment();
-    let accumulatedDrift = 0;
-
-    const tick = () => {
-      if (!mountedRef.current) return;
-
-      const now = moment();
-      const timeSinceLastSync = now.diff(lastSyncTime, "milliseconds");
-      const displayTime = baseTime.clone().add(timeSinceLastSync + accumulatedDrift, "milliseconds");
-      const updatedSkills = calculateTime(state.userLearningSkills, displayTime);
-      
-      // Check if the skills have actually changed to prevent unnecessary renders
-      if (JSON.stringify(updatedSkills) !== JSON.stringify(lastSkillsRef.current)) {
-        const allCompleted = updatedSkills.every(skill => skill.remainingSeconds <= 0);
-        
-        if (mountedRef.current) {
-          setState(prev => ({
-            ...prev,
-            userLearningSkills: updatedSkills,
-          }));
-          lastSkillsRef.current = updatedSkills; // Update the ref with new skills
-        }
-
-        if (allCompleted && timerRef.current) {
-          timerRef.current.clear();
-          timerRef.current = null;
-          if (mountedRef.current) {
-            setState(prev => ({
-              ...prev,
-              isInitialized: false,
-              userLearningSkills: [],
-            }));
-            initializeData(); // Reinitialize data after completion
-          }
-        }
-      }
+    const translations = {
+        start: { ru: 'Начать', en: 'Start' },
+        stop: { ru: 'Стоп', en: 'Stop' },
+        available: { ru: 'Доступно', en: 'Available' },
+        unavailable: { ru: 'Недоступно', en: 'Unavailable' },
+        cost: { ru: 'Стоимость', en: 'Cost' },
+        hour: { ru: 'ЧАС', en: 'HOUR' },
+        minute: { ru: 'м.', en: 'm.' },
+        currentWork: { ru: 'Текущая работа', en: 'Current work' },
+        unlock: { ru: 'Открыть', en: 'Unlock' },
+        noBoosts: { ru: 'Усилений нет', en: 'No boosts' },
+        learned: { ru: 'Изучено', en: 'Learned' },
+        learning: { ru: 'Изучается..', en: 'Learning..' },
+        boost: { ru: 'Ускорить', en: 'Boost' },
+        training: { ru: 'Тренировка', en: 'Training' },
+        inProgress: { ru: 'В процессе', en: 'In progress' },
+        trainingDesc: {
+            ru: "Хорошая тренировка поднимает настроение!",
+            en: "A good workout lifts your mood!"
+        },
+        duration: { ru: 'Длительность', en: 'Duration' },
+        requiredLevel: { ru: 'Необходимый уровень', en: 'Required level' }
     };
 
-    const sync = async () => {
-      if (!mountedRef.current) return;
+    const calculateTime = useCallback((skills, displayTime) => {
+        return skills.map(skill => {
+            const processStart = moment(skill.createdAt).tz("Europe/Moscow");
+            const elapsedSeconds = displayTime.diff(processStart, "seconds");
+            const totalSeconds = skill.target_duration_in_seconds || skill.base_duration_in_seconds;
+            const remainingSeconds = Math.max(0, totalSeconds - elapsedSeconds);
 
-      try {
-        const newServerTime = await getServerTime(); // Fetch new server time
-        const newBaseTime = newServerTime.clone(); // Already in the correct timezone
-        const now = moment();
-        const expectedTime = baseTime.clone().add(now.diff(lastSyncTime));
-        const drift = newBaseTime.diff(expectedTime);
+            return {
+                ...skill,
+                remainingSeconds,
+                totalSeconds,
+                formattedTime: formatTime(
+                    Math.floor(remainingSeconds / 60),
+                    remainingSeconds % 60
+                ),
+            };
+        });
+    }, []);
 
-        accumulatedDrift += drift;
-        baseTime = newBaseTime;
-        lastSyncTime = now;
+    const initializeData = useCallback(async () => {
+        try {
+            const [
+                learningSkills,
+                boosts,
+                constantEffects,
+                skillsList,
+                activeProc,
+                userSkills,
+                trainingParams,
+            ] = await Promise.all([
+                getProcesses("skill", userId),
+                getUserBoosts(userId),
+                getUserConstantEffects(userId),
+                getSkills(),
+                getActiveProcess(userId),
+                getUserSkills(userId),
+                getTrainingParameters(userId),
+            ]);
 
-        console.log("Timer sync:", { drift, accumulatedDrift });
+            if (mountedRef.current) {
+                setState(prev => ({
+                    ...prev,
+                    skills: skillsList,
+                    effects: constantEffects,
+                    userLearningSkills: learningSkills,
+                    userLearnedSkills: userSkills,
+                    trainingParameters: trainingParams,
+                    activeProcess: activeProc,
+                    userBoosts: boosts,
+                    isInitialized: true,
+                }));
+            }
+        } catch (error) {
+            console.error("Initialization failed:", error);
+        } finally {
+            isInitializingRef.current = false;
+        }
+    }, []);
+
+    useEffect(() => {
+        mountedRef.current = true;
+        initializeData();
+        return () => {
+            mountedRef.current = false;
+            if (timerRef.current) {
+                timerRef.current.clear();
+            }
+        };
+    }, [initializeData]);
+
+    const setupTimer = useCallback(async () => {
+        if (!state.userLearningSkills?.length || !state.isInitialized || state.timerRunning) {
+            return;
+        }
+
+        setState(prev => ({ ...prev, timerRunning: true }));
+
+        let baseTime = await getServerTime();
+        let lastSyncTime = moment();
+        let accumulatedDrift = 0;
+
+        const tick = () => {
+            if (!mountedRef.current) return;
+
+            const now = moment();
+            const timeSinceLastSync = now.diff(lastSyncTime, "milliseconds");
+            const displayTime = baseTime.clone().add(timeSinceLastSync + accumulatedDrift, "milliseconds");
+            const updatedSkills = calculateTime(state.userLearningSkills, displayTime);
+
+            if (JSON.stringify(updatedSkills) !== JSON.stringify(lastSkillsRef.current)) {
+                const allCompleted = updatedSkills.every(skill => skill.remainingSeconds <= 0);
+
+                if (mountedRef.current) {
+                    setState(prev => ({
+                        ...prev,
+                        userLearningSkills: updatedSkills,
+                    }));
+                    lastSkillsRef.current = updatedSkills;
+                }
+
+                if (allCompleted && timerRef.current) {
+                    timerRef.current.clear();
+                    if (mountedRef.current) {
+                        setState(prev => ({
+                            ...prev,
+                            isInitialized: false,
+                            userLearningSkills: [],
+                            timerRunning: false, // Clear timer running flag
+                        }));
+                        initializeData();
+                    }
+                }
+            }
+        };
+
+        const sync = async () => {
+            if (!mountedRef.current) return;
+
+            try {
+                const newServerTime = await getServerTime();
+                const newBaseTime = newServerTime.clone();
+                const now = moment();
+                const expectedTime = baseTime.clone().add(now.diff(lastSyncTime));
+                const drift = newBaseTime.diff(expectedTime);
+
+                accumulatedDrift += drift;
+                baseTime = newBaseTime;
+                lastSyncTime = now;
+
+                console.log("Timer sync:", { drift, accumulatedDrift });
+                tick();
+            } catch (error) {
+                console.error("Sync failed:", error);
+            }
+        };
+
         tick();
-      } catch (error) {
-        console.error("Sync failed:", error);
-      }
-    };
+        const tickInterval = setInterval(tick, TICK_INTERVAL);
+        const syncInterval = setInterval(sync, SYNC_INTERVAL);
 
-    tick(); // Initial calculation
-    const tickInterval = setInterval(tick, TICK_INTERVAL);
-    const syncInterval = setInterval(sync, SYNC_INTERVAL);
+        timerRef.current = {
+            clear: () => {
+                clearInterval(tickInterval);
+                clearInterval(syncInterval);
+                timerRef.current = null;
+                setState(prev => ({ ...prev, timerRunning: false })); // Clear timer running flag
+            },
+        };
+    }, [state.userLearningSkills, state.isInitialized, calculateTime]);
 
-    timerRef.current = {
-      clear: () => {
-        clearInterval(tickInterval);
-        clearInterval(syncInterval);
-        timerRef.current = null;
-      }
-    };
-  }, [state.userLearningSkills, state.isInitialized, calculateTime, initializeData]);
+ useEffect(() => {
+        if (state.isInitialized && state.userLearningSkills?.length > 0) {
+            setupTimer().catch(console.error);
+            lastSkillsRef.current = state.userLearningSkills;
+        } else if (timerRef.current) {
+            timerRef.current.clear();
+            setState(prev => ({ ...prev, timerRunning: false })); // Clear timer running flag
+        }
+    }, [state.userLearningSkills, state.isInitialized, setupTimer]);
 
-  useEffect(() => {
-    if (state.isInitialized && state.userLearningSkills?.length > 0 && !timerRef.current) {
-      setupTimer().catch(console.error); // Handle async setup safely
-      lastSkillsRef.current = state.userLearningSkills; // Initialize the ref with current skills
-    }
-    return () => {
-      if (timerRef.current) {
-        timerRef.current.clear();
-      }
-    };
-  }, [state.userLearningSkills, state.isInitialized, setupTimer]); // Added setupTimer dependency
+    const checkLearnedSkill = useCallback((skillId) => {
+        return state.userLearnedSkills?.find(skill => skill?.skill_id === skillId);
+    }, [state.userLearnedSkills]);
 
-  const checkLearnedSkill = useCallback((skillId) => {
-    return state.userLearnedSkills?.find(skill => skill?.skill_id === skillId);
-  }, [state.userLearnedSkills]);
+    const checkLearningSkill = useCallback((skillId) => {
+        return state.userLearningSkills?.find(skill => skill?.type_id === skillId && !skill?.sub_type);
+    }, [state.userLearningSkills]);
 
-  const checkLearningSkill = useCallback((skillId) => {
-    return state.userLearningSkills?.find(skill => skill?.type_id === skillId && !skill?.sub_type);
-  }, [state.userLearningSkills]);
-
-  const checkLearningEffect = useCallback((effectId) => {
-    return state.userLearningSkills?.find(
-      skill => skill?.type_id === effectId && skill?.sub_type === 'constant_effects'
-    );
-  }, [state.userLearningSkills]);
-
+    const checkLearningEffect = useCallback((effectId) => {
+        return state.userLearningSkills?.find(
+            skill => skill?.type_id === effectId && skill?.sub_type === 'constant_effects'
+        );
+    }, [state.userLearningSkills]);
   // Create memoized button info functions that don't depend on state directly
   const getButtonInfo = useCallback((skill) => {
     const learning = checkLearningSkill(skill?.skill_id);
@@ -272,50 +269,46 @@ const SkillTab = ({
     };
   }, [checkLearningEffect, lang, Icons.balance]);
 
-  // Handle buying skills and boosts
   const handleBuySkill = useCallback(async (skill, sub_type = null) => {
     try {
-      if (timerRef.current) {
-        timerRef.current.clear();
-        timerRef.current = null;
-      }
-      if (isInitializingRef.current) return; // Prevent reentrant calls
-      isInitializingRef.current = true;
+        if (isInitializingRef.current) return;
+        isInitializingRef.current = true;
 
-      const skillId = sub_type ? skill.next?.id : skill.skill_id;
-      await startProcess("skill", userId, skillId, sub_type);
-      // After buying, reinitialize everything and hide modal
-      await initializeData();
-      setVisibleModal(false);
+        const skillId = sub_type ? skill.next?.id : skill.skill_id;
+        await startProcess("skill", userId, skillId, sub_type);
+        
+        await initializeData();
+         lastSkillsRef.current = state.userLearningSkills;
+
+         await setupTimer(); // Restart the timer
+        
+        setVisibleModal(false);
     } catch (error) {
-      console.error("Buy skill failed:", error);
+        console.error("Buy skill failed:", error);
     } finally {
-      isInitializingRef.current = false;
+        isInitializingRef.current = false;
     }
-  }, [userId, initializeData, setVisibleModal]);
+}, [userId, initializeData, setVisibleModal, setupTimer]);
 
-  const handleBoost = useCallback(async (boostId, skillId, subType = null) => {
+const handleBoost = useCallback(async (boostId, skillId, subType = null) => {
     try {
-      if (timerRef.current) {
-        timerRef.current.clear();
-        timerRef.current = null;
-      }
-      if (isInitializingRef.current) return; // Prevent reentrant calls
-      isInitializingRef.current = true;
+        if (isInitializingRef.current) return;
+        isInitializingRef.current = true;
 
-      await useBoost(userId, boostId, skillId, subType);
-      // After boosting, reinitialize everything and hide modal
-      await initializeData();
-      setVisibleModal(false);
+        await useBoost(userId, boostId, skillId, subType);
+
+        await initializeData(); // Re-fetch data
+        lastSkillsRef.current = state.userLearningSkills;
+        await setupTimer(); // Restart the timer
+        setVisibleModal(false);
     } catch (error) {
-      console.error("Boost failed:", error);
+        console.error("Boost failed:", error);
     } finally {
-      isInitializingRef.current = false;
+        isInitializingRef.current = false;
     }
-  }, [userId, initializeData, setVisibleModal]);
+}, [userId, initializeData, setVisibleModal, setupTimer]);
 
-  // IMPORTANT: These functions are used to build modal data for a skill or effect
-  // Removed cyclical dependencies by using stable refs
+
   const createSkillModalData = useCallback((skill) => {
     if (!skill) return null;
     
@@ -613,84 +606,84 @@ const SkillTab = ({
 
   if (!state.isInitialized) return null;
 
-  return (
-    <ScreenContainer withTab>
-      {state.skills?.filter(skill => checkLearningSkill(skill.skill_id) && !checkLearnedSkill(skill.skill_id))
-        .map((skill, index) => (
-          <ItemCard
-            key={`learning-skill-${skill.skill_id}`}
-            ItemIcon={skill?.link}
-            ItemTitle={skill.name[lang]}
-            ItemDescription={skill?.description?.[lang]}
-            ItemParamsBlocks={getItemSkillParamsBlock(skill)}
-            ItemButtons={getItemSkillButton(skill)}
-            ItemIndex={index + 1}
-          />
-        ))}
+    return (
+        <ScreenContainer withTab>
+            {state.skills?.filter(skill => checkLearningSkill(skill.skill_id) && !checkLearnedSkill(skill.skill_id))
+                .map((skill, index) => (
+                    <ItemCard
+                        key={`learning-skill-${skill.skill_id}`}
+                        ItemIcon={skill?.link}
+                        ItemTitle={skill.name[lang]}
+                        ItemDescription={skill?.description?.[lang]}
+                        ItemParamsBlocks={getItemSkillParamsBlock(skill)}
+                        ItemButtons={getItemSkillButton(skill)}
+                        ItemIndex={index + 1}
+                    />
+                ))}
 
-      {state.effects && Object.entries(state.effects)
-        .filter(([_, effect]) => effect?.next && checkLearningEffect(effect?.next?.id))
-        .map(([key, effect], index) => {
-          const displayEffect = effect.current || effect.next;
-          return (
-            <ItemCard
-              key={`learning-effect-${displayEffect.id}`}
-              ItemIcon={displayEffect.link}
-              ItemTitle={displayEffect.name[lang]}
-              ItemDescription={displayEffect.description?.[lang]}
-              ItemParamsBlocks={getItemEffectsParamsBlock(effect)}
-              ItemButtons={getItemEffectButton(effect)}
-              ItemBottomAmount={(lang === 'en' ? 'Level ' : 'Уровень ') + (effect.current?.level || 0)}
-              ItemIndex={index + 1}
-            />
-          );
-        })}
+            {state.effects && Object.entries(state.effects)
+                .filter(([_, effect]) => effect?.next && checkLearningEffect(effect?.next?.id))
+                .map(([key, effect], index) => {
+                    const displayEffect = effect.current || effect.next;
+                    return (
+                        <ItemCard
+                            key={`learning-effect-${displayEffect.id}`}
+                            ItemIcon={displayEffect.link}
+                            ItemTitle={displayEffect.name[lang]}
+                            ItemDescription={displayEffect.description?.[lang]}
+                            ItemParamsBlocks={getItemEffectsParamsBlock(effect)}
+                            ItemButtons={getItemEffectButton(effect)}
+                            ItemBottomAmount={(lang === 'en' ? 'Level ' : 'Уровень ') + (effect.current?.level || 0)}
+                            ItemIndex={index + 1}
+                        />
+                    );
+                })}
 
-      {state.skills?.filter(skill => !checkLearningSkill(skill.skill_id) && !checkLearnedSkill(skill.skill_id))
-        .map((skill, index) => (
-          <ItemCard
-            key={`available-skill-${skill.skill_id}`}
-            ItemIcon={skill?.link}
-            ItemTitle={skill.name[lang]}
-            ItemDescription={skill?.description?.[lang]}
-            ItemParamsBlocks={getItemSkillParamsBlock(skill)}
-            ItemButtons={getItemSkillButton(skill)}
-            ItemIndex={index + 1}
-          />
-        ))}
+            {state.skills?.filter(skill => !checkLearningSkill(skill.skill_id) && !checkLearnedSkill(skill.skill_id))
+                .map((skill, index) => (
+                    <ItemCard
+                        key={`available-skill-${skill.skill_id}`}
+                        ItemIcon={skill?.link}
+                        ItemTitle={skill.name[lang]}
+                        ItemDescription={skill?.description?.[lang]}
+                        ItemParamsBlocks={getItemSkillParamsBlock(skill)}
+                        ItemButtons={getItemSkillButton(skill)}
+                        ItemIndex={index + 1}
+                    />
+                ))}
 
-      {state.effects && Object.entries(state.effects)
-        .filter(([_, effect]) => effect?.next && !checkLearningEffect(effect?.next?.id))
-        .map(([key, effect], index) => {
-          const displayEffect = effect.current || effect.next;
-          return (
-            <ItemCard
-              key={`available-effect-${displayEffect.id}`}
-              ItemIcon={displayEffect.link}
-              ItemTitle={displayEffect.name[lang]}
-              ItemDescription={displayEffect.description?.[lang]}
-              ItemParamsBlocks={getItemEffectsParamsBlock(effect)}
-              ItemButtons={getItemEffectButton(effect)}
-              ItemBottomAmount={(lang === 'en' ? 'Level ' : 'Уровень ') + (effect.current?.level || 0)}
-              ItemIndex={index + 1}
-            />
-          );
-        })}
+            {state.effects && Object.entries(state.effects)
+                .filter(([_, effect]) => effect?.next && !checkLearningEffect(effect?.next?.id))
+                .map(([key, effect], index) => {
+                    const displayEffect = effect.current || effect.next;
+                    return (
+                        <ItemCard
+                            key={`available-effect-${displayEffect.id}`}
+                            ItemIcon={displayEffect.link}
+                            ItemTitle={displayEffect.name[lang]}
+                            ItemDescription={displayEffect.description?.[lang]}
+                            ItemParamsBlocks={getItemEffectsParamsBlock(effect)}
+                            ItemButtons={getItemEffectButton(effect)}
+                            ItemBottomAmount={(lang === 'en' ? 'Level ' : 'Уровень ') + (effect.current?.level || 0)}
+                            ItemIndex={index + 1}
+                        />
+                    );
+                })}
 
-      {state.skills?.filter(skill => !checkLearningSkill(skill.skill_id) && checkLearnedSkill(skill.skill_id))
-        .map((skill, index) => (
-          <ItemCard
-            key={`learned-skill-${skill.skill_id}`}
-            ItemIcon={skill?.link}
-            ItemTitle={skill.name[lang]}
-            ItemDescription={skill?.description?.[lang]}
-            ItemParamsBlocks={getItemSkillParamsBlock(skill)}
-            ItemButtons={getItemSkillButton(skill)}
-            ItemIndex={index + 1}
-          />
-        ))}
-    </ScreenContainer>
-  );
+            {state.skills?.filter(skill => !checkLearningSkill(skill.skill_id) && checkLearnedSkill(skill.skill_id))
+                .map((skill, index) => (
+                    <ItemCard
+                        key={`learned-skill-${skill.skill_id}`}
+                        ItemIcon={skill?.link}
+                        ItemTitle={skill.name[lang]}
+                        ItemDescription={skill?.description?.[lang]}
+                        ItemParamsBlocks={getItemSkillParamsBlock(skill)}
+                        ItemButtons={getItemSkillButton(skill)}
+                        ItemIndex={index + 1}
+                    />
+                ))}
+        </ScreenContainer>
+    );
 };
 
 export default SkillTab;
