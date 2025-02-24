@@ -35,6 +35,7 @@ const PerksTab = ({
   const [effects, setEffects] = useState(null)
   const [userLearningSkills, setUserLearningSkills] = useState(null) //  User already Learned skills
   const [userLearnedSkills, setUserLearnedSkills] = useState(null) // User learning at this time skills
+  const [trainingParamters, setTrainingParameters] = useState(null) // User training parameters
   const [activeProcess, setActiveProcess] = useState(null) //  User active training
   const [userBoosts, setUserBoosts] = useState(null)
 
@@ -117,6 +118,20 @@ const PerksTab = ({
   }
 
   const { Icons } = Assets
+  // Return skill if it already learned
+  const checkLearnedSkill = (skillId) => {
+    const learned = userLearnedSkills?.find(
+      (skill) => skill?.skill_id === skillId
+    )
+    return learned && skills?.find((skill) => skill?.skill_id === skillId)
+  }
+  // Return skill if it in study
+  const checkLearningSkill = (skillId) => {
+    const learning = userLearningSkills?.find(
+      (skill) => skill?.type_id === skillId
+    )
+    return learning && skills?.find((skill) => skill?.skill_id === skillId)
+  }
 
   const checkLearningEffect = (effectId) => {
     const learning = userLearningSkills?.find(
@@ -141,6 +156,18 @@ const PerksTab = ({
         if (effectEntry) {
           const [effectKey, currentEffect] = effectEntry;
           const updatedModalData = setEffectModalData(currentEffect)
+          if (updatedModalData && updatedModalData.id === modalData.id) {
+            setModalData(updatedModalData)
+          }
+        }
+      } else {
+        // Regular skills handling remains the same
+        const currentSkill = skills?.find(
+          (skill) => skill?.skill_id === modalData?.id
+        )
+        
+        if (currentSkill) {
+          const updatedModalData = setSkillModalData(currentSkill)
           if (updatedModalData && updatedModalData.id === modalData.id) {
             setModalData(updatedModalData)
           }
@@ -191,10 +218,34 @@ const PerksTab = ({
               setModalData(newModalData)
             }
           }
+        } else {
+          const updatedSkill = newSkills.find(s => s.skill_id === skillId)
+          if (updatedSkill) {
+            const newModalData = setSkillModalData(updatedSkill)
+            if (newModalData && newModalData.id === modalData.id) {
+              setModalData(newModalData)
+            }
+          }
         }
       }
     } catch (error) {
       console.error('Error in handleBuySkill:', error)
+    }
+  }
+
+  const getButtonInfo = (skill) => {
+    const learning = checkLearningSkill(skill?.skill_id)
+    const learned = checkLearnedSkill(skill?.skill_id)
+    const icon = learned || learning ? null : Icons.balance
+
+    let text = skill?.coins_price
+
+    if (learning) text = translations.learning[lang]
+    if (learned) text = translations.learned[lang]
+
+    return {
+      text,
+      icon,
     }
   }
 
@@ -210,6 +261,133 @@ const PerksTab = ({
       text,
       icon,
     }
+  }
+
+  // Build modal data for skill card
+  const setSkillModalData = (skill) => {
+    const learned = checkLearnedSkill(skill?.skill_id)
+    const learning = userLearningSkills?.find(
+      (sk) => sk?.type_id === skill?.skill_id && sk?.sub_type === null
+    )
+
+    const bottomButtonOnClick = () => handleBuySkill(skill)
+
+    console.log('boosts', userBoosts)
+
+    const data = {
+      type: "skill",
+      id: skill?.skill_id,
+      sub_type: null,
+      title: skill?.name[lang] || skill?.name,
+      image: skill?.link,
+      blocks: [
+        {
+          icon: Icons.balance,
+          text: translations.cost[lang],
+          value: skill?.coins_price,
+          fillPercent: '100%',
+          fillBackground: userParameters?.coins < skill?.coins_price
+            ? "#4E1010" // red
+            : "#0E3228", // green
+
+        },
+        {
+          icon: Icons.levelIcon,
+          text: translations.requiredLevel[lang],
+          value: skill?.requiredLevel,
+          fillPercent: "100%",
+          fillBackground:
+            userParameters?.level < skill?.requiredLevel
+              ? "#4E1010" // red
+              : "#0E3228", // green
+        },
+        skill?.skill_id_required && {
+          icon: skills?.find((sk) => sk?.skill_id === skill?.skill_id_required)
+            ?.link,
+          text: skills?.find((sk) => sk?.skill_id === skill?.skill_id_required)?.name[lang],
+          fillPercent: "100%",
+          fillBackground: !checkLearnedSkill(skill?.skill_id_required)
+            ? "#4E1010" // red
+            : "#0E3228", // green
+        },
+        {
+          icon: Icons.clock,
+          text: translations.duration[lang],
+          fillPercent: learning ? Math.min(100, countPercentage(
+            moment().tz('Europe/Moscow').diff(moment(learning.createdAt).tz('Europe/Moscow'), 'seconds'),
+            learning.target_duration_in_seconds || learning.base_duration_in_seconds
+          )) : false
+          ,
+          value: formatTime(skill?.duration)
+        },
+      ].filter(Boolean),
+      buttons: [
+        // Убираем пока ускорить
+        {
+          ...getButtonInfo(skill),
+          onClick: !(learning || learned) && bottomButtonOnClick,
+          active: !(learning || learned) && (skill?.skill_id_required ? checkLearnedSkill(skill?.skill_id_required) : true) && userParameters?.level >= skill?.requiredLevel && userParameters.coins >= skill.coins_price,
+        },
+        ...(learning && !learned ? [ // Spread the conditional array elements
+          {
+            icon: "https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/icons%2F%D1%83%D1%81%D0%BA%D0%BE%D1%80-25.png",
+            text: translations.boost[lang] + ' x25%',
+            active: userBoosts?.find(boost => boost.boost_id === 7),
+            onClick: userBoosts?.find(boost => boost.boost_id === 7) && (async () => {
+              setIsInitialized(false)
+              await useBoost(userId, 7, skill.skill_id, null)
+              // Combine multiple API calls
+              const [boosts, constantEffects, skills, processes, activeProcess, userSkills] = await Promise.all([
+                getUserBoosts(userId),
+                getUserConstantEffects(userId),
+                getSkills(),
+                getProcesses("skill", userId),
+                getActiveProcess(userId),
+                getUserSkills(userId)
+              ])
+
+              setUserBoosts(boosts)
+              setEffects(constantEffects)
+              setSkills(skills)
+              setUserLearningSkills(processes)
+              setActiveProcess(activeProcess)
+              setUserLearnedSkills(userSkills)
+              setIsInitialized(true)
+              setVisibleModal(false)
+            })
+          },
+          {
+            icon: "https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/icons%2F%D1%83%D1%81%D0%BA%D0%BE%D1%80-50.png",
+            text: translations.boost[lang] + ' x50%',
+            active: userBoosts?.find(boost => boost.boost_id === 8),
+            onClick: userBoosts?.find(boost => boost.boost_id === 8) && (async () => {
+              setIsInitialized(false)
+              await useBoost(userId, 8, skill.skill_id, null)
+
+              // Combine multiple API calls
+              const [boosts, constantEffects, skills, processes, activeProcess, userSkills] = await Promise.all([
+                getUserBoosts(userId),
+                getUserConstantEffects(userId),
+                getSkills(),
+                getProcesses("skill", userId),
+                getActiveProcess(userId),
+                getUserSkills(userId)
+              ])
+
+              setUserBoosts(boosts)
+              setEffects(constantEffects)
+              setSkills(skills)
+              setUserLearningSkills(processes)
+              setActiveProcess(activeProcess)
+              setUserLearnedSkills(userSkills)
+              setIsInitialized(true)
+              setVisibleModal(false)
+            })
+          },
+        ] : []) // If not learning, spread an empty array (no additional buttons)
+      ],
+    }
+    return data
   }
 
   const setEffectModalData = (effect) => {
@@ -331,12 +509,16 @@ const PerksTab = ({
     }
   }
 
+  // Get parameters for skill card
+  const getItemSkillParamsBlock = (skill) => {
+    const learned = checkLearnedSkill(skill?.skill_id)
+    if (learned) return []
 
-  const getItemEffectsParamsBlock = (effect) => {
+    const requiredSkill = skill?.skill_id_required
+
     const learning = userLearningSkills?.find(
-      (sk) => sk?.type_id === effect?.next?.id && sk?.sub_type === 'constant_effects'
+      (sk) => sk?.type_id === skill?.skill_id
     )
-
     const { duration, seconds } = learning ? getMinutesAndSeconds(Math.max(0, (learning?.target_duration_in_seconds ? learning?.target_duration_in_seconds : learning?.base_duration_in_seconds) - moment().tz('Europe/Moscow').diff(moment(learning?.createdAt).tz('Europe/Moscow'), 'seconds'))) : getMinutesAndSeconds(skill?.duration * 60)
     const timerBar = {
       icon: Icons.clock,
@@ -345,6 +527,36 @@ const PerksTab = ({
         learning.target_duration_in_seconds || learning.base_duration_in_seconds
       )) : false,
       value: formatTime(duration, seconds)
+    }
+    const learnedRequiredSkill = skill.skill_id_required ? checkLearnedSkill(skill.skill_id_required) : true
+
+    let accessStatus = !(learned || learning) && learnedRequiredSkill && userParameters?.coins >= skill.coins_price && userParameters.level >= skill.requiredLevel
+
+    if (learned) accessStatus = false
+
+    if (requiredSkill) accessStatus && checkLearnedSkill(requiredSkill)
+
+    const accessBar = {
+      icon: accessStatus ? Icons.unlockedIcon : Icons.lockedIcon,
+      value: accessStatus ? translations.available[lang] : translations.unavailable[lang],
+    }
+
+    return [[timerBar], [accessBar]]
+  }
+
+  const getItemEffectsParamsBlock = (effect) => {
+    const learning = userLearningSkills?.find(
+      (sk) => sk?.type_id === effect?.next?.id && sk?.sub_type === 'constant_effects'
+    )
+
+    const { duration, seconds } = learning ? getMinutesAndSeconds(learning?.target_duration_in_seconds || learning?.base_duration_in_seconds) : getMinutesAndSeconds(effect.next.duration * 60)
+    const timerBar = {
+      icon: Icons.clock,
+      fillPercent: learning ? Math.abs(countPercentage(
+        moment().diff(moment(learning?.createdAt), 'seconds'),
+        learning?.target_duration_in_seconds || learning?.base_duration_in_seconds || effect.duration * 60
+      ) - 100) : 0,
+      value: learning ? formatTime(learning.duration, learning.seconds) : formatTime(duration, seconds),
     }
 
     let accessStatus = !learning && userParameters?.coins >= effect.price && userParameters.level >= effect.required_level
@@ -355,6 +567,26 @@ const PerksTab = ({
     }
 
     return [[timerBar], [accessBar]]
+  }
+
+  // Get button for skill card
+  const getItemSkillButton = (skill) => {
+    const learned = checkLearnedSkill(skill?.skill_id)
+    const learning = checkLearningSkill(skill?.skill_id)
+    const learnedRequiredSkill = skill.skill_id_required ? checkLearnedSkill(skill.skill_id_required) : true
+
+    const active = !(learned || learning) && learnedRequiredSkill && userParameters?.coins >= skill.coins_price && userParameters.level >= skill.requiredLevel
+
+    return [
+      {
+        ...getButtonInfo(skill),
+        onClick: () => {
+          setModalData(setSkillModalData(skill))
+          setVisibleModal(true)
+        },
+        active,
+      },
+    ]
   }
 
   // Get button for skill card
@@ -466,6 +698,18 @@ const PerksTab = ({
 
   return (
     <ScreenContainer withTab>
+     
+      {/* {skills?.filter(a => checkLearningSkill(a.skill_id) && !checkLearnedSkill(a.skill_id)).map((skill, index) => (
+        <ItemCard
+          key={`learning-skill-${skill.skill_id}`}
+          ItemIcon={skill?.link}
+          ItemTitle={skill.name[lang]}
+          ItemDescription={skill?.description && skill?.description[lang]}
+          ItemParamsBlocks={getItemSkillParamsBlock(skill)}
+          ItemButtons={getItemSkillButton(skill)}
+          ItemIndex={index + 1}
+        />
+      ))} */}
   
       {effects && isInitialized ? Object.entries(effects)
         .filter(([key, effect]) => effect?.next && checkLearningEffect(effect?.next?.id))
@@ -484,6 +728,21 @@ const PerksTab = ({
             />
           );
       }) : null}
+  
+      
+      {/* {skills?.filter(a => !checkLearningSkill(a.skill_id) && !checkLearnedSkill(a.skill_id))
+        .map((skill, index) => (
+          <ItemCard
+            key={`available-skill-${skill.skill_id}`}
+            ItemIcon={skill?.link}
+            ItemTitle={skill.name[lang]}
+            ItemDescription={skill?.description && skill?.description[lang]}
+            ItemParamsBlocks={getItemSkillParamsBlock(skill)}
+            ItemButtons={getItemSkillButton(skill)}
+            ItemIndex={index + 1}
+          />
+      ))} */}
+  
      
       {effects && isInitialized ? Object.entries(effects)
         .filter(([key, effect]) => effect?.next && !checkLearningEffect(effect?.next?.id))
@@ -502,6 +761,20 @@ const PerksTab = ({
             />
           );
       }) : null}
+  
+     
+      {/* {skills?.filter(a => !checkLearningSkill(a.skill_id) && checkLearnedSkill(a.skill_id))
+        .map((skill, index) => (
+          <ItemCard
+            key={`learned-skill-${skill.skill_id}`}
+            ItemIcon={skill?.link}
+            ItemTitle={skill.name[lang]}
+            ItemDescription={skill?.description && skill?.description[lang]}
+            ItemParamsBlocks={getItemSkillParamsBlock(skill)}
+            ItemButtons={getItemSkillButton(skill)}
+            ItemIndex={index + 1}
+          />
+      ))}  */}
     </ScreenContainer>
   );
 }
