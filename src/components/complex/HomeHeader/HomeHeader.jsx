@@ -40,7 +40,7 @@ const walletTranslations = {
 
 const TelegramWalletConnection = () => {
   const [isConnecting, setIsConnecting] = useState(false)
-  const { lang } = useSettingsProvider()
+  const { lang , playClickSound} = useSettingsProvider()
   const [tonConnectUI, setOptions] = useTonConnectUI()
   const { userId, userParameters } = useContext(UserContext)
   const wallet = useTonWallet()
@@ -116,9 +116,10 @@ const TelegramWalletConnection = () => {
       <Bar
         title={getButtonText()}
         iconLeft={Assets.Icons.telegram || Assets.Icons.wallets}
-        onClick={
-          wallet === null ? open : () => setIsDisconnectModalVisible(true)
-        }
+        onClick={() => {
+          playClickSound(); // Добавляем звук
+          wallet === null ? open() : setIsDisconnectModalVisible(true);
+        }}
         isChecked={wallet !== null}
         isLoading={isConnecting}
       />
@@ -129,6 +130,7 @@ const TelegramWalletConnection = () => {
             <div className="modal-buttons">
               <button
                 onClick={() => {
+                  playClickSound();
                   setIsDisconnectModalVisible(false)
                   tonConnectUI.disconnect()
                 }}
@@ -189,7 +191,7 @@ const Bar = ({ title, onClick, iconLeft, iconRight, isChecked }) => {
     },
   }
 
-  const { isSoundEnabled, toggleSound, isMusicEnabled, toggleMusic } =
+  const { isSoundEnabled, toggleSound, isMusicEnabled, toggleMusic, playClickSound} =
     useSettingsProvider() // Access context values
 
   const getCorrectIsChecked = () => {
@@ -250,6 +252,7 @@ export const SettingsModal = ({ baseStyles, setIsSettingsShown }) => {
     isMusicEnabled,
     lang,
     setLang,
+    playClickSound,
   } = useSettingsProvider()
 
   const translations = {
@@ -298,7 +301,11 @@ export const SettingsModal = ({ baseStyles, setIsSettingsShown }) => {
           backgroundSize: "cover",
         }}
       >
-        <div onClick={() => setIsSettingsShown(false)}>
+       <div
+          onClick={() => {
+            playClickSound(); // Добавляем звук
+            setIsSettingsShown(false);
+          }}>
           <img
             src={Assets.Icons.modalClose}
             width={16}
@@ -421,7 +428,7 @@ export const StatsModal = ({
   clothing,
 }) => {
   const { total_earned, level, energy_capacity, respect } = userParameters
-  const { lang } = useSettingsProvider()
+  const { lang, playClickSound } = useSettingsProvider()
 
   const translations = {
     level: {
@@ -548,10 +555,12 @@ const HomeHeader = ({ screenHeader }) => {
   const [isStatsShown, setIsStatsShown] = useState(false)
   const [levelSpan, setLevelSpan] = useState(null)
   const [activeProcess, setActiveProcess] = useState()
+  const { playClickSound } = useSettingsProvider();
 
   const { Icons } = Assets
 
   const handleSettingsPress = () => {
+    playClickSound();
     setIsSettingsShown(!isSettingsShown)
   }
 

@@ -1,8 +1,10 @@
 import { useNavigate } from 'react-router-dom';
+import { useSettingsProvider } from "../../../hooks";
 import "./ScreenBody.css"
 
 const ScreenBody = ({ children, activity }) => {
     const navigate = useNavigate();
+    const { playClickSound } = useSettingsProvider();
 
     const handleClose = () => {
         navigate('/');
@@ -38,7 +40,10 @@ const ScreenBody = ({ children, activity }) => {
                     <p>{activity}</p>
                 </div>
                 <button 
-    onClick={handleClose} 
+    onClick={() => {
+        playClickSound(); // Воспроизведение звука
+        handleClose(); // Вызов функции закрытия
+    }}
     style={{
         paddingBottom: '4px',
         position: 'absolute',

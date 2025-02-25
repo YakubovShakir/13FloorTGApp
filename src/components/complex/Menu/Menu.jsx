@@ -10,7 +10,7 @@ const Menu = ({ screenMenu, activeName, noButton, isForeign }) => {
   const { Icons } = Assets
   const navigate = useNavigate()
   const [currentTab, setCurrentTab] = useState()
-  const { lang } = useSettingsProvider()
+  const { lang , playClickSound} = useSettingsProvider()
 
   const translations = {
     food: {
@@ -55,6 +55,7 @@ const Menu = ({ screenMenu, activeName, noButton, isForeign }) => {
 
     care: {
       onClick: () => {
+        playClickSound()
         if (currentTab === "care") {
           navigate("/#")
         } else {
@@ -69,6 +70,7 @@ const Menu = ({ screenMenu, activeName, noButton, isForeign }) => {
     
     shop: {
       onClick: () => {
+        playClickSound()
         if (currentTab === "shop") {
           navigate("/#")
         } else {
@@ -83,6 +85,7 @@ const Menu = ({ screenMenu, activeName, noButton, isForeign }) => {
    
     activity: {
       onClick: () => {
+        playClickSound()
         if (currentTab === "activity") {
           navigate("/#")
         } else {
@@ -97,6 +100,7 @@ const Menu = ({ screenMenu, activeName, noButton, isForeign }) => {
 
     community: {
       onClick: () => {
+        playClickSound()
         if (currentTab === "community") {
           navigate("/#")
         } else {
@@ -113,6 +117,7 @@ const Menu = ({ screenMenu, activeName, noButton, isForeign }) => {
 
     tasks: {
       onClick: () => {
+        playClickSound()
         if (currentTab === "tasks") {
           navigate("/#")
         } else {
@@ -126,6 +131,7 @@ const Menu = ({ screenMenu, activeName, noButton, isForeign }) => {
     },
     boost: {
       onClick: () => {
+        playClickSound()
         if (currentTab === "boost") {
           navigate("/#")
         } else {
