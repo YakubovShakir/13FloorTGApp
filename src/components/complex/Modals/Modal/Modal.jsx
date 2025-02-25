@@ -9,7 +9,7 @@ const Modal = ({ bottom, left, width, height, data, onClose, logoWidth }) => {
       initial={{ opacity: 0, y: 100 }}
       animate={{ opacity: 1, y: 0 }}
       className="Modal"
-      style={{  top: "186.5px", left: left, width: width, height: "90%", zIndex: 10 }}
+      style={{  top: "186.5px", left: left, width: width, height: "80%", zIndex: 10 }}
     >
       
       <img
