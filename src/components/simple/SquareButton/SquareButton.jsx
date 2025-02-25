@@ -85,7 +85,7 @@ export const SquareButton = ({
             width={imageSize}
             height={imageSize}
             animate={{
-              padding: "3px",
+              padding: "5px",
               opacity: 1,
               rotate: 0,
               scale: isSelected ? 0.9 : 1,
