@@ -21,6 +21,7 @@ import { getUserBoosts, useBoost } from "../../../services/boost/boost.js";
 import formatTime from "../../../utils/formatTime";
 import countPercentage from "../../../utils/countPercentage.js";
 import { useSettingsProvider } from "../../../hooks";
+import { useUser } from "../../../UserContext.jsx";
 
 const SYNC_INTERVAL = 5 * 60 * 1000;
 const TICK_INTERVAL = 1000;
@@ -266,6 +267,8 @@ const PerksTab = ({
         );
     }, [state.userLearningSkills]);
 
+    const { refreshData } = useUser()
+
     const handleBuySkill = useCallback(async (skill, sub_type = null) => {
         try {
             if (isInitializingRef.current) return;
@@ -275,6 +278,7 @@ const PerksTab = ({
             await startProcess("skill", userId, skillId, sub_type);
             
             await initializeData();
+            await refreshData();
             lastSkillsRef.current = state.userLearningSkills;
             setVisibleModal(false);
         } catch (error) {
