@@ -18,44 +18,54 @@ const ScreenBody = ({ children, activity }) => {
         }}>
             {/* Fixed Header */}
             <div className="HomeHeaderBottomName" style={{ 
-                boxShadow: 'rgb(0 0 0) 2px 5px 12px 0px',
-                zIndex: '1',
-                height: '55px',
-                minHeight: '55px',
-                display: 'flex', 
-                alignItems: 'center', 
-                justifyContent: 'center', 
-                width: '100%',
-                color: 'white', 
-                fontFamily: 'Anonymous pro',
-                fontSize: '20px',
-                fontWeight: '700',
-                position: 'relative',
-                backgroundColor: 'black',
+                 
+                  boxShadow:' rgb(0, 0, 0) 2px 5px 12px 0px',
+                  zIndex:' 1',
+                  height: '55px',
+                  minHeight: '55px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent:' center',
+                  width: '100%',
+                  color: 'white',
+                  fontFamily: 'Anonymous pro',
+                  fontSize: '20px',
+                  fontWeight: '700',
+                  position: 'relative',
+                  backgroundColor:' #141414',
                 
             }}>
                 <div>
                     <p>{activity}</p>
                 </div>
                 <button 
-                    onClick={handleClose} 
-                    style={{
-                        position: 'absolute',
-                        left: 10,
-                        background: 'transparent',
-                        border: 'none',
-                        padding: 0,
-                        cursor: 'pointer'
-                    }}
-                >
-                    <div style={{
-                        width: 0,
-                        height: 0,
-                        borderTop: '10px solid transparent',
-                        borderBottom: '10px solid transparent',
-                        borderRight: '20px solid rgb(255, 118, 0)',
-                    }} />
-                </button>
+    onClick={handleClose} 
+    style={{
+        paddingBottom: '4px',
+        position: 'absolute',
+        left:' 5%',
+        border: '2px solid rgb(255, 0, 0)',
+        cursor: 'pointer',
+        width: '35px',
+        height: '35px',
+        backgroundColor: 'rgba(0, 0, 0, 0.52)',
+        backdropFilter: 'blur(5px)',
+        color:'rgb(255, 0, 0)',
+        borderRadius:' 8px',
+        fontSize:' 20px',
+        bottom:'10px',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        fontSize: '22px',
+        fontWeight: '900',
+    }}
+>
+    {'\u2B8C'}
+</button>
+
+
+                
             </div>
 
             {/* Scrollable Content Area */}

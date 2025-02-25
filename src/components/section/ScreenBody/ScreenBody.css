@@ -11,7 +11,7 @@
 
   display: 'none';
   position: relative; /* Для псевдоэлементов */
-  background: linear-gradient(90deg, rgba(34,199,163,0) 20%, rgba(189, 78, 4, 0.336) 50%, rgba(21,110,90,0) 80%);
+  background: repeating-linear-gradient(45deg, rgba(0, 0, 0, 0.21), rgba(0, 0, 0, 0.21) 2px, rgba(57, 57, 57, 0.06) 2px, rgba(57, 57, 57, 0.06) 6px) rgb(20, 20, 20);
   animation: pulseLinearGradient 6s infinite ease-in-out; /* Плавная анимация для фона */
 }
 
@@ -22,7 +22,7 @@
   left: 0;
   right: 0;
   height: 1px; /* Толщина границы */
-  background: radial-gradient(circle, rgb(255, 118, 0) 0%, transparent 70%); /* Градиент для псевдоэлементов */
+  background: radial-gradient(circle,  rgb(49 49 49) 0%, transparent 70%); /* Градиент для псевдоэлементов */
 
 }
 
