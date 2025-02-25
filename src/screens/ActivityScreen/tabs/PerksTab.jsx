@@ -64,7 +64,7 @@ const PerksTab = ({
         unlock: { ru: 'Открыть', en: 'Unlock' },
         noBoosts: { ru: 'Усилений нет', en: 'No boosts' },
         learned: { ru: 'Изучено', en: 'Learned' },
-        learning: { ru: 'Изучается..', en: 'Learning..' },
+        learning: { ru: 'Ускорить', en: 'Boost' },
         boost: { ru: 'Ускорить', en: 'Boost' },
         training: { ru: 'Тренировка', en: 'Training' },
         inProgress: { ru: 'В процессе', en: 'In progress' },
@@ -538,7 +538,7 @@ const PerksTab = ({
                   skill?.coins_price,
             icon: learned || learning ? null : Icons.balance,
             onClick: () => openSkillModal(skill),
-            active,
+            active: learning ? true : active,
         }];
     }, [checkLearnedSkill, checkLearningSkill, userParameters, lang, Icons, translations, openSkillModal]);
 
@@ -552,7 +552,7 @@ const PerksTab = ({
             text: learning ? translations.learning[lang] : effect?.next?.price,
             icon: learning ? null : Icons.balance,
             onClick: () => openEffectModal(effect),
-            active,
+            active: learning ? true : active,
         }];
     }, [checkLearningEffect, userParameters, lang, Icons, translations, openEffectModal]);
 

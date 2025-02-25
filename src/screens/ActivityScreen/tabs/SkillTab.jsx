@@ -64,7 +64,7 @@ const SkillTab = ({
         unlock: { ru: 'Открыть', en: 'Unlock' },
         noBoosts: { ru: 'Усилений нет', en: 'No boosts' },
         learned: { ru: 'Изучено', en: 'Learned' },
-        learning: { ru: 'Изучается..', en: 'Learning..' },
+        learning: { ru: 'Ускорить', en: 'Boost' },
         boost: { ru: 'Ускорить', en: 'Boost' },
         training: { ru: 'Тренировка', en: 'Training' },
         inProgress: { ru: 'В процессе', en: 'In progress' },
@@ -401,6 +401,7 @@ const SkillTab = ({
                         userParameters.coins >= skill.coins_price,
                 },
                 ...(learning && !learned ? [
+                    
                     {
                         icon: "https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/icons%2F%D1%83%D1%81%D0%BA%D0%BE%D1%80-25.png",
                         text: translations.boost[lang] + ' x25%',
@@ -587,7 +588,7 @@ const SkillTab = ({
                   skill?.coins_price,
             icon: learned || learning ? null : Icons.balance,
             onClick: () => openSkillModal(skill),
-            active,
+            active: learning ? true : active,
         }];
     }, [checkLearnedSkill, checkLearningSkill, userParameters, lang, Icons, translations, openSkillModal]);
 
