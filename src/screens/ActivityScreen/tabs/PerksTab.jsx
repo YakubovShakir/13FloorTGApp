@@ -587,7 +587,7 @@ const PerksTab = ({
         } finally {
             modalUpdateRef.current = false;
         }
-    }, [modalData, state, createSkillModalData, createEffectModalData, setModalData]);
+    }, [state.userLearningSkills]);
 
     if (!state.isInitialized) return null;
 
