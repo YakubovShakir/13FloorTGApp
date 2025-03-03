@@ -1,10 +1,12 @@
 import { useNavigate } from 'react-router-dom';
 import { useSettingsProvider } from "../../../hooks";
 import "./ScreenBody.css"
+import Assets from "../../../assets"
 
 const ScreenBody = ({ children, activity }) => {
     const navigate = useNavigate();
     const { playClickSound } = useSettingsProvider();
+    const { Icons } = Assets
 
     const handleClose = () => {
         navigate('/');
@@ -65,7 +67,11 @@ const ScreenBody = ({ children, activity }) => {
         fontWeight: '900',
     }}
 >
-    {'\u2B8C'}
+<img
+                  src={Icons.backIcon}
+                  alt="Coin"
+                  style={{ width: "25px", margin: "2px" }}
+                />
 </button>
             </div>
 
