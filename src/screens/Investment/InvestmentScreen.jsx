@@ -213,7 +213,7 @@ const Modal = ({ bottom, left, width, height, data, onClose, logoWidth }) => {
               }}>
                 {
                   data.to
-                    ? gameCenterValues.friends - gameCenterValues.thisLevelFriendsRequired + '/' + gameCenterValues.nextLevelFriendsRequired
+                    ? gameCenterValues.friends + '/' + gameCenterValues.nextLevelFriendsRequired
                     : gameCenterValues.friends
                 }
               </p>

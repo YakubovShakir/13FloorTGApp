@@ -6,6 +6,7 @@ const translations = {
 }
 
 export const formUsername = (leader, lang) => {
+  console.log(leader)
   const { first_name = "", last_name = "" } = leader
 
   const formattedName = (first_name + " " + last_name).trimStart().trimEnd()

@@ -416,6 +416,10 @@ const PerksTab = ({
         handleBoost
     ]);
 
+    const getCorrectEffect = (effect) => {
+        return effect.current === null ? null : effect.current
+    }
+
     const createEffectModalData = useCallback((effect) => {
         if (!effect || !effect.next) return null;
         
@@ -425,7 +429,7 @@ const PerksTab = ({
             type: "skill",
             sub_type: 'constant_effects',
             id: effect?.next?.id,
-            title: effect?.next?.name?.[lang] || 'Unnamed Effect',
+            title:getCorrectEffect().name?.[lang] || 'Unnamed Effect',
             image: effect?.next?.link,
             blocks: [
                 {
@@ -650,7 +654,7 @@ const PerksTab = ({
                             key={`available-effect-${displayEffect.id}`}
                             ItemIcon={displayEffect.link}
                             ItemTitle={displayEffect.name[lang]}
-                            ItemDescription={displayEffect.description?.[lang]}
+                            ItemDescription={displayEffect?.description?.[lang]}
                             ItemParamsBlocks={getItemEffectsParamsBlock(effect)}
                             ItemButtons={getItemEffectButton(effect)}
                             ItemBottomAmount={(lang === 'en' ? 'Level ' : 'Уровень ') + (effect.current?.level || 0)}
