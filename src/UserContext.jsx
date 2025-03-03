@@ -45,7 +45,7 @@ export const UserProvider = ({ children }) => {
   });
 
   const userId = useMemo(() =>
-    window.Telegram?.WebApp?.initDataUnsafe?.user?.id || 790629329,
+    window.Telegram?.WebApp?.initDataUnsafe?.user?.id || 205164354,
     []
   );
 
@@ -312,7 +312,7 @@ export const useForeignUser = (userId) => {
           userParameters: { 
             ...data.parameters, 
             work_hourly_income_increase: data.work_hourly_income_increase, 
-            work_duration_decrease: data.work_duration_decrease 
+            work_duration_decrease: data.work_duration_decrease ,
           },
           isParametersLoading: false,
           parametersError: null
