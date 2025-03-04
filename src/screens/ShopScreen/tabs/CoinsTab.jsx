@@ -402,7 +402,7 @@ const GridItemShelf = ({
         ) : (
           <Button
             className="clothing-item-equip-button"
-            shadowColor={"#AF370F"}
+            shadowColor={"rgb(199, 80, 21)"}
             width={"88%"}
             marginBottom={"5"}
             color={"rgb(255, 255, 255)"}
@@ -414,10 +414,10 @@ const GridItemShelf = ({
             text={price === 0 ? 'Забрать' : price}
             fontSize={14}
             ownColor={
-              "linear-gradient(rgb(18, 4, 2) 0%, rgba(243, 117, 0, 0.2) 100%)"
+              "rgb(255, 118, 0)"
             }
             bgColor={
-              "linear-gradient(rgb(18, 4, 2) 0%, rgba(243, 117, 0, 0.2) 100%)"
+              "rgb(255, 118, 0)"
             }
             onClick={() => available || price === 0 ? handleCoinsBuy({ id, productType }) : null}
           />
