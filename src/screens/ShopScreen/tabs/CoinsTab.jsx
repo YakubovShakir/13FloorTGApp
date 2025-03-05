@@ -254,18 +254,26 @@ const GridItemShelf = ({
   type,
   description
 }) => {
+  const isNftItem = id >= 9 && id <= 38; // Check if ID is in NFT range
+  const showBuyNFT = isNftItem && !available; // Show "Buy NFT" if not owned and in range
+  const { lang } = useSettingsProvider()
+
+  const handleNftRedirect = () => {
+    window.location.href = "https://13thfloorgame.io"; // Simple redirect
+  };
+
   return (
     <div
-      className="clothing-item-container" // Основной контейнер элемента одежды
-     style={{
-    borderRadius: "8px",
-    border: "1px solid rgb(57, 57, 57)",
-    background: "0% 0% / cover rgb(32, 32, 32)",
-    padding: "10px",
+      className="clothing-item-container"
+      style={{
+        borderRadius: "8px",
+        border: "1px solid rgb(57, 57, 57)",
+        background: "0% 0% / cover rgb(32, 32, 32)",
+        padding: "10px",
       }}
     >
       <div
-        className="clothing-item-top" // Верхний блок: Заголовок, Иконка и Тень
+        className="clothing-item-top"
         style={{
           display: "flex",
           alignItems: "center",
@@ -274,19 +282,15 @@ const GridItemShelf = ({
           overflow: "hidden",
           borderBottom: "solid 1px rgba(117, 117, 117, 0.23)",
           boxShadow: "rgba(0, 0, 0, 0.24) 0px 0px 8px 2px inset",
-          
-        background:"#00000082",
-         
+          background: "#00000082",
           borderRadius: "7px",
           backgroundImage:
             "repeating-linear-gradient(45deg, #00000036, #00000036 2px, #3939390f 2px, #3939390f 6px)",
           justifyContent: "center",
         }}
       >
-        {/* Заголовок и Иконка */}
         <div className="clothing-item-header">
           <div></div>
-          {/* Иконка одежды и Тень активной одежды */}
           <motion.div
             className="clothing-item-icon-wrapper"
             style={{
@@ -306,18 +310,14 @@ const GridItemShelf = ({
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-
                 marginTop: -5.5,
                 position: "relative",
               }}
             >
-              {/* Тень активной одежды */}
-
               <img
                 src={icon}
                 alt={title}
                 style={{
-                  
                   width: "100%",
                   position: "relative",
                   zIndex: 2,
@@ -329,13 +329,12 @@ const GridItemShelf = ({
       </div>
 
       <div
-        className="clothing-item-bottom" // Нижний блок: Уровень уважения и Кнопки
+        className="clothing-item-bottom"
         style={{
           paddingBottom: "12px",
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
-          
         }}
       >
         <p
@@ -363,20 +362,10 @@ const GridItemShelf = ({
             width: '90%'
           }}
         >
-          {/* <p
-            style={{
-              color: "white",
-              textAlign: "center",
-              fontWeight: "300",
-              fontFamily: "Roboto",
-              fontSize: "14px",
-            }}
-          >
-            {description}
-          </p> */}
+          {/* Description could go here if needed */}
         </div>
 
-        {/* Кнопки действий */}
+        {/* Button logic */}
         {isPrem ? (
           <Button
             className="clothing-item-equip-button"
@@ -398,6 +387,26 @@ const GridItemShelf = ({
               "linear-gradient(to bottom, rgb(34 199 163 / 0%), rgb(34 199 163 / 24%))"
             }
             onClick={() => handleStarsBuy({ id, productType })}
+          />
+        ) : showBuyNFT ? (
+          <Button
+            className="clothing-item-equip-button"
+            shadowColor={"#AF370F"}
+            width={"88%"}
+            marginBottom={"5"}
+            color={"rgb(255, 255, 255)"}
+            height={44}
+            fontFamily={"Anonymous pro"}
+            fontWeight={"300"}
+            text={lang === 'en' ? "Buy NFT" : "Купить NFT"} // Hardcoded for quick fix
+            fontSize={14}
+            ownColor={
+              "linear-gradient(rgb(18, 4, 2) 0%, rgba(243, 117, 0, 0.2) 100%)"
+            }
+            bgColor={
+              "linear-gradient(rgb(18, 4, 2) 0%, rgba(243, 117, 0, 0.2) 100%)"
+            }
+            onClick={handleNftRedirect}
           />
         ) : (
           <Button
@@ -424,8 +433,8 @@ const GridItemShelf = ({
         )}
       </div>
     </div>
-  )
-}
+  );
+};
 
 const GridLayout = ({ items, handleCoinsBuy, handleStarsBuy }) => {
   return (
@@ -449,22 +458,22 @@ const GridLayout = ({ items, handleCoinsBuy, handleStarsBuy }) => {
           if (item.category === "Shelf") {
             return (
               <GridItemShelf
-                key={index}
-                icon={item.image}
-                title={item.name}
-                price={item.price}
-                respect={item.respect}
-                equipped={item.equipped}
-                available={item.available}
-                handleCoinsBuy={handleCoinsBuy}
-                handleStarsBuy={handleStarsBuy}
-                clothingId={item.clothing_id}
-                type={item.category}
-                isPrem={item.isPrem}
-                description={item.description}
-                id={item.id}
-                productType={item.productType}
-              />
+              key={index}
+              icon={item.image}
+              title={item.name}
+              price={item.price}
+              respect={item.respect}
+              equipped={item.equipped}
+              available={item.available}
+              handleCoinsBuy={handleCoinsBuy}
+              handleStarsBuy={handleStarsBuy}
+              clothingId={item.clothing_id}
+              type={item.category}
+              isPrem={item.isPrem}
+              description={item.description}
+              id={item.id}
+              productType={item.productType}
+            />
             )
           } else {
             return (
