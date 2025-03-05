@@ -254,12 +254,13 @@ const GridItemShelf = ({
   type,
   description
 }) => {
+  console.log(id)
   const isNftItem = id >= 9 && id <= 38; // Check if ID is in NFT range
-  const showBuyNFT = isNftItem && !available; // Show "Buy NFT" if not owned and in range
+  const showBuyNFT = isNftItem
   const { lang } = useSettingsProvider()
 
   const handleNftRedirect = () => {
-    window.location.href = "https://13thfloorgame.io"; // Simple redirect
+    window.Telegram.WebApp.openLink("https://13thfloorgame.io"); // Simple redirect
   };
 
   return (
@@ -401,12 +402,13 @@ const GridItemShelf = ({
             text={lang === 'en' ? "Buy NFT" : "Купить NFT"} // Hardcoded for quick fix
             fontSize={14}
             ownColor={
-              "linear-gradient(rgb(18, 4, 2) 0%, rgba(243, 117, 0, 0.2) 100%)"
+              "rgb(255, 118, 0)"
             }
             bgColor={
-              "linear-gradient(rgb(18, 4, 2) 0%, rgba(243, 117, 0, 0.2) 100%)"
+              "rgb(255, 118, 0)"
             }
             onClick={handleNftRedirect}
+            active={true}
           />
         ) : (
           <Button
