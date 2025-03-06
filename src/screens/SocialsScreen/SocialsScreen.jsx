@@ -20,6 +20,10 @@ const translations = {
     ru: "Рейтинг",
     en: "Leaderboard",
   },
+  social: {
+    ru: "Сеть",
+    en: "Social",
+  },
 };
 
 const TaskScreen = () => {
@@ -51,7 +55,7 @@ const TaskScreen = () => {
     <Screen>
       <HomeHeader screenHeader />
      
-      <ScreenBody activity={translations.tasks[lang]}>
+      <ScreenBody activity={translations.social[lang]}>
       <ScreenTabs tabs={tabs} initialTab={tabs.findIndex(tab => tab.type === activeTab)} />
         {activeTab === "task" && (
           <TaskTab userId={userId} userParameters={userParameters} setUserParameters={setUserParameters} />
