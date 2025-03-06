@@ -27,19 +27,20 @@ const TaskScreen = () => {
   const navigate = useNavigate();
   const { lang } = useSettingsProvider();
 
-  const [activeTab, setActiveTab] = useState("task");
+  const [activeTab, setActiveTab] = useState("leaderboard");
 
   const tabs = [
-    {
-      label: translations.tasks[lang],
-      type: "task",
-      callback: () => setActiveTab("task"),
-    },
     {
       label: translations.leaderboard[lang],
       type: "leaderboard",
       callback: () => setActiveTab("leaderboard"),
     },
+    {
+      label: translations.tasks[lang],
+      type: "task",
+      callback: () => setActiveTab("task"),
+    },
+   
   ];
 
   useEffect(() => {
