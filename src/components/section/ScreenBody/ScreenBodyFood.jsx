@@ -18,7 +18,8 @@ const ScreenBody = ({ children, activity }) => {
             flexDirection: 'column',
             height: '100vh',
             overflow: 'hidden',
-            background: 'black'
+            background: 'black',
+            paddingTop: (window.Telegram?.WebApp.safeAreaInset?.top || 0) + 120.5,
         }}>
             {/* Fixed Header */}
             <div className="HomeHeaderBottomName" style={{ 

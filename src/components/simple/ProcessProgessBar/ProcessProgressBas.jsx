@@ -29,7 +29,9 @@ const ProcessProgressBar = ({ activeProcess = 'working', value = 60, max = 100, 
     const [labelLeft, labelRight] = getLabels(activeProcess, rate)
 
     return (
-        <div className="progress-bar-container-fixed-top">
+        <div className="progress-bar-container-fixed-top"style={{ 
+           paddingTop: (window.Telegram?.WebApp.safeAreaInset?.top || 0) + 120.5,
+        }}>
             <div className="progress-bar-container">
                 <div className="progress-bar-wrapper">
                     <div className="progress-bar-header">

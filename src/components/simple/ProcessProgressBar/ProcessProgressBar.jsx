@@ -197,7 +197,9 @@ const ProcessProgressBar = ({
     }
 
     return (
-        <div className="progress-bar-container-fixed-top">
+        <div className="progress-bar-container-fixed-top"style={{ 
+            paddingTop: (window.Telegram?.WebApp.safeAreaInset?.top || 0) + 120.5,
+         }}>
             <div className="progress-bar-container">
                 <div className="progress-bar-wrapper" style={{ width: "90%", float: "left" }}>
                     <div className="progress-bar-header">
