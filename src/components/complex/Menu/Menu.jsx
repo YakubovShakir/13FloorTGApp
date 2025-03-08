@@ -171,7 +171,7 @@ const Menu = ({ screenMenu, activeName, noButton, isForeign }) => {
               backdropFilter={"blur(5px)"}
               ownColor={"rgb(255, 118, 0)"}
               bgColor={"rgb(255, 118, 0)"}
-              onClick={() => isForeign ? navigate("/Tasks") : navigate("/action")}
+              onClick={() => isForeign ? navigate("/tasks") : navigate("/action")}
             />
           </div>
         </div>
