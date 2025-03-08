@@ -9,7 +9,6 @@ import { useSettingsProvider } from "../../hooks";
 // Backend API base URL
 const API_BASE_URL = "http://localhost:4444/api";
 
-
 const translations = {
   buySpins: {
     en: "Buy Spins",
@@ -27,29 +26,30 @@ const translations = {
     en: "Close",
     ru: "Закрыть",
   },
-}
+  youWon: {
+    en: 'Congratulations!',
+    ru: 'Поздравляем!'
+  }
+};
 
 const buttonStyle = {
   width: "100%",
   height: 44,
-  shadowColor: "rgb(199, 80, 21)",
   color: "rgb(255, 255, 255)",
-  ownColor: "rgb(255, 118, 0)",
-  bgColor: "rgb(255, 118, 0)",
   fontSize: 14,
   fontFamily: "Anonymous pro",
-}
+};
 
 const GachaOverlay = () => {
   const [isActive, setIsActive] = useState(false);
   const [attempts, setAttempts] = useState(0);
   const [spinning, setSpinning] = useState(false);
   const [result, setResult] = useState(null);
-  const [rouletteItems, setRouletteItems] = useState([]); // Fetch from server
+  const [rouletteItems, setRouletteItems] = useState([]);
   const [spinTarget, setSpinTarget] = useState(0);
   const [lastSpinPosition, setLastSpinPosition] = useState(0);
-  const [itemPool, setItemPool] = useState([]); // Fetch from server
-  const [isLoading, setIsLoading] = useState(true); // Loading state for initial load
+  const [itemPool, setItemPool] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const rouletteRef = useRef(null);
 
   // Constants
@@ -58,8 +58,8 @@ const GachaOverlay = () => {
   const ITEM_MARGIN = 6;
   const TOTAL_ITEM_SPACE = ITEM_WIDTH + 2 * ITEM_MARGIN;
 
-  const { userId } = useUser()
-  const { lang } = useSettingsProvider()
+  const { userId } = useUser();
+  const { lang } = useSettingsProvider();
 
   // Preload images from item pool
   const preloadImages = (items) => {
@@ -75,8 +75,8 @@ const GachaOverlay = () => {
       const response = await instance.get(`/users/gacha/items`);
       const items = response.data.items;
       setItemPool(items);
-      preloadImages(items); // Preload images after fetching
-      return items; // Return items for sequential use
+      preloadImages(items);
+      return items;
     } catch (error) {
       console.error("Error fetching item pool:", error);
       return [];
@@ -86,11 +86,9 @@ const GachaOverlay = () => {
   // Fetch initial gacha data
   const fetchGachaData = async (pool) => {
     try {
-      // Uncomment and adjust when backend is ready
       const response = await instance.get(`/users/gacha/attempts`);
-    
       setAttempts(response.data.attempts);
-      setRouletteItems(generateItems(30, null, null, pool)); // Pre-populate with server pool
+      setRouletteItems(generateItems(30, null, null, pool));
     } catch (error) {
       console.error("Error fetching gacha data:", error);
     }
@@ -99,8 +97,7 @@ const GachaOverlay = () => {
   // Buy an attempt
   const buyAttempts = async () => {
     try {
-      const response = await instance.get(`/users/gacha/buy-attempt`)
-
+      const response = await instance.get(`/users/gacha/buy-attempt`);
       setAttempts(response.data.attempts);
     } catch (error) {
       console.error("Error buying attempts:", error);
@@ -110,8 +107,7 @@ const GachaOverlay = () => {
   // Spin the gacha wheel
   const spinGacha = async () => {
     try {
-      const response = await instance.get(`/users/gacha/spin`)
-
+      const response = await instance.get(`/users/gacha/spin`);
       return response.data.wonItem;
     } catch (error) {
       console.error("Error spinning gacha:", error);
@@ -121,7 +117,7 @@ const GachaOverlay = () => {
 
   // Generate random items from the server-fetched pool
   const generateItems = (count, wonItem = null, winnerIndex = null, pool = itemPool) => {
-    if (!pool.length) return []; // Wait for pool to load or use provided pool
+    if (!pool.length) return [];
     return Array.from({ length: count }, (_, i) => {
       if (wonItem && i === winnerIndex) {
         return { ...wonItem, uniqueId: Math.random() };
@@ -131,22 +127,35 @@ const GachaOverlay = () => {
     });
   };
 
-  // Fetch initial data and item pool sequentially
+  // Load data function to reuse on open
+  const loadData = async () => {
+    setIsLoading(true);
+    setRouletteItems([]); // Reset to ensure no stale items show
+    const pool = await fetchItemPool();
+    await fetchGachaData(pool);
+    setIsLoading(false);
+  };
+
+  // Fetch data on mount and when overlay opens
   useEffect(() => {
-    if (userId) {
-      const loadData = async () => {
-        setIsLoading(true);
-        const pool = await fetchItemPool(); // Fetch item pool first
-        await fetchGachaData(pool); // Then fetch gacha data with the pool
-        setIsLoading(false);
-      };
+    if (userId && isActive) {
       loadData();
     }
-  }, [userId]);
+  }, [userId, isActive]); // Add isActive to trigger refetch on reopen
+
+  // Handle closing overlay and reset state
+  const handleClose = () => {
+    setIsActive(false);
+    setSpinning(false);
+    setResult(null);
+    setSpinTarget(0);
+    setLastSpinPosition(0);
+    // Optionally reset attempts and rouletteItems if backend state persists
+  };
 
   // Handle buying attempts
   const handleBuyAttempts = async () => {
-    await buyAttempts();
+    if (!spinning) await buyAttempts();
   };
 
   // Handle spin action
@@ -156,7 +165,7 @@ const GachaOverlay = () => {
     setSpinning(true);
     setAttempts((prev) => prev - 1);
     setResult(null);
-    setLastSpinPosition(0); // Reset to start for new spin
+    setLastSpinPosition(0);
     setSpinTarget(0);
 
     try {
@@ -165,7 +174,6 @@ const GachaOverlay = () => {
       const winnerIndex = Math.floor(SPIN_LENGTH * 0.8);
       const containerWidth = rouletteRef.current?.offsetWidth || window.innerWidth * 0.9;
 
-      // Match wonItem by type and id
       const matchedWonItem = itemPool.find(
         (item) => item.type === wonItem.type && item.id === wonItem.id
       ) || wonItem;
@@ -184,7 +192,7 @@ const GachaOverlay = () => {
       }, 5000);
     } catch (error) {
       setSpinning(false);
-      setAttempts((prev) => prev + 1); // Restore attempt on failure
+      setAttempts((prev) => prev + 1);
     }
   };
 
@@ -332,7 +340,7 @@ const GachaOverlay = () => {
                   />
                 </div>
 
-                {/* Controls with original styles */}
+                {/* Controls with custom Button */}
                 <div
                   style={{
                     marginTop: "30px",
@@ -342,95 +350,104 @@ const GachaOverlay = () => {
                   }}
                 >
                   <p style={{ fontSize: "18px", marginBottom: "15px" }}>Attempts: {attempts}</p>
-                  <div style={{ display: "flex", gap: "15px", flex: 1, justifyContent: 'center' }}>
-                  <Button
-                  onClick={handleSpin}
-                  active={!(attempts <= 0 || spinning)}
-                  style={buttonStyle}
-                  width={100}
-                  text={
-                    spinning
-                      ? translations.spinning[lang]
-                      : translations.spin[lang]
-                  }
-                  color={"white"}
-                  fontWeight={"200"}
-                />
-                   <Button
-                  onClick={() => setIsActive(false)}
-                  active={false}
-                  style={buttonStyle}
-                  width={100}
-                  text={translations.close[lang]}
-                  color={"white"}
-                  fontWeight={"200"}
-                />
-              </div>
-              <div
-                style={{
-                  display: "flex",
-                  gap: "15px",
-                  width: "100vw",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  marginTop: 25,
-                }}
-              >
-                <Button
-                  icon={Assets.Icons.starsIcon}
-                  onClick={!spinning && handleBuyAttempts}
-                  active={!spinning}
-                  text={translations.buySpins[lang]}
-                  style={buttonStyle}
-                  width={125}
-                  color={"white"}
-                  fontWeight={"200"}
-                  fontSize={14}
-                  iconStyles={{ marginLeft: 10 }}
-                />
-              </div>
+                  <div style={{ display: "flex", gap: "15px", flex: 1, justifyContent: "center" }}>
+                    <Button
+                      onClick={handleSpin}
+                      active={!(attempts <= 0 || spinning)}
+                      style={buttonStyle}
+                      width={100}
+                      text={spinning ? translations.spinning[lang] : translations.spin[lang]}
+                      color={"white"}
+                      fontWeight={"200"}
+                    />
+                    <Button
+                      onClick={handleClose}
+                      active={true} // Close is always active
+                      style={buttonStyle}
+                      width={100}
+                      text={translations.close[lang]}
+                      color={"white"}
+                      fontWeight={"200"}
+                    />
                   </div>
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: "15px",
+                      width: "100vw",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      marginTop: 25,
+                    }}
+                  >
+                    <Button
+                      icon={Assets.Icons.starsIcon}
+                      onClick={handleBuyAttempts}
+                      active={!spinning}
+                      text={translations.buySpins[lang]}
+                      style={buttonStyle}
+                      width={125}
+                      color={"white"}
+                      fontWeight={"200"}
+                      fontSize={14}
+                      iconStyles={{ marginLeft: 10 }}
+                    />
+                  </div>
+                </div>
 
                 {/* Result modal with original styles */}
                 {result && (
-                  <div style={{ position: 'fixed', widht: '100vw', height: '100vh', zIndex: 999999999999999, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      <motion.div
-                    initial={{ opacity: 0, scale: 0.5 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.5 }}
+                  <div
                     style={{
-                  
-                      transform: "translate(-50%, -50%)",
-                      background: "linear-gradient(135deg, #ffffff, #e0e0e0)",
-                      padding: "30px",
-                      borderRadius: "15px",
-                      textAlign: "center",
-                      boxShadow: "0 10px 40px rgba(0, 0, 0, 0.5)",
-                      border: "1px solid rgba(255, 255, 255, 0.2)",
-                      zIndex: 10000,
-                      width: "300px",
-                      display: 'flex',
-                      flexDirection: 'column',
-                      alignItems: 'center'
+                      position: "fixed",
+                      width: "100vw",
+                      height: "100vh",
+                      zIndex: 999999999999999,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
                     }}
                   >
-                    <h2 style={{ fontFamily: "Arial, sans-serif", color: "#333", marginBottom: "20px" }}>You Won!</h2>
-                    <img
-                      src={result.image}
-                      alt={result.name}
-                      style={{ width: "120px", height: "120px", borderRadius: "10px" }}
-                    />
-                    <p style={{ fontFamily: "Arial, sans-serif", color: "#555", fontSize: "18px", margin: "15px 0" }}>{result.name}</p>
-                    <Button
-                      onClick={() => setResult(null)}
-                      style={buttonStyle}
-                      text={'OK'}
-                      height={45}
-                      width={75}
-                      active={true}
-                      color={'white'}
-                    />
-                  </motion.div>
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.5 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ duration: 0.5 }}
+                      style={{
+                        transform: "translate(-50%, -50%)",
+                        background: "linear-gradient(135deg, #ffffff, #e0e0e0)",
+                        padding: "30px",
+                        borderRadius: "15px",
+                        textAlign: "center",
+                        boxShadow: "0 10px 40px rgba(0, 0, 0, 0.5)",
+                        border: "1px solid rgba(255, 255, 255, 0.2)",
+                        zIndex: 10000,
+                        width: "300px",
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                      }}
+                    >
+                      <h2 style={{ fontFamily: "Arial, sans-serif", color: "#333", marginBottom: "20px" }}>
+                        {translations.youWon[lang]}
+                      </h2>
+                      <img
+                        src={result.image}
+                        alt={result.name}
+                        style={{ width: "120px", height: "120px", borderRadius: "10px" }}
+                      />
+                      <p style={{ fontFamily: "Arial, sans-serif", color: "#555", fontSize: "18px", margin: "15px 0" }}>
+                        {result.name}
+                      </p>
+                      <Button
+                        onClick={() => setResult(null)}
+                        style={buttonStyle}
+                        text={"OK"}
+                        height={45}
+                        width={75}
+                        active={true}
+                        color={"white"}
+                      />
+                    </motion.div>
                   </div>
                 )}
               </>
