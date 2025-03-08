@@ -136,7 +136,8 @@ const BoostTab = ({ }) => {
     try {
       const response = await instance.post('/users/request-stars-invoice-link', {
         productType: 'boost',
-        id: item.id
+        id: item.id,
+        userId
       }).then(res => res.data.invoiceLink)
       window.Telegram?.WebApp?.openInvoice(response, (status) => {
         if (status === "paid") {

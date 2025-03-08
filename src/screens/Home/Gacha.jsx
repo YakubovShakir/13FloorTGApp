@@ -33,6 +33,10 @@ const translations = {
   spins: {
     en: 'Spins: ',
     ru: 'Спинов: '
+  },
+  wheel: {
+    en: 'Wheel',
+    ru: 'Колесо'
   }
 };
 
@@ -118,6 +122,7 @@ const GachaOverlay = () => {
       try {
         const response = await instance.post('/users/request-stars-invoice-link', {
           productType: 'spin',
+          userId
         })
 
         window.Telegram?.WebApp?.openInvoice(response.data.invoiceLink, (status) => {
@@ -256,12 +261,12 @@ const GachaOverlay = () => {
       >
       <motion.img
           src={Assets.Icons.shittonsmoney}
-          width={45}
+          width={50}
           alt="Wheel"
           variants={shineVariants}
           animate="shine"
         />
-        <p>Wheel</p>
+        <p>{translations.wheel[lang]}</p>
       </div>
 
       {/* Overlay */}
