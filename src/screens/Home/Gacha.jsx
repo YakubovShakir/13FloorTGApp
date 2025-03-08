@@ -29,6 +29,10 @@ const translations = {
   youWon: {
     en: 'Congratulations!',
     ru: 'Поздравляем!'
+  },
+  spins: {
+    en: 'Spins: ',
+    ru: 'Спинов: '
   }
 };
 
@@ -40,6 +44,20 @@ const buttonStyle = {
   fontFamily: "Anonymous pro",
 };
 
+const shineVariants = {
+  shine: {
+    filter: [
+      "drop-shadow(0 0 2px rgba(255, 255, 255, 0.3))",
+      "drop-shadow(0 0 8px rgba(255, 255, 255, 0.8))",
+      "drop-shadow(0 0 2px rgba(255, 255, 255, 0.3))",
+    ],
+    transition: {
+      duration: 2,
+      repeat: Infinity,
+      ease: "easeInOut",
+    },
+  },
+};
 const GachaOverlay = () => {
   const [isActive, setIsActive] = useState(false);
   const [attempts, setAttempts] = useState(0);
@@ -72,7 +90,7 @@ const GachaOverlay = () => {
   // Fetch item pool from server
   const fetchItemPool = async () => {
     try {
-      const response = await instance.get(`/users/gacha/items`);
+      const response = await instance.get(`/users/${userId}/gacha/items`);
       const items = response.data.items;
       setItemPool(items);
       preloadImages(items);
@@ -86,7 +104,7 @@ const GachaOverlay = () => {
   // Fetch initial gacha data
   const fetchGachaData = async (pool) => {
     try {
-      const response = await instance.get(`/users/gacha/attempts`);
+      const response = await instance.get(`/users/${userId}/gacha/attempts`);
       setAttempts(response.data.attempts);
       setRouletteItems(generateItems(30, null, null, pool));
     } catch (error) {
@@ -96,18 +114,26 @@ const GachaOverlay = () => {
 
   // Buy an attempt
   const buyAttempts = async () => {
-    try {
-      const response = await instance.get(`/users/gacha/buy-attempt`);
-      setAttempts(response.data.attempts);
-    } catch (error) {
-      console.error("Error buying attempts:", error);
-    }
+    
+      try {
+        const response = await instance.post('/users/request-stars-invoice-link', {
+          productType: 'spin',
+        })
+
+        window.Telegram?.WebApp?.openInvoice(response.data.invoiceLink, (status) => {
+          if (status === "paid") {
+            setAttempts(response.data.attempts)
+          }
+        })
+      } catch (err) {
+        console.error(err)
+      }
   };
 
   // Spin the gacha wheel
   const spinGacha = async () => {
     try {
-      const response = await instance.get(`/users/gacha/spin`);
+      const response = await instance.get(`/users/${userId}/gacha/spin`);
       return response.data.wonItem;
     } catch (error) {
       console.error("Error spinning gacha:", error);
@@ -158,6 +184,8 @@ const GachaOverlay = () => {
     if (!spinning) await buyAttempts();
   };
 
+
+  const { refreshData } = useUser()
   // Handle spin action
   const handleSpin = async () => {
     if (attempts <= 0 || spinning || !itemPool.length) return;
@@ -189,6 +217,7 @@ const GachaOverlay = () => {
         setSpinning(false);
         setLastSpinPosition(targetPosition);
         setResult(matchedWonItem);
+        refreshData()
       }, 5000);
     } catch (error) {
       setSpinning(false);
@@ -225,7 +254,13 @@ const GachaOverlay = () => {
           textAlign: "center",
         }}
       >
-        <img src={Assets.Icons.shittonsmoney} width={45} alt="Wheel" />
+      <motion.img
+          src={Assets.Icons.shittonsmoney}
+          width={45}
+          alt="Wheel"
+          variants={shineVariants}
+          animate="shine"
+        />
         <p>Wheel</p>
       </div>
 
@@ -318,10 +353,10 @@ const GachaOverlay = () => {
                       >
                         <img
                           src={item.image}
-                          alt={item.name}
+                          alt={item.name[lang]}
                           style={{ maxWidth: "90%", maxHeight: "90%", objectFit: "contain" }}
                         />
-                        <p style={{ color: "white", marginTop: "10px", fontSize: "14px" }}>{item.name}</p>
+                        <p style={{ color: "white", marginTop: "10px", fontSize: "14px" }}>{item.name[lang]}</p>
                       </div>
                     ))}
                   </motion.div>
@@ -349,7 +384,7 @@ const GachaOverlay = () => {
                     fontFamily: "Arial, sans-serif",
                   }}
                 >
-                  <p style={{ fontSize: "18px", marginBottom: "15px" }}>Attempts: {attempts}</p>
+                  <p style={{ fontSize: "18px", marginBottom: "15px" }}>{translations.spins[lang]}{attempts}</p>
                   <div style={{ display: "flex", gap: "15px", flex: 1, justifyContent: "center" }}>
                     <Button
                       onClick={handleSpin}
@@ -432,11 +467,11 @@ const GachaOverlay = () => {
                       </h2>
                       <img
                         src={result.image}
-                        alt={result.name}
+                        alt={result.name[lang]}
                         style={{ width: "120px", height: "120px", borderRadius: "10px" }}
                       />
                       <p style={{ fontFamily: "Arial, sans-serif", color: "#555", fontSize: "18px", margin: "15px 0" }}>
-                        {result.name}
+                        {result.name[lang]}
                       </p>
                       <Button
                         onClick={() => setResult(null)}
