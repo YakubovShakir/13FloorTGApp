@@ -20,10 +20,11 @@ const Button = ({
   color, // Новый пропс для цвета текста
   border,
   backdropFilter, // Новый параметр
+  iconStyles = {}
 }) => {
   const [isPressed, setIsPressed] = useState(false);
-  const shadowColorValue = active ? shadowColor || "rgb(199, 80, 21)" : "rgb(24 24 24)";
-  const borderColorValue = active ? borderColor || "rgb(255, 141, 0)" : "rgb(73 73 73)";
+  const shadowColorValue = active ? (shadowColor || "rgb(199, 80, 21)") : "rgb(24 24 24)";
+  const borderColorValue = active ? (borderColor || "rgb(255, 141, 0)") : "rgb(73 73 73)";
   const { playClickSound } = useSettingsProvider()
 
   return (
@@ -49,14 +50,13 @@ const Button = ({
         boxShadow: `0px ${isPressed ? 3 : 5}px 0px ${shadowColorValue}`,
         transform: isPressed ? "translateY(2px)" : "translateY(0px)",
         color: color || ownColor, // Используем цвет текста из пропсов или ownColor
-        transition: "box-shadow 0.1s ease, transform 0.1s ease",
         border: `1px solid ${borderColorValue}`,
         borderRadius: "5px",
         backdropFilter, // Применяем backdropFilter из пропсов
         WebkitBackdropFilter: backdropFilter, // Для поддержки в Safari
       }}
     >
-      {icon && <img src={icon} alt="Button" />}
+      {icon && <img src={icon} style={iconStyles} alt="Button" />}
       <span style={{ fontSize, paddingTop, fontFamily, fontWeight }}>{text}</span>
     </button>
   );
