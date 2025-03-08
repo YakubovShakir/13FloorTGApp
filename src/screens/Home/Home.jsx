@@ -31,6 +31,8 @@ import { useNotification } from "../../NotificationContext"
 import { useSettingsProvider } from "../../hooks"
 import { checkCanStop, stopProcess } from "../../services/process/process"
 import { canStartSleeping, canStartTraining, canStartWorking } from "../../utils/paramDep"
+import { useEmojiReaction } from "../../EmojiReactionContext"
+import GachaOverlay from "./Gacha"
 
 // Pre-load audio files
 const COIN_SOUND = new Audio(
@@ -481,6 +483,7 @@ const Home = () => {
     if (!isInitialized) return
 
     const initialize = async () => {
+      // triggerEmojiReaction([Assets.Icons.balance])
       setIsLoading(true)
       setLoadingProgress(0) // Reset progress at start
       console.log(
@@ -563,6 +566,8 @@ const Home = () => {
     )
   }
 
+  const triggerEmojiReaction = useEmojiReaction()
+
   if (isLoading) {
     return <FullScreenSpinner progress={loadingProgress} /> // Show loading spinner with progress
   }
@@ -572,15 +577,18 @@ const Home = () => {
   } else {
     const homeContent = (
       <>
+        <GachaOverlay userId={userId} />
         <HomeHeader
           onClick={() =>
+          {
             setState((prev) => ({
               ...prev,
               visibleSettingsModal: !prev.visibleSettingsModal,
             }))
           }
+          }
         />
-        <img className="shelf1" src={Assets.HOME.shelf} alt="shelf1" />
+        <img className="shelf1" src={Assets.HOME.shelf} alt="shelf1"/>
         <img className="shelf2" src={Assets.HOME.shelf} alt="shelf2" />
         <img className="couch" src={Assets.HOME.couch} alt="couch" />
         <div style={{ position: "absolute", zIndex: 2 }}>

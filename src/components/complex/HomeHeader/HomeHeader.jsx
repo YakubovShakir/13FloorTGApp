@@ -19,8 +19,8 @@ import {
   useTonConnectModal,
   useTonConnectUI,
   useTonWallet,
+  useTonAddress
 } from "@tonconnect/ui-react"
-import { useTonAddress } from "@tonconnect/ui-react"
 import { formatCoins } from "../../../utils/formatCoins"
 
 const walletTranslations = {

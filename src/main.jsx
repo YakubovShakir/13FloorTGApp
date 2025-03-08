@@ -5,16 +5,18 @@ import App from "./App.jsx"
 import "./index.css"
 import { NotificationProvider } from "./NotificationContext.jsx"
 import { SettingsProvider } from "./hooks.jsx"
+import { EmojiReactionProvider } from "./EmojiReactionContext.jsx"
 
 // config()
 
 createRoot(document.getElementById("root")).render(
   <UserProvider>
-    <SettingsProvider>
-      <NotificationProvider>
-
-        <App />
-      </NotificationProvider>
-    </SettingsProvider>
+    <EmojiReactionProvider>
+      <SettingsProvider>
+        <NotificationProvider>
+          <App />
+        </NotificationProvider>
+      </SettingsProvider>
+    </EmojiReactionProvider>
   </UserProvider>
 )
