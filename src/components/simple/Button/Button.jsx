@@ -20,6 +20,7 @@ const Button = ({
   color, // Новый пропс для цвета текста
   border,
   backdropFilter, // Новый параметр
+  iconStyles = {}
 }) => {
   const [isPressed, setIsPressed] = useState(false);
   const shadowColorValue = active ? shadowColor || "rgb(199, 80, 21)" : "rgb(24 24 24)";
@@ -56,7 +57,7 @@ const Button = ({
         WebkitBackdropFilter: backdropFilter, // Для поддержки в Safari
       }}
     >
-      {icon && <img src={icon} alt="Button" />}
+      {icon && <img src={icon} style={iconStyles} alt="Button" />}
       <span style={{ fontSize, paddingTop, fontFamily, fontWeight }}>{text}</span>
     </button>
   );
