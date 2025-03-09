@@ -417,7 +417,7 @@ const PerksTab = ({
     ]);
 
     const getCorrectEffect = (effect) => {
-        return effect.current === null ? null : effect.current
+        return effect
     }
 
     const createEffectModalData = useCallback((effect) => {
@@ -429,7 +429,7 @@ const PerksTab = ({
             type: "skill",
             sub_type: 'constant_effects',
             id: effect?.next?.id,
-            title:getCorrectEffect().name?.[lang] || 'Unnamed Effect',
+            title: effect.next?.name?.[lang] || effect.current?.name?.[lang] || 'Unnamed Effect',
             image: effect?.next?.link,
             blocks: [
                 {
@@ -520,35 +520,12 @@ const PerksTab = ({
         return [[timerBar], [accessBar]];
     }, [checkLearningEffect, userParameters, Icons, translations, lang]);
 
-    const openSkillModal = useCallback((skill) => {
-        const modalData = createSkillModalData(skill);
-        setModalData(modalData);
-        setVisibleModal(true);
-    }, [createSkillModalData, setModalData, setVisibleModal]);
-
     const openEffectModal = useCallback((effect) => {
         const modalData = createEffectModalData(effect);
         setModalData(modalData);
         setVisibleModal(true);
     }, [createEffectModalData, setModalData, setVisibleModal]);
 
-    const getItemSkillButton = useCallback((skill) => {
-        const learned = checkLearnedSkill(skill?.skill_id);
-        const learning = checkLearningSkill(skill?.skill_id);
-        const active = !learned && !learning && 
-            (!skill.skill_id_required || checkLearnedSkill(skill.skill_id_required)) &&
-            userParameters?.coins >= skill.coins_price && 
-            userParameters.level >= skill.requiredLevel;
-
-        return [{
-            text: learned ? translations.learned[lang] : 
-                  learning ? translations.learning[lang] : 
-                  skill?.coins_price,
-            icon: learned || learning ? null : Icons.balance,
-            onClick: () => openSkillModal(skill),
-            active: learning ? true : active,
-        }];
-    }, [checkLearnedSkill, checkLearningSkill, userParameters, lang, Icons, translations, openSkillModal]);
 
     const getItemEffectButton = useCallback((effect) => {
         const learning = checkLearningEffect(effect?.next?.id);
