@@ -547,7 +547,7 @@ const Home = () => {
                       className="timer-overlay"
                       style={{
                         position: "absolute",
-                        top: "50%",
+                        top: "75%",
                         left: "23%",
                         transform: "translate(-50%, -50%)",
                         color: "white",
