@@ -36,6 +36,8 @@ import investmentZooShopIcon from './IMG/icons/invest-zoo.png'
 
 import shelf from './IMG/shelf.png'
 
+import task from './IMG/icons/task.png'
+
 import trainingCardBG from "./IMG/bg/trainingCard.webp"
 import trainScreenBG from "./IMG/bg/trainScreenBG.webp"
 import sleepScreenBG from "./IMG/bg/sleepScreenBG.webp"
@@ -299,6 +301,7 @@ const Assets = {
       goldenCat,
       patCat,
     },
+    task,
     mood9,
     mood50,
     mood100,

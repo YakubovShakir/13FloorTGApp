@@ -21,6 +21,7 @@ import { useSettingsProvider } from "../../hooks";
 import { checkCanStop, stopProcess } from "../../services/process/process";
 import { canStartSleeping, canStartTraining, canStartWorking } from "../../utils/paramDep";
 import GachaOverlay from "./Gacha";
+import DailyCheckInOverlay from "./DailyCheckInOverlay";
 
 // Mock API calls for neko
 const mockGetNekoState = (userId) => {
@@ -461,6 +462,7 @@ const Home = () => {
   const homeContent = (
     <>
       <GachaOverlay userId={userId} />
+      <DailyCheckInOverlay />
       <HomeHeader
         onClick={() => setState((prev) => ({ ...prev, visibleSettingsModal: !prev.visibleSettingsModal }))}
       />
