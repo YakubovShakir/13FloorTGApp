@@ -6,7 +6,7 @@ import Menu from "../../components/complex/Menu/Menu";
 import Window from "../../components/complex/Windows/Window/Window";
 import Assets from "../../assets/index";
 import ProcessProgressBar from "../../components/simple/ProcessProgressBar/ProcessProgressBar";
-import { getServerTime, getTrainingParameters, getUserActiveProcess } from "../../services/user/user";
+import { getOwnNekoState, getServerTime, getTrainingParameters, getUserActiveProcess } from "../../services/user/user";
 import UserContext, { useUser } from "../../UserContext";
 import countPercentage from "../../utils/countPercentage";
 import { getLevels } from "../../services/levels/levels";
@@ -164,7 +164,7 @@ const Home = () => {
 
   const fetchNekoState = async () => {
     try {
-      const nekoData = await mockGetNekoState(userId);
+      const nekoData = await getOwnNekoState(userId);
       if (mountedRef.current) {
         setState((prev) => ({ ...prev, nekoState: nekoData }));
       }
