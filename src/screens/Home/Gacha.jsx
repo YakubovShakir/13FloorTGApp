@@ -23,8 +23,8 @@ const translations = {
     ru: "Крутим...",
   },
   close: {
-    en: "Close",
-    ru: "Закрыть",
+    en: "X",
+    ru: "X",
   },
   youWon: {
     en: 'Congratulations!',

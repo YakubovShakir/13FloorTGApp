@@ -14,7 +14,7 @@ const buttonStyle = {
   ownColor: "rgb(255, 118, 0)",
   bgColor: "rgb(255, 118, 0)",
   fontSize: 14,
-  fontFamily: "Anonymous pro",
+  fontFamily: "Oswald",
   fontWeight: "normal",
 };
 
@@ -128,7 +128,7 @@ const DailyCheckInOverlay = () => {
         <img src={Assets.Icons.task} width={50} alt="Daily" />
         <p>{translations.daily[lang]}</p>
       </div>
-
+     
       <AnimatePresence>
         {isActive && (
           <motion.div
@@ -157,46 +157,99 @@ const DailyCheckInOverlay = () => {
               <>
                 <div
                   style={{
-                    background: "rgba(30, 30, 30, 0.95)",
+                    background: "rgb(32, 32, 32)",
+                    border: "1px solid rgb(57, 57, 57)",
                     padding: "15px",
-                    borderRadius: "15px",
+                    borderRadius: "6px",
                     boxShadow: "0 8px 30px rgba(0, 0, 0, 0.6)",
                     maxWidth: "374px",
                     width: "90%",
                     color: "white",
                     textAlign: "center",
+                     position: "absolute",
                   }}
                 >
                   <h2
                     style={{
                       fontSize: "20px",
                       marginBottom: "15px",
-                      fontFamily: "Arial, sans-serif",
+                      fontFamily: "Oswald",
                       fontWeight: "normal",
+                      textTransform: "uppercase",
+                      textAlign: "left",
                     }}
                   >
                     {translations.dailyCheckInCalendar[lang] ||
                       translations.dailyCheckInCalendar.en}
                   </h2>
-
+                  <img
+  className="ModalClose2"
+  onClick={() => setIsActive(false)} 
+  src={Assets.Icons.modalClose} 
+  alt="closeIcon"
+  width= "16"
+  height= "16"
+  style={{ 
+    cursor: "pointer",
+    position: "absolute",
+    right: "17px",
+    top: "15px",
+   
+    }} 
+/>
                   {/* Single Row with Horizontal Scroll */}
                   <div
-                    style={{
-                      display: "flex",
-                      flexDirection: "row",
-                      gap: "15px", // Increased gap to prevent overlap
-                      padding: "10px",
-                      background: "rgba(40, 40, 40, 0.9)",
-                      borderRadius: "10px",
-                      marginBottom: "15px",
-                      overflowX: "auto", // Horizontal scroll
-                      whiteSpace: "nowrap", // Prevent wrapping
-                      scrollbarWidth: "thin", // Firefox
-                      scrollbarColor: "#ff7600 #2a2a2a", // Firefox
-                      WebkitOverflowScrolling: "touch", // Smooth scrolling on iOS
-                    }}
-                    className="custom-scroll"
-                  >
+  style={{
+    position: "relative", 
+    marginBottom: "15px", 
+  }}
+>
+  {/* Левый градиент */}
+  <div
+    style={{
+      position: "absolute",
+      top: "10px",
+      left: "0px",
+      width: "10px",
+      height: "calc(100% - 20px)",
+      background: "linear-gradient(to right, rgba(18, 18, 18, 1), rgba(18, 18, 18, 0))",
+      zIndex: 1,
+      pointerEvents: "none",
+    }}
+  />
+  {/* Правый градиент */}
+  <div
+    style={{
+      position: "absolute",
+      top: "10px",
+      right: "0px",
+      width: "10px",
+      height: "calc(100% - 20px)",
+      background: "linear-gradient(to left, rgba(18, 18, 18, 1), rgba(18, 18, 18, 0))",
+      zIndex: 1,
+      pointerEvents: "none",
+    }}
+  />
+  {/* Контейнер со скроллом */}
+  <div
+    style={{
+      position: "relative",
+      display: "flex",
+      flexDirection: "row",
+      gap: "15px",
+      padding: "10px",
+      background: "rgb(18, 18, 18)",
+      borderRadius: "8px",
+      overflowX: "auto",
+      whiteSpace: "nowrap",
+      scrollbarWidth: "thin",
+      scrollbarColor: "#ff7600 #2a2a2a",
+      WebkitOverflowScrolling: "touch",
+      borderBottom: "1px solid rgba(117, 117, 117, 0.23)",
+    }}
+    className="custom-scroll"
+  >
+    
                     {rewards.map((item) => (
                       <div
                         key={item.day}
@@ -204,12 +257,16 @@ const DailyCheckInOverlay = () => {
                           display: "flex",
                           flexDirection: "column",
                           alignItems: "center",
-                          justifyContent: "center",
-                          padding: "10px",
+                          // justifyContent: "center",
+                          padding: "5px",
+                          color:
+                          streak >= item.day
+                            ? "#000"
+                            : "#CCCCCC",
                           background:
                             streak >= item.day
                               ? "linear-gradient(45deg, #ff7600, #ff9d00)"
-                              : "rgba(60, 60, 60, 0.8)",
+                              : "rgb(39 39 39)",
                           borderRadius: "8px",
                           border:
                             streak === item.day && canClaim
@@ -224,50 +281,65 @@ const DailyCheckInOverlay = () => {
                       >
                         <p
                           style={{
-                            fontSize: "11px", // Reduced font size
+                            fontSize: "14px", // Reduced font size
                             marginBottom: "5px",
-                            fontFamily: "Arial, sans-serif",
+                            fontFamily: "Oswald",
                             opacity: 0.9,
                             wordBreak: "break-word",
                             overflow: "hidden",
                             textOverflow: "ellipsis",
                             whiteSpace: "normal", // Allow wrapping
                             maxWidth: "100%",
+                            textTransform: "uppercase",
                           }}
                         >
                           {translations.day[lang] || translations.day.en}{" "}
                           {item.day}
                         </p>
-                        <img
-                          src={item.image}
-                          alt={item.name[lang] || item.name.en}
-                          style={{
-                            width: "40px",
-                            height: "40px",
-                            objectFit: "contain",
-                            marginBottom: "5px",
-                            filter: streak < item.day ? "grayscale(80%)" : "none",
-                          }}
-                        />
-                        <p
-                          style={{
-                            fontSize: "11px", // Reduced font size
-                            marginTop: "0",
-                            fontFamily: "Arial, sans-serif",
-                            opacity: streak >= item.day ? 1 : 0.7,
-                            wordBreak: "break-word",
-                            overflow: "hidden",
-                            textOverflow: "ellipsis",
-                            whiteSpace: "normal", // Allow wrapping
-                            maxWidth: "100%",
-                          }}
-                        >
-                          {item.name[lang] || item.name.en}
-                        </p>
-                      </div>
+                        <div
+    style={{
+      background: "repeating-linear-gradient(45deg, rgba(0, 0, 0, 0.21), rgba(0, 0, 0, 0.21) 2px, rgba(57, 57, 57, 0.06) 2px, rgba(57, 57, 57, 0.06) 6px) rgb(26, 26, 26)", // Светлый полупрозрачный фон для контраста
+      border: "1px solid rgba(255, 255, 255, 0.15)", // Лёгкая обводка
+      borderRadius: "6px", // Скругление углов
+      padding: "5px", // Внутренний отступ
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      width: "100%", // Занимает всю доступную ширину карточки
+    }}
+  >
+    <img
+      src={item.image}
+      alt={item.name[lang] || item.name.en}
+      style={{
+        width: "60px",
+        height: "60px",
+        objectFit: "contain",
+        marginBottom: "5px",
+        filter: streak < item.day ? "grayscale(80%)" : "none",
+      }}
+    />
+    </div>
+    <p
+      style={{
+        fontSize: "11px",
+        marginTop: "0",
+        fontFamily: "Oswald",
+        opacity: streak >= item.day ? 1 : 0.7,
+        wordBreak: "break-word",
+        overflow: "hidden",
+        textOverflow: "ellipsis",
+        whiteSpace: "normal",
+        maxWidth: "100%",
+      }}
+    >
+      {item.name[lang] || item.name.en}
+    </p>
+  
+</div>
                     ))}
                   </div>
-
+                  </div>
                   <div
                     style={{
                       display: "flex",
@@ -279,7 +351,7 @@ const DailyCheckInOverlay = () => {
                     <p
                       style={{
                         fontSize: "14px",
-                        fontFamily: "Arial, sans-serif",
+                        fontFamily: "Oswald",
                         opacity: 0.9,
                       }}
                     >
@@ -331,16 +403,7 @@ const DailyCheckInOverlay = () => {
                           fontWeight={400}
                         />
                       )}
-                      <Button
-                        onClick={() => setIsActive(false)}
-                        style={buttonStyle}
-                        text={translations.close[lang] || translations.close.en}
-                        width={120}
-                        active={true}
-                        fontSize={14}
-                        fontWeight={400}
-                        color={'white'}
-                      />
+                      
                     </div>
                   </div>
                 </div>
@@ -354,19 +417,20 @@ const DailyCheckInOverlay = () => {
                       position: "fixed",
                       background: "linear-gradient(135deg, #2a2a2a, #3a3a3a)",
                       padding: "20px",
-                      borderRadius: "15px",
+                      borderRadius: "6px",
                       boxShadow: "0 10px 40px rgba(0, 0, 0, 0.8)",
                       zIndex: 10000,
                       width: "280px",
                       textAlign: "center",
                       color: "white",
+                     
                     }}
                   >
                     <h2
                       style={{
                         fontSize: "18px",
                         marginBottom: "15px",
-                        fontFamily: "Arial, sans-serif",
+                        fontFamily: "Oswald",
                         fontWeight: "normal",
                       }}
                     >
@@ -385,7 +449,7 @@ const DailyCheckInOverlay = () => {
                     <p
                       style={{
                         fontSize: "14px",
-                        fontFamily: "Arial, sans-serif",
+                        fontFamily: "Oswald",
                         marginBottom: "15px",
                         opacity: "0.9",
                         wordBreak: "break-word",

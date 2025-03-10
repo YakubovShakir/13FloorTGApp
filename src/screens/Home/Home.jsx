@@ -530,19 +530,38 @@ const Home = () => {
                   />
                   {state.nekoState.canClick && (
                     <motion.div
-                      className="glare-effect"
-                      animate={{ x: ["-100%", "100%"], opacity: [0, 1, 0] }}
-                      transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                    className="pulse-effect"
+                    animate={{
+                      opacity: [0.5, 1, 0.5],
+                    }}
+                    transition={{
+                      duration: 2,
+                      repeat: Infinity,
+                      ease: "easeInOut",
+                    }}
+                    style={{
+                      position: "absolute",
+                      top: 0,
+                      left: 0,
+                      width: "46%",
+                      height: "100%", // Уменьшили высоту, так как теперь не нужно компенсировать маску
+                      overflow: "hidden", // Обрезаем нижнюю часть для полукруга
+                      pointerEvents: "none",
+                      filter: "blur(10px)",
+                      borderRadius: "50%",
+                    }}
+                  >
+                    <div
                       style={{
-                        position: "absolute",
-                        top: 0,
-                        left: 0,
-                        width: "30%",
-                        height: "100%",
-                        background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent)",
-                        pointerEvents: "none",
+                        width: "70%",
+                        height: "100%", // Полный круг внутри контейнера
+                        background: "#00ffb7", // Жёлтый цвет
+                        borderRadius: "50% 50% 0 0 / 100% 100% 0 0", // Полукруг сверху
+                        transform: "translateY(-50%)", // Сдвигаем вверх, чтобы видна была только верхняя половина
+                        filter: "blur(30px)", // Размытие для всех краёв
                       }}
                     />
+                  </motion.div>
                   )}
                   {!state.nekoState.canClick && timer && (
                     <motion.div
