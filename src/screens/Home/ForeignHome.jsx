@@ -3,8 +3,8 @@ import "./Home.css";
 import Player from "../../components/complex/Player/Player";
 import Menu from "../../components/complex/Menu/Menu";
 import Assets from "../../assets/index";
-import { getUserActiveProcess } from "../../services/user/user";
-import { useForeignUser } from "../../UserContext";
+import { getForeignNekoState, getUserActiveProcess, interactWithNeko } from "../../services/user/user";
+import { useForeignUser, useUser } from "../../UserContext";
 import { getLevels } from "../../services/levels/levels";
 import { getTrainingParameters } from "../../services/user/user";
 import { motion, AnimatePresence } from "framer-motion";
@@ -72,13 +72,15 @@ const ForeignHome = () => {
     refreshData,
   } = useForeignUser(userId);
 
+  const { userId: ownUserId } = useUser()
+
   useEffect(() => {
     mountedRef.current = true;
     refreshData();
     return () => {
       mountedRef.current = false;
     };
-  }, [refreshData]);
+  }, []);
 
   const preloadImages = async () => {
     const imageUrls = [
@@ -142,7 +144,7 @@ const ForeignHome = () => {
 
   const fetchNekoState = async () => {
     try {
-      const nekoData = await mockGetNekoState(userId);
+      const nekoData = await getForeignNekoState(ownUserId, userId);
       if (mountedRef.current) {
         setState((prev) => ({ ...prev, nekoState: nekoData }));
       }
@@ -223,7 +225,7 @@ const ForeignHome = () => {
     if (!state.nekoState.canClick) return;
 
     try {
-      const response = await mockInteractWithNeko(userId);
+      const response = await interactWithNeko(ownUserId, userId);
       if (mountedRef.current) {
         setState((prev) => ({
           ...prev,
