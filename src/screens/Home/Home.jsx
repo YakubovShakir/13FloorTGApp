@@ -17,11 +17,11 @@ import getBgByCurrentProcess from "./getBgByCurrentProcess";
 import moment from "moment-timezone";
 import { useVisibilityChange, useWindowFocus } from "../../hooks/userActivities";
 import formatTime from "../../utils/formatTime";
-import { useSettingsProvider } from "../../hooks";
 import { checkCanStop, stopProcess } from "../../services/process/process";
 import { canStartSleeping, canStartTraining, canStartWorking } from "../../utils/paramDep";
 import GachaOverlay from "./Gacha";
 import DailyCheckInOverlay from "./DailyCheckInOverlay";
+import SleepGame from "./SleepGame";
 
 // Mock API calls for neko
 const mockGetNekoState = (userId) => {
@@ -306,7 +306,7 @@ const Home = () => {
       }
     };
 
-    if (isActive && mountedRef.current && currentProcessCreatedAt) {
+    if (isActive && mountedRef.current && currentProcessCreatedAt && state.currentProcess?.type !== "sleep") {
       initializeTimer();
     }
 
@@ -314,7 +314,7 @@ const Home = () => {
       if (timerInterval) clearInterval(timerInterval);
       if (driftCorrectionInterval) clearInterval(driftCorrectionInterval);
     };
-  }, [state.currentProcess?.active, state.currentProcess?.createdAt, state.currentProcess?.id]);
+  }, [state.currentProcess?.active, state.currentProcess?.createdAt, state.currentProcess?.id, state.currentProcess?.type]);
 
   const completionInProgressRef = useRef(false);
 
@@ -665,23 +665,33 @@ const Home = () => {
       <HomeHeader
         onClick={() => setState((prev) => ({ ...prev, visibleSettingsModal: !prev.visibleSettingsModal }))}
       />
-      <Player
-        bottom={"calc(-468px)"}
-        width="81vw"
-        left={"5vw"}
-        top={"55vmax"}
-        personage={userPersonage}
-        clothing={userClothing}
-        sleep
-      />
-      <motion.img
-        src={Assets.Layers.cover}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.5, ease: "easeInOut" }}
-        style={{ position: "absolute", width: "100%", height: "100%", bottom: 0, zIndex: 0 }}
-        alt="cover"
-      />
+      {/* <div style={{ position: "relative", width: "100%", maxWidth: "374px", margin: "0 auto", top: "20vh" }}>
+        <SleepGame
+          sleepDuration={getUserSleepDuration() * 60} // In seconds
+          onGameOver={(score, survivalTime) => {
+            // Adjust sleep progress based on survival time
+            const totalSleepSeconds = getUserSleepDuration() * 60;
+            const survivalSeconds = survivalTime / 1000; // Convert to seconds
+            const elapsedSeconds = moment()
+              .tz("Europe/Moscow")
+              .diff(moment(state.currentProcess?.createdAt).tz("Europe/Moscow"), "seconds");
+            const remainingSeconds = Math.max(0, totalSleepSeconds - survivalSeconds - elapsedSeconds);
+
+            if (remainingSeconds <= 0) {
+              handleProcessCompletion();
+            } else {
+              setState((prev) => ({
+                ...prev,
+                currentProcess: {
+                  ...prev.currentProcess,
+                  totalSecondsRemaining: remainingSeconds,
+                },
+              }));
+              setProgressRate(formatTime(Math.floor(remainingSeconds / 60), remainingSeconds % 60));
+            }
+          }}
+        />
+      </div> */}
       {renderProcessProgressBar(
         state.currentProcess,
         countPercentage(
