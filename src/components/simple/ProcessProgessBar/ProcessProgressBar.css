@@ -50,7 +50,7 @@
   
   .progress-bar-label-left,
   .progress-bar-label-right {
-    font-weight: lighter;
+    font-weight: 400;
     position: absolute;
     font-size: 8px;
     top: 5px;

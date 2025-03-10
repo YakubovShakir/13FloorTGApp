@@ -25,8 +25,8 @@ const translations = {
     ru: "Ежедневные награды",
   },
   currentStreak: {
-    en: "Current Streak",
-    ru: "Текущая серия",
+    en: "Come back every day to collect as many rewards as you can in a week",
+    ru: "Заходите каждый день, чтобы собрать как можно больше наград за неделю",
   },
   checkIn: {
     en: "Check In",
@@ -159,7 +159,7 @@ const DailyCheckInOverlay = () => {
                   style={{
                     background: "rgb(32, 32, 32)",
                     border: "1px solid rgb(57, 57, 57)",
-                    padding: "15px",
+                    padding: "7px 15px 15px 15px",
                     borderRadius: "6px",
                     boxShadow: "0 8px 30px rgba(0, 0, 0, 0.6)",
                     maxWidth: "374px",
@@ -172,7 +172,7 @@ const DailyCheckInOverlay = () => {
                   <h2
                     style={{
                       fontSize: "20px",
-                      marginBottom: "15px",
+                      marginBottom: "5px",
                       fontFamily: "Oswald",
                       fontWeight: "normal",
                       textTransform: "uppercase",
@@ -299,13 +299,14 @@ const DailyCheckInOverlay = () => {
                         <div
     style={{
       background: "repeating-linear-gradient(45deg, rgba(0, 0, 0, 0.21), rgba(0, 0, 0, 0.21) 2px, rgba(57, 57, 57, 0.06) 2px, rgba(57, 57, 57, 0.06) 6px) rgb(26, 26, 26)", // Светлый полупрозрачный фон для контраста
-      border: "1px solid rgba(255, 255, 255, 0.15)", // Лёгкая обводка
-      borderRadius: "6px", // Скругление углов
-      padding: "5px", // Внутренний отступ
+      borderBottom: "1px solid rgba(117, 117, 117, 0.23)", 
+      boxShadow: "rgba(0, 0, 0, 0.24) 0px 0px 8px 2px inset",
+      borderRadius: "6px", 
+      padding: "5px", 
       display: "flex",
       flexDirection: "column",
       alignItems: "center",
-      width: "100%", // Занимает всю доступную ширину карточки
+      width: "100%", 
     }}
   >
     <img
@@ -321,18 +322,25 @@ const DailyCheckInOverlay = () => {
     />
     </div>
     <p
-      style={{
-        fontSize: "11px",
-        marginTop: "0",
-        fontFamily: "Oswald",
-        opacity: streak >= item.day ? 1 : 0.7,
-        wordBreak: "break-word",
-        overflow: "hidden",
-        textOverflow: "ellipsis",
-        whiteSpace: "normal",
-        maxWidth: "100%",
-      }}
-    >
+  style={{
+    fontSize: "11px",
+    marginTop: "0",
+    fontFamily: "Oswald",
+    opacity: streak >= item.day ? 1 : 0.7,
+    wordBreak: "break-word",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    whiteSpace: "normal",
+    maxWidth: "100%",
+    textAlign: "center",
+    display: "flex", 
+    alignItems: "center", 
+    justifyContent: "center", 
+    minHeight: "40px", 
+    fontWeight: "600",
+    textTransform: "uppercase",
+  }}
+>
       {item.name[lang] || item.name.en}
     </p>
   
@@ -350,14 +358,15 @@ const DailyCheckInOverlay = () => {
                   >
                     <p
                       style={{
-                        fontSize: "14px",
+                        fontSize: "12px",
                         fontFamily: "Oswald",
                         opacity: 0.9,
+                        fontWeight: "200",
                       }}
                     >
                       {translations.currentStreak[lang] ||
                         translations.currentStreak.en}{" "}
-                      {streak} / 14
+                      {streak} / 7
                     </p>
                     <div style={{ display: "flex", gap: "10px" }}>
                       {hasCheckedInToday ? (
@@ -374,6 +383,7 @@ const DailyCheckInOverlay = () => {
                             color={'white'}
                             fontSize={14}
                             fontWeight={400}
+                           
                           />
                         ) : (
                           <Button
@@ -387,6 +397,7 @@ const DailyCheckInOverlay = () => {
                             color={'white'}
                             fontSize={14}
                             fontWeight={400}
+                            
                           />
                         )
                       ) : (

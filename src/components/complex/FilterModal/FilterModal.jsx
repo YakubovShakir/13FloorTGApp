@@ -43,7 +43,7 @@ const FilterButton = ({
       }}
       onClick={handleClick}
     >
-      <p style={{ fontFamily: "Anonymous pro", textAlign: "center" }}>{title}</p>
+      <p style={{ fontFamily: "Oswald", textAlign: "center" }}>{title}</p>
     </div>
   )
 }
@@ -167,7 +167,7 @@ export default ({
           <div style={{ display: "flex", flexDirection: "column" }}>
             <p
               style={{
-                fontFamily: "Anonymous pro",
+                fontFamily: "Oswald",
                 fontWeight: "500",
                 color: "white",
                 paddingLeft:5,
@@ -208,7 +208,7 @@ export default ({
           >
             <p
               style={{
-                fontFamily: "Anonymous pro",
+                fontFamily: "Oswald",
                 fontWeight: "500",
                 color: "white",
                 paddingLeft:5,

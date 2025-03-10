@@ -82,7 +82,7 @@
   z-index: 0;
   overflow: visible;
 
-  font-family: 'Anonymous pro';
+  font-family: 'Oswald';
   font-size: clamp(12px, 2vw, 20px); 
   text-transform: uppercase;
 }
@@ -157,7 +157,7 @@
 }
 
 .ItemDescription {
-  font-family: "Anonymous pro";
+  font-family: "Oswald";
   font-size: 3.4cqw;
   text-align: center;
   padding: 0 0% 0 6%;

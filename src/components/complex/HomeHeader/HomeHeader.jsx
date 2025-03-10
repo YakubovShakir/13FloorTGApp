@@ -329,7 +329,7 @@ export const SettingsModal = ({ baseStyles, setIsSettingsShown }) => {
           >
             <p
               style={{
-                fontFamily: "Anonymous pro",
+                fontFamily: "Oswald",
                 fontWeight: "500",
                 color: "white",
                 textAlign: "left",
@@ -500,7 +500,7 @@ export const StatsModal = ({
           >
             <p
               style={{
-                fontFamily: "Anonymous pro",
+                fontFamily: "Oswald",
                 fontWeight: "500",
                 color: "white",
                 textAlign: "Left",
@@ -656,11 +656,11 @@ const HomeHeader = ({ screenHeader }) => {
             className="HomeHeaderLevel"
             onClick={() => setIsStatsShown(true)}
           >
-            <span style={{ fontFamily: "Anonymous pro", fontWeight: "100" }}>
+            <span style={{ fontFamily: "Oswald", fontWeight: "100" }}>
               {userPersonage?.name}
             </span>
             <div className="FillBarProgres">
-              <span style={{ fontFamily: "Anonymous pro", fontWeight: "100" }}>
+              <span style={{ fontFamily: "Oswald", fontWeight: "700",marginTop: "-3px", }}>
                 {userParameters.level}
               </span>
 
@@ -685,9 +685,9 @@ const HomeHeader = ({ screenHeader }) => {
             >
               <span
                 style={{
-                  fontSize: 20,
-                  fontFamily: "Anonymous pro",
-                  fontWeight: "lighter",
+                  
+                  fontFamily: "Oswald",
+                  
                 }}
               >
                 {userParameters.coins && formatCoins(Math.floor(userParameters?.coins))}

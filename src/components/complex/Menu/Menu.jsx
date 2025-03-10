@@ -162,7 +162,7 @@ const Menu = ({ screenMenu, activeName, noButton, isForeign }) => {
               color={"rgb(255, 255, 255)"}
               height={34}
               active={true}
-              fontFamily={"Anonymous pro"}
+              fontFamily={"Oswald"}
               fontWeight={"500"}
               text={isForeign ? translations.home[lang] : translations.start[lang]}
               fontSize={14}

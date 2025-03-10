@@ -59,7 +59,7 @@
 
 .progress-bar-label-left{
 
-font-weight: lighter;
+font-weight: 400;
 position: absolute;
 font-size: 15px;
 top: 3px;
@@ -67,7 +67,7 @@ top: 3px;
 
 .progress-bar-label-right {
   padding-right: 10px;
-  font-weight: lighter;
+  font-weight: 400;
   position: absolute;
   font-size: 15px;
   top: 3px;
