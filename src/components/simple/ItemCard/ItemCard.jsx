@@ -120,7 +120,7 @@ const isImageActive = ItemActiveIcon === true ? true : (ItemActiveIcon === false
                 width="100%"
                 height={44}
                 fontSize={16}
-                fontFamily={"Anonymous pro"}
+                fontFamily={"Oswald"}
                 color={ItemButton?.color || "rgb(255, 255, 255)"}
                 onClick={() => {
                   if (ItemButton.icon === Assets.Icons.starsIcon) {

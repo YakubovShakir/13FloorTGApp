@@ -259,7 +259,7 @@ const PersonageCreationScreen = () => {
                   width={"25vw"}
                   height={44}
                   active={true}
-                  fontFamily={"Anonymous pro"}
+                  fontFamily={"Oswald"}
                   fontWeight={"300"}
                   text={translations.next[lang]}
                   fontSize={14}
@@ -307,7 +307,7 @@ const PersonageCreationScreen = () => {
                   width={"25vw"}
                   height={44}
                   active={true}
-                  fontFamily={"Anonymous pro"}
+                  fontFamily={"Oswald"}
                   color={"rgb(255, 255, 255)"}
                   fontWeight={"300"}
                   text={translations.back[lang]}
@@ -367,7 +367,7 @@ const PersonageCreationScreen = () => {
                   width={"25vw"}
                   height={44}
                   active={true}
-                  fontFamily={"Anonymous pro"}
+                  fontFamily={"Oswald"}
                   color={"rgb(255, 255, 255)"}
                   fontWeight={"300"}
                   text={translations.next[lang]}

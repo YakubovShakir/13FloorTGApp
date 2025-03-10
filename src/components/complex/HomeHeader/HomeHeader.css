@@ -3,7 +3,7 @@
   position: absolute;
   height: auto;
   overflow-x: hidden;
-  z-index: 3;
+  z-index: 9999999999999999;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -32,7 +32,7 @@
   
   transform: skew(-5deg);
   border-top: solid 1px #b1b1b173;
-  padding: 1px 7px 1px 3px;
+  padding: 0px 7px 1px 3px;
   background-color: #212121d9;
 }
 
@@ -45,14 +45,15 @@
 
 .HomeHeaderIncome div:nth-child(2) {
   
-  font-family: "Anonymous pro";
+  font-family: "Oswald";
   justify-content: center;
   
   width: 70%;
-  font-size: 4cqw;
-  
- 
-    padding-right: 4vh;
+  font-size: 17px;
+      padding-right: 4vh;
+      font-weight: bold;
+    text-shadow: 1px 1px 0px #000000, -1px -1px 0px #000000, 1px -1px 0px #000000, -1px 1px 0px #000000;
+
 }
 
 .HomeHeaderIncome div:nth-child(2) span:nth-child(1) {
@@ -75,23 +76,24 @@
   color: white;
 
   
-  font-size: 5cqw;
+  
   letter-spacing: 1px;
   width: 24%;
   
     
   transform: skew(-5deg);
   border-top: solid 1px #b1b1b173;
-  padding: 1px 7px 1px 3px;
+  padding: 0px 7px 1px 3px;
   background-color: #212121d9;
 }
 
 .HomeHeaderRespect span {
-  font-size: 20px;
+  font-size: 17px;
   margin-right: 1px;
   text-align: center;
   width: 100%;
-  
+  font-weight: bold;
+  text-shadow: 1px 1px 0px #000000, -1px -1px 0px #000000, 1px -1px 0px #000000, -1px 1px 0px #000000;
 }
 
 .HomeHeaderRespect img {
@@ -176,7 +178,7 @@
     justify-content: center;
   background-color: #8d8d8d69;
     flex-grow: 1;
-    height: 16px;
+    height: 18px;
     position: relative;
     border-radius: 5px;
     overflow: hidden;

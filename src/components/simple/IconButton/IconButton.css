@@ -14,7 +14,7 @@
 
 /* Текст под иконкой с адаптивностью */
 .IconButton span {
-  font-family: "Anonymous pro";
+  font-family: "Oswald";
   font-weight: 500;
   font-size: 3vw;  /* Размер шрифта зависит от ширины экрана */
  

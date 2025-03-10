@@ -37,7 +37,7 @@ const buttonStyle = {
   ownColor: "rgb(255, 118, 0)",
   bgColor: "rgb(255, 118, 0)",
   fontSize: 14,
-  fontFamily: "Anonymous pro",
+  fontFamily: "Oswald",
 }
 
 const translations = {
@@ -866,7 +866,7 @@ const InvestmentScreen = () => {
             margin: "16px 0",
             textAlign: "center",
             color: "#fff",
-            fontFamily: "Anonymous pro",
+            fontFamily: "Oswald",
             padding: "0 16px",
           }}
         >
@@ -886,7 +886,7 @@ const InvestmentScreen = () => {
             margin: "16px 0",
             textAlign: "center",
             color: "#fff",
-            fontFamily: "Anonymous pro",
+            fontFamily: "Oswald",
             padding: "0 16px",
           }}
         >

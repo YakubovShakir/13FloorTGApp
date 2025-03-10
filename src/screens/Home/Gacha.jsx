@@ -6,6 +6,7 @@ import Button from "../../components/simple/Button/Button";
 import { useUser } from "../../UserContext";
 import { useSettingsProvider } from "../../hooks";
 
+
 // Backend API base URL
 const API_BASE_URL = "http://localhost:4444/api";
 
@@ -37,15 +38,20 @@ const translations = {
   wheel: {
     en: 'Wheel',
     ru: 'Колесо'
+  },
+  lucktest: {
+    en: 'Test Your Luck!',
+    ru: 'Испытай свою удачу!'
   }
 };
+
 
 const buttonStyle = {
   width: "100%",
   height: 44,
   color: "rgb(255, 255, 255)",
   fontSize: 14,
-  fontFamily: "Anonymous pro",
+  fontFamily: "Oswald",
 };
 
 const shineVariants = {
@@ -73,7 +79,7 @@ const GachaOverlay = () => {
   const [itemPool, setItemPool] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const rouletteRef = useRef(null);
-
+  const { Icons } = Assets;
   // Constants
   const SPIN_LENGTH = 100;
   const ITEM_WIDTH = 160;
@@ -268,7 +274,7 @@ const GachaOverlay = () => {
         />
         <p>{translations.wheel[lang]}</p>
       </div>
-
+     
       {/* Overlay */}
       <AnimatePresence>
         {isActive && (
@@ -279,7 +285,7 @@ const GachaOverlay = () => {
               left: 0,
               width: "100vw",
               height: "100vh",
-              background: "rgba(0, 0, 0, 0.45)",
+              
               zIndex: 9999999999999,
               display: "flex",
               justifyContent: "center",
@@ -292,6 +298,66 @@ const GachaOverlay = () => {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
           >
+
+
+{/* Фоновый слой с градиентом */}
+<div
+              style={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                width: "100%",
+                height: "100%",
+                background:
+                  "repeating-linear-gradient(45deg, rgba(0, 0, 0, 0.21), rgba(0, 0, 0, 0.21) 2px, rgba(57, 57, 57, 0.06) 2px, rgba(57, 57, 57, 0.06) 6px) rgb(20, 20, 20)",
+                zIndex: -1, // Помещаем фон под контент
+              }}
+            />
+           <button 
+           
+           onClick={handleClose}
+   
+    style={{
+        paddingBottom: '4px',
+        
+        
+        border: '2px solid rgb(255, 0, 0)',
+        cursor: 'pointer',
+        width: '35px',
+        height: '35px',
+        backgroundColor: 'rgba(0, 0, 0, 0.52)',
+        backdropFilter: 'blur(5px)',
+        color:'rgb(255, 0, 0)',
+        borderRadius:' 8px',
+        fontSize:' 20px',
+       
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+       
+    }}
+>
+<img
+                  src={Icons.backIcon}
+                  alt="Coin"
+                  style={{ width: "25px", margin: "2px" }}
+                />
+</button>
+ <p
+                    style={{
+                   
+                      color: "white",
+                      fontSize: "18px",
+                      fontFamily: "Oswald",
+                      zIndex: 3,
+                      whiteSpace: "nowrap",
+                      fontSize: "20px",
+                      marginBottom: "15px"
+                    }}
+                  >
+                    {translations.lucktest[lang]}
+                  </p>
+
             {isLoading || !rouletteItems.length ? (
               <div
                 style={{
@@ -318,19 +384,54 @@ const GachaOverlay = () => {
               <>
                 {/* Roulette container */}
                 <div
-                  ref={rouletteRef}
-                  style={{
-                    width: "90%",
-                    maxWidth: "800px",
-                    height: "220px",
-                    overflow: "hidden",
-                    background: "linear-gradient(135deg, #1a1a1a, #2a2a2a)",
-                    borderRadius: "12px",
-                    position: "relative",
-                    boxShadow: "0 8px 30px rgba(0, 0, 0, 0.6)",
-                    border: "1px solid rgba(255, 255, 255, 0.1)",
-                  }}
-                >
+  style={{
+    position: "relative", 
+    width: "100%",
+    maxWidth: "800px",
+    height: "220px",
+  }}
+> 
+
+ {/* Градиенты слева и справа */}
+ <div
+                    style={{
+                      position: "absolute",
+                      top: 0,
+                      left: 0,
+                      width: "50px",
+                      height: "100%",
+                      background: "linear-gradient(to right, rgba(0, 0, 0, 1), rgba(0, 0, 0, 0))",
+                      zIndex: 1,
+                      pointerEvents: "none",
+                    }}
+                  />
+                  <div
+                    style={{
+                      position: "absolute",
+                      top: 0,
+                      right: 0,
+                      width: "50px",
+                      height: "100%",
+                      background: "linear-gradient(to left, rgba(0, 0, 0, 1), rgba(0, 0, 0, 0))",
+                      zIndex: 1,
+                      pointerEvents: "none",
+                    }}
+                  />
+
+  <div
+    ref={rouletteRef}
+    style={{
+      width: "100%",
+      maxWidth: "800px",
+      height: "220px",
+      overflow: "hidden",
+      background: "rgb(0 0 0)",
+      borderRadius: "0px",
+      position: "relative",
+      borderBottom: "1px solid rgb(206, 206, 206)",
+      borderTop: "1px solid rgb(206, 206, 206)",
+    }}
+  >
                   <motion.div
                     key={spinning ? "spinning" : "idle"}
                     style={{ display: "flex", position: "absolute", height: "100%" }}
@@ -349,36 +450,62 @@ const GachaOverlay = () => {
                           flexDirection: "column",
                           justifyContent: "center",
                           alignItems: "center",
-                          background: "rgba(40, 40, 40, 0.9)",
+                         
                           margin: "0 6px",
-                          borderRadius: "8px",
-                          boxShadow: "inset 0 0 10px rgba(0, 0, 0, 0.5)",
-                          border: "1px solid rgba(255, 255, 255, 0.05)",
+                          
+                          
                         }}
                       >
                         <img
                           src={item.image}
                           alt={item.name[lang]}
-                          style={{ maxWidth: "90%", maxHeight: "90%", objectFit: "contain" }}
+                          style={{ 
+                            maxWidth: "90%", 
+                            maxHeight: "90%", 
+                            objectFit: "contain",
+                            boxShadow: "inset 0 0 10px rgba(0, 0, 0, 0.5)",
+                          border: "1px solid rgba(255, 255, 255, 0.05)",
+                          borderRadius: "8px",
+                          background: "rgba(40, 40, 40, 0.9)",
+                        
+                           }}
                         />
                         <p style={{ color: "white", marginTop: "10px", fontSize: "14px" }}>{item.name[lang]}</p>
                       </div>
                     ))}
                   </motion.div>
                   {/* Center marker (line) */}
-                  <div
-                    style={{
-                      position: "absolute",
-                      left: "50%",
-                      top: "10px",
-                      bottom: "10px",
-                      width: "4px",
-                      background: "linear-gradient(to bottom, transparent, #ff4444, transparent)",
-                      transform: "translateX(-50%)",
-                      borderRadius: "2px",
-                    }}
-                  />
+                {/* Верхний треугольник */}
+  <div
+    style={{
+      position: "absolute",
+      left: "50%",
+      top: "0px",
+      width: "25px",
+      height: "15px",
+      background: " rgb(206, 206, 206)",
+      clipPath: "polygon(50% 100%, 0% 0%, 100% 0%)",
+      transform: "translateX(-50%)",
+      zIndex: 2, // Чтобы треугольники были поверх градиентов
+    }}
+  />
+  {/* Нижний треугольник */}
+  <div
+    style={{
+      position: "absolute",
+      left: "50%",
+      bottom: "-1px",
+      width: "25px",
+      height: "15px",
+      background: " rgb(206, 206, 206)",
+      clipPath: "polygon(50% 0%, 0% 100%, 100% 100%)",
+      transform: "translateX(-50%)",
+      zIndex: 2,
+    }}
+  />
+</div>
                 </div>
+                
 
                 {/* Controls with custom Button */}
                 <div
@@ -400,15 +527,7 @@ const GachaOverlay = () => {
                       color={"white"}
                       fontWeight={"200"}
                     />
-                    <Button
-                      onClick={handleClose}
-                      active={true} // Close is always active
-                      style={buttonStyle}
-                      width={100}
-                      text={translations.close[lang]}
-                      color={"white"}
-                      fontWeight={"200"}
-                    />
+                    
                   </div>
                   <div
                     style={{

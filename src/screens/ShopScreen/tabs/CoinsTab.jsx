@@ -138,7 +138,7 @@ const GridItem = ({
             height: "45px",
             textAlign: "center",
             fontWeight: "100",
-            fontFamily: "Anonymous pro",
+            fontFamily: "Oswald",
             width: "100%",
           }}
         >
@@ -165,7 +165,7 @@ const GridItem = ({
             style={{
               textAlign: "center",
               fontWeight: "100",
-              fontFamily: "Anonymous pro",
+              fontFamily: "Oswald",
               paddingLeft: 8,
               fontSize: "20px",
               paddingBottom: 4,
@@ -176,7 +176,7 @@ const GridItem = ({
             style={{
               textAlign: "center",
               fontWeight: "100",
-              fontFamily: "Anonymous pro",
+              fontFamily: "Oswald",
               fontSize: "20px",
             }}
           >
@@ -192,7 +192,7 @@ const GridItem = ({
             width={"88%"}
             marginBottom={"5"}
             height={44}
-            fontFamily={"Anonymous pro"}
+            fontFamily={"Oswald"}
             fontWeight={"300"}
             text={price}
             icon={Assets.Icons.starsIcon}
@@ -216,7 +216,7 @@ const GridItem = ({
             marginBottom={"5"}
             height={44}
             active={available}
-            fontFamily={"Anonymous pro"}
+            fontFamily={"Oswald"}
             fontWeight={"300"}
             icon={price > 0 ? Assets.Icons.balance : undefined}
             text={price === 0 ? 'Забрать' : price}
@@ -345,7 +345,7 @@ const GridItemShelf = ({
             color: "white",
             textAlign: "center",
             fontWeight: "100",
-            fontFamily: "Anonymous pro",
+            fontFamily: "Oswald",
             width: "90%",
           }}
         >
@@ -375,7 +375,7 @@ const GridItemShelf = ({
             marginBottom={"5"}
             color={"rgb(255, 255, 255)"}
             height={44}
-            fontFamily={"Anonymous pro"}
+            fontFamily={"Oswald"}
             fontWeight={"300"}
             text={price}
             icon={Assets.Icons.starsIcon}
@@ -397,7 +397,7 @@ const GridItemShelf = ({
             marginBottom={"5"}
             color={"rgb(255, 255, 255)"}
             height={44}
-            fontFamily={"Anonymous pro"}
+            fontFamily={"Oswald"}
             fontWeight={"300"}
             text={lang === 'en' ? "Buy NFT" : "Купить NFT"} // Hardcoded for quick fix
             fontSize={14}
@@ -419,7 +419,7 @@ const GridItemShelf = ({
             color={"rgb(255, 255, 255)"}
             height={44}
             active={available || price === 0}
-            fontFamily={"Anonymous pro"}
+            fontFamily={"Oswald"}
             fontWeight={"300"}
             icon={price > 0 ? Assets.Icons.balance : undefined}
             text={price === 0 ? 'Забрать' : price}

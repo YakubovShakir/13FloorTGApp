@@ -158,7 +158,7 @@ const GridItem = ({
                 color: "white",
                 textAlign: "center",
                 fontWeight: "100",
-                fontFamily: "Anonymous pro",
+                fontFamily: "Oswald",
                 width: "80%",
               }}
             >
@@ -179,7 +179,7 @@ const GridItem = ({
                 color: "white",
                 textAlign: "center",
                 fontWeight: "100",
-                fontFamily: "Anonymous pro",
+                fontFamily: "Oswald",
                 paddingLeft: 8,
               }}
             >

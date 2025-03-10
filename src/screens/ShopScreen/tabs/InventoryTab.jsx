@@ -161,7 +161,7 @@ const GridItem = ({
             color: "white",
             textAlign: "center",
             fontWeight: "100",
-            fontFamily: "Anonymous pro",
+            fontFamily: "Oswald",
             width: "100%",
           }}
         >
@@ -185,7 +185,7 @@ const GridItem = ({
             style={{
               textAlign: "center",
               fontWeight: "100",
-              fontFamily: "Anonymous pro",
+              fontFamily: "Oswald",
               paddingLeft: 8,
               fontSize: "20px",
               paddingBottom: 4,
@@ -196,7 +196,7 @@ const GridItem = ({
             style={{
               textAlign: "center",
               fontWeight: "100",
-              fontFamily: "Anonymous pro",
+              fontFamily: "Oswald",
               fontSize: "20px",
             }}
           >
@@ -225,7 +225,7 @@ const GridItem = ({
             marginBottom={"5"}
             height={44}
             active={equipped}
-            fontFamily={"Anonymous pro"}
+            fontFamily={"Oswald"}
             fontWeight={"300"}
             text={translations.equipped[lang]}
             fontSize={14}
@@ -245,7 +245,7 @@ const GridItem = ({
             marginBottom={"5"}
             height={44}
             active={true}
-            fontFamily={"Anonymous pro"}
+            fontFamily={"Oswald"}
             fontWeight={"300"}
             text={translations.choose[lang]}
             color={"rgb(255, 255, 255)"}
