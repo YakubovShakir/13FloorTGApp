@@ -102,6 +102,9 @@ const DailyCheckInOverlay = () => {
 
   const handleClaim = async () => {
     try {
+      if(!hasCheckedInToday) {
+        await handleCheckIn()
+      }
       const { data } = await instance.get(`/users/${userId}/daily/claim`);
       setReward(data.wonItem);
       setCanClaim(false);
@@ -369,51 +372,38 @@ const DailyCheckInOverlay = () => {
                       {streak} / 7
                     </p>
                     <div style={{ display: "flex", gap: "10px" }}>
-                      {hasCheckedInToday ? (
-                        canClaim ? (
-                          <Button
-                            onClick={handleClaim}
-                            style={buttonStyle}
-                            text={
-                              translations.claimReward[lang] ||
-                              translations.claimReward.en
-                            }
-                            width={120}
-                            active={true}
-                            color={'white'}
-                            fontSize={14}
-                            fontWeight={400}
-                           
-                          />
-                        ) : (
-                          <Button
-                            style={buttonStyle}
-                            text={
-                              translations.claimReward[lang] ||
-                              translations.claimReward.en
-                            }
-                            width={120}
-                            active={false} // Disabled state
-                            color={'white'}
-                            fontSize={14}
-                            fontWeight={400}
-                            
-                          />
-                        )
-                      ) : (
+                     {
+                       canClaim ? (
                         <Button
-                          onClick={handleCheckIn}
+                          onClick={handleClaim}
                           style={buttonStyle}
                           text={
-                            translations.checkIn[lang] || translations.checkIn.en
+                            translations.claimReward[lang] ||
+                            translations.claimReward.en
                           }
                           width={120}
                           active={true}
                           color={'white'}
                           fontSize={14}
                           fontWeight={400}
+                         
                         />
-                      )}
+                      ) : (
+                        <Button
+                          style={buttonStyle}
+                          text={
+                            translations.claimReward[lang] ||
+                            translations.claimReward.en
+                          }
+                          width={120}
+                          active={false} // Disabled state
+                          color={'white'}
+                          fontSize={14}
+                          fontWeight={400}
+                          
+                        />
+                      )
+                     }
                       
                     </div>
                   </div>
