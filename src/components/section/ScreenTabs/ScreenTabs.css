@@ -50,7 +50,7 @@
   box-shadow: 0px 0px 0px 3px #ff8800;
   margin: -2px 0px -2px 0px;
   border: none;
-  border-radius: 12px; /* Скругленные углы */
+  border-radius: 6px; /* Скругленные углы */
   background-color: #ff8800; /* Цвет активной вкладки */
   color: white; /* Текст белым */
   font-weight: bold;

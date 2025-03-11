@@ -47,14 +47,17 @@
 
 
 .slide-text {
+  text-align: center;
+  font-weight: 500;
+  font-family: "Roboto";
   background: rgba(18, 18, 18, 0.644);
-    border-radius: 8px;
-    border-bottom: 1px solid rgba(117, 117, 117, 0.23);
-    box-shadow: rgba(0, 0, 0, 0.24) 0px 0px 8px 2px inset;
+  border-radius: 8px;
+  border-bottom: 1px solid rgba(117, 117, 117, 0.23);
+  box-shadow: rgba(0, 0, 0, 0.24) 0px 0px 8px 2px inset;
   color: white;
   padding: 16px 24px;
   border-radius: 8px;
-  font-size: 15px;
+  font-size: 13px;
   cursor: pointer;
   backdrop-filter: blur(10px);
 }
