@@ -464,6 +464,7 @@ const DailyCheckInOverlay = () => {
                       text={translations.ok[lang] || translations.ok.en}
                       width={75}
                       active={true}
+                      color={"white"}
                     />
                   </motion.div>
                 )}

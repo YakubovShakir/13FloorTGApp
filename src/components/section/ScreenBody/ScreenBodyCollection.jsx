@@ -33,7 +33,7 @@ const ScreenBody = ({ children, activity }) => {
                   justifyContent:' center',
                   width: '100%',
                   color: 'white',
-                  fontFamily: 'Anonymous pro',
+                  fontFamily: 'Oswald',
                   fontSize: '20px',
                   fontWeight: '700',
                   position: 'relative',

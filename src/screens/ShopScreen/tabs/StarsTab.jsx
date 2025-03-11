@@ -124,11 +124,11 @@ const GridItem = ({ icon, title, price, available = true, respect = 100, handleS
       }}>
     <div>
           <div style={{ height: 40, width: '100%', display: 'flex', justifyContent: 'center'}}>
-            <p style={{ color: 'white',  fontWeight: '100', fontFamily: 'Roboto', width: '80%',  }}>{title}</p>
+            <p style={{ color: 'white',  fontWeight: '100', fontFamily: 'Oswald', width: '80%',  }}>{title}</p>
           </div>
           <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: 10 }}>
             <img src={Assets.Icons.respect} height={13} />
-            <p style={{ color: 'white', textAlign: 'center', fontWeight: '100', fontFamily: 'Roboto', paddingLeft: 8 }}>{respect}</p>
+            <p style={{ color: 'white', textAlign: 'center', fontWeight: '100', fontFamily: 'Oswald', paddingLeft: 8 }}>{respect}</p>
           </div>
         </div>
         <motion.div
@@ -148,7 +148,7 @@ const GridItem = ({ icon, title, price, available = true, respect = 100, handleS
             <img src={icon} alt={title} style={{ width: 109, height: 109 }} />
           </div>
         </motion.div>
-        <Button width={109} height={44} active={available} icon={available ? Assets.Icons.starsIcon : null} fontFamily={'Roboto'} fontWeight={'300'} text={available ? price : 'Недоступно'} fontSize={14} paddingTop={1} onClick={() => handleStarsBuy({ id })}/>
+        <Button width={109} height={44} active={available} icon={available ? Assets.Icons.starsIcon : null} fontFamily={'Oswald'} fontWeight={'300'} text={available ? price : 'Недоступно'} fontSize={14} paddingTop={1} onClick={() => handleStarsBuy({ id })}/>
       </div>
     </div>
 

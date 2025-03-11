@@ -59,7 +59,7 @@ const Modal = ({ bottom, left, width, height, data, onClose, logoWidth }) => {
             bgColor={button?.bg}
             ownColor={button?.bg}
             shadowColor={button?.shadowColor}
-            fontFamily={'Anonymous pro'}
+            fontFamily={'Oswald'}
             fontWeight={'200'}
             fontSize={14}
           />

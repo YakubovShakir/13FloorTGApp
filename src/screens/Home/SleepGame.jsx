@@ -326,7 +326,7 @@ const SleepGame = ({ sleepDuration, onGameOver }) => {
 
     // Draw score
     ctx.fillStyle = "white";
-    ctx.font = "16px Arial";
+    ctx.font = "16px Oswald";
     ctx.fillText(`Score: ${gameState.score}`, 10, 20);
 
     gameLoopRef.current = requestAnimationFrame(gameLoop);

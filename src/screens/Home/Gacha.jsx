@@ -12,12 +12,12 @@ const API_BASE_URL = "http://localhost:4444/api";
 
 const translations = {
   buySpins: {
-    en: "Buy Spins",
-    ru: "Купить Спины",
+    en: "BUY SPINS",
+    ru: "КУПИТЬ СПИНЫ",
   },
   spin: {
-    en: "Spin!",
-    ru: "Крутить!",
+    en: "SPIN!",
+    ru: "КРУТИТЬ!",
   },
   spinning: {
     en: "Spinning...",
@@ -263,6 +263,7 @@ const GachaOverlay = () => {
           zIndex: 99999,
           fontSize: "14px",
           textAlign: "center",
+          
         }}
       >
       <motion.img
@@ -285,7 +286,8 @@ const GachaOverlay = () => {
               left: 0,
               width: "100vw",
               height: "100vh",
-              
+              background:"repeating-linear-gradient(45deg, rgba(0, 0, 0, 0.21), rgba(0, 0, 0, 0.21) 2px, rgba(57, 57, 57, 0.06) 2px, rgba(57, 57, 57, 0.06) 6px) rgb(20, 20, 20)",
+             
               zIndex: 9999999999999,
               display: "flex",
               justifyContent: "center",
@@ -303,23 +305,37 @@ const GachaOverlay = () => {
 {/* Фоновый слой с градиентом */}
 <div
               style={{
-                position: "absolute",
-                top: 0,
-                left: 0,
+               
+              
+                //     position: "absolute",
+                // top: 0,
+                // left: 0,
+                // height:"100%",
                 width: "100%",
-                height: "100%",
-                background:
-                  "repeating-linear-gradient(45deg, rgba(0, 0, 0, 0.21), rgba(0, 0, 0, 0.21) 2px, rgba(57, 57, 57, 0.06) 2px, rgba(57, 57, 57, 0.06) 6px) rgb(20, 20, 20)",
                 zIndex: -1, // Помещаем фон под контент
+                
               }}
-            />
-           <button 
+            >
+
+
+
+           
+
+{/* Пустой элемент для баланса */}
+<div style={{ 
+  width: "100%",
+  display: "flex",
+  justifyContent: "center",
+
+ }}>
+<button 
            
            onClick={handleClose}
    
     style={{
         paddingBottom: '4px',
-        
+        position: "absolute",
+    left: "13px",
         
         border: '2px solid rgb(255, 0, 0)',
         cursor: 'pointer',
@@ -345,7 +361,8 @@ const GachaOverlay = () => {
 </button>
  <p
                     style={{
-                   
+                      paddingTop: "3px",
+                   textTransform: "uppercase",
                       color: "white",
                       fontSize: "18px",
                       fontFamily: "Oswald",
@@ -357,6 +374,10 @@ const GachaOverlay = () => {
                   >
                     {translations.lucktest[lang]}
                   </p>
+
+
+</div>
+  </div>
 
             {isLoading || !rouletteItems.length ? (
               <div
@@ -513,7 +534,8 @@ const GachaOverlay = () => {
                     marginTop: "30px",
                     color: "white",
                     textAlign: "center",
-                    fontFamily: "Arial, sans-serif",
+                    fontFamily: "Oswald",
+                    
                   }}
                 >
                   <p style={{ fontSize: "18px", marginBottom: "15px" }}>{translations.spins[lang]}{attempts}</p>
@@ -525,7 +547,9 @@ const GachaOverlay = () => {
                       width={100}
                       text={spinning ? translations.spinning[lang] : translations.spin[lang]}
                       color={"white"}
-                      fontWeight={"200"}
+                      fontWeight={"800"}
+                      textTransform={"uppercase"}
+                      fontFamily={"Oswald"}
                     />
                     
                   </div>
@@ -547,9 +571,10 @@ const GachaOverlay = () => {
                       style={buttonStyle}
                       width={125}
                       color={"white"}
-                      fontWeight={"200"}
+                      fontWeight={"800"}
                       fontSize={14}
                       iconStyles={{ marginLeft: 10 }}
+                      fontFamily={"Oswald"}
                     />
                   </div>
                 </div>
@@ -565,28 +590,48 @@ const GachaOverlay = () => {
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
+                      background: "rgb(0 0 0 / 45%)",
+                      backdropFilter:" blur(10px)",
+                    
                     }}
                   >
-                    <motion.div
-                      initial={{ opacity: 0, scale: 0.5 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ duration: 0.5 }}
-                      style={{
-                        transform: "translate(-50%, -50%)",
-                        background: "linear-gradient(135deg, #ffffff, #e0e0e0)",
-                        padding: "30px",
-                        borderRadius: "15px",
-                        textAlign: "center",
-                        boxShadow: "0 10px 40px rgba(0, 0, 0, 0.5)",
-                        border: "1px solid rgba(255, 255, 255, 0.2)",
-                        zIndex: 10000,
-                        width: "300px",
-                        display: "flex",
-                        flexDirection: "column",
-                        alignItems: "center",
-                      }}
-                    >
-                      <h2 style={{ fontFamily: "Arial, sans-serif", color: "#333", marginBottom: "20px" }}>
+               <motion.div
+  initial={{ opacity: 0, scale: 0.5 }}
+  animate={{ 
+    opacity: 1, 
+    scale: 1,
+    background: [
+      "radial-gradient(circle at center, rgba(255, 119, 0, 0.43) 0%, rgba(255, 255, 0, 0) 30%)",
+      "radial-gradient(circle at center, rgba(255, 119, 0, 0.43) 0%, rgba(255, 255, 0, 0) 50%)",
+      "radial-gradient(circle at center, rgba(255, 119, 0, 0.43)0%, rgba(255, 255, 0, 0) 30%)",
+    ],
+  }}
+  transition={{ 
+    opacity: { duration: 0.5 },
+    scale: { duration: 0.5 },
+    background: { 
+      delay: 0.5,               // Задержка начала пульсации на 0.5 секунды
+      duration: 1.5,
+      repeat: Infinity,
+      ease: "easeInOut",
+    },
+  }}
+  style={{
+    transform: "translate(-50%, -50%)",
+    borderRadius: "15px",
+    textAlign: "center",
+    zIndex: 10000,
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+    height: "100%",
+    width: "100%",
+    position: "relative",
+    
+  }}
+>
+                      <h2 style={{ fontFamily: "Oswald", color: "#fff", marginBottom: "11px", textTransform:"uppercase" }}>
                         {translations.youWon[lang]}
                       </h2>
                       <img
@@ -594,17 +639,18 @@ const GachaOverlay = () => {
                         alt={result.name[lang]}
                         style={{ width: "120px", height: "120px", borderRadius: "10px" }}
                       />
-                      <p style={{ fontFamily: "Arial, sans-serif", color: "#555", fontSize: "18px", margin: "15px 0" }}>
+                      <p style={{ fontFamily: "Oswald", color: "#fff", fontSize: "28px", margin: "15px 0" }}>
                         {result.name[lang]}
                       </p>
                       <Button
                         onClick={() => setResult(null)}
                         style={buttonStyle}
                         text={"OK"}
-                        height={45}
+                        height={25}
                         width={75}
                         active={true}
                         color={"white"}
+                        fontFamily={"Oswald"}
                       />
                     </motion.div>
                   </div>
