@@ -27,10 +27,11 @@
 
 
 .ItemTitleBoost {
-  width: 150px;
+  text-transform: uppercase;
+  max-width: 100%;
   font-weight: 800;
   text-align: left;
-  padding: 0px 5px 20px 5px;
+  padding: 0px 130px 20px 5px;
   margin: 10px 0px -10px 0px;
   font-size: 20px;
   position: relative;
@@ -183,7 +184,7 @@
   font-family: "Oswald";
   font-size: 3.4cqw;
   text-align: center;
-  padding-left: 6%;
+  padding-left: 1%;
   width: 53%;
 }
 
@@ -244,15 +245,15 @@
 }
 
 .ItemIconContainerBoost {
-  font-weight: 800;
-  padding-left: 4%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  z-index: 2;
-  width: 47%;
-  
+  font-family: "roboto";
+    font-weight: 300;
+    padding-left: 4%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    z-index: 2;
+    width: 60%;
 }
 
 /* Псевдоэлемент для градиента */
