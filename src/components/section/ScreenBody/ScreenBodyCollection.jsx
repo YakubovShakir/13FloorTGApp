@@ -23,7 +23,7 @@ const ScreenBody = ({ children, activity }) => {
         }}>
             {/* Fixed Header */}
             <div className="HomeHeaderBottomName" style={{ 
-                 
+                  textTransform: "uppercase",
                   boxShadow:' rgb(0, 0, 0) 2px 5px 12px 0px',
                   zIndex:' 1',
                   height: '55px',
@@ -35,7 +35,7 @@ const ScreenBody = ({ children, activity }) => {
                   color: 'white',
                   fontFamily: 'Oswald',
                   fontSize: '20px',
-                  fontWeight: '700',
+                  fontWeight: '400',
                   position: 'relative',
                   backgroundColor:' #141414',
                 
