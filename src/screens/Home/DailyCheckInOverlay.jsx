@@ -33,8 +33,8 @@ const translations = {
     ru: "Отметиться",
   },
   claimReward: {
-    en: "Claim Reward",
-    ru: "Получить награду",
+    en: "CLAIM REWARD",
+    ru: "ПОЛУЧИТЬ НАГРАДУ",
   },
   close: {
     en: "Close",
@@ -362,7 +362,7 @@ const DailyCheckInOverlay = () => {
                     <p
                       style={{
                         fontSize: "12px",
-                        fontFamily: "Oswald",
+                        fontFamily: "Roboto",
                         opacity: 0.9,
                         fontWeight: "200",
                       }}
@@ -381,11 +381,12 @@ const DailyCheckInOverlay = () => {
                             translations.claimReward[lang] ||
                             translations.claimReward.en
                           }
-                          width={120}
+                          width={180}
                           active={true}
                           color={'white'}
                           fontSize={14}
                           fontWeight={400}
+                          fontFamily={"Oswald"}
                          
                         />
                       ) : (
@@ -395,12 +396,12 @@ const DailyCheckInOverlay = () => {
                             translations.claimReward[lang] ||
                             translations.claimReward.en
                           }
-                          width={120}
+                          width={180}
                           active={false} // Disabled state
                           color={'white'}
                           fontSize={14}
                           fontWeight={400}
-                          
+                          fontFamily={"Oswald"}
                         />
                       )
                      }
