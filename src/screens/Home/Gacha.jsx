@@ -569,11 +569,11 @@ const GachaOverlay = () => {
                       active={!spinning}
                       text={translations.buySpins[lang]}
                       style={buttonStyle}
-                      width={125}
+                      width={150}
                       color={"white"}
                       fontWeight={"800"}
                       fontSize={14}
-                      iconStyles={{ marginLeft: 10 }}
+                      iconStyles={{ marginLeft: 2 }}
                       fontFamily={"Oswald"}
                     />
                   </div>
