@@ -60,8 +60,8 @@ const Modal = ({ bottom, left, width, height, data, onClose, logoWidth }) => {
             ownColor={button?.bg}
             shadowColor={button?.shadowColor}
             fontFamily={'Oswald'}
-            fontWeight={'200'}
-            fontSize={14}
+            fontWeight={'400'}
+            fontSize={15}
           />
         ))}
       </div>

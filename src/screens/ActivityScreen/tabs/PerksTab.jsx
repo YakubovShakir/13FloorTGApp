@@ -387,14 +387,14 @@ const PerksTab = ({
                 },
                 ...(learning && !learned ? [
                     {
-                        icon: "https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/icons%2F%D1%83%D1%81%D0%BA%D0%BE%D1%80-25.png",
+                        icon: "https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/Boost%2FBoost3.webp",
                         text: translations.boost[lang] + ' x25%',
                         active: state.userBoosts?.find(boost => boost.boost_id === 7),
                         onClick: state.userBoosts?.find(boost => boost.boost_id === 7) ? 
                             () => handleBoost(7, skill.skill_id, null) : null,
                     },
                     {
-                        icon: "https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/icons%2F%D1%83%D1%81%D0%BA%D0%BE%D1%80-50.png",
+                        icon: "https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/Boost%2FBoost2.webp",
                         text: translations.boost[lang] + ' x50%',
                         active: state.userBoosts?.find(boost => boost.boost_id === 8),
                         onClick: state.userBoosts?.find(boost => boost.boost_id === 8) ? 
@@ -467,14 +467,14 @@ const PerksTab = ({
                 },
                 ...(learning ? [
                     {
-                        icon: "https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/icons%2F%D1%83%D1%81%D0%BA%D0%BE%D1%80-25.png",
+                        icon: "https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/Boost%2FBoost3.webp",
                         text: translations.boost[lang] + ' x25%',
                         active: state.userBoosts?.find(boost => boost.boost_id === 7),
                         onClick: state.userBoosts?.find(boost => boost.boost_id === 7) ? 
                             () => handleBoost(7, effect.next?.id, 'constant_effects') : null,
                     },
                     {
-                        icon: "https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/icons%2F%D1%83%D1%81%D0%BA%D0%BE%D1%80-50.png",
+                        icon: "https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/Boost%2FBoost2.webp",
                         text: translations.boost[lang] + ' x50%',
                         active: state.userBoosts?.find(boost => boost.boost_id === 8),
                         onClick: state.userBoosts?.find(boost => boost.boost_id === 8) ? 
