@@ -26,13 +26,15 @@
 }
 
 .tab-label-active {
-  
-  font-size: 17px;
+  font-weight: normal;
+  text-transform: uppercase;
+  color: #000;
+  font-size: 15px;
 }
 
 .tab-label {
-  
-  font-size: 17px;
+  text-transform: uppercase;
+  font-size: 15px;
   
   
 }
