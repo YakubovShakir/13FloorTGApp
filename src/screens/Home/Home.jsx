@@ -98,10 +98,10 @@ const Home = () => {
     userShelf,
   } = useContext(UserContext)
 
-  const getUserSleepDuration = useCallback(() => {
+  const getUserSleepDuration = () => {
     return state.levels?.find((level) => level?.level === userParameters?.level)
       ?.sleep_duration
-  }, [state.levels, userParameters?.level])
+  }
 
   useEffect(() => {
     mountedRef.current = true
@@ -154,10 +154,9 @@ const Home = () => {
     return formatTime(Math.floor(remainingSeconds / 60), remainingSeconds % 60)
   }, [])
 
-  const initializeProcess = useCallback(async () => {
+  const initializeProcess = async () => {
     try {
       const process = await getUserActiveProcess(userId)
-      if (!mountedRef.current) return
 
       if (!process) {
         setState((prev) => ({ ...prev, currentProcess: null }))
@@ -188,7 +187,7 @@ const Home = () => {
         setProgressRate(null)
       }
     }
-  }, [userId, calculateInitialTime])
+  }
 
   const fetchNekoState = async () => {
     try {
@@ -238,13 +237,16 @@ const Home = () => {
     if (!isInitialized) return
 
     const initialize = async () => {
+      if(!userPersonage?.gender) {
+        navigate('/personage-create')
+      }
       setIsLoading(true)
       setLoadingProgress(0)
       try {
         await Promise.all([
           preloadImages(),
-          initializeProcess(),
           fetchNekoState(),
+          initializeProcess()
         ])
         if (mountedRef.current) {
           setState((prev) => ({ ...prev, imagesLoaded: true }))
@@ -257,7 +259,7 @@ const Home = () => {
     }
 
     initialize()
-  }, [isInitialized, navigate, userPersonage, preloadImages, initializeProcess])
+  }, [isInitialized, navigate, userPersonage, preloadImages])
 
   const canContinue = (processType) => {
     if (processType === "training")
@@ -265,32 +267,33 @@ const Home = () => {
     if (processType === "work") return canStartWorking(userParameters)
     if (processType === "sleep") return canStartSleeping(userParameters)
   }
-
   useEffect(() => {
-    let timerInterval, driftCorrectionInterval
-
-    const isActive = state.currentProcess?.active
-    const currentProcessCreatedAt = state.currentProcess?.createdAt
-    const processId = state.currentProcess?.id
-
-    const updateTimer = (displayTime) => {
-      const processStart = moment(currentProcessCreatedAt).tz("Europe/Moscow")
-      const elapsedSeconds = displayTime.diff(processStart, "seconds")
-      const totalSeconds =
-        state.currentProcess.target_duration_in_seconds ||
-        state.currentProcess.base_duration_in_seconds
-      const remainingSeconds = Math.max(0, totalSeconds - elapsedSeconds)
+    let timerInterval;
+  
+    const isActive = state.currentProcess?.active;
+    const currentProcessCreatedAt = state.currentProcess?.createdAt;
+    const processId = state.currentProcess?.id;
+  
+    const updateTimer = () => {
+      if (!mountedRef.current || !currentProcessCreatedAt) return;
+  
+      const now = moment().tz("Europe/Moscow");
+      const processStart = moment(currentProcessCreatedAt).tz("Europe/Moscow");
+      const elapsedSeconds = now.diff(processStart, "seconds");
+      const totalSeconds = 
+        state.currentProcess.target_duration_in_seconds || 
+        state.currentProcess.base_duration_in_seconds;
+      const remainingSeconds = Math.max(0, totalSeconds - elapsedSeconds);
       const formattedTime = formatTime(
         Math.floor(remainingSeconds / 60),
         remainingSeconds % 60
-      )
-
-      setProgressRate(formattedTime)
-
-      if (remainingSeconds === 0 || !canContinue(state.currentProcess?.type)) {
-        handleProcessCompletion()
-        clearInterval(timerInterval)
-        clearInterval(driftCorrectionInterval)
+      );
+  
+      setProgressRate(formattedTime);
+  
+      if (remainingSeconds <= 0 || !canContinue(state.currentProcess?.type)) {
+        handleProcessCompletion();
+        clearInterval(timerInterval);
       } else {
         setState((prev) => {
           if (prev.currentProcess?.id === processId) {
@@ -302,81 +305,31 @@ const Home = () => {
                 formattedTime,
                 totalSeconds,
               },
-            }
+            };
           }
-          return prev
-        })
+          return prev;
+        });
       }
-    }
-
-    const initializeTimer = async () => {
-      try {
-        const serverTime = await getServerTime()
-        if (!serverTime) throw new Error("Failed to get server time")
-
-        let startTime = serverTime.tz("Europe/Moscow")
-        let lastSyncTime = moment()
-        let accumulatedDrift = 0
-        let displayTime = startTime.clone()
-
-        updateTimer(displayTime)
-
-        timerInterval = setInterval(() => {
-          const now = moment()
-          const timeSinceLastSync = now.diff(lastSyncTime, "milliseconds")
-          displayTime = startTime
-            .clone()
-            .add(timeSinceLastSync + accumulatedDrift, "milliseconds")
-          updateTimer(displayTime)
-        }, 1000)
-
-        driftCorrectionInterval = setInterval(async () => {
-          try {
-            const newServerTime = await getServerTime()
-            if (!newServerTime) return
-
-            const newStartTime = newServerTime.tz("Europe/Moscow")
-            const now = moment()
-            const expectedTime = startTime.clone().add(now.diff(lastSyncTime))
-            const currentDrift = newStartTime.diff(expectedTime)
-
-            accumulatedDrift = currentDrift
-            startTime = newStartTime
-            lastSyncTime = now
-          } catch (error) {
-            console.error("Drift correction failed:", error)
-          }
-        }, 5 * 60 * 1000)
-      } catch (error) {
-        console.error("Error initializing timer:", error)
-        const localTime = moment().tz("Europe/Moscow")
-        updateTimer(localTime)
-        timerInterval = setInterval(
-          () => updateTimer(moment().tz("Europe/Moscow")),
-          1000
-        )
-      }
-    }
-
+    };
+  
     if (
       isActive &&
       mountedRef.current &&
-      currentProcessCreatedAt &&
-      state.currentProcess?.type !== "sleep"
+      currentProcessCreatedAt
     ) {
-      initializeTimer()
+      updateTimer(); // Initial update
+      timerInterval = setInterval(updateTimer, 1000);
     }
-
+  
     return () => {
-      if (timerInterval) clearInterval(timerInterval)
-      if (driftCorrectionInterval) clearInterval(driftCorrectionInterval)
-    }
+      if (timerInterval) clearInterval(timerInterval);
+    };
   }, [
     state.currentProcess?.active,
     state.currentProcess?.createdAt,
     state.currentProcess?.id,
     state.currentProcess?.type,
-  ])
+  ]);
 
   const completionInProgressRef = useRef(false)
 
@@ -475,6 +428,8 @@ const Home = () => {
           backgroundColor: isLoading ? "#f0f0f0" : "transparent",
         }}
       >
+        <GachaOverlay userId={userId} />
+        <DailyCheckInOverlay />
         {state.imagesLoaded && (
           <>
             <motion.div
@@ -533,8 +488,6 @@ const Home = () => {
 
   const homeContent = (
     <>
-      <GachaOverlay userId={userId} />
-      <DailyCheckInOverlay />
       <HomeHeader
         onClick={() =>
           setState((prev) => ({
@@ -837,6 +790,20 @@ const Home = () => {
         clothing={userClothing}
         sleep
       />
+       <motion.img
+          src={Assets.Layers.cover}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5, ease: "easeInOut" }}
+          style={{
+            position: "absolute",
+            width: "100%",
+            height: "100%",
+            bottom: 0,
+            zIndex: 0,
+          }}
+          alt="cover"
+        />
       {renderProcessProgressBar(
         state.currentProcess,
         countPercentage(
