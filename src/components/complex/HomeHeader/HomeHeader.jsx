@@ -449,9 +449,11 @@ export const StatsModal = ({ baseStyles, setIsStatsShown, clothing }) => {
         display: "flex",
         alignItems: "center",
         padding: "10px",
-        background: "rgba(255, 255, 255, 0.05)",
+        background: "rgb(18, 18, 18)",
         borderRadius: 8,
         marginBottom: 8,
+        borderBottom: "1px solid rgba(117, 117, 117, 0.23)",
+        boxShadow: "rgba(0, 0, 0, 0.24) 0px 0px 8px 2px inset",
       }}
     >
       {iconLeft && (
@@ -554,12 +556,12 @@ export const StatsModal = ({ baseStyles, setIsStatsShown, clothing }) => {
         style={{
           width: 320,
           height: 480,
-          background: "#000",
-          borderRadius: 40,
-          padding: 25,
+          background: "0% 0% / cover rgb(32, 32, 32)",
+          borderRadius: 6,
+          padding: 13,
           position: "relative",
           boxShadow: "0 0 20px rgba(0,0,0,0.5)",
-          border: "1px solid #333",
+          border: "1px solid rgb(57, 57, 57)",
           overflow: "hidden",
           marginTop: 25
         }}
@@ -590,7 +592,7 @@ export const StatsModal = ({ baseStyles, setIsStatsShown, clothing }) => {
             whileTap={{ scale: 0.9 }}
             onClick={() => setIsStatsShown(false)}
           >
-            <img src={Assets.Icons.modalClose} width={24} height={24} />
+            <img src={Assets.Icons.modalClose} width={16} height={16} />
           </motion.div>
         </div>
 
@@ -644,7 +646,7 @@ export const StatsModal = ({ baseStyles, setIsStatsShown, clothing }) => {
           style={{
             height: 400,
             overflowY: "auto",
-            padding: "0 5px",
+            padding: "0",
           }}
         >
           {isLoading ? (
