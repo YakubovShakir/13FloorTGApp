@@ -1,27 +1,28 @@
 import { useCallback, useEffect, useState, useContext } from "react"
 import PlayerIndicators from "../PlayerIndicators/PlayerIndicators"
 import Assets from "../../../assets"
-import { SwiperSlide, Swiper } from "swiper/react"
-import { Pagination } from "swiper/modules"
+import { motion, AnimatePresence } from "framer-motion"
 import { getLevels } from "../../../services/levels/levels"
 import {
   disconnectUserWallet,
+  getOwnNekoState,
   getUserActiveProcess,
   saveUserWallet,
 } from "../../../services/user/user"
 import "./HomeHeader.css"
 import "swiper/css"
 import "swiper/css/pagination"
-import UserContext from "../../../UserContext"
+import UserContext, { useUser } from "../../../UserContext"
 import { useSettingsProvider } from "../../../hooks"
 import {
   THEME,
   useTonConnectModal,
   useTonConnectUI,
   useTonWallet,
-  useTonAddress
+  useTonAddress,
 } from "@tonconnect/ui-react"
 import { formatCoins } from "../../../utils/formatCoins"
+import { formUsername } from "../../../utils/formUsername"
 
 const walletTranslations = {
   telegram: {
@@ -40,7 +41,7 @@ const walletTranslations = {
 
 const TelegramWalletConnection = () => {
   const [isConnecting, setIsConnecting] = useState(false)
-  const { lang , playClickSound} = useSettingsProvider()
+  const { lang, playClickSound } = useSettingsProvider()
   const [tonConnectUI, setOptions] = useTonConnectUI()
   const { userId, userParameters } = useContext(UserContext)
   const wallet = useTonWallet()
@@ -117,8 +118,8 @@ const TelegramWalletConnection = () => {
         title={getButtonText()}
         iconLeft={Assets.Icons.telegram || Assets.Icons.wallets}
         onClick={() => {
-          playClickSound(); // Добавляем звук
-          wallet === null ? open() : setIsDisconnectModalVisible(true);
+          playClickSound() // Добавляем звук
+          wallet === null ? open() : setIsDisconnectModalVisible(true)
         }}
         isChecked={wallet !== null}
         isLoading={isConnecting}
@@ -130,7 +131,7 @@ const TelegramWalletConnection = () => {
             <div className="modal-buttons">
               <button
                 onClick={() => {
-                  playClickSound();
+                  playClickSound()
                   setIsDisconnectModalVisible(false)
                   tonConnectUI.disconnect()
                 }}
@@ -191,8 +192,13 @@ const Bar = ({ title, onClick, iconLeft, iconRight, isChecked }) => {
     },
   }
 
-  const { isSoundEnabled, toggleSound, isMusicEnabled, toggleMusic, playClickSound} =
-    useSettingsProvider() // Access context values
+  const {
+    isSoundEnabled,
+    toggleSound,
+    isMusicEnabled,
+    toggleMusic,
+    playClickSound,
+  } = useSettingsProvider() // Access context values
 
   const getCorrectIsChecked = () => {
     if (title === "Music") return isMusicEnabled
@@ -301,11 +307,12 @@ export const SettingsModal = ({ baseStyles, setIsSettingsShown }) => {
           backgroundSize: "cover",
         }}
       >
-       <div
+        <div
           onClick={() => {
-            playClickSound(); // Добавляем звук
-            setIsSettingsShown(false);
-          }}>
+            playClickSound() // Добавляем звук
+            setIsSettingsShown(false)
+          }}
+        >
           <img
             src={Assets.Icons.modalClose}
             width={16}
@@ -333,7 +340,7 @@ export const SettingsModal = ({ baseStyles, setIsSettingsShown }) => {
                 fontWeight: "500",
                 color: "white",
                 textAlign: "left",
-                marginBottom: 19,
+                marginBottom: 13,
                 fontSize: 18,
               }}
             >
@@ -377,81 +384,156 @@ export const SettingsModal = ({ baseStyles, setIsSettingsShown }) => {
   )
 }
 
-const StatsBar = ({ title, iconLeft, value }) => {
-  const styles = {
-    container: {
-      display: "flex",
-      alignItems: "center",
-      width: "100%",
-      padding: "8px 8px",
-      background: "#121212",
-      borderRadius: 8,
-      borderBottom: "solid 1px #7575753b",
-      boxShadow: "0px 0px 8px 2px rgba(0, 0, 0, 0.24) inset",
-    },
-    icon: {
-      width: "24px",
-      height: "24px",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      borderRadius: 5,
-      color: "white",
-    },
-    text: {
-      flexGrow: 1,
-      marginLeft: "16px",
-      textAlign: "left",
-      color: "white",
-      fontSize: "12px",
-    },
-  }
-
-  return (
-    <div style={styles.container}>
-      <div style={styles.icon}>
-        {iconLeft && <img style={styles.icon} src={iconLeft} />}
-      </div>
-      <p style={styles.text}>{title}</p>
-      <div>
-        <p style={{ fontWeight: "bold", color: "white" }}>{value}</p>
-      </div>
-    </div>
-  )
+const PHONE_COLORS = {
+  RED: "#FF3333",
+  GREEN: "#00FF00",
+  WHITE: '#fff'
 }
-
-export const StatsModal = ({
-  baseStyles,
-  setIsStatsShown,
-  userParameters,
-  personage,
-  clothing,
-}) => {
+export const StatsModal = ({ baseStyles, setIsStatsShown, clothing }) => {
+  const { userParameters, userPersonage } = useUser()
   const { total_earned, level, energy_capacity, respect } = userParameters
-  const { lang, playClickSound } = useSettingsProvider()
+  const { lang } = useSettingsProvider()
+  const [activeTab, setActiveTab] = useState("stats")
+  const [isLoading, setIsLoading] = useState(true)
+  const [effects, setEffects] = useState([])
+
+  useEffect(() => {
+    const lol = async () => {
+      const neko = await getOwnNekoState(userParameters.id)
+      setEffects((prev) => [
+        ...prev,
+        {
+          type: "neko",
+          value: neko.incomeBoostPercentage > 0 ? "+" + neko.incomeBoostPercentage + "%" : '0',
+          title: translations.nekoEffect[lang],
+          color:  neko.incomeBoostPercentage > 0 ? PHONE_COLORS.GREEN : PHONE_COLORS.WHITE,
+          icon: Assets.Icons.nftEffectIcon
+        },
+      ])
+      setIsLoading(false)
+    }
+    lol()
+  }, [])
 
   const translations = {
-    level: {
-      ru: "Уровень",
-      en: "Level",
-    },
-    respect: {
-      ru: "Уважение",
-      en: "Respect",
-    },
-    total: {
-      ru: "Всего заработано",
-      en: "Total earned",
-    },
-    energy: {
-      ru: "Макс. энергии",
-      en: "Energy capacity",
-    },
-    stats: {
-      ru: "Статистика",
-      en: "Stats of",
+    level: { ru: "Уровень", en: "Level" },
+    respect: { ru: "Уважение", en: "Respect" },
+    total: { ru: "Всего заработано", en: "Total earned" },
+    energy: { ru: "Макс. энергии", en: "Energy capacity" },
+    stats: { ru: "Статистика", en: "Stats" },
+    effects: { ru: "Эффекты", en: "Effects" },
+    nekoEffect: { ru: "Увеличение дохода в час", en: "Hourly income increase" },
+    noEffects: {
+      ru: "У вас нет активных эффектов",
+      en: `You don't have any active effects`,
     },
   }
+
+  const tabVariants = {
+    hidden: { opacity: 0, x: 20 },
+    visible: { opacity: 1, x: 0 },
+    exit: { opacity: 0, x: -20 },
+  }
+
+  const loadingVariants = {
+    animate: {
+      rotate: 360,
+      transition: { duration: 1, repeat: Infinity, ease: "linear" },
+    },
+  }
+
+  const StatItem = ({ title, iconLeft, value, color }) => (
+    <motion.div
+      whileHover={{ scale: 1.02 }}
+      style={{
+        display: "flex",
+        alignItems: "center",
+        padding: "10px",
+        background: "rgba(255, 255, 255, 0.05)",
+        borderRadius: 8,
+        marginBottom: 8,
+      }}
+    >
+      {iconLeft && (
+        <img
+          src={iconLeft}
+          style={{ width: 24, height: 24, marginRight: 12 }}
+        />
+      )}
+      <div style={{ flex: 1 }}>
+        <p style={{ color: "#fff", fontSize: 14, margin: 0 }}>{title}</p>
+      </div>
+      <p
+        style={{
+          color: color || "#00ff00",
+          fontWeight: "bold",
+          fontSize: 16,
+          margin: 0,
+        }}
+      >
+        {value}
+      </p>
+    </motion.div>
+  )
+
+  const TabContent = () => (
+    <AnimatePresence mode="wait">
+      {activeTab === "stats" ? (
+        <motion.div
+          key="stats"
+          variants={tabVariants}
+          initial="hidden"
+          animate="visible"
+          exit="exit"
+          transition={{ duration: 0.3 }}
+        >
+          <StatItem
+            iconLeft={Assets.Icons.boosterArrow}
+            title={translations.level[lang]}
+            value={level}
+          />
+          <StatItem
+            iconLeft={Assets.Icons.respect}
+            title={translations.respect[lang]}
+            value={respect}
+          />
+          <StatItem
+            iconLeft={Assets.Icons.balance}
+            title={translations.total[lang]}
+            value={formatCoins(total_earned)}
+          />
+          <StatItem
+            iconLeft={Assets.Icons.energy}
+            title={translations.energy[lang]}
+            value={energy_capacity}
+          />
+        </motion.div>
+      ) : (
+        <motion.div
+          key="effects"
+          variants={tabVariants}
+          initial="hidden"
+          animate="visible"
+          exit="exit"
+          transition={{ duration: 0.3 }}
+        >
+          {effects.length > 0 ? (
+            effects.map((effect) => (
+              <StatItem
+                key={Math.floor(Math.random() * 100) + effect.title}
+                iconLeft={effect.icon || Assets.Icons.energyUp}
+                title={effect.title}
+                value={effect.value}
+                color={effect.color}
+              />
+            ))
+          ) : (
+            <h2>{translations.noEffects[lang]}</h2>
+          )}
+        </motion.div>
+      )}
+    </AnimatePresence>
+  )
 
   return (
     <div
@@ -464,85 +546,125 @@ export const StatsModal = ({
         zIndex: 999999,
       }}
     >
-      <div
+      {/* Smartphone container */}
+      <motion.div
+        initial={{ scale: 0.9, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ duration: 0.3 }}
         style={{
-          border: "1px solid rgb(57, 57, 57)",
-          position: "absolute",
-          background: "rgb(32, 32, 32)",
-          zIndex: 6,
-          height: 260,
-          width: 280,
-          borderRadius: 6,
-          backgroundSize: "cover",
+          width: 320,
+          height: 480,
+          background: "#000",
+          borderRadius: 40,
+          padding: 25,
+          position: "relative",
+          boxShadow: "0 0 20px rgba(0,0,0,0.5)",
+          border: "1px solid #333",
+          overflow: "hidden",
+          marginTop: 25
         }}
       >
-        <div onClick={() => setIsStatsShown(false)}>
-          <img
-            src={Assets.Icons.modalClose}
-            width={16}
-            height={16}
-            style={{ position: "absolute", right: 17, top: 15 }}
-          />
-        </div>
+
+        {/* Header */}
         <div
           style={{
             display: "flex",
-            width: "100%",
-            height: 260,
-            flexDirection: "column",
             alignItems: "center",
-            justifyContent: "end",
-            paddingBottom: "20px",
+            justifyContent: "space-between",
+            marginBottom: 20,
           }}
         >
-          <div
-            style={{ display: "flex", flexDirection: "column", width: "90%" }}
+          <p
+            style={{
+              fontFamily: "Oswald",
+              fontWeight: "500",
+              color: "#fff",
+              fontSize: 20,
+              margin: 0,
+            }}
           >
-            <p
-              style={{
-                fontFamily: "Oswald",
-                fontWeight: "500",
-                color: "white",
-                textAlign: "Left",
-                marginBottom: 19,
-                fontSize: 16,
-              }}
-            >
-              {translations.stats[lang]} {personage.name}
-            </p>
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                width: "100%",
-                flexDirection: "column",
-                rowGap: 8,
-              }}
-            >
-              <StatsBar
-                iconLeft={Assets.Icons.boosterArrow}
-                title={translations.level[lang]}
-                value={level}
-              />
-              <StatsBar
-                iconLeft={Assets.Icons.respect}
-                title={translations.respect[lang]}
-                value={respect}
-              />
-              <StatsBar
-                iconLeft={Assets.Icons.balance}
-                title={translations.total[lang]}
-                value={formatCoins(total_earned)}
-              />
-              <StatsBar
-                iconLeft={Assets.Icons.energy}
-                title={translations.energy[lang]}
-                value={energy_capacity}
-              />
-            </div>
-          </div>
+            {formUsername(userParameters, lang)}
+          </p>
+          <motion.div
+            whileHover={{ rotate: 90 }}
+            whileTap={{ scale: 0.9 }}
+            onClick={() => setIsStatsShown(false)}
+          >
+            <img src={Assets.Icons.modalClose} width={24} height={24} />
+          </motion.div>
         </div>
-      </div>
+
+        {/* Tab Navigation */}
+        <div
+          style={{
+            display: "flex",
+            background: "#1a1a1a",
+            borderRadius: 20,
+            padding: 4,
+            marginBottom: 20,
+          }}
+         
+        >
+          <motion.button
+            whileTap={{ scale: 0.95 }}
+            style={{
+              flex: 1,
+              padding: "8px 0",
+              background: activeTab === "stats" ? "rgba(243,117,0,1) " : "transparent",
+              border: "none",
+              borderRadius: 16,
+              color: "#fff",
+              fontWeight: "bold",
+              cursor: "pointer",
+            }}
+            onClick={() => setActiveTab("stats")}
+          >
+            {translations.stats[lang]}
+          </motion.button>
+          <motion.button
+            whileTap={{ scale: 0.95 }}
+            style={{
+              flex: 1,
+              padding: "8px 0",
+              background: activeTab === "effects" ? "rgba(243,117,0,1) " : "transparent",
+              border: "none",
+              borderRadius: 16,
+              color: "#fff",
+              fontWeight: "bold",
+              cursor: "pointer",
+            }}
+            onClick={() => setActiveTab("effects")}
+          >
+            {translations.effects[lang]}
+          </motion.button>
+        </div>
+
+        {/* Content */}
+        <div
+          style={{
+            height: 400,
+            overflowY: "auto",
+            padding: "0 5px",
+          }}
+        >
+          {isLoading ? (
+            <motion.div
+              variants={loadingVariants}
+              animate="animate"
+              style={{
+                width: 50,
+                height: 50,
+                border: "5px solid #333",
+                borderTop: "5px solid #00ff00",
+                borderRadius: "50%",
+                margin: "150px auto",
+              }}
+            />
+          ) : (
+            <TabContent />
+          )}
+        </div>
+      </motion.div>
     </div>
   )
 }
@@ -555,20 +677,18 @@ const HomeHeader = ({ screenHeader }) => {
   const [isStatsShown, setIsStatsShown] = useState(false)
   const [levelSpan, setLevelSpan] = useState(null)
   const [activeProcess, setActiveProcess] = useState()
-  const { playClickSound } = useSettingsProvider();
+  const { playClickSound } = useSettingsProvider()
 
   const { Icons } = Assets
 
   const handleSettingsPress = () => {
-    playClickSound();
+    playClickSound()
     setIsSettingsShown(!isSettingsShown)
   }
 
   const getLevelByNumber = (number) => {
     return levels?.find((level) => level?.level === number)
   }
-
-
 
   const getLevelWidth = () => {
     if (userParameters && levels) {
@@ -595,49 +715,49 @@ const HomeHeader = ({ screenHeader }) => {
   useEffect(() => {
     console.log(window.Telegram?.WebApp.safeAreaInset?.top)
     getLevels().then((levels) => setLevels(levels))
-    getUserActiveProcess(userId)
-      .then((activeProcess) => setActiveProcess(activeProcess))
+    getUserActiveProcess(userId).then((activeProcess) =>
+      setActiveProcess(activeProcess)
+    )
   }, [])
 
-
   const getEnergyIcon = (energy, energy_capacity) => {
-    const percent = Math.floor(energy / energy_capacity * 100)
-  
-    if(percent >= 50) {
+    const percent = Math.floor((energy / energy_capacity) * 100)
+
+    if (percent >= 50) {
       return Assets.Icons.energy100
     }
 
-    if(percent >= 9) {
+    if (percent >= 9) {
       return Assets.Icons.energy50
     }
 
-    if(percent < 9) {
+    if (percent < 9) {
       return Assets.Icons.energy9
     }
   }
 
   const getMoodIcon = (mood) => {
-    if(mood >= 50) {
+    if (mood >= 50) {
       return Assets.Icons.mood100
     }
-    if(mood >= 9) {
+    if (mood >= 9) {
       return Assets.Icons.mood50
     }
-    if(mood < 9) {
+    if (mood < 9) {
       return Assets.Icons.mood9
     }
   }
 
   const getHungerIcon = (hunger) => {
-    if(hunger >= 50) {
+    if (hunger >= 50) {
       return Assets.Icons.hungry100
     }
 
-    if(hunger >= 9) { 
+    if (hunger >= 9) {
       return Assets.Icons.hungry50
     }
 
-    if(hunger < 9) {
+    if (hunger < 9) {
       return Assets.Icons.hungry9
     }
   }
@@ -660,7 +780,13 @@ const HomeHeader = ({ screenHeader }) => {
               {userPersonage?.name}
             </span>
             <div className="FillBarProgres">
-              <span style={{ fontFamily: "Oswald", fontWeight: "700",marginTop: "-3px", }}>
+              <span
+                style={{
+                  fontFamily: "Oswald",
+                  fontWeight: "700",
+                  marginTop: "-3px",
+                }}
+              >
                 {userParameters.level}
               </span>
 
@@ -685,12 +811,11 @@ const HomeHeader = ({ screenHeader }) => {
             >
               <span
                 style={{
-                  
                   fontFamily: "Oswald",
-                  
                 }}
               >
-                {userParameters.coins && formatCoins(Math.floor(userParameters?.coins))}
+                {userParameters.coins &&
+                  formatCoins(Math.floor(userParameters?.coins))}
               </span>
             </div>
           </div>
@@ -716,7 +841,10 @@ const HomeHeader = ({ screenHeader }) => {
           <PlayerIndicators
             indicators={[
               {
-                icon: getEnergyIcon(userParameters.energy, userParameters.energy_capacity),
+                icon: getEnergyIcon(
+                  userParameters.energy,
+                  userParameters.energy_capacity
+                ),
                 percentFill: Math.floor(
                   (userParameters?.energy / userParameters?.energy_capacity) *
                     100

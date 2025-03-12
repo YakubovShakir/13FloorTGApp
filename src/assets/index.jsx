@@ -105,6 +105,8 @@ import coffeeShop from "./IMG/icons/coffeeShop.png"
 import levelIcon from './IMG/icons/lvl.png'
 import donatIcon from './IMG/icons/donatshop.png'
 
+import nftEffectIcon from './IMG/nftEffect.gif'
+
 import cover from "./IMG/layers/cover.png"
 import sleep from "./IMG/icons/sleepIcon.png"
 
@@ -301,6 +303,7 @@ const Assets = {
       goldenCat,
       patCat,
     },
+    nftEffectIcon,
     task,
     mood9,
     mood50,

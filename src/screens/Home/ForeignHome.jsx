@@ -8,7 +8,7 @@ import { useForeignUser, useUser } from "../../UserContext";
 import { getLevels } from "../../services/levels/levels";
 import { getTrainingParameters } from "../../services/user/user";
 import { motion, AnimatePresence } from "framer-motion";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import FullScreenSpinner from "./FullScreenSpinner";
 import moment from "moment-timezone";
 import { useVisibilityChange, useWindowFocus } from "../../hooks/userActivities";
@@ -16,36 +16,7 @@ import { formatCoins } from "../../utils/formatCoins";
 import { formUsername } from "../../utils/formUsername";
 import { useSettingsProvider } from "../../hooks";
 
-// Mock API calls
-const mockGetNekoState = (userId) => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      // Simulate random initial state
-      const canClick = Math.random() > 0.5;
-      const cooldownUntil = canClick 
-        ? null 
-        : moment().tz("Europe/Moscow").add(2, 'hours').valueOf();
-      
-      resolve({
-        canClick,
-        cooldownUntil
-      });
-    }, 500); // Simulate network delay
-  });
-};
-
-const mockInteractWithNeko = (userId) => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve({
-        cooldownUntil: moment().tz("Europe/Moscow").add(2, 'hours').valueOf()
-      });
-    }, 300); // Simulate network delay
-  });
-};
-
 const ForeignHome = () => {
-  const navigate = useNavigate();
   const mountedRef = useRef(false);
   const { userId = "0" } = useParams();
   const { lang } = useSettingsProvider();
