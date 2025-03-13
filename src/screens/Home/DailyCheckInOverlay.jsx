@@ -148,6 +148,7 @@ const DailyCheckInOverlay = () => {
               justifyContent: "center",
               alignItems: "center",
               flexDirection: "column",
+              
             }}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -411,26 +412,49 @@ const DailyCheckInOverlay = () => {
                 </div>
 
                 {reward && (
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.5 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.5 }}
-                    style={{
-                      position: "fixed",
-                      background: "linear-gradient(135deg, #2a2a2a, #3a3a3a)",
-                      padding: "20px",
-                      borderRadius: "6px",
-                      boxShadow: "0 10px 40px rgba(0, 0, 0, 0.8)",
-                      zIndex: 10000,
-                      width: "280px",
-                      textAlign: "center",
-                      color: "white",
-                     
-                    }}
-                  >
+                <motion.div
+                initial={{ opacity: 0, scale: 0.5 }}
+                animate={{ 
+                  opacity: 1, 
+                  scale: 1,
+                  background: [
+                    "radial-gradient(circle at center, rgba(255, 98, 0, 0.56) 0%, rgba(255, 98, 0, 0) 30%)",
+                    "radial-gradient(circle at center, rgba(255, 140, 0, 0.53) 0%, rgba(255, 140, 0, 0) 50%)",
+                    "radial-gradient(circle at center, rgba(255, 98, 0, 0.58) 0%, rgba(255, 98, 0, 0) 30%)",
+                  ],
+                }}
+                transition={{ 
+                  opacity: { duration: 0.5 },
+                  scale: { duration: 0.5 },
+                  background: { 
+                    delay: 0.5,
+                    duration: 1.5,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                  },
+                }}
+                style={{
+                 
+                  flexDirection: "column",
+                  alignItems: "center",
+                  display: "flex",
+                  padding: "20px",
+                  borderRadius: "6px",
+                  justifyContent: "center",
+                  zIndex: 10000,
+                  width: "100%",
+                  height:"100%",
+                  textAlign: "center",
+                  color: "white",
+                  boxShadow: "0px 0px 100px 100px rgba(0, 0, 0, 0.47) inset",
+                  backdropFilter: "blur(5px)",
+                }}
+              >
                     <h2
                       style={{
-                        fontSize: "18px",
+                        textTransform:"uppercase",
+                        textShadow: " 1px 1px 10px black",
+                        fontSize: "16px",
                         marginBottom: "15px",
                         fontFamily: "Oswald",
                         fontWeight: "normal",
@@ -450,7 +474,9 @@ const DailyCheckInOverlay = () => {
                     />
                     <p
                       style={{
-                        fontSize: "14px",
+                        textTransform:"uppercase",
+                        textShadow: " 1px 1px 10px black",
+                        fontSize: "18px",
                         fontFamily: "Oswald",
                         marginBottom: "15px",
                         opacity: "0.9",
@@ -466,6 +492,8 @@ const DailyCheckInOverlay = () => {
                       width={75}
                       active={true}
                       color={"white"}
+                      margin={"auto"}
+                      display={"math"}
                     />
                   </motion.div>
                 )}
