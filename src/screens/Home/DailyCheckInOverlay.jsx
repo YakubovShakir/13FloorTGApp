@@ -89,25 +89,13 @@ const DailyCheckInOverlay = () => {
     }
   }, [userId, isActive]);
 
-  const handleCheckIn = async () => {
-    try {
-      const { data } = await instance.get(`/users/${userId}/daily/check-in`);
-      setStreak(data.streak);
-      setCanClaim(data.canClaim);
-      setHasCheckedInToday(true);
-    } catch (error) {
-      console.error("Error checking in:", error);
-    }
-  };
-
   const handleClaim = async () => {
     try {
-      if(!hasCheckedInToday) {
-        await handleCheckIn()
-      }
+      setIsLoading(true)
       const { data } = await instance.get(`/users/${userId}/daily/claim`);
       setReward(data.wonItem);
       setCanClaim(false);
+      fetchStatus().finally(() => setIsLoading(false))
     } catch (error) {
       console.error("Error claiming reward:", error);
     }
