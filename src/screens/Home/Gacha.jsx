@@ -36,8 +36,8 @@ const translations = {
     ru: 'Спинов: '
   },
   wheel: {
-    en: 'Wheel',
-    ru: 'Колесо'
+    en: 'Prizes',
+    ru: 'Призы'
   },
   lucktest: {
     en: 'Test Your Luck!',
@@ -57,9 +57,9 @@ const buttonStyle = {
 const shineVariants = {
   shine: {
     filter: [
-      "drop-shadow(0 0 2px rgba(255, 255, 255, 0.3))",
-      "drop-shadow(0 0 8px rgba(255, 255, 255, 0.8))",
-      "drop-shadow(0 0 2px rgba(255, 255, 255, 0.3))",
+      "drop-shadow(0 0 12px rgba(0, 153, 255, 0.89))",
+      "drop-shadow(0 0 18px rgba(0, 4, 255, 0.8))",
+      "drop-shadow(0 0 12px rgb(0, 132, 255))",
     ],
     transition: {
       duration: 2,
@@ -267,13 +267,22 @@ const GachaOverlay = () => {
         }}
       >
       <motion.img
-          src={Assets.Icons.shittonsmoney}
+          src={Assets.Icons.spin}
           width={50}
           alt="Wheel"
           variants={shineVariants}
           animate="shine"
         />
-        <p>{translations.wheel[lang]}</p>
+        <p 
+        style={{
+          textShadow: "1px 1px 0px #000000, -1px -1px 0px #000000, 1px -1px 0px #000000, -1px 1px 0px #000000",
+          textTransform: "uppercase",
+          fontStyle: "italic",
+          fontFamily: "Oswald",
+          fontWeight: "400",
+          
+        }}
+          >{translations.wheel[lang]}</p>
       </div>
      
       {/* Overlay */}

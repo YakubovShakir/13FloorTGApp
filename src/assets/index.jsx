@@ -256,6 +256,8 @@ import workFour from './IMG/workFourBG.webp'
 import womanAva from './IMG/womanAva.png'
 import manAva from './IMG/Man-ava.png'
 import backIcon from './IMG/icons/BackIcon.png'
+import spin from './IMG/icons/Spin.gif'
+
 
 export function getImgUrl(name) {
   return new URL(`${name}`, import.meta.url).href
@@ -441,7 +443,8 @@ const Assets = {
     languages,
     rusIcon,
     engIcon,
-    backIcon
+    backIcon,
+    spin
   },
   BG: {
     trainingCardBG,

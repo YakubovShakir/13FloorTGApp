@@ -49,8 +49,8 @@ const translations = {
     ru: "ОК",
   },
   daily: {
-    en: "Daily",
-    ru: "Ежедневно",
+    en: "Rewards",
+    ru: "Награды",
   },
   day: {
     en: "Day",
@@ -129,7 +129,16 @@ const DailyCheckInOverlay = () => {
         }}
       >
         <img src={Assets.Icons.task} width={50} alt="Daily" />
-        <p>{translations.daily[lang]}</p>
+        <p
+        style={{
+          textShadow: "1px 1px 0px #000000, -1px -1px 0px #000000, 1px -1px 0px #000000, -1px 1px 0px #000000",
+          textTransform: "uppercase",
+          fontStyle: "italic",
+          fontFamily: "Oswald",
+          fontWeight: "400",
+          
+        }}
+        >{translations.daily[lang]}</p>
       </div>
      
       <AnimatePresence>
