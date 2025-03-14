@@ -646,7 +646,7 @@ const GachaOverlay = () => {
                       <img
                         src={result.image}
                         alt={result.name[lang]}
-                        style={{ width: "120px", height: "120px", borderRadius: "10px" }}
+                        style={{ width: "120px", height: "120px", borderRadius: "10px", border: "2px solid #ff7700", background: "repeating-linear-gradient(45deg, rgba(0, 0, 0, 0.21), rgba(0, 0, 0, 0.21) 2px, rgba(57, 57, 57, 0.06) 2px, rgba(57, 57, 57, 0.06) 6px) rgba(0, 0, 0, 0.51)", }}
                       />
                       <p style={{ fontFamily: "Oswald", color: "#fff", fontSize: "28px", margin: "15px 0" }}>
                         {result.name[lang]}
