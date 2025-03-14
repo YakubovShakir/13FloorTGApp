@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState, useContext } from "react"
+import { useCallback, useEffect, useState, useContext, memo, useMemo } from "react"
 import PlayerIndicators from "../PlayerIndicators/PlayerIndicators"
 import Assets from "../../../assets"
 import { motion, AnimatePresence } from "framer-motion"
@@ -387,96 +387,117 @@ export const SettingsModal = ({ baseStyles, setIsSettingsShown }) => {
 const PHONE_COLORS = {
   RED: "#FF3333",
   GREEN: "#00FF00",
-  WHITE: '#fff'
-}
-export const StatsModal = ({ baseStyles, setIsStatsShown, clothing }) => {
-  const { userParameters, userPersonage } = useUser()
-  const { total_earned, level, energy_capacity, respect } = userParameters
-  const { lang } = useSettingsProvider()
-  const [activeTab, setActiveTab] = useState("stats")
-  const [isLoading, setIsLoading] = useState(true)
-  const [effects, setEffects] = useState([])
+  WHITE: "#fff",
+};
+
+// Custom hook to manage neko state fetching
+const useNekoEffects = (userId, lang) => {
+  const [isLoading, setIsLoading] = useState(true);
+  const [effects, setEffects] = useState([]);
 
   useEffect(() => {
-    const lol = async () => {
-      const neko = await getOwnNekoState(userParameters.id)
-      setEffects((prev) => [
-        ...prev,
-        {
-          type: "neko",
-          value: neko.incomeBoostPercentage > 0 ? "+" + neko.incomeBoostPercentage + "%" : '0',
-          title: translations.nekoEffect[lang],
-          color:  neko.incomeBoostPercentage > 0 ? PHONE_COLORS.GREEN : PHONE_COLORS.WHITE,
-          icon: Assets.Icons.nftEffectIcon
-        },
-      ])
-      setIsLoading(false)
-    }
-    lol()
-  }, [])
+    const fetchNekoState = async () => {
+      setIsLoading(true);
+      try {
+        const neko = await getOwnNekoState(userId);
+        setEffects([
+          {
+            type: "neko",
+            value: neko.incomeBoostPercentage > 0 ? `+${neko.incomeBoostPercentage}%` : "0",
+            title: translations.nekoEffect[lang],
+            color: neko.incomeBoostPercentage > 0 ? PHONE_COLORS.GREEN : PHONE_COLORS.WHITE,
+            icon: Assets.Icons.nftEffectIcon,
+          },
+        ]);
+      } catch (error) {
+        console.error("Failed to fetch neko state:", error);
+        setEffects([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-  const translations = {
-    level: { ru: "Уровень", en: "Level" },
-    respect: { ru: "Уважение", en: "Respect" },
-    total: { ru: "Всего заработано", en: "Total earned" },
-    energy: { ru: "Макс. энергии", en: "Energy capacity" },
-    stats: { ru: "Статистика", en: "Stats" },
-    effects: { ru: "Эффекты", en: "Effects" },
-    nekoEffect: { ru: "Увеличение дохода в час", en: "Hourly income increase" },
-    noEffects: {
-      ru: "У вас нет активных эффектов",
-      en: `You don't have any active effects`,
-    },
-  }
+    if (userId) {
+      fetchNekoState();
+    }
+  }, [userId, lang]);
+
+  return { isLoading, effects };
+};
+
+// Translations (moved outside to avoid re-creation)
+const translations = {
+  level: { ru: "Уровень", en: "Level" },
+  respect: { ru: "Уважение", en: "Respect" },
+  total: { ru: "Всего заработано", en: "Total earned" },
+  energy: { ru: "Макс. энергии", en: "Energy capacity" },
+  stats: { ru: "Статистика", en: "Stats" },
+  effects: { ru: "Эффекты", en: "Effects" },
+  nekoEffect: { ru: "Увеличение дохода в час", en: "Hourly income increase" },
+  noEffects: {
+    ru: "У вас нет активных эффектов",
+    en: "You don't have any active effects",
+  },
+};
+
+const StatItem = memo(({ title, iconLeft, value, color }) => (
+  <motion.div
+    whileHover={{ scale: 1.02 }}
+    style={{
+      display: "flex",
+      alignItems: "center",
+      padding: "10px",
+      background: "rgb(18, 18, 18)",
+      borderRadius: 8,
+      marginBottom: 8,
+      borderBottom: "1px solid rgba(117, 117, 117, 0.23)",
+      boxShadow: "rgba(0, 0, 0, 0.24) 0px 0px 8px 2px inset",
+    }}
+  >
+    {iconLeft && (
+      <img
+        src={iconLeft}
+        style={{ width: 24, height: 24, marginRight: 12 }}
+        alt=""
+      />
+    )}
+    <div style={{ flex: 1 }}>
+      <p style={{ color: "#fff", fontSize: 14, margin: 0 }}>{title}</p>
+    </div>
+    <p
+      style={{
+        color: color || "#00ff00",
+        fontWeight: "bold",
+        fontSize: 16,
+        margin: 0,
+      }}
+    >
+      {value}
+    </p>
+  </motion.div>
+));
+
+StatItem.displayName = "StatItem"; // For React DevTools
+
+const StatsModal = memo(({ baseStyles, setIsStatsShown, clothing }) => {
+  const { userParameters } = useUser();
+  const { total_earned, level, energy_capacity, respect, id } = userParameters;
+  const { lang } = useSettingsProvider();
+  const [activeTab, setActiveTab] = useState("stats");
+  const { isLoading, effects } = useNekoEffects(id, lang);
 
   const tabVariants = {
     hidden: { opacity: 0, x: 20 },
     visible: { opacity: 1, x: 0 },
     exit: { opacity: 0, x: -20 },
-  }
+  };
 
   const loadingVariants = {
     animate: {
       rotate: 360,
       transition: { duration: 1, repeat: Infinity, ease: "linear" },
     },
-  }
-
-  const StatItem = ({ title, iconLeft, value, color }) => (
-    <motion.div
-      whileHover={{ scale: 1.02 }}
-      style={{
-        display: "flex",
-        alignItems: "center",
-        padding: "10px",
-        background: "rgb(18, 18, 18)",
-        borderRadius: 8,
-        marginBottom: 8,
-        borderBottom: "1px solid rgba(117, 117, 117, 0.23)",
-        boxShadow: "rgba(0, 0, 0, 0.24) 0px 0px 8px 2px inset",
-      }}
-    >
-      {iconLeft && (
-        <img
-          src={iconLeft}
-          style={{ width: 24, height: 24, marginRight: 12 }}
-        />
-      )}
-      <div style={{ flex: 1 }}>
-        <p style={{ color: "#fff", fontSize: 14, margin: 0 }}>{title}</p>
-      </div>
-      <p
-        style={{
-          color: color || "#00ff00",
-          fontWeight: "bold",
-          fontSize: 16,
-          margin: 0,
-        }}
-      >
-        {value}
-      </p>
-    </motion.div>
-  )
+  };
 
   const TabContent = () => (
     <AnimatePresence mode="wait">
@@ -520,9 +541,9 @@ export const StatsModal = ({ baseStyles, setIsStatsShown, clothing }) => {
           transition={{ duration: 0.3 }}
         >
           {effects.length > 0 ? (
-            effects.map((effect) => (
+            effects.map((effect, index) => (
               <StatItem
-                key={Math.floor(Math.random() * 100) + effect.title}
+                key={`${effect.type}-${index}`}
                 iconLeft={effect.icon || Assets.Icons.energyUp}
                 title={effect.title}
                 value={effect.value}
@@ -530,12 +551,14 @@ export const StatsModal = ({ baseStyles, setIsStatsShown, clothing }) => {
               />
             ))
           ) : (
-            <h2>{translations.noEffects[lang]}</h2>
+            <h2 style={{ color: "#fff", textAlign: "center" }}>
+              {translations.noEffects[lang]}
+            </h2>
           )}
         </motion.div>
       )}
     </AnimatePresence>
-  )
+  );
 
   return (
     <div
@@ -548,25 +571,24 @@ export const StatsModal = ({ baseStyles, setIsStatsShown, clothing }) => {
         zIndex: 999999,
       }}
     >
-      {/* Smartphone container */}
       <motion.div
+        key={id} // Force re-mount only when user ID changes
         initial={{ scale: 0.9, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ duration: 0.3 }}
         style={{
           width: 320,
           height: 480,
-          background: "0% 0% / cover rgb(32, 32, 32)",
+          background: "rgb(32, 32, 32)",
           borderRadius: 6,
           padding: 13,
           position: "relative",
           boxShadow: "0 0 20px rgba(0,0,0,0.5)",
           border: "1px solid rgb(57, 57, 57)",
           overflow: "hidden",
-          marginTop: 25
+          marginTop: 25,
         }}
       >
-
         {/* Header */}
         <div
           style={{
@@ -592,7 +614,7 @@ export const StatsModal = ({ baseStyles, setIsStatsShown, clothing }) => {
             whileTap={{ scale: 0.9 }}
             onClick={() => setIsStatsShown(false)}
           >
-            <img src={Assets.Icons.modalClose} width={16} height={16} />
+            <img src={Assets.Icons.modalClose} width={16} height={16} alt="Close" />
           </motion.div>
         </div>
 
@@ -605,14 +627,13 @@ export const StatsModal = ({ baseStyles, setIsStatsShown, clothing }) => {
             padding: 4,
             marginBottom: 20,
           }}
-         
         >
           <motion.button
             whileTap={{ scale: 0.95 }}
             style={{
               flex: 1,
               padding: "8px 0",
-              background: activeTab === "stats" ? "rgba(243,117,0,1) " : "transparent",
+              background: activeTab === "stats" ? "rgba(243,117,0,1)" : "transparent",
               border: "none",
               borderRadius: 16,
               color: "#fff",
@@ -628,7 +649,7 @@ export const StatsModal = ({ baseStyles, setIsStatsShown, clothing }) => {
             style={{
               flex: 1,
               padding: "8px 0",
-              background: activeTab === "effects" ? "rgba(243,117,0,1) " : "transparent",
+              background: activeTab === "effects" ? "rgba(243,117,0,1)" : "transparent",
               border: "none",
               borderRadius: 16,
               color: "#fff",
@@ -668,101 +689,105 @@ export const StatsModal = ({ baseStyles, setIsStatsShown, clothing }) => {
         </div>
       </motion.div>
     </div>
-  )
-}
+  );
+});
+
+// Memoize StatsModal and only re-render if critical props change
+StatsModal.displayName = "StatsModal";
 
 const HomeHeader = ({ screenHeader }) => {
-  const { userId, userParameters, userPersonage, userClothing } =
-    useContext(UserContext)
-  const [levels, setLevels] = useState()
-  const [isSettingsShown, setIsSettingsShown] = useState(false)
-  const [isStatsShown, setIsStatsShown] = useState(false)
-  const [levelSpan, setLevelSpan] = useState(null)
-  const [activeProcess, setActiveProcess] = useState()
-  const { playClickSound } = useSettingsProvider()
+  const { userId, userParameters, userPersonage, userClothing } = useContext(UserContext);
+  const [levels, setLevels] = useState();
+  const [isSettingsShown, setIsSettingsShown] = useState(false);
+  const [isStatsShown, setIsStatsShown] = useState(false);
+  const [nekoEffects, setNekoEffects] = useState(null); // Store neko effects
+  const [isNekoLoading, setIsNekoLoading] = useState(true); // Loading state for neko
+  const [activeProcess, setActiveProcess] = useState();
+  const { playClickSound } = useSettingsProvider();
 
-  const { Icons } = Assets
+  const { Icons } = Assets;
+
+  // Memoize baseStyles to prevent recreation
+  const baseStyles = useMemo(
+    () => ({
+      position: "fixed",
+      height: "100vh",
+      width: "100vw",
+      backgroundColor: "black",
+      zIndex: 10,
+      top: 0,
+      left: 0,
+    }),
+    []
+  );
 
   const handleSettingsPress = () => {
-    playClickSound()
-    setIsSettingsShown(!isSettingsShown)
-  }
+    playClickSound();
+    setIsSettingsShown(!isSettingsShown);
+  };
 
   const getLevelByNumber = (number) => {
-    return levels?.find((level) => level?.level === number)
-  }
+    return levels?.find((level) => level?.level === number);
+  };
 
   const getLevelWidth = () => {
     if (userParameters && levels) {
-      const { level, experience: earned } = userParameters
+      const { level, experience: earned } = userParameters;
       const nextLevelRequirement = levels?.find(
         (level) => level?.level === userParameters?.level + 1
-      )?.experience_required
+      )?.experience_required;
       const thisLevelRequirement =
         level > 0
           ? levels?.find((level) => level?.level === userParameters?.level)
               ?.experience_required
-          : 0
+          : 0;
 
       return (
         ((earned - thisLevelRequirement) /
           (nextLevelRequirement - thisLevelRequirement)) *
         100
-      )
+      );
     }
-
-    return null
-  }
+    return null;
+  };
 
   useEffect(() => {
-    console.log(window.Telegram?.WebApp.safeAreaInset?.top)
-    getLevels().then((levels) => setLevels(levels))
+    console.log(window.Telegram?.WebApp.safeAreaInset?.top);
+    getLevels().then((levels) => setLevels(levels));
     getUserActiveProcess(userId).then((activeProcess) =>
       setActiveProcess(activeProcess)
-    )
-  }, [])
+    );
+    // Fetch neko state once on mount
+    getOwnNekoState(userId)
+      .then((neko) => {
+        setNekoEffects(neko);
+        setIsNekoLoading(false);
+      })
+      .catch((error) => {
+        console.error("Failed to fetch neko state:", error);
+        setNekoEffects(null);
+        setIsNekoLoading(false);
+      });
+  }, [userId]); // Re-fetch if userId changes
 
   const getEnergyIcon = (energy, energy_capacity) => {
-    const percent = Math.floor((energy / energy_capacity) * 100)
-
-    if (percent >= 50) {
-      return Assets.Icons.energy100
-    }
-
-    if (percent >= 9) {
-      return Assets.Icons.energy50
-    }
-
-    if (percent < 9) {
-      return Assets.Icons.energy9
-    }
-  }
+    const percent = Math.floor((energy / energy_capacity) * 100);
+    if (percent >= 50) return Assets.Icons.energy100;
+    if (percent >= 9) return Assets.Icons.energy50;
+    return Assets.Icons.energy9;
+  };
 
   const getMoodIcon = (mood) => {
-    if (mood >= 50) {
-      return Assets.Icons.mood100
-    }
-    if (mood >= 9) {
-      return Assets.Icons.mood50
-    }
-    if (mood < 9) {
-      return Assets.Icons.mood9
-    }
-  }
+    if (mood >= 50) return Assets.Icons.mood100;
+    if (mood >= 9) return Assets.Icons.mood50;
+    return Assets.Icons.mood9;
+  };
 
   const getHungerIcon = (hunger) => {
-    if (hunger >= 50) {
-      return Assets.Icons.hungry100
-    }
-
-    if (hunger >= 9) {
-      return Assets.Icons.hungry50
-    }
-
-    if (hunger < 9) {
-      return Assets.Icons.hungry9
-    }
-  }
+    if (hunger >= 50) return Assets.Icons.hungry100;
+    if (hunger >= 9) return Assets.Icons.hungry50;
+    return Assets.Icons.hungry9;
+  };
 
   return (
     <>
@@ -791,12 +816,9 @@ const HomeHeader = ({ screenHeader }) => {
               >
                 {userParameters.level}
               </span>
-
               <div
                 className="HomeHeaderLevelCapacity"
-                style={{
-                  width: getLevelWidth() + "%",
-                }}
+                style={{ width: getLevelWidth() + "%" }}
               />
             </div>
           </div>
@@ -811,11 +833,7 @@ const HomeHeader = ({ screenHeader }) => {
                 marginLeft: 10,
               }}
             >
-              <span
-                style={{
-                  fontFamily: "Oswald",
-                }}
-              >
+              <span style={{ fontFamily: "Oswald" }}>
                 {userParameters.coins &&
                   formatCoins(Math.floor(userParameters?.coins))}
               </span>
@@ -823,10 +841,8 @@ const HomeHeader = ({ screenHeader }) => {
           </div>
           <div className="HomeHeaderRespect">
             <img src={Icons.respect} alt="RespectIcon" />
-
             <span>{userParameters?.respect}</span>
           </div>
-
           <div
             style={{
               display: "flex",
@@ -836,7 +852,7 @@ const HomeHeader = ({ screenHeader }) => {
             }}
             onClick={handleSettingsPress}
           >
-            <img src={Assets.Icons.settings} height={25}></img>
+            <img src={Assets.Icons.settings} height={25} alt="Settings" />
           </div>
         </div>
         <div className="HomeHeaderBottomRow">
@@ -872,38 +888,21 @@ const HomeHeader = ({ screenHeader }) => {
       </div>
       {isSettingsShown && (
         <SettingsModal
-          baseStyles={{
-            position: "fixed",
-            height: "100vh",
-            width: "100vw",
-            backgroundColor: "black",
-            zIndex: 10,
-            top: 0,
-            left: 0,
-          }}
+          baseStyles={baseStyles}
           setIsSettingsShown={setIsSettingsShown}
         />
       )}
-
       {isStatsShown && (
         <StatsModal
-          baseStyles={{
-            position: "fixed",
-            height: "100vh",
-            width: "100vw",
-            backgroundColor: "black",
-            zIndex: 10,
-            top: 0,
-            left: 0,
-          }}
+          baseStyles={baseStyles}
           setIsStatsShown={setIsStatsShown}
-          userParameters={userParameters}
-          personage={userPersonage}
           clothing={userClothing}
+          nekoEffects={nekoEffects} // Pass pre-fetched neko data
+          isNekoLoading={isNekoLoading} // Pass loading state
         />
       )}
     </>
-  )
-}
+  );
+};
 
 export default HomeHeader
