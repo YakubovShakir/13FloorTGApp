@@ -6,45 +6,54 @@ import Button from "../../components/simple/Button/Button";
 import { useUser } from "../../UserContext";
 import { useSettingsProvider } from "../../hooks";
 
-
-// Backend API base URL
 const API_BASE_URL = "http://localhost:4444/api";
 
 const translations = {
-  buySpins: {
-    en: "BUY SPINS",
-    ru: "КУПИТЬ СПИНЫ",
+    buySpins: {
+      en: "BUY SPINS",
+      ru: "КУПИТЬ СПИНЫ",
+    },
+    spin: {
+      en: "SPIN!",
+      ru: "КРУТИТЬ!",
+    },
+    spinning: {
+      en: "Spinning...",
+      ru: "Крутим...",
+    },
+    close: {
+      en: "X",
+      ru: "X",
+    },
+    youWon: {
+      en: 'Congratulations!',
+      ru: 'Поздравляем!'
+    },
+    spins: {
+      en: 'Spins: ',
+      ru: 'Спинов: '
+    },
+    wheel: {
+      en: 'Prizes',
+      ru: 'Призы'
+    },
+    lucktest: {
+      en: 'Test Your Luck!',
+      ru: 'Испытай свою удачу!'
+    },
+  burnedTo: {
+    en: "Converted to",
+    ru: "Превращено в",
   },
-  spin: {
-    en: "SPIN!",
-    ru: "КРУТИТЬ!",
+  coins: {
+    en: "coins",
+    ru: "монет",
   },
-  spinning: {
-    en: "Spinning...",
-    ru: "Крутим...",
+  boost: {
+    en: "boost",
+    ru: "буст",
   },
-  close: {
-    en: "X",
-    ru: "X",
-  },
-  youWon: {
-    en: 'Congratulations!',
-    ru: 'Поздравляем!'
-  },
-  spins: {
-    en: 'Spins: ',
-    ru: 'Спинов: '
-  },
-  wheel: {
-    en: 'Prizes',
-    ru: 'Призы'
-  },
-  lucktest: {
-    en: 'Test Your Luck!',
-    ru: 'Испытай свою удачу!'
-  }
 };
-
 
 const buttonStyle = {
   width: "100%",
@@ -61,35 +70,32 @@ const shineVariants = {
       "drop-shadow(0 0 18px rgba(0, 4, 255, 0.8))",
       "drop-shadow(0 0 12px rgb(0, 132, 255))",
     ],
-    transition: {
-      duration: 2,
-      repeat: Infinity,
-      ease: "easeInOut",
-    },
+    transition: { duration: 2, repeat: Infinity, ease: "easeInOut" },
   },
 };
+
 const GachaOverlay = () => {
   const [isActive, setIsActive] = useState(false);
   const [attempts, setAttempts] = useState(0);
   const [spinning, setSpinning] = useState(false);
-  const [result, setResult] = useState(null);
+  const [result, setResult] = useState(null); // Won item
+  const [burnedTo, setBurnedTo] = useState(null); // Prize if burned
   const [rouletteItems, setRouletteItems] = useState([]);
   const [spinTarget, setSpinTarget] = useState(0);
   const [lastSpinPosition, setLastSpinPosition] = useState(0);
   const [itemPool, setItemPool] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isBurning, setIsBurning] = useState(false); // Track burning animation
   const rouletteRef = useRef(null);
   const { Icons } = Assets;
-  // Constants
   const SPIN_LENGTH = 100;
   const ITEM_WIDTH = 160;
   const ITEM_MARGIN = 6;
   const TOTAL_ITEM_SPACE = ITEM_WIDTH + 2 * ITEM_MARGIN;
 
-  const { userId } = useUser();
+  const { userId, refreshData } = useUser();
   const { lang } = useSettingsProvider();
 
-  // Preload images from item pool
   const preloadImages = (items) => {
     items.forEach((item) => {
       const img = new Image();
@@ -97,7 +103,6 @@ const GachaOverlay = () => {
     });
   };
 
-  // Fetch item pool from server
   const fetchItemPool = async () => {
     try {
       const response = await instance.get(`/users/${userId}/gacha/items`);
@@ -111,7 +116,6 @@ const GachaOverlay = () => {
     }
   };
 
-  // Fetch initial gacha data
   const fetchGachaData = async (pool) => {
     try {
       const response = await instance.get(`/users/${userId}/gacha/attempts`);
@@ -122,37 +126,32 @@ const GachaOverlay = () => {
     }
   };
 
-  // Buy an attempt
   const buyAttempts = async () => {
-    
-      try {
-        const response = await instance.post('/users/request-stars-invoice-link', {
-          productType: 'spin',
-          userId
-        })
-
-        window.Telegram?.WebApp?.openInvoice(response.data.invoiceLink, (status) => {
-          if (status === "paid") {
-            setAttempts(response.data.attempts)
-          }
-        })
-      } catch (err) {
-        console.error(err)
-      }
+    try {
+      const response = await instance.post("/users/request-stars-invoice-link", {
+        productType: "spin",
+        userId,
+      });
+      window.Telegram?.WebApp?.openInvoice(response.data.invoiceLink, (status) => {
+        if (status === "paid") {
+          setAttempts(response.data.attempts);
+        }
+      });
+    } catch (err) {
+      console.error(err);
+    }
   };
 
-  // Spin the gacha wheel
   const spinGacha = async () => {
     try {
       const response = await instance.get(`/users/${userId}/gacha/spin`);
-      return response.data.wonItem;
+      return response.data;
     } catch (error) {
       console.error("Error spinning gacha:", error);
       throw error;
     }
   };
 
-  // Generate random items from the server-fetched pool
   const generateItems = (count, wonItem = null, winnerIndex = null, pool = itemPool) => {
     if (!pool.length) return [];
     return Array.from({ length: count }, (_, i) => {
@@ -164,58 +163,51 @@ const GachaOverlay = () => {
     });
   };
 
-  // Load data function to reuse on open
   const loadData = async () => {
     setIsLoading(true);
-    setRouletteItems([]); // Reset to ensure no stale items show
+    setRouletteItems([]);
     const pool = await fetchItemPool();
     await fetchGachaData(pool);
     setIsLoading(false);
   };
 
-  // Fetch data on mount and when overlay opens
   useEffect(() => {
     if (userId && isActive) {
       loadData();
     }
-  }, [userId, isActive]); // Add isActive to trigger refetch on reopen
+  }, [userId, isActive]);
 
-  // Handle closing overlay and reset state
   const handleClose = () => {
     setIsActive(false);
     setSpinning(false);
     setResult(null);
+    setBurnedTo(null);
     setSpinTarget(0);
     setLastSpinPosition(0);
-    // Optionally reset attempts and rouletteItems if backend state persists
+    setIsBurning(false);
   };
 
-  // Handle buying attempts
   const handleBuyAttempts = async () => {
     if (!spinning) await buyAttempts();
   };
 
-
-  const { refreshData } = useUser()
-  // Handle spin action
   const handleSpin = async () => {
     if (attempts <= 0 || spinning || !itemPool.length) return;
 
     setSpinning(true);
     setAttempts((prev) => prev - 1);
     setResult(null);
+    setBurnedTo(null);
     setLastSpinPosition(0);
     setSpinTarget(0);
 
     try {
-      const wonItem = await spinGacha();
+      const { wonItem, burnedTo } = await spinGacha();
 
       const winnerIndex = Math.floor(SPIN_LENGTH * 0.8);
       const containerWidth = rouletteRef.current?.offsetWidth || window.innerWidth * 0.9;
 
-      const matchedWonItem = itemPool.find(
-        (item) => item.type === wonItem.type && item.id === wonItem.id
-      ) || wonItem;
+      const matchedWonItem = itemPool.find((item) => item.type === wonItem.type && item.id === wonItem.id) || wonItem;
 
       const newRoulette = generateItems(SPIN_LENGTH, matchedWonItem, winnerIndex);
       setRouletteItems(newRoulette);
@@ -228,7 +220,14 @@ const GachaOverlay = () => {
         setSpinning(false);
         setLastSpinPosition(targetPosition);
         setResult(matchedWonItem);
-        refreshData()
+        if (burnedTo) {
+          setBurnedTo(burnedTo);
+          setIsBurning(true);
+          setTimeout(() => {
+            setIsBurning(false);
+          }, 3000); // Animation duration
+        }
+        refreshData();
       }, 5000);
     } catch (error) {
       setSpinning(false);
@@ -236,21 +235,31 @@ const GachaOverlay = () => {
     }
   };
 
-  // Animation variants
   const rouletteVariants = {
     idle: { x: lastSpinPosition },
     spinning: {
       x: spinTarget,
+      transition: { duration: 5, ease: [0.25, 0.1, 0.25, 1] },
+    },
+  };
+
+  const burnAnimationVariants = {
+    initial: { opacity: 1, scale: 1 },
+    burn: {
+      opacity: [1, 0, 1, 0], // Loop between item and prize
+      scale: [1, 1.2, 1, 1.2],
       transition: {
-        duration: 5,
-        ease: [0.25, 0.1, 0.25, 1],
+        duration: 2,
+        times: [0, 0.25, 0.5, 0.75],
+        repeat: 1, // Loop twice
+        ease: "easeInOut",
       },
     },
+    final: { opacity: 1, scale: 1 },
   };
 
   return (
     <>
-      {/* Trigger button with original styles */}
       <div
         onClick={() => setIsActive(true)}
         style={{
@@ -263,29 +272,28 @@ const GachaOverlay = () => {
           zIndex: 99999,
           fontSize: "14px",
           textAlign: "center",
-          
         }}
       >
-      <motion.img
+        <motion.img
           src={Assets.Icons.spin}
           width={50}
           alt="Wheel"
           variants={shineVariants}
           animate="shine"
         />
-        <p 
-        style={{
-          textShadow: "1px 1px 0px #000000, -1px -1px 0px #000000, 1px -1px 0px #000000, -1px 1px 0px #000000",
-          textTransform: "uppercase",
-          fontStyle: "italic",
-          fontFamily: "Oswald",
-          fontWeight: "400",
-          
-        }}
-          >{translations.wheel[lang]}</p>
+        <p
+          style={{
+            textShadow: "1px 1px 0px #000000, -1px -1px 0px #000000, 1px -1px 0px #000000, -1px 1px 0px #000000",
+            textTransform: "uppercase",
+            fontStyle: "italic",
+            fontFamily: "Oswald",
+            fontWeight: "400",
+          }}
+        >
+          {translations.wheel[lang]}
+        </p>
       </div>
-     
-      {/* Overlay */}
+
       <AnimatePresence>
         {isActive && (
           <motion.div
@@ -295,98 +303,57 @@ const GachaOverlay = () => {
               left: 0,
               width: "100vw",
               height: "100vh",
-              background:"repeating-linear-gradient(45deg, rgba(0, 0, 0, 0.21), rgba(0, 0, 0, 0.21) 2px, rgba(57, 57, 57, 0.06) 2px, rgba(57, 57, 57, 0.06) 6px) rgb(20, 20, 20)",
-             
+              background: "repeating-linear-gradient(45deg, rgba(0, 0, 0, 0.21), rgba(0, 0, 0, 0.21) 2px, rgba(57, 57, 57, 0.06) 2px, rgba(57, 57, 57, 0.06) 6px) rgb(20, 20, 20)",
               zIndex: 9999999999999,
               display: "flex",
               justifyContent: "center",
               alignItems: "center",
               flexDirection: "column",
-              opacity: 1,
             }}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
           >
-
-
-{/* Фоновый слой с градиентом */}
-<div
-              style={{
-               
-              
-                //     position: "absolute",
-                // top: 0,
-                // left: 0,
-                // height:"100%",
-                width: "100%",
-                zIndex: -1, // Помещаем фон под контент
-                
-              }}
-            >
-
-
-
-           
-
-{/* Пустой элемент для баланса */}
-<div style={{ 
-  width: "100%",
-  display: "flex",
-  justifyContent: "center",
-
- }}>
-<button 
-           
-           onClick={handleClose}
-   
-    style={{
-        paddingBottom: '4px',
-        position: "absolute",
-    left: "13px",
-        
-        border: '2px solid rgb(255, 0, 0)',
-        cursor: 'pointer',
-        width: '35px',
-        height: '35px',
-        backgroundColor: 'rgba(0, 0, 0, 0.52)',
-        backdropFilter: 'blur(5px)',
-        color:'rgb(255, 0, 0)',
-        borderRadius:' 8px',
-        fontSize:' 20px',
-       
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-       
-    }}
->
-<img
-                  src={Icons.backIcon}
-                  alt="Coin"
-                  style={{ width: "25px", margin: "2px" }}
-                />
-</button>
- <p
-                    style={{
-                      paddingTop: "3px",
-                   textTransform: "uppercase",
-                      color: "white",
-                      fontSize: "18px",
-                      fontFamily: "Oswald",
-                      zIndex: 3,
-                      whiteSpace: "nowrap",
-                      fontSize: "20px",
-                      marginBottom: "15px"
-                    }}
-                  >
-                    {translations.lucktest[lang]}
-                  </p>
-
-
-</div>
-  </div>
+            <div style={{ width: "100%", zIndex: -1 }}>
+              <button
+                onClick={handleClose}
+                style={{
+                  paddingBottom: "4px",
+                  position: "absolute",
+                  left: "13px",
+                  border: "2px solid rgb(255, 0, 0)",
+                  cursor: "pointer",
+                  width: "35px",
+                  height: "35px",
+                  backgroundColor: "rgba(0, 0, 0, 0.52)",
+                  backdropFilter: "blur(5px)",
+                  color: "rgb(255, 0, 0)",
+                  borderRadius: "8px",
+                  fontSize: "20px",
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <img src={Icons.backIcon} alt="Back" style={{ width: "25px", margin: "2px" }} />
+              </button>
+              <p
+                style={{
+                  paddingTop: "3px",
+                  textTransform: "uppercase",
+                  color: "white",
+                  fontSize: "20px",
+                  fontFamily: "Oswald",
+                  zIndex: 3,
+                  whiteSpace: "nowrap",
+                  textAlign: "center",
+                  marginBottom: "15px",
+                }}
+              >
+                {translations.lucktest[lang]}
+              </p>
+            </div>
 
             {isLoading || !rouletteItems.length ? (
               <div
@@ -412,18 +379,8 @@ const GachaOverlay = () => {
               </div>
             ) : (
               <>
-                {/* Roulette container */}
-                <div
-  style={{
-    position: "relative", 
-    width: "100%",
-    maxWidth: "800px",
-    height: "220px",
-  }}
-> 
-
- {/* Градиенты слева и справа */}
- <div
+                <div style={{ position: "relative", width: "100%", maxWidth: "800px", height: "220px" }}>
+                  <div
                     style={{
                       position: "absolute",
                       top: 0,
@@ -447,107 +404,101 @@ const GachaOverlay = () => {
                       pointerEvents: "none",
                     }}
                   />
-
-  <div
-    ref={rouletteRef}
-    style={{
-      width: "100%",
-      maxWidth: "800px",
-      height: "220px",
-      overflow: "hidden",
-      background: "rgb(0 0 0)",
-      borderRadius: "0px",
-      position: "relative",
-      borderBottom: "1px solid rgb(206, 206, 206)",
-      borderTop: "1px solid rgb(206, 206, 206)",
-    }}
-  >
-                  <motion.div
-                    key={spinning ? "spinning" : "idle"}
-                    style={{ display: "flex", position: "absolute", height: "100%" }}
-                    variants={rouletteVariants}
-                    initial="idle"
-                    animate={spinning ? "spinning" : "idle"}
+                  <div
+                    ref={rouletteRef}
+                    style={{
+                      width: "100%",
+                      maxWidth: "800px",
+                      height: "220px",
+                      overflow: "hidden",
+                      background: "rgb(0 0 0)",
+                      borderRadius: "0px",
+                      position: "relative",
+                      borderBottom: "1px solid rgb(206, 206, 206)",
+                      borderTop: "1px solid rgb(206, 206, 206)",
+                    }}
                   >
-                    {rouletteItems.map((item) => (
-                      <div
-                        key={item.uniqueId}
-                        style={{
-                          width: "160px",
-                          height: "220px",
-                          flexShrink: 0,
-                          display: "flex",
-                          flexDirection: "column",
-                          justifyContent: "center",
-                          alignItems: "center",
-                         
-                          margin: "0 6px",
-                          
-                          
-                        }}
-                      >
-                        <img
-                          src={item.image}
-                          alt={item.name[lang]}
-                          style={{ 
-                            maxWidth: "90%", 
-                            maxHeight: "90%", 
-                            objectFit: "contain",
-                            boxShadow: "inset 0 0 10px rgba(0, 0, 0, 0.5)",
-                          border: "1px solid rgba(255, 255, 255, 0.05)",
-                          borderRadius: "8px",
-                          background: "rgba(40, 40, 40, 0.9)",
-                        
-                           }}
-                        />
-                        <p style={{ color: "white", marginTop: "10px", fontSize: "14px" }}>{item.name[lang]}</p>
-                      </div>
-                    ))}
-                  </motion.div>
-                  {/* Center marker (line) */}
-                {/* Верхний треугольник */}
-  <div
-    style={{
-      position: "absolute",
-      left: "50%",
-      top: "0px",
-      width: "25px",
-      height: "15px",
-      background: " rgb(206, 206, 206)",
-      clipPath: "polygon(50% 100%, 0% 0%, 100% 0%)",
-      transform: "translateX(-50%)",
-      zIndex: 2, // Чтобы треугольники были поверх градиентов
-    }}
-  />
-  {/* Нижний треугольник */}
-  <div
-    style={{
-      position: "absolute",
-      left: "50%",
-      bottom: "-1px",
-      width: "25px",
-      height: "15px",
-      background: " rgb(206, 206, 206)",
-      clipPath: "polygon(50% 0%, 0% 100%, 100% 100%)",
-      transform: "translateX(-50%)",
-      zIndex: 2,
-    }}
-  />
-</div>
+                    <motion.div
+                      key={spinning ? "spinning" : "idle"}
+                      style={{ display: "flex", position: "absolute", height: "100%" }}
+                      variants={rouletteVariants}
+                      initial="idle"
+                      animate={spinning ? "spinning" : "idle"}
+                    >
+                      {rouletteItems.map((item) => (
+                        <div
+                          key={item.uniqueId}
+                          style={{
+                            width: "160px",
+                            height: "220px",
+                            flexShrink: 0,
+                            display: "flex",
+                            flexDirection: "column",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            margin: "0 6px",
+                          }}
+                        >
+                          <img
+                            src={item.image}
+                            alt={item.name?.[lang] || item.type}
+                            style={{
+                              maxWidth: "90%",
+                              maxHeight: "90%",
+                              objectFit: "contain",
+                              boxShadow: "inset 0 0 10px rgba(0, 0, 0, 0.5)",
+                              border: "1px solid rgba(255, 255, 255, 0.05)",
+                              borderRadius: "8px",
+                              background: "rgba(40, 40, 40, 0.9)",
+                            }}
+                          />
+                          <p style={{ color: "white", marginTop: "10px", fontSize: "14px" }}>
+                            {item.name?.[lang] || `${item.amount} ${translations[item.type]?.[lang]}`}
+                          </p>
+                        </div>
+                      ))}
+                    </motion.div>
+                    <div
+                      style={{
+                        position: "absolute",
+                        left: "50%",
+                        top: "0px",
+                        width: "25px",
+                        height: "15px",
+                        background: "rgb(206, 206, 206)",
+                        clipPath: "polygon(50% 100%, 0% 0%, 100% 0%)",
+                        transform: "translateX(-50%)",
+                        zIndex: 2,
+                      }}
+                    />
+                    <div
+                      style={{
+                        position: "absolute",
+                        left: "50%",
+                        bottom: "-1px",
+                        width: "25px",
+                        height: "15px",
+                        background: "rgb(206, 206, 206)",
+                        clipPath: "polygon(50% 0%, 0% 100%, 100% 100%)",
+                        transform: "translateX(-50%)",
+                        zIndex: 2,
+                      }}
+                    />
+                  </div>
                 </div>
-                
 
-                {/* Controls with custom Button */}
                 <div
                   style={{
                     marginTop: "30px",
                     color: "white",
                     textAlign: "center",
                     fontFamily: "Oswald",
-                    
                   }}
                 >
-                  <p style={{ fontSize: "18px", marginBottom: "15px" }}>{translations.spins[lang]}{attempts}</p>
+                  <p style={{ fontSize: "18px", marginBottom: "15px" }}>
+                    {translations.spins[lang]}
+                    {attempts}
+                  </p>
                   <div style={{ display: "flex", gap: "15px", flex: 1, justifyContent: "center" }}>
                     <Button
                       onClick={handleSpin}
@@ -560,7 +511,6 @@ const GachaOverlay = () => {
                       textTransform={"uppercase"}
                       fontFamily={"Oswald"}
                     />
-                    
                   </div>
                   <div
                     style={{
@@ -588,7 +538,6 @@ const GachaOverlay = () => {
                   </div>
                 </div>
 
-                {/* Result modal with original styles */}
                 {result && (
                   <div
                     style={{
@@ -600,59 +549,57 @@ const GachaOverlay = () => {
                       alignItems: "center",
                       justifyContent: "center",
                       background: "rgb(0 0 0 / 45%)",
-                      backdropFilter:" blur(10px)",
-                    
+                      backdropFilter: "blur(10px)",
                     }}
                   >
-               <motion.div
-  initial={{ opacity: 0, scale: 0.5 }}
-  animate={{ 
-    opacity: 1, 
-    scale: 1,
-    background: [
-      "radial-gradient(circle at center, rgba(255, 119, 0, 0.43) 0%, rgba(255, 255, 0, 0) 30%)",
-      "radial-gradient(circle at center, rgba(255, 119, 0, 0.43) 0%, rgba(255, 255, 0, 0) 50%)",
-      "radial-gradient(circle at center, rgba(255, 119, 0, 0.43)0%, rgba(255, 255, 0, 0) 30%)",
-    ],
-  }}
-  transition={{ 
-    opacity: { duration: 0.5 },
-    scale: { duration: 0.5 },
-    background: { 
-      delay: 0.5,               // Задержка начала пульсации на 0.5 секунды
-      duration: 1.5,
-      repeat: Infinity,
-      ease: "easeInOut",
-    },
-  }}
-  style={{
-    transform: "translate(-50%, -50%)",
-    borderRadius: "15px",
-    textAlign: "center",
-    zIndex: 10000,
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "center",
-    height: "100%",
-    width: "100%",
-    position: "relative",
-    
-  }}
->
-                      <h2 style={{ fontFamily: "Oswald", color: "#fff", marginBottom: "11px", textTransform:"uppercase" }}>
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.5 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ duration: 0.5 }}
+                      style={{
+                        borderRadius: "15px",
+                        textAlign: "center",
+                        zIndex: 10000,
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        height: "auto",
+                        padding: "20px",
+                        position: "relative",
+                        background: "repeating-linear-gradient(45deg, rgba(0, 0, 0, 0.21), rgba(0, 0, 0, 0.21) 2px, rgba(57, 57, 57, 0.06) 2px, rgba(57, 57, 57, 0.06) 6px) rgba(0, 0, 0, 0.51)",
+                      }}
+                    >
+                      <h2 style={{ fontFamily: "Oswald", color: "#fff", marginBottom: "11px", textTransform: "uppercase" }}>
                         {translations.youWon[lang]}
                       </h2>
-                      <img
-                        src={result.image}
-                        alt={result.name[lang]}
-                        style={{ width: "120px", height: "120px", borderRadius: "10px", border: "2px solid #ff7700", background: "repeating-linear-gradient(45deg, rgba(0, 0, 0, 0.21), rgba(0, 0, 0, 0.21) 2px, rgba(57, 57, 57, 0.06) 2px, rgba(57, 57, 57, 0.06) 6px) rgba(0, 0, 0, 0.51)", }}
-                      />
-                      <p style={{ fontFamily: "Oswald", color: "#fff", fontSize: "28px", margin: "15px 0" }}>
-                        {result.name[lang]}
-                      </p>
+                      <motion.div
+                        variants={burnedTo && isBurning ? burnAnimationVariants : {}}
+                        initial="initial"
+                        animate={burnedTo && isBurning ? "burn" : "final"}
+                        style={{ display: "flex", flexDirection: "column", alignItems: "center" }}
+                      >
+                        <img
+                          src={isBurning && burnedTo ? (burnedTo.image || Assets.Icons[burnedTo.type]) : result.image}
+                          alt={isBurning && burnedTo ? burnedTo.type : result.name[lang]}
+                          style={{
+                            width: "120px",
+                            height: "120px",
+                            borderRadius: "10px",
+                            border: "2px solid #ff7700",
+                          }}
+                        />
+                        <p style={{ fontFamily: "Oswald", color: "#fff", fontSize: "28px", margin: "15px 0" }}>
+                          {isBurning && burnedTo
+                            ? `${translations.burnedTo[lang]} ${burnedTo.amount} ${translations[burnedTo.type][lang]}${burnedTo.name ? ` (${burnedTo.name})` : ""}`
+                            : result.name[lang] || `${result.amount} ${translations[result.type][lang]}`}
+                        </p>
+                      </motion.div>
                       <Button
-                        onClick={() => setResult(null)}
+                        onClick={() => {
+                          setResult(null);
+                          setBurnedTo(null);
+                        }}
                         style={buttonStyle}
                         text={"OK"}
                         height={25}
@@ -673,7 +620,6 @@ const GachaOverlay = () => {
   );
 };
 
-// CSS for spinner animation
 const spinnerStyles = `
   @keyframes spin {
     0% { transform: rotate(0deg); }
@@ -681,7 +627,6 @@ const spinnerStyles = `
   }
 `;
 
-// Inject spinner styles into the document
 if (typeof document !== "undefined") {
   const styleSheet = document.createElement("style");
   styleSheet.textContent = spinnerStyles;
