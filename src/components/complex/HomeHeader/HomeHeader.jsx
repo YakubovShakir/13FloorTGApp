@@ -23,6 +23,7 @@ import {
 } from "@tonconnect/ui-react"
 import { formatCoins } from "../../../utils/formatCoins"
 import { formUsername } from "../../../utils/formUsername"
+import { instance } from "../../../services/instance"
 
 const walletTranslations = {
   telegram: {
@@ -479,12 +480,65 @@ const StatItem = memo(({ title, iconLeft, value, color }) => (
 
 StatItem.displayName = "StatItem"; // For React DevTools
 
+// Custom hook to fetch current effects
+const useCurrentEffects = (userId, lang) => {
+  const [isLoading, setIsLoading] = useState(true);
+  const [effects, setEffects] = useState([]);
+
+  useEffect(() => {
+    const fetchEffects = async () => {
+      setIsLoading(true);
+      try {
+        const response = await instance.get(`/users/${userId}/effects/current`);
+        const { effects: rawEffects } = response.data;
+
+        const formattedEffects = [];
+        const translations = {
+          cant_fall_below_percent: { ru: "Мин. %", en: "Min. %" },
+          profit_hourly_percent: { ru: "Прибыль в час %", en: "Hourly Profit %" },
+          cost_hourly_percent: { ru: "Затраты в час %", en: "Hourly Cost %" },
+          profit_per_tick_fixed: { ru: "Прибыль за тик", en: "Profit per Tick" },
+          cost_per_tick_fixed: { ru: "Затраты за тик", en: "Cost per Tick" },
+          autostart: { ru: "Автостарт", en: "Autostart" },
+        };
+
+        Object.keys(rawEffects).forEach(category => {
+          Object.keys(rawEffects[category]).forEach(param => {
+            const value = rawEffects[category][param];
+            formattedEffects.push({
+              type: category,
+              param,
+              value: category === "autostart" ? `${value}%` : value > 0 ? `+${value}` : `${value}`,
+              title: `${translations[category][lang]} (${param})`,
+              color: value > 0 ? PHONE_COLORS.GREEN : PHONE_COLORS.RED,
+              icon: Assets.Icons.energyUp, // Customize icons per effect type if needed
+            });
+          });
+        });
+
+        setEffects(formattedEffects);
+      } catch (error) {
+        console.error("Failed to fetch current effects:", error);
+        setEffects([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (userId) fetchEffects();
+  }, [userId, lang]);
+
+  return { isLoading, effects };
+};
+
+// Updated StatsModal
 const StatsModal = memo(({ baseStyles, setIsStatsShown, clothing }) => {
   const { userParameters } = useUser();
   const { total_earned, level, energy_capacity, respect, id } = userParameters;
   const { lang } = useSettingsProvider();
   const [activeTab, setActiveTab] = useState("stats");
-  const { isLoading, effects } = useNekoEffects(id, lang);
+  const { isLoading: isNekoLoading, effects: nekoEffects } = useNekoEffects(id, lang);
+  const { isLoading: isEffectsLoading, effects: currentEffects } = useCurrentEffects(id, lang);
 
   const tabVariants = {
     hidden: { opacity: 0, x: 20 },
@@ -498,6 +552,8 @@ const StatsModal = memo(({ baseStyles, setIsStatsShown, clothing }) => {
       transition: { duration: 1, repeat: Infinity, ease: "linear" },
     },
   };
+
+  const combinedEffects = [...nekoEffects, ...currentEffects];
 
   const TabContent = () => (
     <AnimatePresence mode="wait">
@@ -540,10 +596,23 @@ const StatsModal = memo(({ baseStyles, setIsStatsShown, clothing }) => {
           exit="exit"
           transition={{ duration: 0.3 }}
         >
-          {effects.length > 0 ? (
-            effects.map((effect, index) => (
+          {isNekoLoading || isEffectsLoading ? (
+            <motion.div
+              variants={loadingVariants}
+              animate="animate"
+              style={{
+                width: 50,
+                height: 50,
+                border: "5px solid #333",
+                borderTop: "5px solid #00ff00",
+                borderRadius: "50%",
+                margin: "150px auto",
+              }}
+            />
+          ) : combinedEffects.length > 0 ? (
+            combinedEffects.map((effect, index) => (
               <StatItem
-                key={`${effect.type}-${index}`}
+                key={`${effect.type}-${effect.param || index}`}
                 iconLeft={effect.icon || Assets.Icons.energyUp}
                 title={effect.title}
                 value={effect.value}
@@ -572,7 +641,7 @@ const StatsModal = memo(({ baseStyles, setIsStatsShown, clothing }) => {
       }}
     >
       <motion.div
-        key={id} // Force re-mount only when user ID changes
+        key={id}
         initial={{ scale: 0.9, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ duration: 0.3 }}
@@ -589,7 +658,6 @@ const StatsModal = memo(({ baseStyles, setIsStatsShown, clothing }) => {
           marginTop: 25,
         }}
       >
-        {/* Header */}
         <div
           style={{
             display: "flex",
@@ -618,7 +686,6 @@ const StatsModal = memo(({ baseStyles, setIsStatsShown, clothing }) => {
           </motion.div>
         </div>
 
-        {/* Tab Navigation */}
         <div
           style={{
             display: "flex",
@@ -662,7 +729,6 @@ const StatsModal = memo(({ baseStyles, setIsStatsShown, clothing }) => {
           </motion.button>
         </div>
 
-        {/* Content */}
         <div
           style={{
             height: 400,
@@ -670,22 +736,7 @@ const StatsModal = memo(({ baseStyles, setIsStatsShown, clothing }) => {
             padding: "0",
           }}
         >
-          {isLoading ? (
-            <motion.div
-              variants={loadingVariants}
-              animate="animate"
-              style={{
-                width: 50,
-                height: 50,
-                border: "5px solid #333",
-                borderTop: "5px solid #00ff00",
-                borderRadius: "50%",
-                margin: "150px auto",
-              }}
-            />
-          ) : (
-            <TabContent />
-          )}
+          <TabContent />
         </div>
       </motion.div>
     </div>
