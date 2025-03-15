@@ -38,23 +38,6 @@ import GachaOverlay from "./Gacha"
 import DailyCheckInOverlay from "./DailyCheckInOverlay"
 import SleepGame from "./SleepGame"
 
-// Mock API calls for neko
-const mockGetNekoState = (userId) => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      const canClick = Math.random() > 0.5
-      const cooldownUntil = canClick
-        ? null
-        : moment().tz("Europe/Moscow").add(2, "hours").valueOf()
-
-      resolve({
-        canClick,
-        cooldownUntil,
-      })
-    }, 500)
-  })
-}
-
 // Pre-load audio files
 const COIN_SOUND = new Audio(
   "https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/coin.mp3"
@@ -237,8 +220,8 @@ const Home = () => {
     if (!isInitialized) return
 
     const initialize = async () => {
-      if(!userPersonage?.gender) {
-        navigate('/personage-create')
+      if (!userPersonage?.gender) {
+        navigate("/personage-create")
       }
       setIsLoading(true)
       setLoadingProgress(0)
@@ -246,7 +229,7 @@ const Home = () => {
         await Promise.all([
           preloadImages(),
           fetchNekoState(),
-          initializeProcess()
+          initializeProcess(),
         ])
         if (mountedRef.current) {
           setState((prev) => ({ ...prev, imagesLoaded: true }))
@@ -268,32 +251,32 @@ const Home = () => {
     if (processType === "sleep") return canStartSleeping(userParameters)
   }
   useEffect(() => {
-    let timerInterval;
-  
-    const isActive = state.currentProcess?.active;
-    const currentProcessCreatedAt = state.currentProcess?.createdAt;
-    const processId = state.currentProcess?.id;
-  
+    let timerInterval
+
+    const isActive = state.currentProcess?.active
+    const currentProcessCreatedAt = state.currentProcess?.createdAt
+    const processId = state.currentProcess?.id
+
     const updateTimer = () => {
-      if (!mountedRef.current || !currentProcessCreatedAt) return;
-  
-      const now = moment().tz("Europe/Moscow");
-      const processStart = moment(currentProcessCreatedAt).tz("Europe/Moscow");
-      const elapsedSeconds = now.diff(processStart, "seconds");
-      const totalSeconds = 
-        state.currentProcess.target_duration_in_seconds || 
-        state.currentProcess.base_duration_in_seconds;
-      const remainingSeconds = Math.max(0, totalSeconds - elapsedSeconds);
+      if (!mountedRef.current || !currentProcessCreatedAt) return
+
+      const now = moment().tz("Europe/Moscow")
+      const processStart = moment(currentProcessCreatedAt).tz("Europe/Moscow")
+      const elapsedSeconds = now.diff(processStart, "seconds")
+      const totalSeconds =
+        state.currentProcess.target_duration_in_seconds ||
+        state.currentProcess.base_duration_in_seconds
+      const remainingSeconds = Math.max(0, totalSeconds - elapsedSeconds)
       const formattedTime = formatTime(
         Math.floor(remainingSeconds / 60),
         remainingSeconds % 60
-      );
-  
-      setProgressRate(formattedTime);
-  
+      )
+
+      setProgressRate(formattedTime)
+
       if (remainingSeconds <= 0 || !canContinue(state.currentProcess?.type)) {
-        handleProcessCompletion();
-        clearInterval(timerInterval);
+        handleProcessCompletion()
+        clearInterval(timerInterval)
       } else {
         setState((prev) => {
           if (prev.currentProcess?.id === processId) {
@@ -305,31 +288,27 @@ const Home = () => {
                 formattedTime,
                 totalSeconds,
               },
-            };
+            }
           }
-          return prev;
-        });
+          return prev
+        })
       }
-    };
-  
-    if (
-      isActive &&
-      mountedRef.current &&
-      currentProcessCreatedAt
-    ) {
-      updateTimer(); // Initial update
-      timerInterval = setInterval(updateTimer, 1000);
     }
-  
+
+    if (isActive && mountedRef.current && currentProcessCreatedAt) {
+      updateTimer() // Initial update
+      timerInterval = setInterval(updateTimer, 1000)
+    }
+
     return () => {
-      if (timerInterval) clearInterval(timerInterval);
-    };
+      if (timerInterval) clearInterval(timerInterval)
+    }
   }, [
     state.currentProcess?.active,
     state.currentProcess?.createdAt,
     state.currentProcess?.id,
     state.currentProcess?.type,
-  ]);
+  ])
 
   const completionInProgressRef = useRef(false)
 
@@ -754,33 +733,22 @@ const Home = () => {
           }))
         }
       />
-      {/* <div style={{ position: "relative", width: "100%", maxWidth: "374px", margin: "0 auto", top: "20vh" }}>
-        <SleepGame
-          sleepDuration={getUserSleepDuration() * 60} // In seconds
-          onGameOver={(score, survivalTime) => {
-            // Adjust sleep progress based on survival time
-            const totalSleepSeconds = getUserSleepDuration() * 60;
-            const survivalSeconds = survivalTime / 1000; // Convert to seconds
-            const elapsedSeconds = moment()
-              .tz("Europe/Moscow")
-              .diff(moment(state.currentProcess?.createdAt).tz("Europe/Moscow"), "seconds");
-            const remainingSeconds = Math.max(0, totalSleepSeconds - survivalSeconds - elapsedSeconds);
-
-            if (remainingSeconds <= 0) {
-              handleProcessCompletion();
-            } else {
-              setState((prev) => ({
-                ...prev,
-                currentProcess: {
-                  ...prev.currentProcess,
-                  totalSecondsRemaining: remainingSeconds,
-                },
-              }));
-              setProgressRate(formatTime(Math.floor(remainingSeconds / 60), remainingSeconds % 60));
-            }
-          }}
-        />
-      </div> */}
+      <SleepGame
+        sleepDuration={getUserSleepDuration() * 60}
+        onComplete={handleProcessCompletion}
+        onDurationUpdate={(remainingSeconds) => {
+          setState((prev) => ({
+            ...prev,
+            currentProcess: {
+              ...prev.currentProcess,
+              target_duration_in_seconds: remainingSeconds,
+            },
+          }))
+          setProgressRate(
+            formatTime(Math.floor(remainingSeconds / 60), remainingSeconds % 60)
+          )
+        }}
+      />
       <Player
         bottom={"calc(-468px )"}
         width="81vw"
@@ -790,20 +758,20 @@ const Home = () => {
         clothing={userClothing}
         sleep
       />
-       <motion.img
-          src={Assets.Layers.cover}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5, ease: "easeInOut" }}
-          style={{
-            position: "absolute",
-            width: "100%",
-            height: "100%",
-            bottom: 0,
-            zIndex: 0,
-          }}
-          alt="cover"
-        />
+      <motion.img
+        src={Assets.Layers.cover}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5, ease: "easeInOut" }}
+        style={{
+          position: "absolute",
+          width: "100%",
+          height: "100%",
+          bottom: 0,
+          zIndex: 0,
+        }}
+        alt="cover"
+      />
       {renderProcessProgressBar(
         state.currentProcess,
         countPercentage(
