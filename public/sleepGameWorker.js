@@ -1,7 +1,7 @@
 self.onmessage = async (event) => {
   const { type, userId, collections } = event.data;
 
-  const apiBase = "http://localhost:4000/api"; // Adjust to your actual API base URL
+  const apiBase = "https:/test.13thfloorgame.io/api"; // Adjust to your actual API base URL
 
   if (type === "syncRequest") {
     try {
