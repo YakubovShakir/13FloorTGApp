@@ -4,56 +4,55 @@ import React, {
   useContext,
   useRef,
   useCallback,
-} from "react"
-import "./Home.css"
-import HomeHeader from "../../components/complex/HomeHeader/HomeHeader"
-import Player from "../../components/complex/Player/Player"
-import Menu from "../../components/complex/Menu/Menu"
-import Window from "../../components/complex/Windows/Window/Window"
-import Assets from "../../assets/index"
-import ProcessProgressBar from "../../components/simple/ProcessProgressBar/ProcessProgressBar"
+} from "react";
+import "./Home.css";
+import HomeHeader from "../../components/complex/HomeHeader/HomeHeader";
+import Player from "../../components/complex/Player/Player";
+import Menu from "../../components/complex/Menu/Menu";
+import Window from "../../components/complex/Windows/Window/Window";
+import Assets from "../../assets/index";
+import ProcessProgressBar from "../../components/simple/ProcessProgressBar/ProcessProgressBar";
 import {
   getOwnNekoState,
-  getServerTime,
   getTrainingParameters,
   getUserActiveProcess,
-} from "../../services/user/user"
-import UserContext, { useUser } from "../../UserContext"
-import countPercentage from "../../utils/countPercentage"
-import { getLevels } from "../../services/levels/levels"
-import { motion, AnimatePresence } from "framer-motion"
-import { useNavigate } from "react-router-dom"
-import FullScreenSpinner from "./FullScreenSpinner"
-import getBgByCurrentProcess from "./getBgByCurrentProcess"
-import moment from "moment-timezone"
-import { useVisibilityChange, useWindowFocus } from "../../hooks/userActivities"
-import formatTime from "../../utils/formatTime"
-import { checkCanStop, stopProcess } from "../../services/process/process"
+} from "../../services/user/user";
+import UserContext, { useUser } from "../../UserContext";
+import countPercentage from "../../utils/countPercentage";
+import { getLevels } from "../../services/levels/levels";
+import { motion, AnimatePresence } from "framer-motion";
+import { useNavigate } from "react-router-dom";
+import FullScreenSpinner from "./FullScreenSpinner";
+import getBgByCurrentProcess from "./getBgByCurrentProcess";
+import moment from "moment-timezone";
+import { useVisibilityChange, useWindowFocus } from "../../hooks/userActivities";
+import formatTime from "../../utils/formatTime";
+import { checkCanStop, stopProcess } from "../../services/process/process";
 import {
   canStartSleeping,
   canStartTraining,
   canStartWorking,
-} from "../../utils/paramDep"
-import GachaOverlay from "./Gacha"
-import DailyCheckInOverlay from "./DailyCheckInOverlay"
-import SleepGame from "./SleepGame"
+} from "../../utils/paramDep";
+import GachaOverlay from "./Gacha";
+import DailyCheckInOverlay from "./DailyCheckInOverlay";
+import SleepGame from "./SleepGame";
 
 // Pre-load audio files
 const COIN_SOUND = new Audio(
   "https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/coin.mp3"
-)
+);
 const ALARM_SOUND = new Audio(
   "https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/alarm.mp3"
-)
+);
 
-COIN_SOUND.load()
-ALARM_SOUND.load()
+COIN_SOUND.load();
+ALARM_SOUND.load();
 
 const Home = () => {
-  console.log("Home Component Rendered")
+  console.log("Home Component Rendered");
 
-  const navigate = useNavigate()
-  const mountedRef = useRef(false)
+  const navigate = useNavigate();
+  const mountedRef = useRef(false);
 
   const [state, setState] = useState({
     currentWindow: null,
@@ -66,11 +65,13 @@ const Home = () => {
     imagesLoaded: false,
     hasIconAnimated: true,
     nekoState: { canClick: false, cooldownUntil: null },
-  })
+  });
 
-  const [isLoading, setIsLoading] = useState(true)
-  const [loadingProgress, setLoadingProgress] = useState(0)
-  const [timer, setTimer] = useState(null)
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadingProgress, setLoadingProgress] = useState(0);
+  const [timer, setTimer] = useState(null);
+  const [remainingSeconds, setRemainingSeconds] = useState(null);
+  const [progressRate, setProgressRate] = useState(null);
 
   const {
     userId,
@@ -79,21 +80,19 @@ const Home = () => {
     userPersonage,
     userClothing,
     userShelf,
-  } = useContext(UserContext)
+  } = useContext(UserContext);
 
   const getUserSleepDuration = () => {
     return state.levels?.find((level) => level?.level === userParameters?.level)
-      ?.sleep_duration
-  }
+      ?.sleep_duration;
+  };
 
   useEffect(() => {
-    mountedRef.current = true
+    mountedRef.current = true;
     return () => {
-      mountedRef.current = false
-    }
-  }, [])
-
-  const [progressRate, setProgressRate] = useState(null)
+      mountedRef.current = false;
+    };
+  }, []);
 
   const preloadImages = useCallback(async () => {
     const imageUrls = [
@@ -106,273 +105,248 @@ const Home = () => {
       Assets.HOME.couch,
       Assets.BG.backgroundSun,
       Assets.BG.winter,
-    ]
+    ];
 
     const imagePromises = imageUrls.map((url, index) => {
       return new Promise((resolve) => {
-        const img = new Image()
+        const img = new Image();
         img.onload = () => {
-          setLoadingProgress((prev) => prev + 100 / imageUrls.length)
-          resolve()
-        }
+          setLoadingProgress((prev) => prev + 100 / imageUrls.length);
+          resolve();
+        };
         img.onerror = () => {
-          setLoadingProgress((prev) => prev + 100 / imageUrls.length)
-          resolve()
-        }
-        img.src = url
-      })
-    })
+          setLoadingProgress((prev) => prev + 100 / imageUrls.length);
+          resolve();
+        };
+        img.src = url;
+      });
+    });
 
-    return Promise.all(imagePromises)
-  }, [])
+    return Promise.all(imagePromises);
+  }, []);
 
-  const calculateInitialTime = useCallback((process) => {
-    if (!process?.createdAt) return null
-    const moscowNow = moment().tz("Europe/Moscow")
-    const processStart = moment(process.createdAt).tz("Europe/Moscow")
-    const elapsedSeconds = moscowNow.diff(processStart, "seconds")
+  const calculateInitialRemaining = (process) => {
+    if (!process?.createdAt) return null;
+    const moscowNow = moment().tz("Europe/Moscow");
+    const processStart = moment(process.createdAt).tz("Europe/Moscow");
+    const elapsedSeconds = moscowNow.diff(processStart, "seconds");
     const totalSeconds =
-      process.target_duration_in_seconds || process.base_duration_in_seconds
-    const remainingSeconds = Math.max(0, totalSeconds - elapsedSeconds)
-    return formatTime(Math.floor(remainingSeconds / 60), remainingSeconds % 60)
-  }, [])
+      process.target_duration_in_seconds || process.base_duration_in_seconds;
+    return Math.max(0, totalSeconds - elapsedSeconds);
+  };
 
   const initializeProcess = async () => {
     try {
-      const process = await getUserActiveProcess(userId)
+      const process = await getUserActiveProcess(userId);
 
       if (!process) {
-        setState((prev) => ({ ...prev, currentProcess: null }))
-        setProgressRate(null)
-        return
+        setState((prev) => ({ ...prev, currentProcess: null }));
+        setProgressRate(null);
+        setRemainingSeconds(null);
+        return;
       }
 
       const [trainingParams, levelsData] = await Promise.all([
         getTrainingParameters(userId),
         getLevels(),
-      ])
+      ]);
 
-      if (!mountedRef.current) return
+      if (!mountedRef.current) return;
 
-      const initialTime = calculateInitialTime(process)
-      setProgressRate(initialTime)
+      const initialRemaining = calculateInitialRemaining(process);
+      setRemainingSeconds(initialRemaining);
+      setProgressRate(formatTime(Math.floor(initialRemaining / 60), initialRemaining % 60));
 
       setState((prev) => ({
         ...prev,
-        currentProcess: { ...process, formattedTime: initialTime },
+        currentProcess: { ...process, formattedTime: formatTime(Math.floor(initialRemaining / 60), initialRemaining % 60) },
         trainingParameters: trainingParams,
         levels: levelsData,
-      }))
+      }));
     } catch (error) {
-      console.error("Error initializing process:", error)
+      console.error("Error initializing process:", error);
       if (mountedRef.current) {
-        setState((prev) => ({ ...prev, currentProcess: null }))
-        setProgressRate(null)
+        setState((prev) => ({ ...prev, currentProcess: null }));
+        setProgressRate(null);
+        setRemainingSeconds(null);
       }
     }
-  }
+  };
 
   const fetchNekoState = async () => {
     try {
-      const nekoData = await getOwnNekoState(userId)
+      const nekoData = await getOwnNekoState(userId);
       if (mountedRef.current) {
-        setState((prev) => ({ ...prev, nekoState: nekoData }))
+        setState((prev) => ({ ...prev, nekoState: nekoData }));
       }
     } catch (error) {
-      console.error("Error fetching neko state:", error)
+      console.error("Error fetching neko state:", error);
     }
-  }
+  };
 
   useEffect(() => {
-    if (!state.nekoState.cooldownUntil || state.nekoState.canClick) return
+    if (!state.nekoState.cooldownUntil || state.nekoState.canClick) return;
 
     const updateTimer = () => {
-      if (!mountedRef.current) return
-      const now = moment().tz("Europe/Moscow")
-      const end = moment(state.nekoState.cooldownUntil).tz("Europe/Moscow")
-      const diff = end.diff(now)
+      if (!mountedRef.current) return;
+      const now = moment().tz("Europe/Moscow");
+      const end = moment(state.nekoState.cooldownUntil).tz("Europe/Moscow");
+      const diff = end.diff(now);
 
       if (diff <= 0) {
         setState((prev) => ({
           ...prev,
           nekoState: { ...prev.nekoState, canClick: true, cooldownUntil: null },
-        }))
-        setTimer(null)
-        return
+        }));
+        setTimer(null);
+        return;
       }
 
-      const duration = moment.duration(diff)
-      const hours = Math.floor(duration.asHours())
-      const minutes = duration.minutes()
+      const duration = moment.duration(diff);
+      const hours = Math.floor(duration.asHours());
+      const minutes = duration.minutes();
       setTimer(
         `${hours.toString().padStart(2, "0")}:${minutes
           .toString()
           .padStart(2, "0")}`
-      )
-    }
+      );
+    };
 
-    updateTimer()
-    const interval = setInterval(updateTimer, 1000)
-    return () => clearInterval(interval)
-  }, [state.nekoState])
+    updateTimer();
+    const interval = setInterval(updateTimer, 1000);
+    return () => clearInterval(interval);
+  }, [state.nekoState]);
 
   useEffect(() => {
-    if (!isInitialized) return
+    if (!isInitialized) return;
 
     const initialize = async () => {
       if (!userPersonage?.gender) {
-        navigate("/personage-create")
+        navigate("/personage-create");
       }
-      setIsLoading(true)
-      setLoadingProgress(0)
+      setIsLoading(true);
+      setLoadingProgress(0);
       try {
         await Promise.all([
           preloadImages(),
           fetchNekoState(),
           initializeProcess(),
-        ])
+        ]);
         if (mountedRef.current) {
-          setState((prev) => ({ ...prev, imagesLoaded: true }))
+          setState((prev) => ({ ...prev, imagesLoaded: true }));
         }
       } catch (err) {
-        console.error("Initialization error:", err)
+        console.error("Initialization error:", err);
       } finally {
-        if (mountedRef.current) setIsLoading(false)
+        if (mountedRef.current) setIsLoading(false);
       }
-    }
+    };
 
-    initialize()
-  }, [isInitialized, navigate, userPersonage, preloadImages])
+    initialize();
+  }, [isInitialized, navigate, userPersonage, preloadImages]);
 
   const canContinue = (processType) => {
     if (processType === "training")
-      return canStartTraining(userParameters) && userParameters?.mood < 100
-    if (processType === "work") return canStartWorking(userParameters)
-    if (processType === "sleep") return canStartSleeping(userParameters)
-  }
+      return canStartTraining(userParameters) && userParameters?.mood < 100;
+    if (processType === "work") return canStartWorking(userParameters);
+    if (processType === "sleep") return canStartSleeping(userParameters);
+  };
+
   useEffect(() => {
-    let timerInterval
+    let timerInterval;
 
-    const isActive = state.currentProcess?.active
-    const currentProcessCreatedAt = state.currentProcess?.createdAt
-    const processId = state.currentProcess?.id
+    const isActive = state.currentProcess?.active;
+    const processId = state.currentProcess?.id;
 
-    const updateTimer = () => {
-      if (!mountedRef.current || !currentProcessCreatedAt) return
-
-      const now = moment().tz("Europe/Moscow")
-      const processStart = moment(currentProcessCreatedAt).tz("Europe/Moscow")
-      const elapsedSeconds = now.diff(processStart, "seconds")
-      const totalSeconds =
-        state.currentProcess.target_duration_in_seconds ||
-        state.currentProcess.base_duration_in_seconds
-      const remainingSeconds = Math.max(0, totalSeconds - elapsedSeconds)
-      const formattedTime = formatTime(
-        Math.floor(remainingSeconds / 60),
-        remainingSeconds % 60
-      )
-
-      setProgressRate(formattedTime)
-
-      if (remainingSeconds <= 0 || !canContinue(state.currentProcess?.type)) {
-        handleProcessCompletion()
-        clearInterval(timerInterval)
-      } else {
-        setState((prev) => {
-          if (prev.currentProcess?.id === processId) {
-            return {
-              ...prev,
-              currentProcess: {
-                ...prev.currentProcess,
-                totalSecondsRemaining: remainingSeconds,
-                formattedTime,
-                totalSeconds,
-              },
-            }
+    if (isActive && mountedRef.current && remainingSeconds !== null) {
+      timerInterval = setInterval(() => {
+        setRemainingSeconds((prev) => {
+          const newRemaining = Math.max(0, prev - 1);
+          if (newRemaining <= 0 || !canContinue(state.currentProcess?.type)) {
+            handleProcessCompletion();
+            clearInterval(timerInterval);
           }
-          return prev
-        })
-      }
-    }
-
-    if (isActive && mountedRef.current && currentProcessCreatedAt) {
-      updateTimer() // Initial update
-      timerInterval = setInterval(updateTimer, 1000)
+          return newRemaining;
+        });
+        setProgressRate((prev) => {
+          const newRemaining = Math.max(0, remainingSeconds - 1);
+          return formatTime(Math.floor(newRemaining / 60), newRemaining % 60);
+        });
+      }, 1000);
     }
 
     return () => {
-      if (timerInterval) clearInterval(timerInterval)
-    }
-  }, [
-    state.currentProcess?.active,
-    state.currentProcess?.createdAt,
-    state.currentProcess?.id,
-    state.currentProcess?.type,
-  ])
+      if (timerInterval) clearInterval(timerInterval);
+    };
+  }, [state.currentProcess?.active, state.currentProcess?.id, state.currentProcess?.type, remainingSeconds]);
 
-  const completionInProgressRef = useRef(false)
+  const completionInProgressRef = useRef(false);
 
   const handleConfirmClose = async () => {
-    setIsLoading(true)
+    setIsLoading(true);
     try {
-      await stopProcess(userId)
-      setState((prev) => ({ ...prev, currentProcess: null }))
+      await stopProcess(userId);
+      setState((prev) => ({ ...prev, currentProcess: null }));
+      setRemainingSeconds(null);
+      setProgressRate(null);
     } catch (error) {
-      console.error("Error stopping process:", error)
+      console.error("Error stopping process:", error);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   const handleProcessCompletion = async () => {
-    if (completionInProgressRef.current) return
-    completionInProgressRef.current = true
+    if (completionInProgressRef.current) return;
+    completionInProgressRef.current = true;
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-      setIsLoading(true)
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      setIsLoading(true);
 
       while (true) {
         try {
-          await new Promise((resolve) => setTimeout(resolve, 500))
-          await checkCanStop(userId)
-          break
+          await new Promise((resolve) => setTimeout(resolve, 500));
+          await checkCanStop(userId);
+          break;
         } catch (err) {
-          if (err.status === 404) break
-          const waitTime = err.response?.data?.seconds_left * 1000 || 1000
-          await new Promise((resolve) => setTimeout(resolve, waitTime))
+          if (err.status === 404) break;
+          const waitTime = err.response?.data?.seconds_left * 1000 || 1000;
+          await new Promise((resolve) => setTimeout(resolve, waitTime));
         }
       }
 
       if (mountedRef.current) {
         setTimeout(() => {
-          setIsLoading(false)
-          setState((prev) => ({ ...prev, currentProcess: null }))
-          refreshData()
-        }, 750)
+          setIsLoading(false);
+          setState((prev) => ({ ...prev, currentProcess: null }));
+          setRemainingSeconds(null);
+          setProgressRate(null);
+          refreshData();
+        }, 750);
       }
     } finally {
-      completionInProgressRef.current = false
+      completionInProgressRef.current = false;
     }
-  }
+  };
 
-  const { refreshData } = useUser()
+  const { refreshData } = useUser();
 
   useVisibilityChange(() => {
     if (mountedRef.current && document.visibilityState === "visible") {
-      refreshData()
-      initializeProcess()
-      fetchNekoState()
+      refreshData();
+      initializeProcess();
+      fetchNekoState();
     }
-  })
+  });
 
   useWindowFocus(() => {
     if (mountedRef.current) {
-      refreshData()
-      initializeProcess()
-      fetchNekoState()
+      refreshData();
+      initializeProcess();
+      fetchNekoState();
     }
-  })
+  });
 
   const renderProcessProgressBar = (
     process,
@@ -386,9 +360,10 @@ const Home = () => {
         rate={rate}
         reverse={reverse}
         handleConfirmClose={handleConfirmClose}
+        style={{ transition: "width 1s ease-in-out" }}
       />
-    )
-  }
+    );
+  };
 
   const renderScene = (content) => (
     <AnimatePresence mode="wait">
@@ -455,14 +430,14 @@ const Home = () => {
         {content}
       </motion.div>
     </AnimatePresence>
-  )
+  );
 
   if (isLoading) {
-    return <FullScreenSpinner progress={loadingProgress} />
+    return <FullScreenSpinner progress={loadingProgress} />;
   }
 
   if (!isInitialized) {
-    return <FullScreenSpinner progress={loadingProgress} />
+    return <FullScreenSpinner progress={loadingProgress} />;
   }
 
   const homeContent = (
@@ -476,6 +451,7 @@ const Home = () => {
         }
       />
       <img className="shelf1" src={Assets.HOME.shelf} alt="shelf1" />
+      <img className="shelf2" src={Assets.HOME.shelf} alt="shelf2" />
       <img className="shelf2" src={Assets.HOME.shelf} alt="shelf2" />
       <img className="couch" src={Assets.HOME.couch} alt="couch" />
       <div style={{ position: "absolute", zIndex: 2 }}>
@@ -560,8 +536,8 @@ const Home = () => {
                         top: 0,
                         left: 0,
                         width: "46%",
-                        height: "100%", // Уменьшили высоту, так как теперь не нужно компенсировать маску
-                        overflow: "hidden", // Обрезаем нижнюю часть для полукруга
+                        height: "100%",
+                        overflow: "hidden",
                         pointerEvents: "none",
                         filter: "blur(10px)",
                         borderRadius: "50%",
@@ -570,11 +546,11 @@ const Home = () => {
                       <div
                         style={{
                           width: "70%",
-                          height: "100%", // Полный круг внутри контейнера
-                          background: "#00ffb7", // Жёлтый цвет
-                          borderRadius: "50% 50% 0 0 / 100% 100% 0 0", // Полукруг сверху
-                          transform: "translateY(-50%)", // Сдвигаем вверх, чтобы видна была только верхняя половина
-                          filter: "blur(30px)", // Размытие для всех краёв
+                          height: "100%",
+                          background: "#00ffb7",
+                          borderRadius: "50% 50% 0 0 / 100% 100% 0 0",
+                          transform: "translateY(-50%)",
+                          filter: "blur(30px)",
                         }}
                       />
                     </motion.div>
@@ -625,7 +601,7 @@ const Home = () => {
         />
       )}
     </>
-  )
+  );
 
   const workContent = (
     <>
@@ -674,7 +650,7 @@ const Home = () => {
         />
       )}
     </>
-  )
+  );
 
   const trainingContent = (
     <>
@@ -721,7 +697,7 @@ const Home = () => {
         />
       )}
     </>
-  )
+  );
 
   const sleepContent = (
     <>
@@ -734,23 +710,23 @@ const Home = () => {
         }
       />
       <SleepGame
-        sleepDuration={getUserSleepDuration() * 60}
+        sleepDuration={remainingSeconds}
         onComplete={handleProcessCompletion}
-        onDurationUpdate={(remainingSeconds) => {
+        onDurationUpdate={(newRemaining) => {
+          setRemainingSeconds(newRemaining);
+          setProgressRate(formatTime(Math.floor(newRemaining / 60), newRemaining % 60));
+          // Update target_duration_in_seconds to align with new remaining time
           setState((prev) => ({
             ...prev,
             currentProcess: {
               ...prev.currentProcess,
-              target_duration_in_seconds: remainingSeconds,
+              target_duration_in_seconds: newRemaining + moment().tz("Europe/Moscow").diff(moment(prev.currentProcess.createdAt).tz("Europe/Moscow"), "seconds"),
             },
-          }))
-          setProgressRate(
-            formatTime(Math.floor(remainingSeconds / 60), remainingSeconds % 60)
-          )
+          }));
         }}
       />
       <Player
-        bottom={"calc(-468px )"}
+        bottom={"calc(-468px)"}
         width="81vw"
         left={"5vw"}
         top={"55vmax"}
@@ -772,19 +748,20 @@ const Home = () => {
         }}
         alt="cover"
       />
-      {renderProcessProgressBar(
-        state.currentProcess,
-        countPercentage(
-          moment()
-            .tz("Europe/Moscow")
-            .diff(
-              moment(state.currentProcess?.createdAt).tz("Europe/Moscow"),
-              "second"
-            ),
-          getUserSleepDuration() * 60
-        ),
-        progressRate
-      )}
+      {state.currentProcess &&
+        renderProcessProgressBar(
+          state.currentProcess,
+          countPercentage(
+            moment()
+              .tz("Europe/Moscow")
+              .diff(
+                moment(state.currentProcess?.createdAt).tz("Europe/Moscow"),
+                "second"
+              ),
+            getUserSleepDuration() * 60
+          ),
+          progressRate
+        )}
       <Menu noButton />
       {state.visibleWindow && (
         <Window
@@ -797,19 +774,19 @@ const Home = () => {
         />
       )}
     </>
-  )
+  );
 
   if (
     state?.currentProcess === null ||
     state.currentProcess.type === "skill" ||
     state.currentProcess.type === "food"
   ) {
-    return renderScene(homeContent)
+    return renderScene(homeContent);
   }
-  if (state.currentProcess?.type === "work") return renderScene(workContent)
+  if (state.currentProcess?.type === "work") return renderScene(workContent);
   if (state.currentProcess?.type === "training")
-    return renderScene(trainingContent)
-  if (state.currentProcess?.type === "sleep") return renderScene(sleepContent)
-}
+    return renderScene(trainingContent);
+  if (state.currentProcess?.type === "sleep") return renderScene(sleepContent);
+};
 
-export default Home
+export default Home;
