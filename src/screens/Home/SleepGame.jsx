@@ -202,7 +202,7 @@ const SleepGame = ({ sleepDuration, onComplete }) => {
         backgroundColor: "#1a1a1a",
         borderRadius: "8px",
         position: "fixed",
-        top: "20%",
+        top: "25%",
         left: "5%",
         width: "90%",
         height: "200px",
