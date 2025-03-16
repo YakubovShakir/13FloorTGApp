@@ -258,6 +258,11 @@ import manAva from './IMG/Man-ava.png'
 import backIcon from './IMG/icons/BackIcon.png'
 import spin from './IMG/icons/Spin.gif'
 
+import sleepSheep1 from './IMG/sleepSheep1.webp'
+import sleepSheep2 from './IMG/sleepSheep2.webp'
+import sleepSheepJump from './IMG/sleepSheepJump.webp'
+import sleepSheepGround from './IMG/sleepSheepGround.webp'
+import sleepSheepCloud from './IMG/sleepSheepCloud.webp'
 
 export function getImgUrl(name) {
   return new URL(`${name}`, import.meta.url).href
@@ -290,7 +295,12 @@ const Assets = {
     sleepEuMale,
     sleepAsianMale,
     womanAva,
-    manAva
+    manAva,
+    sleepSheep1,
+    sleepSheep2,
+    sleepSheepJump,
+    sleepSheepGround,
+    sleepSheepCloud
   },
   Layers: {
     cover,

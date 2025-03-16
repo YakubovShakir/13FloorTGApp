@@ -3,18 +3,32 @@ import Assets from "../../assets/index";
 import { instance } from "../../services/instance";
 import { useUser } from "../../UserContext";
 
-const SleepGame = ({ sleepDuration: initialSleepDuration, onDurationUpdate, onComplete }) => {
+const SleepGame = ({
+  sleepDuration: initialSleepDuration,
+  onDurationUpdate,
+  onComplete,
+}) => {
   const canvasRef = useRef(null);
   const { userId } = useUser();
   const coinsRef = useRef([]);
   const collectedCoinsRef = useRef(new Set());
-  const playerRef = useRef({ x: 50, y: 180, velocityY: 0, jumping: false });
+  const playerRef = useRef({
+    x: 50,
+    y: 120, // Start on top of the ground (200 - 80)
+    velocityY: 0,
+    jumping: false,
+    frame: 0,
+    frameTime: 0,
+  });
+  const cloudsRef = useRef([]);
   const lastFrameTimeRef = useRef(performance.now());
   const accumulatedTimeRef = useRef(0);
   const remainingSecondsRef = useRef(initialSleepDuration);
   const playerJumpsRef = useRef([]);
   const coinImgRef = useRef(null);
-  const playerImgRef = useRef(null);
+  const playerFramesRef = useRef([]); // Array for 3 frames (2 running + 1 jump)
+  const groundImgRef = useRef(null);
+  const cloudImgRef = useRef(null);
   const serverTimeOffsetRef = useRef(0);
   const workerRef = useRef(null);
   const pendingCollectionsRef = useRef([]);
@@ -23,11 +37,22 @@ const SleepGame = ({ sleepDuration: initialSleepDuration, onDurationUpdate, onCo
 
   const FIXED_TIME_STEP = 1 / 60;
   const COIN_SPEED = -50;
+  const FRAME_DURATION = 0.1; // Time per frame in seconds
+  const CLOUD_SPEED = -20;
 
   const syncCoinsFromServer = useCallback((serverCoins, serverTime) => {
     console.log("Syncing coins from server:", serverCoins);
     if (!Array.isArray(serverCoins) || serverCoins.length === 0) {
-      coinsRef.current = [{ id: 1, x: 374, y: 100, spawnTime: new Date().toISOString(), collected: false, localX: 374 }];
+      coinsRef.current = [
+        {
+          id: 1,
+          x: 374,
+          y: 100,
+          spawnTime: new Date().toISOString(),
+          collected: false,
+          localX: 374,
+        },
+      ];
       console.log("No server coins, initialized default:", coinsRef.current);
     } else {
       const syncedTime = serverTime;
@@ -43,18 +68,31 @@ const SleepGame = ({ sleepDuration: initialSleepDuration, onDurationUpdate, onCo
     }
   }, []);
 
+  // Preload assets
   useEffect(() => {
     coinImgRef.current = new Image();
     coinImgRef.current.src = Assets.Icons.energyUp;
-    playerImgRef.current = new Image();
-    playerImgRef.current.src = Assets.Icons.balance;
+
+    groundImgRef.current = new Image();
+    groundImgRef.current.src = Assets.Images.sleepSheepGround;
+
+    cloudImgRef.current = new Image();
+    cloudImgRef.current.src = Assets.Images.sleepSheepCloud;
+
+    // Load 2 running frames and 1 jump frame
+    playerFramesRef.current = [new Image(), new Image(), new Image()];
+    playerFramesRef.current[0].src = Assets.Images.sleepSheep1;
+    playerFramesRef.current[1].src = Assets.Images.sleepSheep2;
+    playerFramesRef.current[2].src = Assets.Images.sleepSheepJump;
 
     const checkImages = () => {
-      if (coinImgRef.current.complete && playerImgRef.current.complete) {
-        console.log("Images preloaded");
-      } else {
-        setTimeout(checkImages, 100);
-      }
+      const allLoaded =
+        coinImgRef.current.complete &&
+        groundImgRef.current.complete &&
+        cloudImgRef.current.complete &&
+        playerFramesRef.current.every((img) => img.complete);
+      if (allLoaded) console.log("All images preloaded");
+      else setTimeout(checkImages, 100);
     };
     checkImages();
   }, []);
@@ -167,14 +205,15 @@ const SleepGame = ({ sleepDuration: initialSleepDuration, onDurationUpdate, onCo
       } else {
         setTimeout(() => {
           collections.forEach((collection) => {
-            instance.post(`/users/sleep/collect-coin/${userId}`, collection)
-              .then(response => {
+            instance
+              .post(`/users/sleep/collect-coin/${userId}`, collection)
+              .then((response) => {
                 if (response.data.success) {
                   remainingSecondsRef.current = response.data.remainingSeconds;
                   onDurationUpdate(response.data.remainingSeconds);
                 }
               })
-              .catch(err => console.error("Collection failed:", err));
+              .catch((err) => console.error("Collection failed:", err));
           });
           triggerServerSync();
         }, 0);
@@ -186,26 +225,32 @@ const SleepGame = ({ sleepDuration: initialSleepDuration, onDurationUpdate, onCo
   }, [userId, onDurationUpdate]);
 
   const triggerServerSync = useCallback(() => {
-    if (syncPendingRef.current || (Date.now() - lastSyncTimeRef.current < 1000)) return;
+    if (syncPendingRef.current || Date.now() - lastSyncTimeRef.current < 1000) return;
     syncPendingRef.current = true;
     if (workerRef.current) {
       workerRef.current.postMessage({ type: "syncRequest", userId });
     } else {
       setTimeout(() => {
-        instance.get(`/users/sleep/state/${userId}`).then(response => {
-          if (response.data.success) {
-            syncCoinsFromServer(response.data.coins, new Date(response.data.serverTime).getTime());
-            remainingSecondsRef.current = response.data.remainingSeconds;
-            onDurationUpdate(response.data.remainingSeconds);
-            lastSyncTimeRef.current = Date.now();
-            if (response.data.remainingSeconds <= 0) onComplete();
-          }
-        }).catch(err => console.error("Fallback sync failed:", err))
-          .finally(() => { syncPendingRef.current = false; });
+        instance
+          .get(`/users/sleep/state/${userId}`)
+          .then((response) => {
+            if (response.data.success) {
+              syncCoinsFromServer(response.data.coins, new Date(response.data.serverTime).getTime());
+              remainingSecondsRef.current = response.data.remainingSeconds;
+              onDurationUpdate(response.data.remainingSeconds);
+              lastSyncTimeRef.current = Date.now();
+              if (response.data.remainingSeconds <= 0) onComplete();
+            }
+          })
+          .catch((err) => console.error("Fallback sync failed:", err))
+          .finally(() => {
+            syncPendingRef.current = false;
+          });
       }, 0);
     }
   }, [userId, onComplete, onDurationUpdate, syncCoinsFromServer]);
 
+  // Main game loop and rendering
   useEffect(() => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
@@ -215,8 +260,15 @@ const SleepGame = ({ sleepDuration: initialSleepDuration, onDurationUpdate, onCo
 
     canvas.width = 374;
     canvas.height = 200;
-    canvas.style.width = "90%";
-    canvas.style.height = "auto";
+
+    // Initialize clouds with more spread
+    const generateCloud = () => ({
+      x: Math.random() * (canvas.width + 200),
+      y: Math.random() * (canvas.height - 80),
+      width: 60,
+      height: 40,
+    });
+    cloudsRef.current = [generateCloud(), generateCloud(), generateCloud()];
 
     const update = (currentTime) => {
       const deltaTime = (currentTime - lastFrameTimeRef.current) / 1000;
@@ -224,14 +276,16 @@ const SleepGame = ({ sleepDuration: initialSleepDuration, onDurationUpdate, onCo
       accumulatedTimeRef.current += deltaTime;
 
       while (accumulatedTimeRef.current >= FIXED_TIME_STEP) {
+        // Physics update
         player.velocityY += gravity * FIXED_TIME_STEP * 60;
         player.y += player.velocityY * FIXED_TIME_STEP * 60;
-        if (player.y > canvas.height - 40) {
-          player.y = canvas.height - 40;
+        if (player.y > canvas.height - 80) { // Land on top of ground (200 - 80)
+          player.y = canvas.height - 80;
           player.velocityY = 0;
           player.jumping = false;
         }
 
+        // Update coin positions
         const syncedTime = Date.now() + serverTimeOffsetRef.current;
         coinsRef.current.forEach((coin) => {
           if (!coin.collected && !collectedCoinsRef.current.has(coin.id)) {
@@ -241,25 +295,65 @@ const SleepGame = ({ sleepDuration: initialSleepDuration, onDurationUpdate, onCo
           }
         });
 
+        // Update clouds
+        cloudsRef.current.forEach((cloud) => {
+          cloud.x += CLOUD_SPEED * FIXED_TIME_STEP;
+          if (cloud.x < -cloud.width) {
+            cloud.x = canvas.width + Math.random() * 200;
+            cloud.y = Math.random() * (canvas.height - 80);
+          }
+        });
+
+        // Animation frame update
+        player.frameTime += FIXED_TIME_STEP;
+        if (player.frameTime >= FRAME_DURATION) {
+          player.frameTime = 0;
+          if (!player.jumping) {
+            player.frame = (player.frame + 1) % 2; // Loop through 2 running frames (0-1)
+          }
+        }
+
         accumulatedTimeRef.current -= FIXED_TIME_STEP;
       }
 
+      // Rendering
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = "#1a1a1a";
+      ctx.fillStyle = "#87CEEB"; // Sky blue background
       ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = "#333";
-      ctx.fillRect(0, canvas.height - 20, canvas.width, 20);
 
-      ctx.fillStyle = playerImgRef.current?.complete ? null : "blue";
-      playerImgRef.current?.complete
-        ? ctx.drawImage(playerImgRef.current, player.x, player.y, 40, 40)
-        : ctx.fillRect(player.x, player.y, 40, 40);
+      // Draw clouds
+      cloudsRef.current.forEach((cloud) => {
+        if (cloudImgRef.current?.complete) {
+          ctx.drawImage(cloudImgRef.current, cloud.x, cloud.y, cloud.width, cloud.height);
+        } else {
+          ctx.fillStyle = "white";
+          ctx.fillRect(cloud.x, cloud.y, cloud.width, cloud.height);
+        }
+      });
 
+      // Draw ground as a single full-width image
+      if (groundImgRef.current?.complete) {
+        ctx.drawImage(groundImgRef.current, 0, canvas.height - 40, canvas.width, 40);
+      } else {
+        ctx.fillStyle = "#333";
+        ctx.fillRect(0, canvas.height - 40, canvas.width, 40);
+      }
+
+      // Draw player
+      const currentFrame = player.jumping ? 2 : player.frame; // 2 is jump frame
+      if (playerFramesRef.current[currentFrame]?.complete) {
+        ctx.drawImage(playerFramesRef.current[currentFrame], player.x, player.y, 40, 40);
+      } else {
+        ctx.fillStyle = "blue";
+        ctx.fillRect(player.x, player.y, 40, 40);
+      }
+
+      // Draw coins
       coinsRef.current.forEach((coin) => {
         if (!collectedCoinsRef.current.has(coin.id) && coin.localX >= -20 && coin.localX <= canvas.width) {
           coinImgRef.current?.complete
             ? ctx.drawImage(coinImgRef.current, coin.localX, coin.y, 20, 20)
-            : (ctx.fillStyle = "yellow", ctx.fillRect(coin.localX, coin.y, 20, 20));
+            : ((ctx.fillStyle = "yellow"), ctx.fillRect(coin.localX, coin.y, 20, 20));
 
           const xOverlap = player.x + 40 > coin.localX && player.x < coin.localX + 20;
           const yOverlap = player.y + 40 > coin.y && player.y < coin.y + 20;
@@ -282,13 +376,14 @@ const SleepGame = ({ sleepDuration: initialSleepDuration, onDurationUpdate, onCo
       });
 
       processPendingCollections();
-
       animationFrameId = requestAnimationFrame(update);
     };
 
     animationFrameId = requestAnimationFrame(update);
     canvas.addEventListener("click", handleJump);
-    window.addEventListener("keydown", (e) => { if (e.code === "Space") handleJump(); });
+    window.addEventListener("keydown", (e) => {
+      if (e.code === "Space") handleJump();
+    });
 
     return () => {
       cancelAnimationFrame(animationFrameId);
@@ -302,7 +397,6 @@ const SleepGame = ({ sleepDuration: initialSleepDuration, onDurationUpdate, onCo
       ref={canvasRef}
       style={{
         border: "1px solid #fff",
-        backgroundColor: "#1a1a1a",
         borderRadius: "8px",
         position: "fixed",
         top: "26.5%",
@@ -315,4 +409,4 @@ const SleepGame = ({ sleepDuration: initialSleepDuration, onDurationUpdate, onCo
   );
 };
 
-export default memo(SleepGame);
+export default memo(SleepGame); 
