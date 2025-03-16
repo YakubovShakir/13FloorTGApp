@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useCallback, memo } from "react";
+import React, { useRef, useEffect, useCallback, useState, memo } from "react";
 import Assets from "../../assets/index";
 import { instance } from "../../services/instance";
 import { useUser } from "../../UserContext";
@@ -34,6 +34,7 @@ const SleepGame = ({
   const pendingCollectionsRef = useRef([]);
   const syncPendingRef = useRef(false);
   const lastSyncTimeRef = useRef(0);
+  const [assetsLoaded, setAssetsLoaded] = useState(false); // Track asset loading
 
   const FIXED_TIME_STEP = 1 / 60;
   const COIN_SPEED = -50;
@@ -68,7 +69,7 @@ const SleepGame = ({
     }
   }, []);
 
-  // Preload assets
+  // Preload assets and update loading state
   useEffect(() => {
     coinImgRef.current = new Image();
     coinImgRef.current.src = Assets.Icons.energyUp;
@@ -91,8 +92,12 @@ const SleepGame = ({
         groundImgRef.current.complete &&
         cloudImgRef.current.complete &&
         playerFramesRef.current.every((img) => img.complete);
-      if (allLoaded) console.log("All images preloaded");
-      else setTimeout(checkImages, 100);
+      if (allLoaded) {
+        console.log("All images preloaded");
+        setAssetsLoaded(true); // Set loaded state to true
+      } else {
+        setTimeout(checkImages, 100);
+      }
     };
     checkImages();
   }, []);
@@ -252,6 +257,8 @@ const SleepGame = ({
 
   // Main game loop and rendering
   useEffect(() => {
+    if (!assetsLoaded) return; // Don't start until assets are loaded
+
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
     const player = playerRef.current;
@@ -279,7 +286,7 @@ const SleepGame = ({
         // Physics update
         player.velocityY += gravity * FIXED_TIME_STEP * 60;
         player.y += player.velocityY * FIXED_TIME_STEP * 60;
-        if (player.y > canvas.height - 80) { // Land on top of ground (200 - 80)
+        if (player.y > canvas.height - 80) {
           player.y = canvas.height - 80;
           player.velocityY = 0;
           player.jumping = false;
@@ -323,37 +330,20 @@ const SleepGame = ({
 
       // Draw clouds
       cloudsRef.current.forEach((cloud) => {
-        if (cloudImgRef.current?.complete) {
-          ctx.drawImage(cloudImgRef.current, cloud.x, cloud.y, cloud.width, cloud.height);
-        } else {
-          ctx.fillStyle = "white";
-          ctx.fillRect(cloud.x, cloud.y, cloud.width, cloud.height);
-        }
+        ctx.drawImage(cloudImgRef.current, cloud.x, cloud.y, cloud.width, cloud.height);
       });
 
       // Draw ground as a single full-width image
-      if (groundImgRef.current?.complete) {
-        ctx.drawImage(groundImgRef.current, 0, canvas.height - 40, canvas.width, 40);
-      } else {
-        ctx.fillStyle = "#333";
-        ctx.fillRect(0, canvas.height - 40, canvas.width, 40);
-      }
+      ctx.drawImage(groundImgRef.current, 0, canvas.height - 40, canvas.width, 40);
 
       // Draw player
       const currentFrame = player.jumping ? 2 : player.frame; // 2 is jump frame
-      if (playerFramesRef.current[currentFrame]?.complete) {
-        ctx.drawImage(playerFramesRef.current[currentFrame], player.x, player.y, 40, 40);
-      } else {
-        ctx.fillStyle = "blue";
-        ctx.fillRect(player.x, player.y, 40, 40);
-      }
+      ctx.drawImage(playerFramesRef.current[currentFrame], player.x, player.y, 40, 40);
 
       // Draw coins
       coinsRef.current.forEach((coin) => {
         if (!collectedCoinsRef.current.has(coin.id) && coin.localX >= -20 && coin.localX <= canvas.width) {
-          coinImgRef.current?.complete
-            ? ctx.drawImage(coinImgRef.current, coin.localX, coin.y, 20, 20)
-            : ((ctx.fillStyle = "yellow"), ctx.fillRect(coin.localX, coin.y, 20, 20));
+          ctx.drawImage(coinImgRef.current, coin.localX, coin.y, 20, 20);
 
           const xOverlap = player.x + 40 > coin.localX && player.x < coin.localX + 20;
           const yOverlap = player.y + 40 > coin.y && player.y < coin.y + 20;
@@ -390,9 +380,17 @@ const SleepGame = ({
       canvas.removeEventListener("click", handleJump);
       window.removeEventListener("keydown", handleJump);
     };
-  }, [handleJump, collectCoinLocally, queueCollection, processPendingCollections, triggerServerSync]);
+  }, [
+    assetsLoaded,
+    handleJump,
+    collectCoinLocally,
+    queueCollection,
+    processPendingCollections,
+    triggerServerSync,
+  ]);
 
-  return (
+  // Only render canvas when assets are loaded, with fade-in effect
+  return assetsLoaded ? (
     <canvas
       ref={canvasRef}
       style={{
@@ -404,9 +402,30 @@ const SleepGame = ({
         width: "90%",
         height: "auto",
         zIndex: 999999,
+        opacity: 0, // Start invisible
+        animation: "fadeIn 0.5s ease-in forwards", // Fade in over 0.5s
       }}
     />
-  );
+  ) : null;
 };
 
-export default memo(SleepGame); 
+// Define the fade-in animation with keyframes
+const styles = `
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+`;
+
+// Inject the keyframes into the document
+if (typeof document !== "undefined") {
+  const styleSheet = document.createElement("style");
+  styleSheet.textContent = styles;
+  document.head.appendChild(styleSheet);
+}
+
+export default memo(SleepGame);
