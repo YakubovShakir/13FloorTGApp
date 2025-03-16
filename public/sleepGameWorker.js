@@ -27,7 +27,7 @@ self.onmessage = async (event) => {
         const data = await response.json();
         self.postMessage({ type: "collection", data });
       }
-      // Trigger sync after all collections
+      // Sync after collections
       const syncResponse = await fetch(`${apiBase}/users/sleep/state/${userId}`, {
         method: "GET",
         headers: { "Content-Type": "application/json" },
