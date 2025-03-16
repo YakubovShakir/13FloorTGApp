@@ -7,7 +7,7 @@ import Window from "../../components/complex/Windows/Window/Window";
 import Assets from "../../assets/index";
 import ProcessProgressBar from "../../components/simple/ProcessProgressBar/ProcessProgressBar";
 import { getOwnNekoState, getTrainingParameters, getUserActiveProcess } from "../../services/user/user";
-import { UserContext, useUser } from "../../UserContext";
+import UserContext, { useUser } from "../../UserContext";
 import countPercentage from "../../utils/countPercentage";
 import { getLevels } from "../../services/levels/levels";
 import { motion, AnimatePresence } from "framer-motion";
@@ -30,8 +30,6 @@ COIN_SOUND.load();
 ALARM_SOUND.load();
 
 const Home = () => {
-  console.log("Home Component Rendered");
-
   const { refreshData } = useUser();
   const navigate = useNavigate();
   const mountedRef = useRef(false);
@@ -52,6 +50,7 @@ const Home = () => {
   const [timer, setTimer] = useState(null);
   const [remainingSeconds, setRemainingSeconds] = useState(null);
   const hasCompletedRef = useRef(false);
+  const [isInitializedFully, setIsInitializedFully] = useState(false); // New flag for full initialization
 
   const { userId, userParameters, isInitialized, userPersonage, userClothing, userShelf } = useContext(UserContext);
 
@@ -185,9 +184,11 @@ const Home = () => {
         await Promise.all([preloadImages(), fetchNekoState(), initializeProcess()]);
         if (mountedRef.current) {
           setState((prev) => ({ ...prev, imagesLoaded: true }));
+          setIsInitializedFully(true); // Mark as fully initialized
         }
       } catch (err) {
         console.error("Initialization error:", err);
+        setIsInitializedFully(true); // Still allow rendering on error
       } finally {
         if (mountedRef.current) {
           setIsLoading(false);
@@ -410,7 +411,8 @@ const Home = () => {
     [state.currentProcess?.type, state.currentProcess?.active, state.currentProcess?.type_id, state.imagesLoaded, userId]
   );
 
-  if (isLoading || !isInitialized || (state.currentProcess && remainingSeconds === null)) {
+  // Wait for full initialization before rendering
+  if (!isInitializedFully || isLoading) {
     return <FullScreenSpinner progress={loadingProgress} />;
   }
 
@@ -667,14 +669,16 @@ const Home = () => {
     </>
   );
 
-  if (state?.currentProcess === null || state.currentProcess.type === "skill" || state.currentProcess.type === "food") {
+  // Render logic with explicit type checking
+  const currentProcessType = state.currentProcess?.type;
+  if (!currentProcessType || currentProcessType === "skill" || currentProcessType === "food") {
     return renderScene(homeContent);
   }
-  if (state.currentProcess?.type === "work") return renderScene(workContent);
-  if (state.currentProcess?.type === "training") return renderScene(trainingContent);
-  if (state.currentProcess?.type === "sleep") return renderScene(sleepContent);
+  if (currentProcessType === "work") return renderScene(workContent);
+  if (currentProcessType === "training") return renderScene(trainingContent);
+  if (currentProcessType === "sleep") return renderScene(sleepContent);
 
-  return renderScene(homeContent); // Fallback to homeContent if no process matches
+  return renderScene(homeContent); // Fallback
 };
 
 export default Home;

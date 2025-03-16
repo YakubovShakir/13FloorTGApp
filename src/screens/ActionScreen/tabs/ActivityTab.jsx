@@ -142,8 +142,7 @@ const BoostTab = () => {
             if (activeProcess?.type === "sleep") {
               handleStopSleep();
             } else {
-              handleStartSleep();
-              navigate('/')
+              handleStartSleep().finally(() =>  navigate('/'))
             }
           }
         },
