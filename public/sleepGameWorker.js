@@ -1,9 +1,11 @@
 self.onmessage = async (event) => {
   const { type, userId, collections } = event.data;
 
+  const apiBase = "http://localhost:4000/api"; // Adjust to your actual API base URL
+
   if (type === "syncRequest") {
     try {
-      const response = await fetch(`http://localhost:4000/api/users/sleep/state/${userId}`, {
+      const response = await fetch(`${apiBase}/users/sleep/state/${userId}`, {
         method: "GET",
         headers: { "Content-Type": "application/json" },
       });
@@ -17,13 +19,22 @@ self.onmessage = async (event) => {
   } else if (type === "collectCoins") {
     try {
       for (const collection of collections) {
-        const response = await fetch(`http://localhost:4000/api/users/sleep/collect-coin/${userId}`, {
+        const response = await fetch(`${apiBase}/users/sleep/collect-coin/${userId}`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(collection),
         });
         const data = await response.json();
         self.postMessage({ type: "collection", data });
+      }
+      // Trigger sync after all collections
+      const syncResponse = await fetch(`${apiBase}/users/sleep/state/${userId}`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
+      const syncData = await syncResponse.json();
+      if (syncData.success) {
+        self.postMessage({ type: "sync", data: syncData });
       }
     } catch (err) {
       self.postMessage({ type: "log", message: `Worker collection error: ${err.message}` });

@@ -12,13 +12,13 @@ const SleepGame = ({ sleepDuration: initialSleepDuration, onDurationUpdate, onCo
   const accumulatedTimeRef = useRef(0);
   const remainingSecondsRef = useRef(initialSleepDuration);
   const playerJumpsRef = useRef([]);
-  const pendingTimeUpdatesRef = useRef([]);
   const coinImgRef = useRef(null);
   const playerImgRef = useRef(null);
   const serverTimeOffsetRef = useRef(0);
   const workerRef = useRef(null);
   const pendingCollectionsRef = useRef([]);
-  const lastTimerUpdateRef = useRef(performance.now()); // Track last timer update
+  const lastTimerUpdateRef = useRef(performance.now());
+  const syncPendingRef = useRef(false); // Debounce sync requests
 
   const FIXED_TIME_STEP = 1 / 60;
   const COIN_SPEED = -50;
@@ -61,17 +61,15 @@ const SleepGame = ({ sleepDuration: initialSleepDuration, onDurationUpdate, onCo
         worker.onmessage = (event) => {
           const { type, data } = event.data;
           if (type === "sync") {
-            syncCoinsFromServer(data.coins);
-            // pendingTimeUpdatesRef.current.push(data.remainingSeconds);
-            // serverTimeOffsetRef.current = new Date(data.serverTime).getTime() - Date.now();
-            // remainingSecondsRef.current = data.remainingSeconds;
-            // onDurationUpdate(data.remainingSeconds);
+            syncCoinsFromServer(data.coins); // Only update coins on main thread
             if (data.remainingSeconds <= 0) onComplete();
+            syncPendingRef.current = false; // Reset sync flag
           } else if (type === "collection") {
             if (data.success) {
               remainingSecondsRef.current = data.remainingSeconds;
               onDurationUpdate(data.remainingSeconds);
             }
+            syncPendingRef.current = false; // Reset sync flag after collection
           }
         };
         worker.onerror = (error) => {
@@ -86,20 +84,24 @@ const SleepGame = ({ sleepDuration: initialSleepDuration, onDurationUpdate, onCo
     };
 
     const setupFallback = () => {
-      const fetchSync = async () => {
-        try {
-          const response = await instance.get(`/users/sleep/state/${userId}`);
-          if (response.data.success) {
-            syncCoinsFromServer(response.data.coins);
-            pendingTimeUpdatesRef.current.push(response.data.remainingSeconds);
-            serverTimeOffsetRef.current = new Date(response.data.serverTime).getTime() - Date.now();
-            remainingSecondsRef.current = response.data.remainingSeconds;
-            onDurationUpdate(response.data.remainingSeconds);
-            if (response.data.remainingSeconds <= 0) onComplete();
+      const fetchSync = () => {
+        if (syncPendingRef.current) return; // Debounce fallback too
+        syncPendingRef.current = true;
+        setTimeout(async () => { // Offload to next tick
+          try {
+            const response = await instance.get(`/users/sleep/state/${userId}`);
+            if (response.data.success) {
+              syncCoinsFromServer(response.data.coins);
+              remainingSecondsRef.current = response.data.remainingSeconds;
+              onDurationUpdate(response.data.remainingSeconds);
+              if (response.data.remainingSeconds <= 0) onComplete();
+            }
+          } catch (err) {
+            console.error("Fallback fetch failed:", err);
+          } finally {
+            syncPendingRef.current = false;
           }
-        } catch (err) {
-          console.error("Fallback fetch failed:", err);
-        }
+        }, 0);
       };
       fetchSync(); // Initial sync
     };
@@ -145,39 +147,47 @@ const SleepGame = ({ sleepDuration: initialSleepDuration, onDurationUpdate, onCo
   }, []);
 
   const processPendingCollections = useCallback(() => {
-    if (pendingCollectionsRef.current.length > 0) {
+    if (pendingCollectionsRef.current.length > 0 && !syncPendingRef.current) {
+      syncPendingRef.current = true; // Prevent overlapping syncs
       const collections = [...pendingCollectionsRef.current];
       pendingCollectionsRef.current = [];
       if (workerRef.current) {
         workerRef.current.postMessage({ type: "collectCoins", userId, collections });
       } else {
-        collections.forEach((collection) => {
-          instance.post(`/users/sleep/collect-coin/${userId}`, collection)
-            .then(response => {
-              if (response.data.success) {
-                remainingSecondsRef.current = response.data.remainingSeconds;
-                onDurationUpdate(response.data.remainingSeconds);
-              }
-            })
-            .catch(err => console.error("Collection failed:", err));
-        });
+        setTimeout(() => { // Offload to next tick
+          collections.forEach((collection) => {
+            instance.post(`/users/sleep/collect-coin/${userId}`, collection)
+              .then(response => {
+                if (response.data.success) {
+                  remainingSecondsRef.current = response.data.remainingSeconds;
+                  onDurationUpdate(response.data.remainingSeconds);
+                }
+              })
+              .catch(err => console.error("Collection failed:", err));
+          });
+          triggerServerSync();
+        }, 0);
       }
-      triggerServerSync();
     }
   }, [userId, onDurationUpdate]);
 
   const triggerServerSync = useCallback(() => {
+    if (syncPendingRef.current) return; // Debounce sync
+    syncPendingRef.current = true;
     if (workerRef.current) {
       workerRef.current.postMessage({ type: "syncRequest", userId });
     } else {
-      instance.get(`/users/sleep/state/${userId}`).then(response => {
-        if (response.data.success) {
-          syncCoinsFromServer(response.data.coins);
-          remainingSecondsRef.current = response.data.remainingSeconds;
-          onDurationUpdate(response.data.remainingSeconds);
-          if (response.data.remainingSeconds <= 0) onComplete();
-        }
-      }).catch(err => console.error("Fallback sync failed:", err));
+      setTimeout(() => { // Offload to next tick
+        instance.get(`/users/sleep/state/${userId}`).then(response => {
+          if (response.data.success) {
+            syncCoinsFromServer(response.data.coins);
+            remainingSecondsRef.current = response.data.remainingSeconds;
+            onDurationUpdate(response.data.remainingSeconds);
+            if (response.data.remainingSeconds <= 0) onComplete();
+          }
+        }).catch(err => console.error("Fallback sync failed:", err))
+          .finally(() => { syncPendingRef.current = false; });
+      }, 0);
     }
   }, [userId, onComplete, onDurationUpdate, syncCoinsFromServer]);
 
@@ -198,14 +208,13 @@ const SleepGame = ({ sleepDuration: initialSleepDuration, onDurationUpdate, onCo
       lastFrameTimeRef.current = currentTime;
       accumulatedTimeRef.current += deltaTime;
 
-      // Timer logic: Decrement every second based on elapsed time
       const elapsedSinceLastUpdate = currentTime - lastTimerUpdateRef.current;
-      if (elapsedSinceLastUpdate >= 1000) { // 1000ms = 1 second
+      if (elapsedSinceLastUpdate >= 1000) {
         const secondsToDecrement = Math.floor(elapsedSinceLastUpdate / 1000);
         remainingSecondsRef.current = Math.max(0, remainingSecondsRef.current - secondsToDecrement);
         onDurationUpdate(remainingSecondsRef.current);
         if (remainingSecondsRef.current <= 0) onComplete();
-        lastTimerUpdateRef.current += secondsToDecrement * 1000; // Update to the last full second
+        lastTimerUpdateRef.current += secondsToDecrement * 1000;
       }
 
       while (accumulatedTimeRef.current >= FIXED_TIME_STEP) {
