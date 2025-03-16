@@ -253,9 +253,15 @@ const Home = () => {
 
       const processType = state.currentProcess.type;
       if (!canContinue(processType)) {
-        setState((prev) => ({ ...prev, currentProcess: null }));
-        setRemainingSeconds(null);
-        return;
+        setIsLoading(true);
+        checkCanStop(userId).finally(() => {
+          if (mountedRef.current) {
+            setState((prev) => ({ ...prev, currentProcess: null }));
+            setRemainingSeconds(null);
+            refreshData();
+            setIsLoading(false)
+          }
+        })
       }
 
       const now = moment().tz("Europe/Moscow");
