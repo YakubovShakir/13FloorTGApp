@@ -22,9 +22,7 @@ const getLabels = (processType, rate) => {
     return typeToLabel[processType]
 }
 
-const ProcessProgressBar = ({ activeProcess = 'working', value = 60, max = 100, reverse = false, rate }) => {
-    const percentage = (value / max) * 100;
-
+const ProcessProgressBar = ({ activeProcess = 'working', percentage, reverse = false, rate }) => {
     const [iconLeft, iconRight] = getIcons(activeProcess)
     const [labelLeft, labelRight] = getLabels(activeProcess, rate)
 

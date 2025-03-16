@@ -71,17 +71,12 @@ const ProcessProgressBar = ({
     activeProcess,
     reverse = false,
     rate,
+    percentage,
     hasIconAnimated,
     setHasIconAnimated,
     handleConfirmClose
 }) => {
     const navigate = useNavigate()
-    const [percentage, setPercentage] = useState(() => {
-        if (!activeProcess || typeof activeProcess.totalSecondsRemaining !== 'number' || typeof activeProcess.totalSeconds !== 'number') {
-            return reverse ? 0 : 100; // or 0, depending on desired default
-        }
-        return (activeProcess.totalSecondsRemaining / activeProcess.totalSeconds) * 100;
-    });
     const [labels, setLabels] = useState({ left: "", right: "" })
     const [icons, setIcons] = useState({ left: null, right: null })
     const [showModal, setShowModal] = useState(false)
@@ -122,14 +117,6 @@ const ProcessProgressBar = ({
             en: "Long Sleep",
         },
     }
-
-    useEffect(() => {
-        if (!activeProcess || typeof activeProcess.totalSecondsRemaining !== 'number' || typeof activeProcess.totalSeconds !== 'number') {
-            setPercentage(reverse ? 0 : 100); // or 0, depending on desired default
-        }
-        setPercentage((activeProcess.totalSecondsRemaining / activeProcess.totalSeconds) * 100);
-    },[activeProcess])
-
 
     // Load initial data
     useEffect(() => {
@@ -197,8 +184,9 @@ const ProcessProgressBar = ({
     }
 
     return (
-        <div className="progress-bar-container-fixed-top"style={{ 
+        <div className="progress-bar-container-fixed-top" style={{ 
             paddingTop: (window.Telegram?.WebApp.safeAreaInset?.top || 0) + 120.5,
+            zIndex: 9999999
          }}>
             <div className="progress-bar-container">
                 <div className="progress-bar-wrapper" style={{ width: "90%", float: "left" }}>

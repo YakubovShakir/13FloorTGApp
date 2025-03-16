@@ -1,10 +1,4 @@
-import React, {
-  useEffect,
-  useState,
-  useContext,
-  useRef,
-  useCallback,
-} from "react";
+import React, { useEffect, useState, useContext, useRef, useCallback } from "react";
 import "./Home.css";
 import HomeHeader from "../../components/complex/HomeHeader/HomeHeader";
 import Player from "../../components/complex/Player/Player";
@@ -12,11 +6,7 @@ import Menu from "../../components/complex/Menu/Menu";
 import Window from "../../components/complex/Windows/Window/Window";
 import Assets from "../../assets/index";
 import ProcessProgressBar from "../../components/simple/ProcessProgressBar/ProcessProgressBar";
-import {
-  getOwnNekoState,
-  getTrainingParameters,
-  getUserActiveProcess,
-} from "../../services/user/user";
+import { getOwnNekoState, getTrainingParameters, getUserActiveProcess } from "../../services/user/user";
 import UserContext, { useUser } from "../../UserContext";
 import countPercentage from "../../utils/countPercentage";
 import { getLevels } from "../../services/levels/levels";
@@ -28,22 +18,13 @@ import moment from "moment-timezone";
 import { useVisibilityChange, useWindowFocus } from "../../hooks/userActivities";
 import formatTime from "../../utils/formatTime";
 import { checkCanStop, stopProcess } from "../../services/process/process";
-import {
-  canStartSleeping,
-  canStartTraining,
-  canStartWorking,
-} from "../../utils/paramDep";
+import { canStartSleeping, canStartTraining, canStartWorking } from "../../utils/paramDep";
 import GachaOverlay from "./Gacha";
 import DailyCheckInOverlay from "./DailyCheckInOverlay";
 import SleepGame from "./SleepGame";
 
-// Pre-load audio files
-const COIN_SOUND = new Audio(
-  "https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/coin.mp3"
-);
-const ALARM_SOUND = new Audio(
-  "https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/alarm.mp3"
-);
+const COIN_SOUND = new Audio("https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/coin.mp3");
+const ALARM_SOUND = new Audio("https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/alarm.mp3");
 
 COIN_SOUND.load();
 ALARM_SOUND.load();
@@ -51,9 +32,9 @@ ALARM_SOUND.load();
 const Home = () => {
   console.log("Home Component Rendered");
 
+  const { refreshData } = useUser();
   const navigate = useNavigate();
   const mountedRef = useRef(false);
-
   const [state, setState] = useState({
     currentWindow: null,
     currentProcess: null,
@@ -66,100 +47,68 @@ const Home = () => {
     hasIconAnimated: true,
     nekoState: { canClick: false, cooldownUntil: null },
   });
-
   const [isLoading, setIsLoading] = useState(true);
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [timer, setTimer] = useState(null);
-  const [remainingSeconds, setRemainingSeconds] = useState(null);
-  const [progressRate, setProgressRate] = useState(null);
+  const [remainingSeconds, setRemainingSeconds] = useState(null); // Replace ref with state
+  const hasCompletedRef = useRef(false);
 
-  const {
-    userId,
-    userParameters,
-    isInitialized,
-    userPersonage,
-    userClothing,
-    userShelf,
-  } = useContext(UserContext);
+  const { userId, userParameters, isInitialized, userPersonage, userClothing, userShelf } = useContext(UserContext);
 
-  const getUserSleepDuration = () => {
-    return state.levels?.find((level) => level?.level === userParameters?.level)
-      ?.sleep_duration;
-  };
+  const getUserSleepDuration = useCallback(() => {
+    return state.levels?.find((level) => level?.level === userParameters?.level)?.sleep_duration;
+  }, [state.levels, userParameters?.level]);
 
   useEffect(() => {
     mountedRef.current = true;
-    return () => {
-      mountedRef.current = false;
-    };
+    return () => { mountedRef.current = false; };
   }, []);
 
   const preloadImages = useCallback(async () => {
     const imageUrls = [
-      Assets.Layers.cover,
-      Assets.BG.workScreenBG,
-      Assets.BG.sleepScreenBG,
-      Assets.BG.trainScreenBG,
-      Assets.BG.homeBackground,
-      Assets.HOME.shelf,
-      Assets.HOME.couch,
-      Assets.BG.backgroundSun,
-      Assets.BG.winter,
+      Assets.Layers.cover, Assets.BG.workScreenBG, Assets.BG.sleepScreenBG, Assets.BG.trainScreenBG,
+      Assets.BG.homeBackground, Assets.HOME.shelf, Assets.HOME.couch, Assets.BG.backgroundSun, Assets.BG.winter,
     ];
-
-    const imagePromises = imageUrls.map((url, index) => {
+    const imagePromises = imageUrls.map((url) => {
       return new Promise((resolve) => {
         const img = new Image();
-        img.onload = () => {
-          setLoadingProgress((prev) => prev + 100 / imageUrls.length);
-          resolve();
-        };
-        img.onerror = () => {
-          setLoadingProgress((prev) => prev + 100 / imageUrls.length);
-          resolve();
-        };
+        img.onload = () => { setLoadingProgress((prev) => prev + 100 / imageUrls.length); resolve(); };
+        img.onerror = () => { setLoadingProgress((prev) => prev + 100 / imageUrls.length); resolve(); };
         img.src = url;
       });
     });
-
     return Promise.all(imagePromises);
   }, []);
 
-  const calculateInitialRemaining = (process) => {
+  const calculateInitialRemaining = useCallback((process) => {
     if (!process?.createdAt) return null;
     const moscowNow = moment().tz("Europe/Moscow");
     const processStart = moment(process.createdAt).tz("Europe/Moscow");
     const elapsedSeconds = moscowNow.diff(processStart, "seconds");
-    const totalSeconds =
-      process.target_duration_in_seconds || process.base_duration_in_seconds;
+    const totalSeconds = process.target_duration_in_seconds || process.base_duration_in_seconds;
     return Math.max(0, totalSeconds - elapsedSeconds);
-  };
+  }, []);
 
-  const initializeProcess = async () => {
+  const initializeProcess = useCallback(async () => {
     try {
       const process = await getUserActiveProcess(userId);
-
       if (!process) {
         setState((prev) => ({ ...prev, currentProcess: null }));
-        setProgressRate(null);
         setRemainingSeconds(null);
         return;
       }
-
-      const [trainingParams, levelsData] = await Promise.all([
-        getTrainingParameters(userId),
-        getLevels(),
-      ]);
-
+      const [trainingParams, levelsData] = await Promise.all([getTrainingParameters(userId), getLevels()]);
       if (!mountedRef.current) return;
 
       const initialRemaining = calculateInitialRemaining(process);
       setRemainingSeconds(initialRemaining);
-      setProgressRate(formatTime(Math.floor(initialRemaining / 60), initialRemaining % 60));
-
       setState((prev) => ({
         ...prev,
-        currentProcess: { ...process, formattedTime: formatTime(Math.floor(initialRemaining / 60), initialRemaining % 60) },
+        currentProcess: { 
+          ...process, 
+          remainingSeconds: initialRemaining,
+          formattedTime: formatTime(Math.floor(initialRemaining / 60), initialRemaining % 60),
+        },
         trainingParameters: trainingParams,
         levels: levelsData,
       }));
@@ -167,22 +116,19 @@ const Home = () => {
       console.error("Error initializing process:", error);
       if (mountedRef.current) {
         setState((prev) => ({ ...prev, currentProcess: null }));
-        setProgressRate(null);
         setRemainingSeconds(null);
       }
     }
-  };
+  }, [userId, calculateInitialRemaining]);
 
-  const fetchNekoState = async () => {
+  const fetchNekoState = useCallback(async () => {
     try {
       const nekoData = await getOwnNekoState(userId);
-      if (mountedRef.current) {
-        setState((prev) => ({ ...prev, nekoState: nekoData }));
-      }
+      if (mountedRef.current) setState((prev) => ({ ...prev, nekoState: nekoData }));
     } catch (error) {
       console.error("Error fetching neko state:", error);
     }
-  };
+  }, [userId]);
 
   useEffect(() => {
     if (!state.nekoState.cooldownUntil || state.nekoState.canClick) return;
@@ -192,24 +138,15 @@ const Home = () => {
       const now = moment().tz("Europe/Moscow");
       const end = moment(state.nekoState.cooldownUntil).tz("Europe/Moscow");
       const diff = end.diff(now);
-
       if (diff <= 0) {
-        setState((prev) => ({
-          ...prev,
-          nekoState: { ...prev.nekoState, canClick: true, cooldownUntil: null },
-        }));
+        setState((prev) => ({ ...prev, nekoState: { ...prev.nekoState, canClick: true, cooldownUntil: null } }));
         setTimer(null);
         return;
       }
-
       const duration = moment.duration(diff);
       const hours = Math.floor(duration.asHours());
       const minutes = duration.minutes();
-      setTimer(
-        `${hours.toString().padStart(2, "0")}:${minutes
-          .toString()
-          .padStart(2, "0")}`
-      );
+      setTimer(`${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}`);
     };
 
     updateTimer();
@@ -221,20 +158,12 @@ const Home = () => {
     if (!isInitialized) return;
 
     const initialize = async () => {
-      if (!userPersonage?.gender) {
-        navigate("/personage-create");
-      }
+      if (!userPersonage?.gender) navigate("/personage-create");
       setIsLoading(true);
       setLoadingProgress(0);
       try {
-        await Promise.all([
-          preloadImages(),
-          fetchNekoState(),
-          initializeProcess(),
-        ]);
-        if (mountedRef.current) {
-          setState((prev) => ({ ...prev, imagesLoaded: true }));
-        }
+        await Promise.all([preloadImages(), fetchNekoState(), initializeProcess()]);
+        if (mountedRef.current) setState((prev) => ({ ...prev, imagesLoaded: true }));
       } catch (err) {
         console.error("Initialization error:", err);
       } finally {
@@ -243,94 +172,58 @@ const Home = () => {
     };
 
     initialize();
-  }, [isInitialized, navigate, userPersonage, preloadImages]);
+  }, [isInitialized, navigate, userPersonage, preloadImages, fetchNekoState, initializeProcess]);
 
-  const canContinue = (processType) => {
-    if (processType === "training")
-      return canStartTraining(userParameters) && userParameters?.mood < 100;
+  const canContinue = useCallback((processType) => {
+    if (processType === "training") return canStartTraining(userParameters) && userParameters?.mood < 100;
     if (processType === "work") return canStartWorking(userParameters);
     if (processType === "sleep") return canStartSleeping(userParameters);
-  };
+    return false;
+  }, [userParameters]);
 
-  useEffect(() => {
-    let timerInterval;
-
-    const isActive = state.currentProcess?.active;
-    const processId = state.currentProcess?.id;
-
-    if (isActive && mountedRef.current && remainingSeconds !== null) {
-      timerInterval = setInterval(() => {
-        setRemainingSeconds((prev) => {
-          const newRemaining = Math.max(0, prev - 1);
-          if (newRemaining <= 0 || !canContinue(state.currentProcess?.type)) {
-            handleProcessCompletion();
-            clearInterval(timerInterval);
-          }
-          return newRemaining;
-        });
-        setProgressRate((prev) => {
-          const newRemaining = Math.max(0, remainingSeconds - 1);
-          return formatTime(Math.floor(newRemaining / 60), newRemaining % 60);
-        });
-      }, 1000);
-    }
-
-    return () => {
-      if (timerInterval) clearInterval(timerInterval);
-    };
-  }, [state.currentProcess?.active, state.currentProcess?.id, state.currentProcess?.type, remainingSeconds]);
-
-  const completionInProgressRef = useRef(false);
-
-  const handleConfirmClose = async () => {
+  const handleConfirmClose = useCallback(async () => {
     setIsLoading(true);
     try {
       await stopProcess(userId);
       setState((prev) => ({ ...prev, currentProcess: null }));
       setRemainingSeconds(null);
-      setProgressRate(null);
     } catch (error) {
       console.error("Error stopping process:", error);
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [userId]);
 
-  const handleProcessCompletion = async () => {
-    if (completionInProgressRef.current) return;
-    completionInProgressRef.current = true;
+  const handleProcessCompletion = useCallback(async () => {
+    if (hasCompletedRef.current) return;
+    hasCompletedRef.current = true;
 
+    setIsLoading(true);
     try {
       await new Promise((resolve) => setTimeout(resolve, 1000));
-      setIsLoading(true);
-
-      while (true) {
-        try {
-          await new Promise((resolve) => setTimeout(resolve, 500));
-          await checkCanStop(userId);
-          break;
-        } catch (err) {
-          if (err.status === 404) break;
-          const waitTime = err.response?.data?.seconds_left * 1000 || 1000;
-          await new Promise((resolve) => setTimeout(resolve, waitTime));
-        }
-      }
-
+      await checkCanStop(userId);
       if (mountedRef.current) {
-        setTimeout(() => {
-          setIsLoading(false);
+        setState((prev) => ({ ...prev, currentProcess: null }));
+        setRemainingSeconds(null);
+        refreshData();
+      }
+    } catch (err) {
+      console.error("Error in handleProcessCompletion:", err);
+      if (err.status !== 404) {
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+        await checkCanStop(userId);
+        if (mountedRef.current) {
           setState((prev) => ({ ...prev, currentProcess: null }));
           setRemainingSeconds(null);
-          setProgressRate(null);
           refreshData();
-        }, 750);
+        }
       }
     } finally {
-      completionInProgressRef.current = false;
+      setIsLoading(false);
+      hasCompletedRef.current = false;
     }
-  };
+  }, [userId, refreshData]);
 
-  const { refreshData } = useUser();
 
   useVisibilityChange(() => {
     if (mountedRef.current && document.visibilityState === "visible") {
@@ -348,24 +241,78 @@ const Home = () => {
     }
   });
 
-  const renderProcessProgressBar = (
-    process,
-    percentage,
-    rate,
-    reverse = false
-  ) => {
+  // Timer logic with state for re-rendering
+  useEffect(() => {
+    if (!state.currentProcess) return;
+
+    const interval = setInterval(() => {
+      if (!mountedRef.current || !state.currentProcess) {
+        clearInterval(interval);
+        return;
+      }
+
+      const processType = state.currentProcess.type;
+      if (!canContinue(processType)) {
+        setState((prev) => ({ ...prev, currentProcess: null }));
+        setRemainingSeconds(null);
+        return;
+      }
+
+      const now = moment().tz("Europe/Moscow");
+      const start = moment(state.currentProcess.createdAt).tz("Europe/Moscow");
+      const elapsedSeconds = now.diff(start, "seconds");
+      const totalSeconds = state.currentProcess.target_duration_in_seconds || state.currentProcess.base_duration_in_seconds;
+      const newRemaining = Math.max(0, totalSeconds - elapsedSeconds);
+
+      setRemainingSeconds(newRemaining);
+      setState((prev) => ({
+        ...prev,
+        currentProcess: {
+          ...prev.currentProcess,
+          remainingSeconds: newRemaining,
+          formattedTime: formatTime(Math.floor(newRemaining / 60), newRemaining % 60),
+        },
+      }));
+
+      if (newRemaining <= 0 && !hasCompletedRef.current) {
+        handleProcessCompletion();
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [state.currentProcess, canContinue, handleProcessCompletion]);
+
+  const onDurationUpdate = useCallback((newRemaining) => {
+    setRemainingSeconds(newRemaining);
+    setState((prev) => {
+      if (!prev.currentProcess) return prev;
+      return {
+        ...prev,
+        currentProcess: {
+          ...prev.currentProcess,
+          target_duration_in_seconds: newRemaining,
+          remainingSeconds: newRemaining,
+          formattedTime: formatTime(Math.floor(newRemaining / 60), newRemaining % 60),
+        },
+      };
+    });
+  }, []);
+
+  const renderProcessProgressBar = useCallback((process, percentage, rate, reverse = false) => {
+    console.log("Rendering progress bar:", { percentage, rate });
     return (
       <ProcessProgressBar
         activeProcess={process}
         rate={rate}
+        percentage={percentage}
         reverse={reverse}
         handleConfirmClose={handleConfirmClose}
         style={{ transition: "width 1s ease-in-out" }}
       />
     );
-  };
+  }, [handleConfirmClose]);
 
-  const renderScene = (content) => (
+  const renderScene = useCallback((content) => (
     <AnimatePresence mode="wait">
       <motion.div
         className="Home"
@@ -412,13 +359,8 @@ const Home = () => {
                 height: "100%",
                 width: "100%",
                 backgroundImage:
-                  state.currentProcess?.type &&
-                  state.currentProcess?.type !== "default" &&
-                  state.currentProcess?.active
-                    ? getBgByCurrentProcess(
-                        state.currentProcess.type,
-                        state.currentProcess?.type_id
-                      )
+                  state.currentProcess?.type && state.currentProcess?.type !== "default" && state.currentProcess?.active
+                    ? getBgByCurrentProcess(state.currentProcess.type, state.currentProcess?.type_id)
                     : `url(${Assets.BG.homeBackground})`,
                 backgroundSize: "cover",
                 backgroundPosition: "bottom right",
@@ -430,39 +372,19 @@ const Home = () => {
         {content}
       </motion.div>
     </AnimatePresence>
-  );
+  ), [state.currentProcess?.type, state.currentProcess?.active, state.currentProcess?.type_id, state.imagesLoaded, userId]);
 
-  if (isLoading) {
-    return <FullScreenSpinner progress={loadingProgress} />;
-  }
-
-  if (!isInitialized) {
-    return <FullScreenSpinner progress={loadingProgress} />;
-  }
+  if (isLoading || !isInitialized) return <FullScreenSpinner progress={loadingProgress} />;
 
   const homeContent = (
     <>
-      <HomeHeader
-        onClick={() =>
-          setState((prev) => ({
-            ...prev,
-            visibleSettingsModal: !prev.visibleSettingsModal,
-          }))
-        }
-      />
+      <HomeHeader onClick={() => setState((prev) => ({ ...prev, visibleSettingsModal: !prev.visibleSettingsModal }))} />
       <img className="shelf1" src={Assets.HOME.shelf} alt="shelf1" />
       <img className="shelf2" src={Assets.HOME.shelf} alt="shelf2" />
       <img className="shelf2" src={Assets.HOME.shelf} alt="shelf2" />
       <img className="couch" src={Assets.HOME.couch} alt="couch" />
       <div style={{ position: "absolute", zIndex: 2 }}>
-        <Player
-          bottom={"calc(-85vh + 50px)"}
-          width="39vw"
-          left={"9vw"}
-          top={"35vh"}
-          personage={userPersonage}
-          clothing={userClothing}
-        />
+        <Player bottom={"calc(-85vh + 50px)"} width="39vw" left={"9vw"} top={"35vh"} personage={userPersonage} clothing={userClothing} />
       </div>
       <Menu hasBg={false} />
       <motion.div
@@ -595,9 +517,7 @@ const Home = () => {
           title={state.currentWindow.title}
           data={state.currentWindow.data}
           tabs={state.currentWindow.tabs}
-          onClose={() =>
-            setState((prev) => ({ ...prev, visibleWindow: false }))
-          }
+          onClose={() => setState((prev) => ({ ...prev, visibleWindow: false }))}
         />
       )}
     </>
@@ -605,48 +525,24 @@ const Home = () => {
 
   const workContent = (
     <>
-      <HomeHeader
-        onClick={() =>
-          setState((prev) => ({
-            ...prev,
-            visibleSettingsModal: !prev.visibleSettingsModal,
-          }))
-        }
-      />
-      <Player
-        bottom="calc(-1vh + 141px)"
-        width="39vw"
-        left={"9vw"}
-        top={"35vh"}
-        personage={userPersonage}
-        clothing={userClothing}
-        work
-      />
-      {state.currentProcess &&
-        renderProcessProgressBar(
-          state.currentProcess,
-          countPercentage(
-            moment()
-              .tz("Europe/Moscow")
-              .diff(
-                moment(state.currentProcess?.createdAt).tz("Europe/Moscow"),
-                "second"
-              ),
-            state.currentProcess?.target_duration_in_seconds ||
-              state.currentProcess?.base_duration_in_seconds
-          ),
-          progressRate,
-          true
-        )}
+      <HomeHeader onClick={() => setState((prev) => ({ ...prev, visibleSettingsModal: !prev.visibleSettingsModal }))} />
+      <Player bottom="calc(-1vh + 141px)" width="39vw" left={"9vw"} top={"35vh"} personage={userPersonage} clothing={userClothing} work />
+      {state.currentProcess && renderProcessProgressBar(
+        state.currentProcess,
+        countPercentage(
+          moment().tz("Europe/Moscow").diff(moment(state.currentProcess.createdAt).tz("Europe/Moscow"), "seconds"),
+          state.currentProcess.target_duration_in_seconds || state.currentProcess.base_duration_in_seconds
+        ),
+        state.currentProcess.formattedTime,
+        true
+      )}
       <Menu noButton />
       {state.visibleWindow && (
         <Window
           title={state.currentWindow.title}
           data={state.currentWindow.data}
           tabs={state.currentWindow.tabs}
-          onClose={() =>
-            setState((prev) => ({ ...prev, visibleWindow: false }))
-          }
+          onClose={() => setState((prev) => ({ ...prev, visibleWindow: false }))}
         />
       )}
     </>
@@ -654,46 +550,23 @@ const Home = () => {
 
   const trainingContent = (
     <>
-      <HomeHeader
-        onClick={() =>
-          setState((prev) => ({
-            ...prev,
-            visibleSettingsModal: !prev.visibleSettingsModal,
-          }))
-        }
-      />
-      <Player
-        bottom="calc(-1vh + 141px)"
-        width="39vw"
-        left={"9vw"}
-        top={"35vh"}
-        personage={userPersonage}
-        clothing={userClothing}
-        training
-      />
-      {renderProcessProgressBar(
+      <HomeHeader onClick={() => setState((prev) => ({ ...prev, visibleSettingsModal: !prev.visibleSettingsModal }))} />
+      <Player bottom="calc(-1vh + 141px)" width="39vw" left={"9vw"} top={"35vh"} personage={userPersonage} clothing={userClothing} training />
+      {state.currentProcess && renderProcessProgressBar(
         state.currentProcess,
         countPercentage(
-          moment()
-            .tz("Europe/Moscow")
-            .diff(
-              moment(state.currentProcess?.createdAt).tz("Europe/Moscow"),
-              "second"
-            ),
-          state.currentProcess?.target_duration_in_seconds ||
-            state.currentProcess?.base_duration_in_seconds
+          moment().tz("Europe/Moscow").diff(moment(state.currentProcess.createdAt).tz("Europe/Moscow"), "seconds"),
+          state.currentProcess.target_duration_in_seconds || state.currentProcess.base_duration_in_seconds
         ),
-        progressRate
+        state.currentProcess.formattedTime
       )}
       <Menu noButton />
       {state.visibleWindow && (
         <Window
           title={state.currentWindow.title}
-          data={state.currentWindow.data}
+          data={state.currentProcess.data}
           tabs={state.currentWindow.tabs}
-          onClose={() =>
-            setState((prev) => ({ ...prev, visibleWindow: false }))
-          }
+          onClose={() => setState((prev) => ({ ...prev, visibleWindow: false }))}
         />
       )}
     </>
@@ -701,91 +574,43 @@ const Home = () => {
 
   const sleepContent = (
     <>
-      <HomeHeader
-        onClick={() =>
-          setState((prev) => ({
-            ...prev,
-            visibleSettingsModal: !prev.visibleSettingsModal,
-          }))
-        }
-      />
+      <HomeHeader onClick={() => setState((prev) => ({ ...prev, visibleSettingsModal: !prev.visibleSettingsModal }))} />
       <SleepGame
-        sleepDuration={remainingSeconds}
+        sleepDuration={calculateInitialRemaining(state.currentProcess)}
         onComplete={handleProcessCompletion}
-        onDurationUpdate={(newRemaining) => {
-          setRemainingSeconds(newRemaining);
-          setProgressRate(formatTime(Math.floor(newRemaining / 60), newRemaining % 60));
-          // Update target_duration_in_seconds to align with new remaining time
-          setState((prev) => ({
-            ...prev,
-            currentProcess: {
-              ...prev.currentProcess,
-              target_duration_in_seconds: newRemaining + moment().tz("Europe/Moscow").diff(moment(prev.currentProcess.createdAt).tz("Europe/Moscow"), "seconds"),
-            },
-          }));
-        }}
+        onDurationUpdate={onDurationUpdate}
       />
-      <Player
-        bottom={"calc(-468px)"}
-        width="81vw"
-        left={"5vw"}
-        top={"55vmax"}
-        personage={userPersonage}
-        clothing={userClothing}
-        sleep
-      />
+      <Player bottom={"calc(-468px)"} width="81vw" left={"5vw"} top={"55vmax"} personage={userPersonage} clothing={userClothing} sleep />
       <motion.img
         src={Assets.Layers.cover}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5, ease: "easeInOut" }}
-        style={{
-          position: "absolute",
-          width: "100%",
-          height: "100%",
-          bottom: 0,
-          zIndex: 0,
-        }}
+        style={{ position: "absolute", width: "100%", height: "100%", bottom: 0, zIndex: 0 }}
         alt="cover"
       />
-      {state.currentProcess &&
-        renderProcessProgressBar(
-          state.currentProcess,
-          countPercentage(
-            moment()
-              .tz("Europe/Moscow")
-              .diff(
-                moment(state.currentProcess?.createdAt).tz("Europe/Moscow"),
-                "second"
-              ),
-            getUserSleepDuration() * 60
-          ),
-          progressRate
-        )}
+      {state.currentProcess && renderProcessProgressBar(
+        state.currentProcess,
+        100 - countPercentage(remainingSeconds, state.currentProcess.target_duration_in_seconds || getUserSleepDuration() * 60),
+        state.currentProcess.formattedTime
+      )}
       <Menu noButton />
       {state.visibleWindow && (
         <Window
           title={state.currentWindow.title}
-          data={state.currentWindow.data}
+          data={state.currentProcess.data}
           tabs={state.currentWindow.tabs}
-          onClose={() =>
-            setState((prev) => ({ ...prev, visibleWindow: false }))
-          }
+          onClose={() => setState((prev) => ({ ...prev, visibleWindow: false }))}
         />
       )}
     </>
   );
 
-  if (
-    state?.currentProcess === null ||
-    state.currentProcess.type === "skill" ||
-    state.currentProcess.type === "food"
-  ) {
+  if (state?.currentProcess === null || state.currentProcess.type === "skill" || state.currentProcess.type === "food") {
     return renderScene(homeContent);
   }
   if (state.currentProcess?.type === "work") return renderScene(workContent);
-  if (state.currentProcess?.type === "training")
-    return renderScene(trainingContent);
+  if (state.currentProcess?.type === "training") return renderScene(trainingContent);
   if (state.currentProcess?.type === "sleep") return renderScene(sleepContent);
 };
 
