@@ -9,12 +9,18 @@ const SleepGame = ({ sleepDuration, onDurationUpdate, onComplete }) => {
   const coinsRef = useRef([]);
   const playerRef = useRef({ x: 50, y: 180, velocityY: 0, jumping: false });
   const lastFrameTimeRef = useRef(performance.now());
+  const accumulatedTimeRef = useRef(0);
   const remainingSecondsRef = useRef(sleepDuration);
   const playerJumpsRef = useRef([]);
-  const pendingCollectionsRef = useRef([]);
+  const pendingTimeUpdatesRef = useRef([]);
   const coinImgRef = useRef(null);
   const playerImgRef = useRef(null);
   const serverTimeOffsetRef = useRef(0);
+  const lastSyncTimeRef = useRef(0);
+  const workerRef = useRef(null);
+
+  const FIXED_TIME_STEP = 1 / 60;
+  const COIN_SPEED = -50; // Must match server
 
   const onDurationUpdateCallback = useCallback((remainingSeconds) => {
     remainingSecondsRef.current = remainingSeconds;
@@ -22,142 +28,182 @@ const SleepGame = ({ sleepDuration, onDurationUpdate, onComplete }) => {
   }, [onDurationUpdate]);
 
   const syncCoinsFromServer = useCallback((serverCoins) => {
-    const existingCoins = coinsRef.current;
-    coinsRef.current = serverCoins.map((serverCoin) => {
-      const existingCoin = existingCoins.find((c) => c.id === serverCoin.id);
-      return {
-        ...serverCoin,
-        localX: serverCoin.collected ? (serverCoin.x ?? 374) : (existingCoin?.localX ?? (serverCoin.x ?? 374)),
-      };
-    });
-    console.log("Synced coins from server:", JSON.stringify(coinsRef.current.map(c => ({ id: c.id, localX: c.localX, y: c.y, collected: c.collected }))));
+    if (!Array.isArray(serverCoins)) {
+      console.warn("Invalid serverCoins data:", serverCoins);
+      coinsRef.current = [{ id: 1, x: 374, y: 100, spawnTime: new Date().toISOString(), collected: false, localX: 374 }];
+    } else {
+      const syncedTime = Date.now() + serverTimeOffsetRef.current;
+      coinsRef.current = serverCoins.map((serverCoin) => {
+        const spawnTime = new Date(serverCoin.spawnTime).getTime();
+        const coinAge = (syncedTime - spawnTime) / 1000;
+        const scaledX = (serverCoin.x ?? 374) * (canvasRef.current?.width / 374 || 1);
+        const localX = serverCoin.collected ? scaledX : scaledX + COIN_SPEED * Math.max(0, coinAge);
+        return { ...serverCoin, localX: isNaN(localX) ? scaledX : localX };
+      });
+    }
+    console.log("Synced coins:", coinsRef.current.map(c => ({ id: c.id, localX: c.localX, y: c.y, collected: c.collected })));
   }, []);
 
   useEffect(() => {
     coinImgRef.current = new Image();
     coinImgRef.current.src = Assets.Icons.energyUp;
-    coinImgRef.current.onload = () => console.log("Coin image loaded:", Assets.Icons.energyUp);
-    coinImgRef.current.onerror = () => console.error("Failed to load coin image:", Assets.Icons.energyUp);
+    coinImgRef.current.onload = () => console.log("Coin image loaded");
+    coinImgRef.current.onerror = () => console.error("Failed to load coin image");
 
     playerImgRef.current = new Image();
     playerImgRef.current.src = Assets.Icons.balance;
-    playerImgRef.current.onload = () => console.log("Player image loaded:", Assets.Icons.balance);
-    playerImgRef.current.onerror = () => console.error("Failed to load player image:", Assets.Icons.balance);
+    playerImgRef.current.onload = () => console.log("Player image loaded");
+    playerImgRef.current.onerror = () => console.error("Failed to load player image");
   }, []);
 
   useEffect(() => {
-    const fetchGameState = async () => {
-      try {
-        const response = await instance.get(`/users/sleep/state/${userId}`);
-        console.log("Server response:", JSON.stringify(response.data));
-        if (response.data.success) {
-          const serverTime = response.data.serverTime
-            ? new Date(response.data.serverTime).getTime()
-            : Date.now();
-          if (isNaN(serverTime)) {
-            console.error("Invalid server time, using client time as fallback");
-            serverTime = Date.now();
-          }
-          const clientTime = Date.now();
-          serverTimeOffsetRef.current = serverTime - clientTime;
-
-          syncCoinsFromServer(response.data.coins);
-          if (Math.abs(remainingSecondsRef.current - response.data.remainingSeconds) > 1) {
-            onDurationUpdateCallback(response.data.remainingSeconds);
-            remainingSecondsRef.current = response.data.remainingSeconds;
-          }
-          if (response.data.remainingSeconds <= 0) onComplete();
+    let syncInterval;
+    const setupWorker = () => {
+      if (typeof Worker !== "undefined") {
+        try {
+          const worker = new Worker("/sleepGameWorker.mjs");
+          workerRef.current = worker;
+          worker.onmessage = (event) => {
+            const { type, data, message } = event.data;
+            if (type === "log") console.log(`Worker log: ${message}`);
+            else if (type === "sync") {
+              console.log("Worker sync data:", data);
+              syncCoinsFromServer(data.coins);
+              pendingTimeUpdatesRef.current.push(data.remainingSeconds);
+              serverTimeOffsetRef.current = new Date(data.serverTime).getTime() - Date.now();
+              if (data.remainingSeconds <= 0) onComplete();
+            }
+          };
+          worker.onerror = (error) => {
+            console.error("Worker error:", error.message);
+            setupFallback();
+          };
+          worker.postMessage({ type: "init", userId });
+          worker.postMessage({ type: "syncRequest", userId });
+          syncInterval = setInterval(() => worker.postMessage({ type: "syncRequest", userId }), 10000);
+        } catch (e) {
+          console.error("Worker init error:", e.message);
+          setupFallback();
         }
-      } catch (err) {
-        console.error("Failed to fetch sleep game state:", err);
+      } else {
+        console.warn("Web Workers not supported");
+        setupFallback();
       }
     };
 
-    fetchGameState();
-    const interval = setInterval(fetchGameState, 10000); // Increased to 10 seconds
-    return () => clearInterval(interval);
-  }, [userId, onComplete, syncCoinsFromServer, onDurationUpdateCallback]);
+    const setupFallback = () => {
+      syncInterval = setInterval(async () => {
+        try {
+          const response = await instance.get(`/users/sleep/state/${userId}`);
+          if (response.data.success) {
+            syncCoinsFromServer(response.data.coins);
+            pendingTimeUpdatesRef.current.push(response.data.remainingSeconds);
+            serverTimeOffsetRef.current = new Date(response.data.serverTime).getTime() - Date.now();
+            if (response.data.remainingSeconds <= 0) onComplete();
+          }
+        } catch (err) {
+          console.error("Fallback fetch failed:", err);
+        }
+      }, 10000);
+    };
+
+    setupWorker();
+    return () => {
+      if (workerRef.current) workerRef.current.terminate();
+      if (syncInterval) clearInterval(syncInterval);
+    };
+  }, [userId, onComplete, syncCoinsFromServer]);
 
   const handleJump = useCallback(async () => {
     const player = playerRef.current;
     if (!player.jumping) {
       player.velocityY = -12;
       player.jumping = true;
+      const jumpTime = new Date().toISOString();
       try {
-        const jumpTime = new Date().toISOString();
         await instance.post(`/users/sleep/jump/${userId}`, { y: player.y, time: jumpTime });
         playerJumpsRef.current.push({ time: jumpTime, y: player.y });
       } catch (err) {
-        console.error("Failed to record jump:", err);
+        console.error("Jump record failed:", err);
       }
     }
   }, [userId]);
 
-  const collectCoin = useCallback((coin, playerX, playerY, jumpTime) => {
-    const canvas = canvasRef.current;
-    const unscaledClientCoinX = coin.localX * (374 / canvas.width);
-    console.log("Collecting coin:", { coinId: coin.id, playerX, playerY, clientCoinX: unscaledClientCoinX, coinLocalX: coin.localX });
-    const newCollection = { coinId: coin.id, collectionToken: coin.collectionToken, playerX, playerY, jumpTime, clientCoinX: unscaledClientCoinX };
-    if (!pendingCollectionsRef.current.some((c) => c.coinId === coin.id)) {
-      pendingCollectionsRef.current.push(newCollection);
-    }
+  const collectCoinLocally = useCallback((coinId) => {
+    coinsRef.current = coinsRef.current.map((coin) =>
+      coin.id === coinId ? { ...coin, collected: true } : coin
+    );
+    console.log(`Coin ${coinId} collected locally`);
   }, []);
 
-  useEffect(() => {
-    const processCollections = async () => {
-      if (pendingCollectionsRef.current.length === 0) return;
-      const collection = pendingCollectionsRef.current[0];
-      try {
-        const response = await instance.post(`/users/sleep/collect-coin/${userId}`, collection);
-        if (response.data.success) {
-          coinsRef.current = coinsRef.current.map((c) =>
-            c.id === collection.coinId ? { ...c, collected: true } : c
-          );
-          onDurationUpdateCallback(response.data.remainingSeconds);
-          if (response.data.remainingSeconds <= 0) onComplete();
-        }
-      } catch (err) {
-        console.error("Coin collection failed:", err);
-      } finally {
-        pendingCollectionsRef.current.shift();
-      }
+  const sendCollectionRequest = useCallback((collection) => {
+    const syncedTime = Date.now() + serverTimeOffsetRef.current;
+    const spawnTime = new Date(collection.spawnTime).getTime();
+    const coinAge = (syncedTime - spawnTime) / 1000;
+    const clientCoinX = collection.x + COIN_SPEED * coinAge;
+    const updatedCollection = {
+      ...collection,
+      clientCoinX,
+      collectionTime: new Date(syncedTime).toISOString(), // Send exact time
     };
-    processCollections();
-  }, [userId, onComplete, onDurationUpdateCallback]);
+    console.log("Sending collection:", updatedCollection);
+    instance.post(`/users/sleep/collect-coin/${userId}`, updatedCollection)
+      .then(response => {
+        if (response.data.success) {
+          console.log(`Coin ${collection.coinId} collected`);
+          const latestRemainingSeconds = pendingTimeUpdatesRef.current[pendingTimeUpdatesRef.current.length - 1];
+          if (latestRemainingSeconds !== undefined) {
+            onDurationUpdateCallback(latestRemainingSeconds);
+            pendingTimeUpdatesRef.current = [];
+          }
+        }
+      })
+      .catch(err => console.error("Collection failed:", err));
+  }, [userId, onDurationUpdateCallback]);
+
+  const triggerServerSync = useCallback(() => {
+    if (workerRef.current) workerRef.current.postMessage({ type: "syncRequest", userId });
+  }, [userId]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
     const player = playerRef.current;
     const gravity = 0.5;
-    const COIN_SPEED = -50;
     let animationFrameId;
 
-    canvas.width = canvas.offsetWidth;
-    canvas.height = canvas.offsetHeight;
+    canvas.width = 374;
+    canvas.height = 200;
+    canvas.style.width = "90%";
+    canvas.style.height = "auto";
     console.log("Canvas dimensions:", { width: canvas.width, height: canvas.height });
 
     const update = (currentTime) => {
-      const deltaTime = Math.min((currentTime - lastFrameTimeRef.current) / 1000, 0.1);
+      const deltaTime = (currentTime - lastFrameTimeRef.current) / 1000;
       lastFrameTimeRef.current = currentTime;
+      accumulatedTimeRef.current += deltaTime;
 
-      player.velocityY += gravity * deltaTime * 60;
-      player.y += player.velocityY * deltaTime * 60;
-      if (player.y > canvas.height - 40) {
-        player.y = canvas.height - 40;
-        player.velocityY = 0;
-        player.jumping = false;
-      }
-
-      const syncedTime = Date.now() + serverTimeOffsetRef.current;
-      coinsRef.current.forEach((coin) => {
-        if (!coin.collected) {
-          const spawnTime = new Date(coin.spawnTime).getTime();
-          const coinAge = (syncedTime - spawnTime) / 1000;
-          const scaledX = (coin.x ?? 374) * (canvas.width / 374);
-          coin.localX = isNaN(coinAge) ? scaledX : scaledX + COIN_SPEED * Math.max(0, coinAge);
+      while (accumulatedTimeRef.current >= FIXED_TIME_STEP) {
+        player.velocityY += gravity * FIXED_TIME_STEP * 60;
+        player.y += player.velocityY * FIXED_TIME_STEP * 60;
+        if (player.y > canvas.height - 40) {
+          player.y = canvas.height - 40;
+          player.velocityY = 0;
+          player.jumping = false;
         }
-      });
+
+        const syncedTime = Date.now() + serverTimeOffsetRef.current;
+        coinsRef.current.forEach((coin) => {
+          if (!coin.collected) {
+            const spawnTime = new Date(coin.spawnTime).getTime();
+            const coinAge = (syncedTime - spawnTime) / 1000;
+            const scaledX = (coin.x ?? 374) * (canvas.width / 374);
+            coin.localX = scaledX + COIN_SPEED * Math.max(0, coinAge);
+          }
+        });
+
+        accumulatedTimeRef.current -= FIXED_TIME_STEP;
+      }
 
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.fillStyle = "#1a1a1a";
@@ -172,14 +218,8 @@ const SleepGame = ({ sleepDuration, onDurationUpdate, onComplete }) => {
         ctx.fillRect(player.x, player.y, 40, 40);
       }
 
-      console.log("Rendering coins:", JSON.stringify(coinsRef.current.map(c => ({
-        id: c.id,
-        localX: c.localX,
-        y: c.y,
-        collected: c.collected
-      }))));
       coinsRef.current.forEach((coin) => {
-        if (!coin.collected && coin.localX !== null && coin.localX > -20 && coin.localX < canvas.width) {
+        if (!coin.collected && coin.localX >= -20 && coin.localX <= canvas.width) {
           if (coinImgRef.current && coinImgRef.current.complete) {
             ctx.drawImage(coinImgRef.current, coin.localX, coin.y, 20, 20);
           } else {
@@ -187,23 +227,33 @@ const SleepGame = ({ sleepDuration, onDurationUpdate, onComplete }) => {
             ctx.fillRect(coin.localX, coin.y, 20, 20);
           }
 
-          console.log("Collision check:", {
-            coinId: coin.id,
-            playerX: player.x,
-            playerY: player.y,
-            coinLocalX: coin.localX,
-            coinY: coin.y,
-            xOverlap: player.x < coin.localX + 20 && player.x + 40 > coin.localX,
-            yOverlap: player.y < coin.y + 20 && player.y + 40 > coin.y,
-          });
-          if (
-            player.x < coin.localX + 20 &&
-            player.x + 40 > coin.localX &&
-            player.y < coin.y + 20 &&
-            player.y + 40 > coin.y
-          ) {
-            const lastJumpTime = playerJumpsRef.current[playerJumpsRef.current.length - 1]?.time;
-            collectCoin(coin, player.x, player.y, lastJumpTime);
+          const playerLeft = player.x;
+          const playerRight = player.x + 40;
+          const playerTop = player.y;
+          const playerBottom = player.y + 40;
+          const coinLeft = coin.localX;
+          const coinRight = coin.localX + 20;
+          const coinTop = coin.y;
+          const coinBottom = coin.y + 20;
+
+          const xOverlap = playerRight > coinLeft && playerLeft < coinRight;
+          const yOverlap = playerBottom > coinTop && playerTop < coinBottom;
+
+          if (xOverlap && yOverlap) {
+            console.log(`Collision detected: coin ${coin.id}`);
+            collectCoinLocally(coin.id);
+            const lastJumpTime = playerJumpsRef.current[playerJumpsRef.current.length - 1]?.time || null;
+            const collection = {
+              coinId: coin.id,
+              collectionToken: coin.collectionToken,
+              playerX: player.x,
+              playerY: player.y,
+              jumpTime: lastJumpTime,
+              x: coin.x,
+              spawnTime: coin.spawnTime,
+            };
+            sendCollectionRequest(collection);
+            triggerServerSync();
           }
         }
       });
@@ -213,16 +263,14 @@ const SleepGame = ({ sleepDuration, onDurationUpdate, onComplete }) => {
 
     animationFrameId = requestAnimationFrame(update);
     canvas.addEventListener("click", handleJump);
-    window.addEventListener("keydown", (e) => {
-      if (e.code === "Space") handleJump();
-    });
+    window.addEventListener("keydown", (e) => { if (e.code === "Space") handleJump(); });
 
     return () => {
       cancelAnimationFrame(animationFrameId);
       canvas.removeEventListener("click", handleJump);
       window.removeEventListener("keydown", handleJump);
     };
-  }, [handleJump, collectCoin]);
+  }, [handleJump, collectCoinLocally, sendCollectionRequest, triggerServerSync]);
 
   return (
     <canvas
@@ -235,7 +283,7 @@ const SleepGame = ({ sleepDuration, onDurationUpdate, onComplete }) => {
         top: "26.5%",
         left: "5%",
         width: "90%",
-        height: "200px",
+        height: "auto",
         zIndex: 999999,
       }}
     />
