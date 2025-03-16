@@ -267,25 +267,6 @@ const SkillTab = ({
         );
     }, [state.userLearningSkills]);
 
-    const getButtonInfo = useCallback((skill) => {
-        const learning = checkLearningSkill(skill?.skill_id);
-        const learned = checkLearnedSkill(skill?.skill_id);
-        return {
-            text: learned ? translations.learned[lang] : 
-                  learning ? translations.learning[lang] : 
-                  skill?.coins_price,
-            icon: learned || learning ? null : Icons.balance,
-        };
-    }, [checkLearningSkill, checkLearnedSkill, lang, Icons.balance]);
-
-    const getEffectButtonInfo = useCallback((effect) => {
-        const learning = checkLearningEffect(effect?.next?.id);
-        return {
-            text: learning ? translations.learning[lang] : effect?.next?.price,
-            icon: learning ? null : Icons.balance,
-        };
-    }, [checkLearningEffect, lang, Icons.balance]);
-
     const { refreshData } = useUser()
 
     const handleBuySkill = useCallback(async (skill, sub_type = null) => {
@@ -540,43 +521,11 @@ const SkillTab = ({
         return [[timerBar], [accessBar]];
     }, [checkLearnedSkill, checkLearningSkill, userParameters, Icons, translations, lang]);
 
-    const getItemEffectsParamsBlock = useCallback((effect) => {
-        const learning = checkLearningEffect(effect?.next?.id);
-        const totalSeconds = learning?.totalSeconds || (effect.next.duration * 60);
-        const remainingSeconds = learning?.remainingSeconds || totalSeconds;
-
-        const timerBar = {
-            icon: Icons.clock,
-            fillPercent: learning ? countPercentage(
-                remainingSeconds,
-                totalSeconds
-            ) : 0,
-            value: learning ? learning.formattedTime : formatTime(effect.next.duration),
-        };
-
-        const accessStatus = !learning && 
-            userParameters?.coins >= effect.next.price && 
-            userParameters.level >= effect.next.required_level;
-
-        const accessBar = {
-            icon: accessStatus ? Icons.unlockedIcon : Icons.lockedIcon,
-            value: accessStatus ? translations.available[lang] : translations.unavailable[lang],
-        };
-
-        return [[timerBar], [accessBar]];
-    }, [checkLearningEffect, userParameters, Icons, translations, lang]);
-
     const openSkillModal = useCallback((skill) => {
         const modalData = createSkillModalData(skill);
         setModalData(modalData);
         setVisibleModal(true);
     }, [createSkillModalData, setModalData, setVisibleModal]);
-
-    const openEffectModal = useCallback((effect) => {
-        const modalData = createEffectModalData(effect);
-        setModalData(modalData);
-        setVisibleModal(true);
-    }, [createEffectModalData, setModalData, setVisibleModal]);
 
     const getItemSkillButton = useCallback((skill) => {
         const learned = checkLearnedSkill(skill?.skill_id);
@@ -595,20 +544,6 @@ const SkillTab = ({
             active: learning ? true : active,
         }];
     }, [checkLearnedSkill, checkLearningSkill, userParameters, lang, Icons, translations, openSkillModal]);
-
-    const getItemEffectButton = useCallback((effect) => {
-        const learning = checkLearningEffect(effect?.next?.id);
-        const active = !learning && 
-            userParameters?.coins >= effect.next.price && 
-            userParameters.level >= effect.next.required_level;
-
-        return [{
-            text: learning ? translations.learning[lang] : effect?.next?.price,
-            icon: learning ? null : Icons.balance,
-            onClick: () => openEffectModal(effect),
-            active,
-        }];
-    }, [checkLearningEffect, userParameters, lang, Icons, translations, openEffectModal]);
 
     useEffect(() => {
         if (!modalData || !state.isInitialized || modalUpdateRef.current) return;

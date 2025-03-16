@@ -49,9 +49,12 @@ export const getActiveProcess = async (userId) => {
     }
   }
   
-  export const checkCanStop = async (userId) => {
+  export const checkCanStop = async (userId, id, sub_type) => {
     try {
-      const response = await instance.get(`/process/check-can-stop/${userId}/`)
+      const response = await instance.post(`/process/check-can-stop/${userId}/`, {
+        id,
+        sub_type
+      })
       console.log(response.data)
       return response.data
     } catch (e) {

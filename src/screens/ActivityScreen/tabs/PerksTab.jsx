@@ -22,6 +22,7 @@ import formatTime from "../../../utils/formatTime";
 import countPercentage from "../../../utils/countPercentage.js";
 import { useSettingsProvider } from "../../../hooks";
 import { useUser } from "../../../UserContext.jsx";
+import FullScreenSpinner from "../../Home/FullScreenSpinner.jsx";
 
 const SYNC_INTERVAL = 5 * 60 * 1000;
 const TICK_INTERVAL = 1000;
@@ -95,6 +96,7 @@ const PerksTab = ({
 
     const initializeData = useCallback(async () => {
         try {
+            isInitializingRef.current = true; // Prevent concurrent updates
             const [
                 learningSkills,
                 boosts,
@@ -112,7 +114,7 @@ const PerksTab = ({
                 getUserSkills(userId),
                 getTrainingParameters(userId),
             ]);
-
+    
             if (mountedRef.current) {
                 setState(prev => ({
                     ...prev,
@@ -130,14 +132,14 @@ const PerksTab = ({
                             formattedTime: formatTime(
                                 Math.floor(initialRemaining / 60),
                                 initialRemaining % 60
-                            ) || "0:00"
+                            ) || "0:00",
                         };
                     }),
                     userLearnedSkills: userSkills,
                     trainingParameters: trainingParams,
                     activeProcess: activeProc,
                     userBoosts: boosts,
-                    isInitialized: true,
+                    isInitialized: true, // Always set to true after successful initialization
                 }));
             }
         } catch (error) {
@@ -149,42 +151,44 @@ const PerksTab = ({
 
     useEffect(() => {
         mountedRef.current = true;
-        initializeData();
+        if (!state.isInitialized) { // Only initialize if not already initialized
+            initializeData();
+        }
         return () => {
             mountedRef.current = false;
             if (timerRef.current) {
                 timerRef.current.clear();
             }
         };
-    }, [initializeData]);
+    }, [initializeData, state.isInitialized]);
 
     const setupTimer = useCallback(() => {
         if (!state.userLearningSkills?.length || !state.isInitialized || state.timerRunning) {
             return;
         }
-
+    
         setState(prev => ({ ...prev, timerRunning: true }));
-
+    
         const tick = () => {
             if (!mountedRef.current) return;
-
+    
             setState(prev => {
                 const updatedSkills = calculateTime(prev.userLearningSkills);
                 const allCompleted = updatedSkills.every(skill => skill.remainingSeconds <= 0);
-
+    
                 if (allCompleted) {
                     if (timerRef.current) {
                         timerRef.current.clear();
                     }
-                    initializeData();
+                    // Instead of resetting everything, trigger a data refresh
+                    initializeData(); // Re-fetch data without resetting isInitialized yet
                     return {
                         ...prev,
-                        userLearningSkills: [],
-                        isInitialized: false,
+                        userLearningSkills: updatedSkills, // Keep updated skills until new data arrives
                         timerRunning: false,
                     };
                 }
-
+    
                 lastSkillsRef.current = updatedSkills;
                 return {
                     ...prev,
@@ -192,10 +196,10 @@ const PerksTab = ({
                 };
             });
         };
-
+    
         tick(); // Initial tick
         const tickInterval = setInterval(tick, TICK_INTERVAL);
-
+    
         timerRef.current = {
             clear: () => {
                 clearInterval(tickInterval);
@@ -203,41 +207,9 @@ const PerksTab = ({
                 setState(prev => ({ ...prev, timerRunning: false }));
             },
         };
-
-        // Optional server sync
-        const syncInterval = setInterval(async () => {
-            if (!mountedRef.current) return;
-            try {
-                const serverTime = await getServerTime();
-                const drift = serverTime.diff(moment());
-                if (Math.abs(drift) > 5000) { // Adjust if drift > 5 seconds
-                    setState(prev => {
-                        const updatedSkills = prev.userLearningSkills.map(skill => {
-                            const adjustedRemaining = Math.max(0, skill.remainingSeconds - Math.floor(drift / 1000));
-                            return {
-                                ...skill,
-                                remainingSeconds: adjustedRemaining,
-                                formattedTime: formatTime(
-                                    Math.floor(adjustedRemaining / 60),
-                                    adjustedRemaining % 60
-                                ) || "0:00"
-                            };
-                        });
-                        lastSkillsRef.current = updatedSkills;
-                        return {
-                            ...prev,
-                            userLearningSkills: updatedSkills,
-                        };
-                    });
-                }
-            } catch (error) {
-                console.error("Sync failed:", error);
-            }
-        }, SYNC_INTERVAL);
-
+    
         timerRef.current.clear = () => {
             clearInterval(tickInterval);
-            clearInterval(syncInterval);
             timerRef.current = null;
             setState(prev => ({ ...prev, timerRunning: false }));
         };
@@ -574,7 +546,7 @@ const PerksTab = ({
         }
     }, [state.userLearningSkills]);
 
-    if (!state.isInitialized) return null;
+    if (!state.isInitialized) return <FullScreenSpinner/>;
 
     return (
         <ScreenContainer withTab>
