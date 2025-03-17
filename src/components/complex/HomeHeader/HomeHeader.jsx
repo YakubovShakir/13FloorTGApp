@@ -463,7 +463,7 @@ const StatItem = memo(({ title, iconLeft, value, color }) => (
       />
     )}
     <div style={{ flex: 1 }}>
-      <p style={{ color: "#fff", fontSize: 14, margin: 0 }}>{title}</p>
+      <p style={{ color: "#fff", fontSize: 14, margin: 0 , fontWeight: "200" }}>{title}</p>
     </div>
     <p
       style={{
@@ -691,7 +691,7 @@ const StatsModal = memo(({ baseStyles, setIsStatsShown, clothing }) => {
             display: "flex",
             background: "#1a1a1a",
             borderRadius: 20,
-            padding: 4,
+            
             marginBottom: 20,
           }}
         >
@@ -706,6 +706,7 @@ const StatsModal = memo(({ baseStyles, setIsStatsShown, clothing }) => {
               color: "#fff",
               fontWeight: "bold",
               cursor: "pointer",
+              fontFamily: "Oswald"
             }}
             onClick={() => setActiveTab("stats")}
           >
@@ -722,6 +723,7 @@ const StatsModal = memo(({ baseStyles, setIsStatsShown, clothing }) => {
               color: "#fff",
               fontWeight: "bold",
               cursor: "pointer",
+              fontFamily: "Oswald",
             }}
             onClick={() => setActiveTab("effects")}
           >
@@ -731,7 +733,7 @@ const StatsModal = memo(({ baseStyles, setIsStatsShown, clothing }) => {
 
         <div
           style={{
-            height: 400,
+            height: 340,
             overflowY: "auto",
             padding: "0",
           }}

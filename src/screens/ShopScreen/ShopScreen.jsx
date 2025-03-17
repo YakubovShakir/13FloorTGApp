@@ -8,12 +8,13 @@ import { useNavigate } from "react-router-dom"
 import UserContext from "../../UserContext"
 import CoinsTab from "./tabs/CoinsTab"
 import InventoryTab from "./tabs/InventoryTab"
+import NftTab from "./tabs/NftTab"
 import { useSettingsProvider } from "../../hooks"
 
 const translations = {
   clothes: {
-    ru: 'Одежда',
-    en: 'Clothes'
+    ru: 'Коллекция',
+    en: 'Collection'
   },
   collection: {
     ru: 'Коллекция',
@@ -21,7 +22,11 @@ const translations = {
   },
   shop: {
     ru: 'Магазин',
-    en: 'Shop'
+    en: 'Shop',
+  },
+  nft: {
+    ru: 'NFT',
+    en: 'NFT',
   }
 }
 
@@ -35,7 +40,7 @@ const ShopScreen = () => {
   const tabs = [
     { label: translations.collection[lang], callback: () => setActiveTab("inventory") },
     { label: translations.shop[lang], callback: () => setActiveTab("coins") },
-    // { icon: Icons.starsIcon, callback: () => setActiveTab("stars") },
+    { label: translations.nft[lang], callback: () => setActiveTab("nft") },
   ]
 
   useEffect(() => {
@@ -64,7 +69,14 @@ const ShopScreen = () => {
             setUserParameters={setUserParameters}
           />
         )}
-        {/* Store Data */}
+         {/* NFT Tab */}
+         {activeTab === "nft" && (
+          <NftTab
+            userId={userId}
+            userParameters={userParameters}
+            setUserParameters={setUserParameters}
+          />
+        )}
       </ScreenBody>
     </Screen>
   )
