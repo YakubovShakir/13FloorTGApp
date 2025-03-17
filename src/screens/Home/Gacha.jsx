@@ -567,8 +567,7 @@ const GachaOverlay = () => {
                         height: "auto",
                         padding: "20px",
                         position: "relative",
-                        background: "repeating-linear-gradient(45deg, rgba(0, 0, 0, 0.21), rgba(0, 0, 0, 0.21) 2px, rgba(57, 57, 57, 0.06) 2px, rgba(57, 57, 57, 0.06) 6px) rgba(0, 0, 0, 0.51)",
-                      }}
+                         }}
                     >
                       <h2 style={{ fontFamily: "Oswald", color: "#fff", marginBottom: "11px", textTransform: "uppercase" }}>
                         {translations.youWon[lang]}
@@ -587,6 +586,8 @@ const GachaOverlay = () => {
                             height: "120px",
                             borderRadius: "10px",
                             border: "2px solid #ff7700",
+                            background: "repeating-linear-gradient(45deg, rgba(0, 0, 0, 0.21), rgba(0, 0, 0, 0.21) 2px, rgba(57, 57, 57, 0.06) 2px, rgba(57, 57, 57, 0.06) 6px) rgba(0, 0, 0, 0.51)",
+                    
                           }}
                         />
                         <p style={{ fontFamily: "Oswald", color: "#fff", fontSize: "28px", margin: "15px 0" }}>

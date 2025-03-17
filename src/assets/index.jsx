@@ -262,6 +262,8 @@ import sleepSheep1 from './IMG/sleepSheep1.webp'
 import sleepSheep2 from './IMG/sleepSheep2.webp'
 import sleepSheepJump from './IMG/sleepSheepJump.webp'
 import sleepSheepGround from './IMG/sleepSheepGround.webp'
+import sleepSheepGroundGif from './IMG/sleepSheepGroundGif.gif'
+
 import sleepSheepCloud from './IMG/sleepSheepCloud.webp'
 
 export function getImgUrl(name) {
@@ -300,7 +302,8 @@ const Assets = {
     sleepSheep2,
     sleepSheepJump,
     sleepSheepGround,
-    sleepSheepCloud
+    sleepSheepCloud,
+    sleepSheepGroundGif
   },
   Layers: {
     cover,

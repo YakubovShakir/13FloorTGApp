@@ -38,7 +38,7 @@ const SleepGame = ({
 
   const FIXED_TIME_STEP = 1 / 60;
   const COIN_SPEED = -50;
-  const FRAME_DURATION = 0.1; // Time per frame in seconds
+  const FRAME_DURATION = 0.2; // Time per frame in seconds
   const CLOUD_SPEED = -20;
 
   const syncCoinsFromServer = useCallback((serverCoins, serverTime) => {
@@ -75,7 +75,7 @@ const SleepGame = ({
     coinImgRef.current.src = Assets.Icons.energyUp;
 
     groundImgRef.current = new Image();
-    groundImgRef.current.src = Assets.Images.sleepSheepGround;
+    groundImgRef.current.src = Assets.Images.sleepSheepGroundGif;
 
     cloudImgRef.current = new Image();
     cloudImgRef.current.src = Assets.Images.sleepSheepCloud;
@@ -265,6 +265,7 @@ const SleepGame = ({
     const gravity = 0.5;
     let animationFrameId;
 
+   
     canvas.width = 374;
     canvas.height = 200;
 
@@ -272,8 +273,8 @@ const SleepGame = ({
     const generateCloud = () => ({
       x: Math.random() * (canvas.width + 200),
       y: Math.random() * (canvas.height - 80),
-      width: 60,
-      height: 40,
+      width: 80,
+      height: 80,
     });
     cloudsRef.current = [generateCloud(), generateCloud(), generateCloud()];
 
@@ -325,7 +326,7 @@ const SleepGame = ({
 
       // Rendering
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = "#87CEEB"; // Sky blue background
+      ctx.fillStyle = "#00000000"; // Sky blue background
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       // Draw clouds
@@ -334,11 +335,11 @@ const SleepGame = ({
       });
 
       // Draw ground as a single full-width image
-      ctx.drawImage(groundImgRef.current, 0, canvas.height - 40, canvas.width, 40);
+      ctx.drawImage(groundImgRef.current, 0, canvas.height - 0, canvas.width, 45);
 
       // Draw player
       const currentFrame = player.jumping ? 2 : player.frame; // 2 is jump frame
-      ctx.drawImage(playerFramesRef.current[currentFrame], player.x, player.y, 40, 40);
+      ctx.drawImage(playerFramesRef.current[currentFrame], player.x, player.y, 70, 70);
 
       // Draw coins
       coinsRef.current.forEach((coin) => {
@@ -391,21 +392,52 @@ const SleepGame = ({
 
   // Only render canvas when assets are loaded, with fade-in effect
   return assetsLoaded ? (
+    <div
+    style={{
+      background: "linear-gradient(0deg, rgba(231, 231, 231, 1) 44%, rgba(208, 208, 208, 0) 100%)",
+      backgroundColor: "black",
+      borderBottom: "3px solid rgb(32 20 30)",
+      borderRadius: "8px",
+      position: "absolute",
+      top: "26.5%",
+      left: "0%",
+      width: "100%",
+      height: "200px",
+      zIndex: 999999,
+      opacity: 0,
+      animation: "fadeIn 0.5s ease-in forwards",
+      overflow: "hidden", // Чтобы содержимое не выходило за границы
+    }}
+  >
+    {/* Анимированная гифка земли */}
+    <img
+      src={groundImgRef.current.src} // Путь к вашей гифке
+      alt="Animated Ground"
+      style={{
+        position: "absolute",
+        bottom: 0, // Привязываем к нижней части контейнера
+        left: 0,
+        width: "100%", // Растягиваем на всю ширину контейнера
+        height: "45px", // Высота земли (как в ctx.drawImage)
+        zIndex: 1, // Под канвасом
+      }}
+    />
     <canvas
       ref={canvasRef}
       style={{
-        border: "1px solid #fff",
+        
         borderRadius: "8px",
         position: "fixed",
         top: "26.5%",
-        left: "5%",
-        width: "90%",
+        left: "0%",
+        width: "100%",
         height: "auto",
         zIndex: 999999,
         opacity: 0, // Start invisible
         animation: "fadeIn 0.5s ease-in forwards", // Fade in over 0.5s
       }}
     />
+    </div>
   ) : null;
 };
 
