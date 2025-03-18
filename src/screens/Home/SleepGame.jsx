@@ -34,8 +34,8 @@ const SleepGame = ({
   const [assetsLoaded, setAssetsLoaded] = useState(false);
 
   const FIXED_TIME_STEP = 1 / 60;
-  const COIN_SPEED = -50; // Coins approach player
-  const CLOUD_SPEED = -20; // Clouds move slower for parallax
+  const COIN_SPEED = -50;
+  const CLOUD_SPEED = -20;
   const FRAME_DURATION = 0.2;
 
   const syncCoinsFromServer = useCallback(async (isInitial = false) => {
@@ -44,19 +44,16 @@ const SleepGame = ({
       if (response.data.success) {
         const serverTime = new Date(response.data.serverTime).getTime();
         if (isInitial && serverTimeOffsetRef.current === null) {
-          serverTimeOffsetRef.current = serverTime - Date.now(); // Calculate drift once
+          serverTimeOffsetRef.current = serverTime - Date.now();
         }
 
         const serverCoins = response.data.coins || [];
         const updatedCoins = serverCoins
           .filter(coin => !collectedCoinsRef.current.has(coin.id) && !coin.collected)
-          .map(coin => {
-            const existingCoin = coinsRef.current.find(c => c.id === coin.id);
-            return {
-              ...coin,
-              localX: existingCoin ? existingCoin.localX : coin.x,
-            };
-          });
+          .map(coin => ({
+            ...coin,
+            localX: coin.x + COIN_SPEED * ((Date.now() + (serverTimeOffsetRef.current || 0) - new Date(coin.spawnTime).getTime()) / 1000),
+          }));
         coinsRef.current = updatedCoins;
         remainingSecondsRef.current = response.data.remainingSeconds;
         onDurationUpdate(response.data.remainingSeconds);
@@ -92,9 +89,8 @@ const SleepGame = ({
   }, []);
 
   useEffect(() => {
-    syncCoinsFromServer(true); // Initial sync with drift
+    syncCoinsFromServer(true);
     syncIntervalRef.current = setInterval(() => syncCoinsFromServer(false), 2000);
-
     return () => {
       if (syncIntervalRef.current) clearInterval(syncIntervalRef.current);
     };
@@ -122,23 +118,8 @@ const SleepGame = ({
   }, []);
 
   const queueCollection = useCallback(async (collection) => {
-    const now = Date.now() + (serverTimeOffsetRef.current || 0);
-    const spawnTime = new Date(collection.spawnTime).getTime();
-    const coinAge = (now - spawnTime) / 1000;
-    const updatedCollection = {
-      coinId: collection.coinId,
-      collectionToken: collection.collectionToken || null,
-      playerX: collection.playerX,
-      playerY: collection.playerY,
-      jumpTime: collection.jumpTime,
-      x: collection.x,
-      spawnTime: collection.spawnTime,
-      clientCoinX: collection.x + COIN_SPEED * coinAge,
-      collectionTime: new Date(now).toISOString(),
-    };
-
     try {
-      const response = await instance.post(`/users/sleep/collect-coin/${userId}`, updatedCollection);
+      const response = await instance.post(`/users/sleep/collect-coin/${userId}`, collection);
       if (response.data.success) {
         remainingSecondsRef.current = response.data.remainingSeconds;
         onDurationUpdate(response.data.remainingSeconds);
@@ -162,11 +143,10 @@ const SleepGame = ({
     canvas.height = 200;
 
     const generateCloud = () => ({
-      x: canvas.width + Math.random() * 200, // Start off-screen right
+      x: canvas.width + Math.random() * 200,
       y: Math.random() * (canvas.height - 80),
       width: 80,
       height: 80,
-      zIndex: 1000
     });
     cloudsRef.current = [generateCloud(), generateCloud(), generateCloud()];
 
@@ -191,10 +171,10 @@ const SleepGame = ({
         });
 
         cloudsRef.current.forEach(cloud => {
-          cloud.x += CLOUD_SPEED * FIXED_TIME_STEP; // Smooth movement
+          cloud.x += CLOUD_SPEED * FIXED_TIME_STEP;
           if (cloud.x < -cloud.width) {
-            cloud.x = canvas.width + cloud.width; // Reset to right edge
-            cloud.y = Math.random() * (canvas.height - 80); // Random Y
+            cloud.x = canvas.width + cloud.width;
+            cloud.y = Math.random() * (canvas.height - 80);
           }
         });
 
@@ -219,16 +199,16 @@ const SleepGame = ({
 
       coinsRef.current.forEach(coin => {
         if (!collectedCoinsRef.current.has(coin.id) && coin.localX >= -20 && coin.localX <= canvas.width) {
-          ctx.drawImage(coinImgRef.current, coin.localX, coin.y, 30, 30);
+          ctx.drawImage(coinImgRef.current, coin.localX, coin.y, 20, 20);
 
           const playerLeft = player.x;
-          const playerRight = player.x + 70;
+          const playerRight = player.x + 40; // Backend width
           const playerTop = player.y;
-          const playerBottom = player.y + 70;
-          const coinLeft = coin.localX;
-          const coinRight = coin.localX + 20;
-          const coinTop = coin.y;
-          const coinBottom = coin.y + 20;
+          const playerBottom = player.y + 40; // Backend height
+          const coinLeft = coin.localX - 20; // bufferX
+          const coinRight = coin.localX + 20; // bufferX + width
+          const coinTop = coin.y - 20; // bufferY
+          const coinBottom = coin.y + 20; // bufferY + height
 
           const xOverlap = playerRight > coinLeft && playerLeft < coinRight;
           const yOverlap = playerBottom > coinTop && playerTop < coinBottom;
@@ -247,7 +227,8 @@ const SleepGame = ({
               jumpTime: lastJumpTime,
               x: coin.x,
               spawnTime: coin.spawnTime,
-              clientCoinX: coin.localX, // Use exact collision X
+              clientCoinX: coin.localX,
+              collectionTime: new Date(now).toISOString(),
             };
             queueCollection(collection);
           }
