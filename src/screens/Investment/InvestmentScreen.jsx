@@ -134,6 +134,7 @@ const Modal = ({ bottom, left, width, height, data, onClose, logoWidth }) => {
     cost: { en: "Cost", ru: "Стоимость" },
     requiredLevel: { en: "Required Level", ru: "Необходимый уровень" },
     requiredSkill: { en: "Required Skill", ru: "Требуемый навык" },
+    requiredRespect: { en: "Respect Required", ru: "Необходимо респекта" }
   };
 
   const getRefLink = () => {
