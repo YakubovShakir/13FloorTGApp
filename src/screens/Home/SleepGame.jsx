@@ -12,260 +12,270 @@ const SleepGame = ({
   const { userId } = useUser();
   const coinsRef = useRef([]);
   const collectedCoinsRef = useRef(new Set());
-  const playerRef = useRef({
-    x: 50,
-    y: 120, // On ground (200 - 80)
-    velocityY: 0,
-    jumping: false,
-    frame: 0,
-    frameTime: 0,
-  });
-  const cloudsRef = useRef([]); // Initialize here
+  const playerRef = useRef({ x: 50, y: 120, velocityY: 0, jumping: false, frame: 0, frameTime: 0 });
+  const cloudsRef = useRef([]);
   const lastFrameTimeRef = useRef(performance.now());
   const accumulatedTimeRef = useRef(0);
   const remainingSecondsRef = useRef(initialSleepDuration);
   const lastReportedSecondsRef = useRef(initialSleepDuration);
   const playerJumpsRef = useRef([]);
-  const coinImgRef = useRef(null);
-  const playerFramesRef = useRef([]);
-  const groundImgRef = useRef(null);
-  const cloudImgRef = useRef(null);
+  const assetsRef = useRef({});
   const syncIntervalRef = useRef(null);
-  const serverTimeOffsetRef = useRef(null);
-  const [assetsLoaded, setAssetsLoaded] = useState(false);
+  const animationFrameRef = useRef(null);
+  const [isLoaded, setIsLoaded] = useState(false);
 
   const FIXED_TIME_STEP = 1 / 60;
   const COIN_SPEED = -50;
   const CLOUD_SPEED = -20;
   const FRAME_DURATION = 0.2;
-  const CLOUD_SPACING = 120;
+  const CLOUD_SPACING = 100;
+  const CLOUD_COUNT = 10;
 
-  // Initialize clouds once on mount
-  useEffect(() => {
-    const generateCloud = (startX) => ({
-      x: startX,
-      y: Math.random() * (canvasRef.current?.width ? canvasRef.current.height - 80 : 120),
+  // Preload assets
+  const preloadAssets = useCallback(async () => {
+    const assetPromises = [
+      ["coin", Assets.Icons.energyUp],
+      ["ground", Assets.Images.sleepSheepGroundGif],
+      ["cloud", Assets.Images.sleepSheepCloud],
+      ["player1", Assets.Images.sleepSheep1],
+      ["player2", Assets.Images.sleepSheep2],
+      ["playerJump", Assets.Images.sleepSheepJump],
+    ].map(([key, src]) =>
+      new Promise((resolve) => {
+        const img = new Image();
+        img.src = src;
+        img.onload = () => {
+          assetsRef.current[key] = img;
+          resolve();
+        };
+        img.onerror = () => {
+          assetsRef.current[key] = null;
+          resolve();
+        };
+      })
+    );
+
+    await Promise.all(assetPromises);
+    setIsLoaded(true);
+  }, []);
+
+  // Initialize clouds
+  const initializeClouds = useCallback(() => {
+    const canvasWidth = 374;
+    cloudsRef.current = Array.from({ length: CLOUD_COUNT }, (_, i) => ({
+      x: i * CLOUD_SPACING,
+      y: Math.random() * 120,
       width: 80,
       height: 80,
-    });
+    }));
+    while (cloudsRef.current[cloudsRef.current.length - 1].x < canvasWidth + CLOUD_SPACING * 2) {
+      cloudsRef.current.push({
+        x: cloudsRef.current[cloudsRef.current.length - 1].x + CLOUD_SPACING,
+        y: Math.random() * 120,
+        width: 80,
+        height: 80,
+      });
+    }
+  }, []);
 
-    cloudsRef.current = Array.from({ length: 6 }, (_, i) =>
-      generateCloud(i * CLOUD_SPACING)
-    ); // [0, 120, 240, 360, 480, 600]
-    // console.log("Clouds initialized:", cloudsRef.current.map(c => `x=${c.x}`));
-  }, []); // Empty deps = run once on mount
-
-  const syncCoinsFromServer = useCallback(async (isInitial = false) => {
+  // Sync coins from server (no time sync)
+  const syncCoinsFromServer = useCallback(async () => {
     try {
       const response = await instance.get(`/users/sleep/state/${userId}`);
-      if (response.data.success) {
-        const serverTime = new Date(response.data.serverTime).getTime();
-        if (isInitial && serverTimeOffsetRef.current === null) {
-          serverTimeOffsetRef.current = serverTime - Date.now();
-        }
+      if (!response.data.success) return;
 
-        const now = Date.now() + (serverTimeOffsetRef.current || 0);
-        const serverCoins = response.data.coins || [];
-        coinsRef.current = serverCoins
-          .filter(coin => !collectedCoinsRef.current.has(coin.id) && !coin.collected)
-          .map(coin => {
-            const spawnTime = new Date(coin.spawnTime).getTime();
-            const coinAge = (now - spawnTime) / 1000;
-            return { ...coin, localX: coin.x + COIN_SPEED * coinAge };
-          });
+      const now = Date.now();
+      const serverCoins = response.data.coins || [];
+      coinsRef.current = serverCoins
+        .filter((coin) => !collectedCoinsRef.current.has(coin.id) && !coin.collected)
+        .map((coin) => ({
+          ...coin,
+          localX: coin.x + COIN_SPEED * ((now - new Date(coin.spawnTime).getTime()) / 1000),
+        }));
 
-        const newRemainingSeconds = response.data.remainingSeconds;
-        remainingSecondsRef.current = newRemainingSeconds;
-        if (Math.abs(newRemainingSeconds - lastReportedSecondsRef.current) >= 1) {
-          onDurationUpdate(newRemainingSeconds);
-          lastReportedSecondsRef.current = newRemainingSeconds;
-        }
-        if (newRemainingSeconds <= 0) onComplete();
+      const newRemainingSeconds = response.data.remainingSeconds;
+      remainingSecondsRef.current = newRemainingSeconds;
+      if (Math.abs(newRemainingSeconds - lastReportedSecondsRef.current) >= 1) {
+        onDurationUpdate(newRemainingSeconds);
+        lastReportedSecondsRef.current = newRemainingSeconds;
       }
+      if (newRemainingSeconds <= 0) onComplete();
     } catch (err) {
-      console.error("Sync failed:", err);
+      // Silent fail
     }
   }, [userId, onDurationUpdate, onComplete]);
 
-  useEffect(() => {
-    coinImgRef.current = new Image();
-    coinImgRef.current.src = Assets.Icons.energyUp;
-    groundImgRef.current = new Image();
-    groundImgRef.current.src = Assets.Images.sleepSheepGroundGif;
-    cloudImgRef.current = new Image();
-    cloudImgRef.current.src = Assets.Images.sleepSheepCloud;
-    playerFramesRef.current = [new Image(), new Image(), new Image()];
-    playerFramesRef.current[0].src = Assets.Images.sleepSheep1;
-    playerFramesRef.current[1].src = Assets.Images.sleepSheep2;
-    playerFramesRef.current[2].src = Assets.Images.sleepSheepJump;
-
-    const checkImages = () => {
-      const allLoaded =
-        coinImgRef.current.complete &&
-        groundImgRef.current.complete &&
-        cloudImgRef.current.complete &&
-        playerFramesRef.current.every(img => img.complete);
-      if (allLoaded) setAssetsLoaded(true);
-      else setTimeout(checkImages, 100);
-    };
-    checkImages();
-  }, []);
-
-  useEffect(() => {
-    syncCoinsFromServer(true);
-    syncIntervalRef.current = setInterval(() => syncCoinsFromServer(false), 2000);
-    return () => clearInterval(syncIntervalRef.current);
-  }, [syncCoinsFromServer]);
-
+  // Handle jump
   const handleJump = useCallback(async () => {
     const player = playerRef.current;
     if (!player.jumping) {
       player.velocityY = -12;
       player.jumping = true;
-      const jumpTime = new Date(Date.now() + (serverTimeOffsetRef.current || 0)).toISOString();
+      const jumpTime = new Date().toISOString();
+      playerJumpsRef.current.push({ time: jumpTime, y: player.y });
       try {
         await instance.post(`/users/sleep/jump/${userId}`, { y: player.y, time: jumpTime });
-        playerJumpsRef.current.push({ time: jumpTime, y: player.y });
       } catch (err) {
-        console.error("Jump record failed:", err);
+        // Silent fail
       }
     }
   }, [userId]);
 
-  const collectCoinLocally = useCallback((coinId) => {
-    collectedCoinsRef.current.add(coinId);
-    coinsRef.current = coinsRef.current.filter(coin => coin.id !== coinId);
-  }, []);
+  // Collect coin and update duration locally
+  const collectCoinLocally = useCallback(
+    (coinId) => {
+      collectedCoinsRef.current.add(coinId);
+      coinsRef.current = coinsRef.current.filter((coin) => coin.id !== coinId);
+      const newRemainingSeconds = Math.max(remainingSecondsRef.current - 10, 0); // Reduce by 10s, min 0
+      remainingSecondsRef.current = newRemainingSeconds;
+      onDurationUpdate(newRemainingSeconds);
+      lastReportedSecondsRef.current = newRemainingSeconds;
+      if (newRemainingSeconds <= 0) onComplete();
+    },
+    [onDurationUpdate, onComplete]
+  );
 
-  const queueCollection = useCallback(async (collection) => {
-    try {
-      const response = await instance.post(`/users/sleep/collect-coin/${userId}`, collection);
-      if (response.data.success) {
-        remainingSecondsRef.current = response.data.remainingSeconds;
-        if (Math.abs(response.data.remainingSeconds - lastReportedSecondsRef.current) >= 1) {
-          onDurationUpdate(response.data.remainingSeconds);
-          lastReportedSecondsRef.current = response.data.remainingSeconds;
+  const queueCollection = useCallback(
+    async (collection) => {
+      try {
+        await instance.post(`/users/sleep/collect-coin/${userId}`, collection);
+      } catch (err) {
+        // Silent fail
+      }
+    },
+    [userId]
+  );
+
+  // Game loop
+  const gameLoop = useCallback(() => {
+    const canvas = canvasRef.current;
+    if (!canvas || !isLoaded) return;
+
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    const player = playerRef.current;
+    const currentTime = performance.now();
+    const deltaTime = Math.min((currentTime - lastFrameTimeRef.current) / 1000, 0.1);
+    lastFrameTimeRef.current = currentTime;
+    accumulatedTimeRef.current += deltaTime;
+
+    while (accumulatedTimeRef.current >= FIXED_TIME_STEP) {
+      player.velocityY += 0.5 * FIXED_TIME_STEP * 60;
+      player.y += player.velocityY * FIXED_TIME_STEP * 60;
+      if (player.y > canvas.height - 80) {
+        player.y = canvas.height - 80;
+        player.velocityY = 0;
+        player.jumping = false;
+      }
+
+      coinsRef.current.forEach((coin) => {
+        if (!collectedCoinsRef.current.has(coin.id)) {
+          coin.localX += COIN_SPEED * FIXED_TIME_STEP;
+        }
+      });
+
+      const maxX = canvas.width + CLOUD_SPACING * 2;
+      cloudsRef.current.forEach((cloud) => {
+        cloud.x += CLOUD_SPEED * FIXED_TIME_STEP;
+        if (cloud.x < -cloud.width) {
+          cloud.x = maxX;
+          cloud.y = Math.random() * 120;
+        }
+      });
+
+      player.frameTime += FIXED_TIME_STEP;
+      if (player.frameTime >= FRAME_DURATION) {
+        player.frameTime = 0;
+        if (!player.jumping) player.frame = (player.frame + 1) % 2;
+      }
+
+      accumulatedTimeRef.current -= FIXED_TIME_STEP;
+    }
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    cloudsRef.current.forEach((cloud) => {
+      if (assetsRef.current.cloud) {
+        ctx.drawImage(assetsRef.current.cloud, cloud.x, cloud.y, cloud.width, cloud.height);
+      }
+    });
+
+    const currentFrame = player.jumping ? "playerJump" : `player${player.frame + 1}`;
+    if (assetsRef.current[currentFrame]) {
+      ctx.drawImage(assetsRef.current[currentFrame], player.x, player.y, 70, 70);
+    }
+
+    coinsRef.current.forEach((coin) => {
+      if (!collectedCoinsRef.current.has(coin.id) && coin.localX >= -20 && coin.localX <= canvas.width) {
+        if (assetsRef.current.coin) {
+          ctx.drawImage(assetsRef.current.coin, coin.localX, coin.y, 20, 20);
+        }
+
+        const playerRect = { left: player.x, right: player.x + 40, top: player.y, bottom: player.y + 40 };
+        const coinRect = { left: coin.localX - 20, right: coin.localX + 20, top: coin.y - 20, bottom: coin.y + 20 };
+        const collided =
+          playerRect.right > coinRect.left &&
+          playerRect.left < coinRect.right &&
+          playerRect.bottom > coinRect.top &&
+          playerRect.top < coinRect.bottom;
+
+        if (collided) {
+          collectCoinLocally(coin.id);
+          const lastJumpTime = playerJumpsRef.current[playerJumpsRef.current.length - 1]?.time || null;
+          const now = Date.now();
+          const collection = {
+            coinId: coin.id,
+            collectionToken: coin.collectionToken || null,
+            playerX: player.x,
+            playerY: player.y,
+            jumpTime: lastJumpTime,
+            x: coin.x,
+            spawnTime: coin.spawnTime,
+            clientCoinX: coin.localX,
+            collectionTime: new Date(now).toISOString(),
+          };
+          queueCollection(collection);
         }
       }
-    } catch (err) {
-      console.error("Collection request failed:", err);
-    }
-  }, [userId, onDurationUpdate]);
+    });
+
+    animationFrameRef.current = requestAnimationFrame(gameLoop);
+  }, [isLoaded, collectCoinLocally, queueCollection]);
+
+  // Mount effects
+  useEffect(() => {
+    preloadAssets();
+    initializeClouds();
+  }, [preloadAssets, initializeClouds]);
 
   useEffect(() => {
-    if (!assetsLoaded) return;
+    syncCoinsFromServer();
+    syncIntervalRef.current = setInterval(syncCoinsFromServer, 2000);
+    return () => clearInterval(syncIntervalRef.current);
+  }, [syncCoinsFromServer]);
+
+  useEffect(() => {
+    if (!isLoaded) return;
 
     const canvas = canvasRef.current;
-    const ctx = canvas.getContext("2d");
-    const player = playerRef.current;
-    const gravity = 0.5;
+    if (!canvas) return;
+
     canvas.width = 374;
     canvas.height = 200;
 
-    // console.log("Game loop started");
-
-    const update = (currentTime) => {
-      const deltaTime = Math.min((currentTime - lastFrameTimeRef.current) / 1000, 0.1);
-      lastFrameTimeRef.current = currentTime;
-      accumulatedTimeRef.current += deltaTime;
-
-      while (accumulatedTimeRef.current >= FIXED_TIME_STEP) {
-        player.velocityY += gravity * FIXED_TIME_STEP * 60;
-        player.y += player.velocityY * FIXED_TIME_STEP * 60;
-        if (player.y > canvas.height - 80) {
-          player.y = canvas.height - 80;
-          player.velocityY = 0;
-          player.jumping = false;
-        }
-
-        coinsRef.current.forEach(coin => {
-          if (!coin.collected && !collectedCoinsRef.current.has(coin.id)) {
-            coin.localX += COIN_SPEED * FIXED_TIME_STEP;
-          }
-        });
-
-        let resetDone = false;
-        cloudsRef.current.forEach(cloud => {
-          cloud.x += CLOUD_SPEED * FIXED_TIME_STEP;
-          if (cloud.x < -cloud.width && !resetDone) {
-            cloud.x = canvas.width + cloud.width; // 454
-            // console.log(`Reset cloud: x=${cloud.x}, y=${cloud.y}`);
-            resetDone = true;
-          }
-        });
-
-        // console.log("Clouds:", cloudsRef.current.map(c => `x=${c.x.toFixed(1)}`));
-
-        player.frameTime += FIXED_TIME_STEP;
-        if (player.frameTime >= FRAME_DURATION) {
-          player.frameTime = 0;
-          if (!player.jumping) player.frame = (player.frame + 1) % 2;
-        }
-
-        accumulatedTimeRef.current -= FIXED_TIME_STEP;
-      }
-
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      cloudsRef.current.forEach(cloud => {
-        ctx.drawImage(cloudImgRef.current, cloud.x, cloud.y, cloud.width, cloud.height);
-      });
-
-      const currentFrame = player.jumping ? 2 : player.frame;
-      ctx.drawImage(playerFramesRef.current[currentFrame], player.x, player.y, 70, 70);
-
-      coinsRef.current.forEach(coin => {
-        if (!collectedCoinsRef.current.has(coin.id) && coin.localX >= -20 && coin.localX <= canvas.width) {
-          ctx.drawImage(coinImgRef.current, coin.localX, coin.y, 20, 20);
-
-          const playerLeft = player.x;
-          const playerRight = player.x + 40;
-          const playerTop = player.y;
-          const playerBottom = player.y + 40;
-          const coinLeft = coin.localX - 20;
-          const coinRight = coin.localX + 20;
-          const coinTop = coin.y - 20;
-          const coinBottom = coin.y + 20;
-
-          const xOverlap = playerRight > coinLeft && playerLeft < coinRight;
-          const yOverlap = playerBottom > coinTop && playerTop < coinBottom;
-
-          if (xOverlap && yOverlap) {
-            collectCoinLocally(coin.id);
-            const lastJumpTime = playerJumpsRef.current[playerJumpsRef.current.length - 1]?.time || null;
-            const now = Date.now() + (serverTimeOffsetRef.current || 0);
-            const collection = {
-              coinId: coin.id,
-              collectionToken: coin.collectionToken || null,
-              playerX: player.x,
-              playerY: player.y,
-              jumpTime: lastJumpTime,
-              x: coin.x,
-              spawnTime: coin.spawnTime,
-              clientCoinX: coin.localX,
-              collectionTime: new Date(now).toISOString(),
-            };
-            queueCollection(collection);
-          }
-        }
-      });
-
-      requestAnimationFrame(update);
-    };
-
-    requestAnimationFrame(update);
+    animationFrameRef.current = requestAnimationFrame(gameLoop);
     canvas.addEventListener("click", handleJump);
-    window.addEventListener("keydown", (e) => {
-      if (e.code === "Space") handleJump();
-    });
+    window.addEventListener("keydown", (e) => e.code === "Space" && handleJump());
 
     return () => {
+      cancelAnimationFrame(animationFrameRef.current);
       canvas.removeEventListener("click", handleJump);
       window.removeEventListener("keydown", handleJump);
     };
-  }, [assetsLoaded, handleJump, collectCoinLocally, queueCollection]);
+  }, [isLoaded, gameLoop, handleJump]);
 
-  return assetsLoaded ? (
+  return (
     <div
       style={{
         background: "linear-gradient(0deg, rgba(231, 231, 231, 1) 44%, rgba(208, 208, 208, 0) 100%)",
@@ -279,35 +289,54 @@ const SleepGame = ({
         height: "200px",
         zIndex: 999999,
         overflow: "hidden",
+        animation: isLoaded ? "fadeIn 0.5s ease-in" : "none",
+        opacity: isLoaded ? 1 : 0,
       }}
     >
-      <img
-        src={Assets.Images.sleepSheepGroundGif}
-        alt="Animated Ground"
-        style={{
-          position: "absolute",
-          bottom: 0,
-          left: 0,
-          width: "100%",
-          height: "45px",
-          zIndex: 1,
-        }}
-      />
-      <canvas
-        ref={canvasRef}
-        style={{
-          borderRadius: "8px",
-          position: "absolute",
-          top: 0,
-          left: 0,
-          width: "100%",
-          height: "200px",
-          zIndex: 2,
-        }}
-      />
+      {isLoaded ? (
+        <>
+          {assetsRef.current.ground && (
+            <img
+              src={Assets.Images.sleepSheepGroundGif}
+              alt="Animated Ground"
+              style={{
+                position: "absolute",
+                bottom: 0,
+                left: 0,
+                width: "100%",
+                height: "45px",
+                zIndex: 1,
+              }}
+            />
+          )}
+          <canvas
+            ref={canvasRef}
+            style={{
+              borderRadius: "8px",
+              position: "absolute",
+              top: 0,
+              left: 0,
+              width: "100%",
+              height: "200px",
+              zIndex: 2,
+            }}
+          />
+        </>
+      ) : (
+        <div style={{ width: "100%", height: "100%", background: "black" }} />
+      )}
     </div>
-  ) : null;
+  );
 };
+
+// CSS animation
+const styleSheet = document.styleSheets[0];
+styleSheet.insertRule(`
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+`, styleSheet.cssRules.length);
 
 export default memo(SleepGame, (prevProps, nextProps) =>
   prevProps.sleepDuration === nextProps.sleepDuration &&
