@@ -23,12 +23,8 @@ const GridItem = ({
   title,
   price,
   available = true,
-  respect = 100,
+  respect = 0,
   equipped,
-  clothesUnequip,
-  clothesEquip,
-  clothingId,
-  type,
   isPrem = false,
   handleCoinsBuy,
   handleStarsBuy
@@ -153,35 +149,42 @@ const GridItem = ({
             alignItems: "center",
             marginTop: 5,
             marginBottom: 10,
-            height: 60
+            height: 60,
+            color: 'white'
           }}
         >
-          <img
-            src={Assets.Icons.respect}
-            height={22}
-            style={isDisabled ? { filter: "grayscale(100%)" } : {}} // Серая иконка для неактивных элементов
-          />
-          <p
-            style={{
-              textAlign: "center",
-              fontWeight: "100",
-              fontFamily: "Oswald",
-              paddingLeft: 8,
-              fontSize: "20px",
-              paddingBottom: 4,
-              paddingRight: 2
-            }}
-          >+</p>
-          <p
-            style={{
-              textAlign: "center",
-              fontWeight: "100",
-              fontFamily: "Oswald",
-              fontSize: "20px",
-            }}
-          >
-            {respect}
-          </p>
+          {respect > 0 && (
+            <>
+              <img
+                src={Assets.Icons.respect}
+                height={22}
+              />
+              <p
+                style={{
+                  textAlign: "center",
+                  fontWeight: "100",
+                  fontFamily: "Oswald",
+                  paddingLeft: 8,
+                  fontSize: "20px",
+                  paddingBottom: 4,
+                  paddingRight: 2,
+                }}
+              >
+                +
+              </p>
+              <p
+                style={{
+                  textAlign: "center",
+                  fontWeight: "100",
+                  fontFamily: "Oswald",
+                  fontSize: "20px",
+                  paddingBottom: 4
+                }}
+              >
+                {respect}
+              </p>
+            </>
+          )}
         </div>
 
         {/* Кнопки действий */}
@@ -244,15 +247,10 @@ const GridItemShelf = ({
   title,
   isPrem,
   price,
-  starsPrice,
   available = true,
-  respect = 100,
-  equipped,
+  respect = 0,
   handleCoinsBuy,
   handleStarsBuy,
-  clothingId,
-  type,
-  description
 }) => {
   console.log(id)
   const isNftItem = id >= 9 && id <= 38; // Check if ID is in NFT range
@@ -354,16 +352,47 @@ const GridItemShelf = ({
         <div
           className="clothing-item-respect"
           style={{
-            height: "10px",
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
             marginTop: 5,
-            marginBottom: 25,
-            width: '90%'
+            marginBottom: 10,
+            height: 60,
+            color: 'white'
           }}
         >
-          {/* Description could go here if needed */}
+          {respect > 0 && (
+            <>
+              <img
+                src={Assets.Icons.respect}
+                height={22}
+              />
+              <p
+                style={{
+                  textAlign: "center",
+                  fontWeight: "100",
+                  fontFamily: "Oswald",
+                  paddingLeft: 8,
+                  fontSize: "20px",
+                  paddingBottom: 4,
+                  paddingRight: 2,
+                }}
+              >
+                +
+              </p>
+              <p
+                style={{
+                  textAlign: "center",
+                  fontWeight: "100",
+                  fontFamily: "Oswald",
+                  fontSize: "20px",
+                  paddingBottom: 4
+                }}
+              >
+                {respect}
+              </p>
+            </>
+          )}
         </div>
 
         {/* Button logic */}

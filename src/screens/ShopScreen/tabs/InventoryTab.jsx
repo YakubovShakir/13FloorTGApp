@@ -202,7 +202,7 @@ const GridItem = ({
                   fontWeight: "100",
                   fontFamily: "Oswald",
                   fontSize: "20px",
-                  paddingBottom: 4,
+                  paddingBottom: 4
                 }}
               >
                 {respect}

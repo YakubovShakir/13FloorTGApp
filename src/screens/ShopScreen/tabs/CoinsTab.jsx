@@ -10,7 +10,7 @@ import FullScreenSpinner from "../../Home/FullScreenSpinner"
 import FilterModal from "../../../components/complex/FilterModal/FilterModal"
 import { SquareButton } from "../../../components/simple/SquareButton/SquareButton"
 import { instance } from "../../../services/instance"
-import { buyItemsForCoins } from '../../../services/user/user'
+import { buyItemsForCoins } from "../../../services/user/user"
 import WebApp from "@twa-dev/sdk"
 import { useSettingsProvider } from "../../../hooks"
 import { useNotification } from "../../../NotificationContext"
@@ -24,19 +24,15 @@ const GridItem = ({
   title,
   price,
   available = true,
-  respect = 100,
+  respect = 0,
   equipped,
-  clothesUnequip,
-  clothesEquip,
-  clothingId,
-  type,
   isPrem = false,
   handleCoinsBuy,
-  handleStarsBuy
+  handleStarsBuy,
 }) => {
   // Определим стиль для неактивных элементов (если цена больше 0 и кнопка неактивна)
-  const isDisabled = !available && price > 0;
-  
+  const isDisabled = !available && price > 0
+
   return (
     <div
       className="clothing-item-container"
@@ -45,7 +41,7 @@ const GridItem = ({
         borderBottom: "solid 1px rgba(117, 117, 117, 0.23)",
         background: "0% 0% / cover rgb(32, 32, 32)",
         padding: "10px",
-          }}
+      }}
     >
       <div
         className="clothing-item-top"
@@ -56,15 +52,15 @@ const GridItem = ({
           flexDirection: "column",
           overflow: "hidden",
           boxShadow: "rgba(0, 0, 0, 0.24) 0px 0px 8px 2px inset",
-          borderBottom: isDisabled ? "solid 1px rgba(117, 117, 117, 0.23)" : "solid 1px rgba(117, 117, 117, 0.23)", // изменено
-        background:"#00000082",
+          borderBottom: isDisabled
+            ? "solid 1px rgba(117, 117, 117, 0.23)"
+            : "solid 1px rgba(117, 117, 117, 0.23)", // изменено
+          background: "#00000082",
           borderRadius: "7px",
-          backgroundImage:
-            isDisabled
-              ? "repeating-linear-gradient(45deg, #00000036, #00000036 2px, #3939390f 2px, #3939390f 6px)"
-              : "repeating-linear-gradient(45deg, #00000036, #00000036 2px, #3939390f 2px, #3939390f 6px)", // изменено
+          backgroundImage: isDisabled
+            ? "repeating-linear-gradient(45deg, #00000036, #00000036 2px, #3939390f 2px, #3939390f 6px)"
+            : "repeating-linear-gradient(45deg, #00000036, #00000036 2px, #3939390f 2px, #3939390f 6px)", // изменено
           justifyContent: "center",
-          
         }}
       >
         <div className="clothing-item-header">
@@ -126,7 +122,7 @@ const GridItem = ({
       <div
         className="clothing-item-bottom"
         style={{
-          color:"#ffffff",
+          color: "#ffffff",
           paddingBottom: "12px",
           display: "flex",
           flexDirection: "column",
@@ -154,35 +150,42 @@ const GridItem = ({
             alignItems: "center",
             marginTop: 5,
             marginBottom: 10,
-            height: 60
+            height: 60,
+            color: 'white'
           }}
         >
-          <img
-            src={Assets.Icons.respect}
-            height={22}
-            style={isDisabled ? { filter: "grayscale(100%)" } : {}} // Серая иконка для неактивных элементов
-          />
-          <p
-            style={{
-              textAlign: "center",
-              fontWeight: "100",
-              fontFamily: "Oswald",
-              paddingLeft: 8,
-              fontSize: "20px",
-              paddingBottom: 4,
-              paddingRight: 2
-            }}
-          >+</p>
-          <p
-            style={{
-              textAlign: "center",
-              fontWeight: "100",
-              fontFamily: "Oswald",
-              fontSize: "20px",
-            }}
-          >
-            {respect}
-          </p>
+          {respect > 0 && (
+            <>
+              <img
+                src={Assets.Icons.respect}
+                height={22}
+              />
+              <p
+                style={{
+                  textAlign: "center",
+                  fontWeight: "100",
+                  fontFamily: "Oswald",
+                  paddingLeft: 8,
+                  fontSize: "20px",
+                  paddingBottom: 4,
+                  paddingRight: 2,
+                }}
+              >
+                +
+              </p>
+              <p
+                style={{
+                  textAlign: "center",
+                  fontWeight: "100",
+                  fontFamily: "Oswald",
+                  fontSize: "20px",
+                  paddingBottom: 4
+                }}
+              >
+                {respect}
+              </p>
+            </>
+          )}
         </div>
 
         {/* Кнопки действий */}
@@ -203,9 +206,7 @@ const GridItem = ({
             ownColor={
               "linear-gradient(to bottom, rgb(34 199 163 / 0%), rgb(34 199 163 / 24%))"
             }
-            bgColor={
-              "rgb(255, 118, 0)"
-            }
+            bgColor={"rgb(255, 118, 0)"}
             onClick={() => handleStarsBuy({ id, productType })}
           />
         ) : (
@@ -220,23 +221,22 @@ const GridItem = ({
             fontFamily={"Oswald"}
             fontWeight={"300"}
             icon={price > 0 ? Assets.Icons.balance : undefined}
-            text={price === 0 ? 'Забрать' : price}
+            text={price === 0 ? "Забрать" : price}
             fontSize={14}
-            ownColor={
-              "rgb(255, 118, 0)"
+            ownColor={"rgb(255, 118, 0)"}
+            bgColor={"rgb(255, 118, 0)"}
+            onClick={() =>
+              available || price === 0
+                ? handleCoinsBuy({ id, productType })
+                : null
             }
-            bgColor={
-              "rgb(255, 118, 0)"
-            }
-            onClick={() => available || price === 0 ? handleCoinsBuy({ id, productType }) : null}
             style={isDisabled ? { filter: "grayscale(100%)" } : {}} // Серая кнопка
           />
         )}
       </div>
     </div>
-  );
-};
-
+  )
+}
 
 const GridItemShelf = ({
   id,
@@ -253,16 +253,16 @@ const GridItemShelf = ({
   handleStarsBuy,
   clothingId,
   type,
-  description
+  description,
 }) => {
   console.log(id)
-  const isNftItem = id >= 9 && id <= 38; // Check if ID is in NFT range
+  const isNftItem = id >= 9 && id <= 38 // Check if ID is in NFT range
   const showBuyNFT = isNftItem
   const { lang } = useSettingsProvider()
 
   const handleNftRedirect = () => {
-    window.Telegram.WebApp.openLink("https://13thfloorgame.io"); // Simple redirect
-  };
+    window.Telegram.WebApp.openLink("https://13thfloorgame.io") // Simple redirect
+  }
 
   return (
     <div
@@ -355,16 +355,47 @@ const GridItemShelf = ({
         <div
           className="clothing-item-respect"
           style={{
-            height: "10px",
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
             marginTop: 5,
-            marginBottom: 25,
-            width: '90%'
+            marginBottom: 10,
+            height: 60,
+            color: 'white'
           }}
         >
-          {/* Description could go here if needed */}
+          {respect > 0 && (
+            <>
+              <img
+                src={Assets.Icons.respect}
+                height={22}
+              />
+              <p
+                style={{
+                  textAlign: "center",
+                  fontWeight: "100",
+                  fontFamily: "Oswald",
+                  paddingLeft: 8,
+                  fontSize: "20px",
+                  paddingBottom: 4,
+                  paddingRight: 2,
+                }}
+              >
+                +
+              </p>
+              <p
+                style={{
+                  textAlign: "center",
+                  fontWeight: "100",
+                  fontFamily: "Oswald",
+                  fontSize: "20px",
+                  paddingBottom: 4
+                }}
+              >
+                {respect}
+              </p>
+            </>
+          )}
         </div>
 
         {/* Button logic */}
@@ -400,14 +431,10 @@ const GridItemShelf = ({
             height={44}
             fontFamily={"Oswald"}
             fontWeight={"300"}
-            text={lang === 'en' ? "Buy NFT" : "Купить NFT"} // Hardcoded for quick fix
+            text={lang === "en" ? "Buy NFT" : "Купить NFT"} // Hardcoded for quick fix
             fontSize={14}
-            ownColor={
-              "rgb(255, 118, 0)"
-            }
-            bgColor={
-              "rgb(255, 118, 0)"
-            }
+            ownColor={"rgb(255, 118, 0)"}
+            bgColor={"rgb(255, 118, 0)"}
             onClick={handleNftRedirect}
             active={true}
           />
@@ -423,21 +450,21 @@ const GridItemShelf = ({
             fontFamily={"Oswald"}
             fontWeight={"300"}
             icon={price > 0 ? Assets.Icons.balance : undefined}
-            text={price === 0 ? 'Забрать' : price}
+            text={price === 0 ? "Забрать" : price}
             fontSize={14}
-            ownColor={
-              "rgb(255, 118, 0)"
+            ownColor={"rgb(255, 118, 0)"}
+            bgColor={"rgb(255, 118, 0)"}
+            onClick={() =>
+              available || price === 0
+                ? handleCoinsBuy({ id, productType })
+                : null
             }
-            bgColor={
-              "rgb(255, 118, 0)"
-            }
-            onClick={() => available || price === 0 ? handleCoinsBuy({ id, productType }) : null}
           />
         )}
       </div>
     </div>
-  );
-};
+  )
+}
 
 const GridLayout = ({ items, handleCoinsBuy, handleStarsBuy }) => {
   return (
@@ -461,22 +488,22 @@ const GridLayout = ({ items, handleCoinsBuy, handleStarsBuy }) => {
           if (item.category === "Shelf") {
             return (
               <GridItemShelf
-              key={index}
-              icon={item.image}
-              title={item.name}
-              price={item.price}
-              respect={item.respect}
-              equipped={item.equipped}
-              available={item.available}
-              handleCoinsBuy={handleCoinsBuy}
-              handleStarsBuy={handleStarsBuy}
-              clothingId={item.clothing_id}
-              type={item.category}
-              isPrem={item.isPrem}
-              description={item.description}
-              id={item.id}
-              productType={item.productType}
-            />
+                key={index}
+                icon={item.image}
+                title={item.name}
+                price={item.price}
+                respect={item.respect}
+                equipped={item.equipped}
+                available={item.available}
+                handleCoinsBuy={handleCoinsBuy}
+                handleStarsBuy={handleStarsBuy}
+                clothingId={item.clothing_id}
+                type={item.category}
+                isPrem={item.isPrem}
+                description={item.description}
+                id={item.id}
+                productType={item.productType}
+              />
             )
           } else {
             return (
@@ -528,39 +555,48 @@ const CoinsTab = () => {
     // Uses ShelfItems
     Shelf: "Shelf",
     Complex: "Complex",
-    Stars: "Stars"
+    Stars: "Stars",
   }
 
   const TierFilters = [0, 1, 2, 3, 4, 5]
-  
+
   useEffect(() => {
     getShopItems(userId)
       .then((data) => {
         // TODO: localize
-        const loadedClothesItems = data.clothing.filter(c => c.requiredLevel <= userParameters.level).map((item) => ({
-          id: item.clothing_id,
-          name: item.name[lang],
-          productType: 'clothes',
-          image:
-            userPersonage.gender === "male" ? item.male_icon : item.female_icon,
-          price: item.price,
-          respect: item.respect,
-          tier: item.tier,
-          tags: item.tag,
-          category: item.type,
-          available: userParameters.coins >= item.price && userParameters.level >= item.requiredLevel,
-        }))
+        const loadedClothesItems = data.clothing
+          .filter((c) => c.requiredLevel <= userParameters.level)
+          .map((item) => ({
+            id: item.clothing_id,
+            name: item.name[lang],
+            productType: "clothes",
+            image:
+              userPersonage.gender === "male"
+                ? item.male_icon
+                : item.female_icon,
+            price: item.price,
+            respect: item.respect,
+            tier: item.tier,
+            tags: item.tag,
+            category: item.type,
+            available:
+              userParameters.coins >= item.price &&
+              userParameters.level >= item.requiredLevel,
+          }))
         const loadedShelfItems = data.shelf.map((item) => ({
           id: item.id,
-          productType: 'shelf',
+          productType: "shelf",
           name: item.name[lang],
           image: item.link,
           price: item.cost.stars || item.cost.coins,
           category: "Shelf",
           isPrem: item.cost.stars > 0,
-          available: item.cost.stars > 0 || item.cost.coins === 0 || userParameters.coins >= item.cost.coins,
-          description: item.description['ru'],
-          respect: item.respect
+          available:
+            item.cost.stars > 0 ||
+            item.cost.coins === 0 ||
+            userParameters.coins >= item.cost.coins,
+          description: item.description["ru"],
+          respect: item.respect,
         }))
         setClothesItems(loadedClothesItems)
         setShelfItems(loadedShelfItems)
@@ -607,15 +643,16 @@ const CoinsTab = () => {
         .filter((filter) => filter.filteredField === "tier")
         .map((filter) => filter.filteredValue)
 
-      console.log('@', tags)
+      console.log("@", tags)
 
       const filtered = items.filter((item) => {
         let shouldTake = false
         const isCorrectByTier =
           tiers.length > 0 ? tiers.includes(item.tier) : true
 
-        const isCorrectByTags = tags.length > 0 ? item.tags?.some(tag => tags.includes(tag)) : true
-      
+        const isCorrectByTags =
+          tags.length > 0 ? item.tags?.some((tag) => tags.includes(tag)) : true
+
         if (isCorrectByTier && isCorrectByTags) {
           shouldTake = true
         }
@@ -662,81 +699,97 @@ const CoinsTab = () => {
       await handleStarsPayment(userId, item.productType, item.id, lang)
       await refreshData()
       getShopItems(userId)
-      .then((data) => {
-        const loadedClothesItems = data.clothing.filter(c => c.requiredLevel <= userParameters.level).map((item) => ({
-          id: item.clothing_id,
-          name: item.name[lang],
-          productType: 'clothes',
-          image:
-            userPersonage.gender === "male" ? item.male_icon : item.female_icon,
-          price: item.price,
-          respect: item.respect,
-          tier: item.tier,
-          tags: item.tag,
-          category: item.type,
-          available: userParameters.coins >= item.price && userParameters.level >= item.requiredLevel,
-        }))
-        const loadedShelfItems = data.shelf.map((item) => ({
-          id: item.id,
-          productType: 'shelf',
-          name: item.name[lang],
-          image: item.link,
-          price: item.cost.stars || item.cost.coins,
-          category: "Shelf",
-          isPrem: item.cost.stars > 0,
-          available: item.cost.stars > 0 || item.cost.coins === 0 || userParameters.coins >= item.cost.coins,
-          description: item.description['ru'],
-          respect: item.respect
-        }))
-        setClothesItems(loadedClothesItems)
-        setShelfItems(loadedShelfItems)
-        console.log("Clothes Items", clothesItems)
-      })
-      .finally(() => setIsLoading(false))
+        .then((data) => {
+          const loadedClothesItems = data.clothing
+            .filter((c) => c.requiredLevel <= userParameters.level)
+            .map((item) => ({
+              id: item.clothing_id,
+              name: item.name[lang],
+              productType: "clothes",
+              image:
+                userPersonage.gender === "male"
+                  ? item.male_icon
+                  : item.female_icon,
+              price: item.price,
+              respect: item.respect,
+              tier: item.tier,
+              tags: item.tag,
+              category: item.type,
+              available:
+                userParameters.coins >= item.price &&
+                userParameters.level >= item.requiredLevel,
+            }))
+          const loadedShelfItems = data.shelf.map((item) => ({
+            id: item.id,
+            productType: "shelf",
+            name: item.name[lang],
+            image: item.link,
+            price: item.cost.stars || item.cost.coins,
+            category: "Shelf",
+            isPrem: item.cost.stars > 0,
+            available:
+              item.cost.stars > 0 ||
+              item.cost.coins === 0 ||
+              userParameters.coins >= item.cost.coins,
+            description: item.description["ru"],
+            respect: item.respect,
+          }))
+          setClothesItems(loadedClothesItems)
+          setShelfItems(loadedShelfItems)
+          console.log("Clothes Items", clothesItems)
+        })
+        .finally(() => setIsLoading(false))
     } catch (err) {
       console.error(err)
     } finally {
       setIsLoading(false)
     }
   }
-  
+
   const handleCoinsBuy = async (item) => {
     try {
       setIsLoading(true)
       await buyItemsForCoins(userId, item.id, item.productType)
       await refreshData()
       getShopItems(userId)
-      .then((data) => {
-        // TODO: localize
-        const loadedClothesItems = data.clothing.map((item) => ({
-          id: item.clothing_id,
-          name: item.name[lang],
-          productType: 'clothes',
-          image:
-            userPersonage.gender === "male" ? item.male_icon : item.female_icon,
-          price: item.price,
-          respect: item.respect,
-          tier: item.tier,
-          tags: item.tag,
-          category: item.type,
-          available: userParameters.coins >= item.price && userParameters.level >= item.requiredLevel,
-        }))
-        const loadedShelfItems = data.shelf.map((item) => ({
-          id: item.id,
-          productType: 'shelf',
-          name: item.name[lang],
-          image: item.link,
-          price: item.cost.stars || item.cost.coins,
-          category: "Shelf",
-          isPrem: item.cost.stars > 0,
-          available: item.cost.stars > 0 || item.cost.coins === 0 || userParameters.coins >= item.cost.coins,
-          description: item.description && item.description[lang],
-          respect: item.respect
-        }))
-        setClothesItems(loadedClothesItems)
-        setShelfItems(loadedShelfItems)
-      })
-      .finally(() => setIsLoading(false))
+        .then((data) => {
+          // TODO: localize
+          const loadedClothesItems = data.clothing.map((item) => ({
+            id: item.clothing_id,
+            name: item.name[lang],
+            productType: "clothes",
+            image:
+              userPersonage.gender === "male"
+                ? item.male_icon
+                : item.female_icon,
+            price: item.price,
+            respect: item.respect,
+            tier: item.tier,
+            tags: item.tag,
+            category: item.type,
+            available:
+              userParameters.coins >= item.price &&
+              userParameters.level >= item.requiredLevel,
+          }))
+          const loadedShelfItems = data.shelf.map((item) => ({
+            id: item.id,
+            productType: "shelf",
+            name: item.name[lang],
+            image: item.link,
+            price: item.cost.stars || item.cost.coins,
+            category: "Shelf",
+            isPrem: item.cost.stars > 0,
+            available:
+              item.cost.stars > 0 ||
+              item.cost.coins === 0 ||
+              userParameters.coins >= item.cost.coins,
+            description: item.description && item.description[lang],
+            respect: item.respect,
+          }))
+          setClothesItems(loadedClothesItems)
+          setShelfItems(loadedShelfItems)
+        })
+        .finally(() => setIsLoading(false))
     } catch (err) {
       console.error(err)
     }
@@ -770,17 +823,18 @@ const CoinsTab = () => {
       >
         <div
           style={{
-            background: "linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 1) 40%)",
-    padding: "20px 0px 30px 0px",
-    bottom:"0%",
+            background:
+              "linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 1) 40%)",
+            padding: "20px 0px 30px 0px",
+            bottom: "0%",
             zIndex: "5",
-            position:" fixed",
+            position: " fixed",
             width: "95vw",
             display: "flex",
             justifyContent: "space-around",
           }}
         >
-                   <SquareButton
+          <SquareButton
             size={36}
             imageH={35}
             imageSrc={Assets.Icons.settingsIcon}
@@ -862,8 +916,7 @@ const CoinsTab = () => {
               filterTypeInUse === BaseFilters.Shelf
                 ? setFilterTypeInUse(null)
                 : setFilterTypeInUse(BaseFilters.Shelf)
-            }
-            }
+            }}
           />
           <SquareButton
             size={36}
