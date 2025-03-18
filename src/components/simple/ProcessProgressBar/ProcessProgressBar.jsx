@@ -263,6 +263,8 @@ const ProcessProgressBar = ({
                                 style={{
                                     border: "2px solid rgb(0, 255, 115)",
                                     color: "rgb(0, 255, 115)",
+                                    fontFamily: "Oswald",
+                                    textTransform: "uppercase"
                                 }}
                             >
                                 {translations.yes[lang]}
@@ -272,6 +274,9 @@ const ProcessProgressBar = ({
                                 style={{
                                     color: "rgb(255, 0, 0)",
                                     border: "2px solid rgb(255, 0, 0)",
+                                    fontFamily: "Oswald",
+                                     textTransform: "uppercase"
+                                    
                                 }}
                             >
                                 {translations.no[lang]}
