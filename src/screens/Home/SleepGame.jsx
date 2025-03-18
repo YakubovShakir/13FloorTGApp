@@ -166,6 +166,7 @@ const SleepGame = ({
       y: Math.random() * (canvas.height - 80),
       width: 80,
       height: 80,
+      zIndex: 1000
     });
     cloudsRef.current = [generateCloud(), generateCloud(), generateCloud()];
 
@@ -218,7 +219,7 @@ const SleepGame = ({
 
       coinsRef.current.forEach(coin => {
         if (!collectedCoinsRef.current.has(coin.id) && coin.localX >= -20 && coin.localX <= canvas.width) {
-          ctx.drawImage(coinImgRef.current, coin.localX, coin.y, 20, 20);
+          ctx.drawImage(coinImgRef.current, coin.localX, coin.y, 30, 30);
 
           const playerLeft = player.x;
           const playerRight = player.x + 70;
