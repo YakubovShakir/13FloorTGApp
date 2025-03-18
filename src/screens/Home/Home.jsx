@@ -50,7 +50,7 @@ const Home = () => {
   const [timer, setTimer] = useState(null);
   const [remainingSeconds, setRemainingSeconds] = useState(null);
   const hasCompletedRef = useRef(false);
-  const [isInitializedFully, setIsInitializedFully] = useState(false); // New flag for full initialization
+  const [isInitializedFully, setIsInitializedFully] = useState(false);
 
   const { userId, userParameters, isInitialized, userPersonage, userClothing, userShelf } = useContext(UserContext);
 
@@ -184,11 +184,11 @@ const Home = () => {
         await Promise.all([preloadImages(), fetchNekoState(), initializeProcess()]);
         if (mountedRef.current) {
           setState((prev) => ({ ...prev, imagesLoaded: true }));
-          setIsInitializedFully(true); // Mark as fully initialized
+          setIsInitializedFully(true);
         }
       } catch (err) {
         console.error("Initialization error:", err);
-        setIsInitializedFully(true); // Still allow rendering on error
+        setIsInitializedFully(true);
       } finally {
         if (mountedRef.current) {
           setIsLoading(false);
@@ -316,6 +316,8 @@ const Home = () => {
   }, [state.currentProcess, remainingSeconds, canContinue, handleProcessCompletion, userId, refreshData]);
 
   const onDurationUpdate = useCallback((newRemaining) => {
+    const current_elapsedSeconds = moment().tz("Europe/Moscow").diff(moment(state.currentProcess.createdAt).tz("Europe/Moscow"), "seconds");
+    const new_target_duration = newRemaining + current_elapsedSeconds;
     setRemainingSeconds(newRemaining);
     setState((prev) =>
       prev.currentProcess
@@ -323,14 +325,13 @@ const Home = () => {
             ...prev,
             currentProcess: {
               ...prev.currentProcess,
-              target_duration_in_seconds: newRemaining,
-              remainingSeconds: newRemaining,
+              target_duration_in_seconds: new_target_duration,
               formattedTime: formatTime(Math.floor(newRemaining / 60), newRemaining % 60),
             },
           }
         : prev
     );
-  }, []);
+  }, [state.currentProcess]);
 
   const renderProcessProgressBar = useCallback(
     (process, percentage, rate, reverse = false) => (
@@ -411,7 +412,6 @@ const Home = () => {
     [state.currentProcess?.type, state.currentProcess?.active, state.currentProcess?.type_id, state.imagesLoaded, userId]
   );
 
-  // Wait for full initialization before rendering
   if (!isInitializedFully || isLoading) {
     return <FullScreenSpinner progress={loadingProgress} />;
   }
@@ -669,7 +669,6 @@ const Home = () => {
     </>
   );
 
-  // Render logic with explicit type checking
   const currentProcessType = state.currentProcess?.type;
   if (!currentProcessType || currentProcessType === "skill" || currentProcessType === "food") {
     return renderScene(homeContent);
@@ -678,7 +677,7 @@ const Home = () => {
   if (currentProcessType === "training") return renderScene(trainingContent);
   if (currentProcessType === "sleep") return renderScene(sleepContent);
 
-  return renderScene(homeContent); // Fallback
+  return renderScene(homeContent);
 };
 
 export default Home;

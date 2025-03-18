@@ -502,7 +502,7 @@ const GridLayout = ({ items, handleCoinsBuy, handleStarsBuy }) => {
   )
 }
 
-const CoinsTab = () => {
+const NftTab = () => {
   const [userEatingFoods, setUserEatingFoods] = useState(null)
   const [foods, setFoods] = useState(null)
   const [shopItems, setShopItems] = useState(null)
