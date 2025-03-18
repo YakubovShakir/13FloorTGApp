@@ -20,7 +20,7 @@ const SleepGame = ({
     frame: 0,
     frameTime: 0,
   });
-  const cloudsRef = useRef([]);
+  const cloudsRef = useRef([]); // Initialize here
   const lastFrameTimeRef = useRef(performance.now());
   const accumulatedTimeRef = useRef(0);
   const remainingSecondsRef = useRef(initialSleepDuration);
@@ -38,7 +38,22 @@ const SleepGame = ({
   const COIN_SPEED = -50;
   const CLOUD_SPEED = -20;
   const FRAME_DURATION = 0.2;
-  const CLOUD_SPACING = 200;
+  const CLOUD_SPACING = 120;
+
+  // Initialize clouds once on mount
+  useEffect(() => {
+    const generateCloud = (startX) => ({
+      x: startX,
+      y: Math.random() * (canvasRef.current?.width ? canvasRef.current.height - 80 : 120),
+      width: 80,
+      height: 80,
+    });
+
+    cloudsRef.current = Array.from({ length: 6 }, (_, i) =>
+      generateCloud(i * CLOUD_SPACING)
+    ); // [0, 120, 240, 360, 480, 600]
+    // console.log("Clouds initialized:", cloudsRef.current.map(c => `x=${c.x}`));
+  }, []); // Empty deps = run once on mount
 
   const syncCoinsFromServer = useCallback(async (isInitial = false) => {
     try {
@@ -147,17 +162,7 @@ const SleepGame = ({
     canvas.width = 374;
     canvas.height = 200;
 
-    const generateCloud = (startX) => ({
-      x: startX,
-      y: Math.random() * (canvas.height - 80), // Fixed at init
-      width: 80,
-      height: 80,
-    });
-
-    // Start clouds off-screen right
-    cloudsRef.current = Array.from({ length: 4 }, (_, i) =>
-      generateCloud(canvas.width + i * CLOUD_SPACING)
-    ); // [374, 574, 774, 974]
+    // console.log("Game loop started");
 
     const update = (currentTime) => {
       const deltaTime = Math.min((currentTime - lastFrameTimeRef.current) / 1000, 0.1);
@@ -179,17 +184,17 @@ const SleepGame = ({
           }
         });
 
+        let resetDone = false;
         cloudsRef.current.forEach(cloud => {
-          cloud.x += CLOUD_SPEED * FIXED_TIME_STEP; // Steady leftward move
+          cloud.x += CLOUD_SPEED * FIXED_TIME_STEP;
+          if (cloud.x < -cloud.width && !resetDone) {
+            cloud.x = canvas.width + cloud.width; // 454
+            // console.log(`Reset cloud: x=${cloud.x}, y=${cloud.y}`);
+            resetDone = true;
+          }
         });
 
-        // Reset only the leftmost cloud, keep y fixed
-        const leftmostCloud = cloudsRef.current.find(cloud => cloud.x < -cloud.width);
-        if (leftmostCloud) {
-          leftmostCloud.x = canvas.width + cloud.width; // 454, just off-screen right
-          // y remains unchanged
-          // console.log(`Cloud reset: x=${leftmostCloud.x}, y=${leftmostCloud.y}`); // Debug
-        }
+        // console.log("Clouds:", cloudsRef.current.map(c => `x=${c.x.toFixed(1)}`));
 
         player.frameTime += FIXED_TIME_STEP;
         if (player.frameTime >= FRAME_DURATION) {
