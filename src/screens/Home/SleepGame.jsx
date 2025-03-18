@@ -30,13 +30,13 @@ const SleepGame = ({
   const groundImgRef = useRef(null);
   const cloudImgRef = useRef(null);
   const syncIntervalRef = useRef(null);
-  const serverTimeOffsetRef = useRef(null); // Set once on init
+  const serverTimeOffsetRef = useRef(null);
   const [assetsLoaded, setAssetsLoaded] = useState(false);
 
   const FIXED_TIME_STEP = 1 / 60;
-  const COIN_SPEED = -50; // Matches backend
+  const COIN_SPEED = -50; // Coins approach player
+  const CLOUD_SPEED = -20; // Clouds move slower for parallax
   const FRAME_DURATION = 0.2;
-  const CLOUD_SPEED = -20;
 
   const syncCoinsFromServer = useCallback(async (isInitial = false) => {
     try {
@@ -54,7 +54,7 @@ const SleepGame = ({
             const existingCoin = coinsRef.current.find(c => c.id === coin.id);
             return {
               ...coin,
-              localX: existingCoin ? existingCoin.localX : coin.x, // Preserve position
+              localX: existingCoin ? existingCoin.localX : coin.x,
             };
           });
         coinsRef.current = updatedCoins;
@@ -92,8 +92,8 @@ const SleepGame = ({
   }, []);
 
   useEffect(() => {
-    syncCoinsFromServer(true); // Initial sync with drift calculation
-    syncIntervalRef.current = setInterval(() => syncCoinsFromServer(false), 2000); // Poll every 2s
+    syncCoinsFromServer(true); // Initial sync with drift
+    syncIntervalRef.current = setInterval(() => syncCoinsFromServer(false), 2000);
 
     return () => {
       if (syncIntervalRef.current) clearInterval(syncIntervalRef.current);
@@ -162,7 +162,7 @@ const SleepGame = ({
     canvas.height = 200;
 
     const generateCloud = () => ({
-      x: Math.random() * (canvas.width + 200),
+      x: canvas.width + Math.random() * 200, // Start off-screen right
       y: Math.random() * (canvas.height - 80),
       width: 80,
       height: 80,
@@ -190,10 +190,10 @@ const SleepGame = ({
         });
 
         cloudsRef.current.forEach(cloud => {
-          cloud.x += CLOUD_SPEED * FIXED_TIME_STEP;
+          cloud.x += CLOUD_SPEED * FIXED_TIME_STEP; // Smooth movement
           if (cloud.x < -cloud.width) {
-            cloud.x = canvas.width + Math.random() * 200;
-            cloud.y = Math.random() * (canvas.height - 80);
+            cloud.x = canvas.width + cloud.width; // Reset to right edge
+            cloud.y = Math.random() * (canvas.height - 80); // Random Y
           }
         });
 
@@ -233,7 +233,7 @@ const SleepGame = ({
           const yOverlap = playerBottom > coinTop && playerTop < coinBottom;
 
           if (xOverlap && yOverlap) {
-            collectCoinLocally(coin.id); // Instant removal
+            collectCoinLocally(coin.id);
             const lastJumpTime = playerJumpsRef.current[playerJumpsRef.current.length - 1]?.time || null;
             const collection = {
               coinId: coin.id,
