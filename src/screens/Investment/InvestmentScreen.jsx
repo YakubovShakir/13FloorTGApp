@@ -142,6 +142,8 @@ const Modal = ({ bottom, left, width, height, data, onClose, logoWidth }) => {
       : `https://t.me/Floor13th_bot?start=${userId}`;
   };
 
+  const { userParameters } = useUser()
+
   // Fetch skill details if skill_id_required exists
   useEffect(() => {
     if (data?.skill_id_required) {
@@ -289,6 +291,13 @@ const Modal = ({ bottom, left, width, height, data, onClose, logoWidth }) => {
                 "",
                 data.userSkills.includes(data.skill_id_required)
               )}
+              {data.respect_required > 0 &&  
+                renderRequirementBar(
+                  Icons.respect,
+                  translations.requiredRespect[lang],
+                  data.respect_required,
+                  userParameters.respect >= data.respect_required
+                )}
           </div>
         )}
       </div>
@@ -310,7 +319,10 @@ const Modal = ({ bottom, left, width, height, data, onClose, logoWidth }) => {
             {...buttonStyle}
             active={data.canUpgrade && 
               (!data.level_required || data.userLevel >= data.level_required) && 
-              (!data.skill_id_required || data.userSkills.includes(data.skill_id_required))}
+              (!data.skill_id_required || data.userSkills.includes(data.skill_id_required)) && 
+              (!data.respect_required || userParameters.respect >= data.respect_required)
+            }
+
             onClick={data.canUpgrade ? data.handleUpgrade : () => {}}
             text={data.price}
             width={100}
