@@ -28,11 +28,7 @@ const GridItem = ({
   equipped,
   handleCoinsBuy,
   handleStarsBuy,
-  clothingId,
-  type,
   isPrem = false,
-  handleCoinsBuy,
-  handleStarsBuy,
 }) => {
   // Определим стиль для неактивных элементов (если цена больше 0 и кнопка неактивна)
   const isDisabled = !available && price > 0
