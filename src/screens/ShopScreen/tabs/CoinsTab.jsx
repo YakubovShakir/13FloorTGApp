@@ -15,6 +15,7 @@ import WebApp from "@twa-dev/sdk"
 import { useSettingsProvider } from "../../../hooks"
 import { useNotification } from "../../../NotificationContext"
 import { handleStarsPayment } from "../../../utils/handleStarsPayment"
+import { isBiometryMounted } from "@telegram-apps/sdk"
 
 const GridItem = ({
   id,
@@ -558,7 +559,8 @@ const CoinsTab = () => {
           category: "Shelf",
           isPrem: item.cost.stars > 0,
           available: item.cost.stars > 0 || item.cost.coins === 0 || userParameters.coins >= item.cost.coins,
-          description: item.description['ru']
+          description: item.description['ru'],
+          respect: item.respect
         }))
         setClothesItems(loadedClothesItems)
         setShelfItems(loadedShelfItems)
@@ -683,7 +685,8 @@ const CoinsTab = () => {
           category: "Shelf",
           isPrem: item.cost.stars > 0,
           available: item.cost.stars > 0 || item.cost.coins === 0 || userParameters.coins >= item.cost.coins,
-          description: item.description['ru']
+          description: item.description['ru'],
+          respect: item.respect
         }))
         setClothesItems(loadedClothesItems)
         setShelfItems(loadedShelfItems)
@@ -727,7 +730,8 @@ const CoinsTab = () => {
           category: "Shelf",
           isPrem: item.cost.stars > 0,
           available: item.cost.stars > 0 || item.cost.coins === 0 || userParameters.coins >= item.cost.coins,
-          description: item.description && item.description[lang]
+          description: item.description && item.description[lang],
+          respect: item.respect
         }))
         setClothesItems(loadedClothesItems)
         setShelfItems(loadedShelfItems)
@@ -889,16 +893,6 @@ const CoinsTab = () => {
           data={{ title: "Lol" }}
         />
       )}
-      {/* {foods?.map((food, index) => (
-        <ItemCard
-          key={index}
-          ItemIcon={food?.link}
-          ItemTitle={food?.name}
-          ItemParamsBlocks={getItemFoodParams(food)}
-          ItemButtons={getItemFoodButton(food)}
-          ItemIndex={index}
-        />
-      ))} */}
     </ScreenContainer>
   )
 }

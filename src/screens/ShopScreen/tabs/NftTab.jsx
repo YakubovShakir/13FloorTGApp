@@ -518,7 +518,7 @@ const CoinsTab = () => {
   const { lang } = useSettingsProvider()
 
   const BaseFilters = {
-    // Uses Clothing
+    // User Clothing
     Hat: "Hat",
     Top: "Top",
     Pants: "Pants",
@@ -529,8 +529,6 @@ const CoinsTab = () => {
     Complex: "Complex",
     Stars: "Stars"
   }
-
-  const TierFilters = [0, 1, 2, 3, 4, 5]
   
   useEffect(() => {
     getShopItems(userId)
@@ -558,7 +556,8 @@ const CoinsTab = () => {
           category: "Shelf",
           isPrem: item.cost.stars > 0,
           available: item.cost.stars > 0 || item.cost.coins === 0 || userParameters.coins >= item.cost.coins,
-          description: item.description['ru']
+          description: item.description['ru'],
+          respect: item.respect
         }))
         setClothesItems(loadedClothesItems)
         setShelfItems(loadedShelfItems)
@@ -704,7 +703,6 @@ const CoinsTab = () => {
       await refreshData()
       getShopItems(userId)
       .then((data) => {
-        // TODO: localize
         const loadedClothesItems = data.clothing.map((item) => ({
           id: item.clothing_id,
           name: item.name[lang],
@@ -727,7 +725,8 @@ const CoinsTab = () => {
           category: "Shelf",
           isPrem: item.cost.stars > 0,
           available: item.cost.stars > 0 || item.cost.coins === 0 || userParameters.coins >= item.cost.coins,
-          description: item.description && item.description[lang]
+          description: item.description && item.description[lang],
+          respect: item.respect
         }))
         setClothesItems(loadedClothesItems)
         setShelfItems(loadedShelfItems)
@@ -889,16 +888,6 @@ const CoinsTab = () => {
           data={{ title: "Lol" }}
         />
       )}
-      {/* {foods?.map((food, index) => (
-        <ItemCard
-          key={index}
-          ItemIcon={food?.link}
-          ItemTitle={food?.name}
-          ItemParamsBlocks={getItemFoodParams(food)}
-          ItemButtons={getItemFoodButton(food)}
-          ItemIndex={index}
-        />
-      ))} */}
     </ScreenContainer>
   )
 }
