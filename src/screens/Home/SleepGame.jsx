@@ -236,6 +236,9 @@ const SleepGame = ({
           if (xOverlap && yOverlap) {
             collectCoinLocally(coin.id);
             const lastJumpTime = playerJumpsRef.current[playerJumpsRef.current.length - 1]?.time || null;
+            const now = Date.now() + (serverTimeOffsetRef.current || 0);
+            const spawnTime = new Date(coin.spawnTime).getTime();
+            const coinAge = (now - spawnTime) / 1000;
             const collection = {
               coinId: coin.id,
               collectionToken: coin.collectionToken || null,
@@ -244,6 +247,7 @@ const SleepGame = ({
               jumpTime: lastJumpTime,
               x: coin.x,
               spawnTime: coin.spawnTime,
+              clientCoinX: coin.localX, // Use exact collision X
             };
             queueCollection(collection);
           }
