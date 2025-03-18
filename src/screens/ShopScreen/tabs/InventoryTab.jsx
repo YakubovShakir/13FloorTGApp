@@ -36,9 +36,7 @@ const translations = {
 const GridItem = ({
   icon,
   title,
-  price,
-  available = true,
-  respect,
+  respect = 0,
   equipped,
   clothesUnequip,
   clothesEquip,
@@ -148,9 +146,7 @@ const GridItem = ({
           paddingBottom: "12px",
           display: "flex",
           flexDirection: "column",
-          alignItems: "center",
-
-          
+          alignItems: "center"
         }}
       >
 
@@ -169,51 +165,51 @@ const GridItem = ({
         </p>
         {/* Уровень уважения */}
 
-        {respect !== undefined ? (
-          <div
-            className="clothing-item-respect"
-            style={{
-              height: "50px",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              color: 'white'
-            }}
-          >
-            <img src={Assets.Icons.respect} height={22} />
-            <p
-            style={{
-              textAlign: "center",
-              fontWeight: "100",
-              fontFamily: "Oswald",
-              paddingLeft: 8,
-              fontSize: "20px",
-              paddingBottom: 4,
-              paddingRight: 2
-            }}
-          >+</p>
-          <p
-            style={{
-              textAlign: "center",
-              fontWeight: "100",
-              fontFamily: "Oswald",
-              fontSize: "20px",
-            }}
-          >
-            {respect}
-          </p>
-          </div>
-        ) : (<div
+        <div
           className="clothing-item-respect"
           style={{
-            height: "50px",
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
-            
-            
+            marginTop: 5,
+            marginBottom: 10,
+            height: 60,
+            color: 'white'
           }}
-        ></div>)}
+        >
+          {respect > 0 && (
+            <>
+              <img
+                src={Assets.Icons.respect}
+                height={22}
+              />
+              <p
+                style={{
+                  textAlign: "center",
+                  fontWeight: "100",
+                  fontFamily: "Oswald",
+                  paddingLeft: 8,
+                  fontSize: "20px",
+                  paddingBottom: 4,
+                  paddingRight: 2,
+                }}
+              >
+                +
+              </p>
+              <p
+                style={{
+                  textAlign: "center",
+                  fontWeight: "100",
+                  fontFamily: "Oswald",
+                  fontSize: "20px",
+                  paddingBottom: 4,
+                }}
+              >
+                {respect}
+              </p>
+            </>
+          )}
+        </div>
 
         {/* Кнопки действий */}
         {equipped ? (

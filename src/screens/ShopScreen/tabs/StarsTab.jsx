@@ -192,12 +192,9 @@ const StarsTab = ({ userId }) => {
 
   useEffect(() => {
     getShopItems(userId).then(data => {
-      const loadedClothesItems = data.clothing.map(item => ({ name: item.name[lang], image: userPersonage.gender === 'male' ? item.male_icon : item.female_icon, price: item.price, respect: item.respect, tier: item.tier, tags: item.tag, category: item.type, available: true , id: item.clothing_id}))
+      const loadedClothesItems = data.clothing.map(item => ({ name: item.name[lang], image: userPersonage.gender === 'male' ? item.male_icon : item.female_icon, price: item.price, respect: item.respect, tier: item.tier, tags: item.tag, category: item.type, available: true , id: item.clothing_id }))
       setClothesItems(loadedClothesItems)
     }).finally(() => setIsLoading(false))
-    // getFoods().then((r) => setFoods(r))
-    // getProcesses("food", userId).then((r) => setUserEatingFoods(r))
-    // updateInformation()
   }, [isLoading])
 
   const applyFilter = (items) => {
