@@ -30,8 +30,6 @@ COIN_SOUND.load();
 ALARM_SOUND.load();
 
 const Home = () => {
-  console.log("Home Component Rendered");
-
   const { refreshData } = useUser();
   const navigate = useNavigate();
   const mountedRef = useRef(false);
@@ -50,8 +48,9 @@ const Home = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [timer, setTimer] = useState(null);
-  const [remainingSeconds, setRemainingSeconds] = useState(null); // Replace ref with state
+  const [remainingSeconds, setRemainingSeconds] = useState(null);
   const hasCompletedRef = useRef(false);
+  const [isInitializedFully, setIsInitializedFully] = useState(false); // New flag for full initialization
 
   const { userId, userParameters, isInitialized, userPersonage, userClothing, userShelf } = useContext(UserContext);
 
@@ -61,23 +60,38 @@ const Home = () => {
 
   useEffect(() => {
     mountedRef.current = true;
-    return () => { mountedRef.current = false; };
+    return () => {
+      mountedRef.current = false;
+    };
   }, []);
 
   const preloadImages = useCallback(async () => {
     const imageUrls = [
-      Assets.Layers.cover, Assets.BG.workScreenBG, Assets.BG.sleepScreenBG, Assets.BG.trainScreenBG,
-      Assets.BG.homeBackground, Assets.HOME.shelf, Assets.HOME.couch, Assets.BG.backgroundSun, Assets.BG.winter,
+      Assets.Layers.cover,
+      Assets.BG.workScreenBG,
+      Assets.BG.sleepScreenBG,
+      Assets.BG.trainScreenBG,
+      Assets.BG.homeBackground,
+      Assets.HOME.shelf,
+      Assets.HOME.couch,
+      Assets.BG.backgroundSun,
+      Assets.BG.winter,
     ];
-    const imagePromises = imageUrls.map((url) => {
-      return new Promise((resolve) => {
+    const imagePromises = imageUrls.map((url) =>
+      new Promise((resolve) => {
         const img = new Image();
-        img.onload = () => { setLoadingProgress((prev) => prev + 100 / imageUrls.length); resolve(); };
-        img.onerror = () => { setLoadingProgress((prev) => prev + 100 / imageUrls.length); resolve(); };
+        img.onload = () => {
+          setLoadingProgress((prev) => prev + 100 / imageUrls.length);
+          resolve();
+        };
+        img.onerror = () => {
+          setLoadingProgress((prev) => prev + 100 / imageUrls.length);
+          resolve();
+        };
         img.src = url;
-      });
-    });
-    return Promise.all(imagePromises);
+      })
+    );
+    await Promise.all(imagePromises);
   }, []);
 
   const calculateInitialRemaining = useCallback((process) => {
@@ -101,17 +115,17 @@ const Home = () => {
       if (!mountedRef.current) return;
 
       const initialRemaining = calculateInitialRemaining(process);
-      setRemainingSeconds(initialRemaining);
       setState((prev) => ({
         ...prev,
-        currentProcess: { 
-          ...process, 
+        currentProcess: {
+          ...process,
           remainingSeconds: initialRemaining,
           formattedTime: formatTime(Math.floor(initialRemaining / 60), initialRemaining % 60),
         },
         trainingParameters: trainingParams,
         levels: levelsData,
       }));
+      setRemainingSeconds(initialRemaining);
     } catch (error) {
       console.error("Error initializing process:", error);
       if (mountedRef.current) {
@@ -124,7 +138,9 @@ const Home = () => {
   const fetchNekoState = useCallback(async () => {
     try {
       const nekoData = await getOwnNekoState(userId);
-      if (mountedRef.current) setState((prev) => ({ ...prev, nekoState: nekoData }));
+      if (mountedRef.current) {
+        setState((prev) => ({ ...prev, nekoState: nekoData }));
+      }
     } catch (error) {
       console.error("Error fetching neko state:", error);
     }
@@ -158,28 +174,40 @@ const Home = () => {
     if (!isInitialized) return;
 
     const initialize = async () => {
-      if (!userPersonage?.gender) navigate("/personage-create");
+      if (!userPersonage?.gender) {
+        navigate("/personage-create");
+        return;
+      }
       setIsLoading(true);
       setLoadingProgress(0);
       try {
         await Promise.all([preloadImages(), fetchNekoState(), initializeProcess()]);
-        if (mountedRef.current) setState((prev) => ({ ...prev, imagesLoaded: true }));
+        if (mountedRef.current) {
+          setState((prev) => ({ ...prev, imagesLoaded: true }));
+          setIsInitializedFully(true); // Mark as fully initialized
+        }
       } catch (err) {
         console.error("Initialization error:", err);
+        setIsInitializedFully(true); // Still allow rendering on error
       } finally {
-        if (mountedRef.current) setIsLoading(false);
+        if (mountedRef.current) {
+          setIsLoading(false);
+        }
       }
     };
 
     initialize();
   }, [isInitialized, navigate, userPersonage, preloadImages, fetchNekoState, initializeProcess]);
 
-  const canContinue = useCallback((processType) => {
-    if (processType === "training") return canStartTraining(userParameters) && userParameters?.mood < 100;
-    if (processType === "work") return canStartWorking(userParameters);
-    if (processType === "sleep") return canStartSleeping(userParameters);
-    return false;
-  }, [userParameters]);
+  const canContinue = useCallback(
+    (processType) => {
+      if (processType === "training") return canStartTraining(userParameters) && userParameters?.mood < 100;
+      if (processType === "work") return canStartWorking(userParameters);
+      if (processType === "sleep") return canStartSleeping(userParameters);
+      return false;
+    },
+    [userParameters]
+  );
 
   const handleConfirmClose = useCallback(async () => {
     setIsLoading(true);
@@ -224,7 +252,6 @@ const Home = () => {
     }
   }, [userId, refreshData]);
 
-
   useVisibilityChange(() => {
     if (mountedRef.current && document.visibilityState === "visible") {
       refreshData();
@@ -241,9 +268,8 @@ const Home = () => {
     }
   });
 
-  // Timer logic with state for re-rendering
   useEffect(() => {
-    if (!state.currentProcess) return;
+    if (!state.currentProcess || remainingSeconds === null) return;
 
     const interval = setInterval(() => {
       if (!mountedRef.current || !state.currentProcess) {
@@ -259,9 +285,10 @@ const Home = () => {
             setState((prev) => ({ ...prev, currentProcess: null }));
             setRemainingSeconds(null);
             refreshData();
-            setIsLoading(false)
+            setIsLoading(false);
           }
-        })
+        });
+        return;
       }
 
       const now = moment().tz("Europe/Moscow");
@@ -286,27 +313,27 @@ const Home = () => {
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [state.currentProcess, canContinue, handleProcessCompletion]);
+  }, [state.currentProcess, remainingSeconds, canContinue, handleProcessCompletion, userId, refreshData]);
 
   const onDurationUpdate = useCallback((newRemaining) => {
     setRemainingSeconds(newRemaining);
-    setState((prev) => {
-      if (!prev.currentProcess) return prev;
-      return {
-        ...prev,
-        currentProcess: {
-          ...prev.currentProcess,
-          target_duration_in_seconds: newRemaining,
-          remainingSeconds: newRemaining,
-          formattedTime: formatTime(Math.floor(newRemaining / 60), newRemaining % 60),
-        },
-      };
-    });
+    setState((prev) =>
+      prev.currentProcess
+        ? {
+            ...prev,
+            currentProcess: {
+              ...prev.currentProcess,
+              target_duration_in_seconds: newRemaining,
+              remainingSeconds: newRemaining,
+              formattedTime: formatTime(Math.floor(newRemaining / 60), newRemaining % 60),
+            },
+          }
+        : prev
+    );
   }, []);
 
-  const renderProcessProgressBar = useCallback((process, percentage, rate, reverse = false) => {
-    console.log("Rendering progress bar:", { percentage, rate });
-    return (
+  const renderProcessProgressBar = useCallback(
+    (process, percentage, rate, reverse = false) => (
       <ProcessProgressBar
         activeProcess={process}
         rate={rate}
@@ -315,72 +342,79 @@ const Home = () => {
         handleConfirmClose={handleConfirmClose}
         style={{ transition: "width 1s ease-in-out" }}
       />
-    );
-  }, [handleConfirmClose]);
+    ),
+    [handleConfirmClose]
+  );
 
-  const renderScene = useCallback((content) => (
-    <AnimatePresence mode="wait">
-      <motion.div
-        className="Home"
-        key={state.currentProcess?.type || "default"}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        transition={{ duration: 0.5, ease: "easeInOut" }}
-        style={{
-          position: "absolute",
-          height: "100%",
-          width: "100%",
-          overflow: "hidden",
-          backgroundColor: isLoading ? "#f0f0f0" : "transparent",
-        }}
-      >
-        <GachaOverlay userId={userId} />
-        <DailyCheckInOverlay />
-        {state.imagesLoaded && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.5, ease: "easeInOut" }}
-              style={{
-                filter: "blur(1px)",
-                position: "absolute",
-                height: "53%",
-                width: "53%",
-                backgroundImage: `url(${Assets.BG.winter})`,
-                backgroundSize: "cover",
-                backgroundPosition: "center right",
-                zIndex: 0,
-              }}
-            />
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.5, ease: "easeInOut" }}
-              style={{
-                position: "absolute",
-                height: "100%",
-                width: "100%",
-                backgroundImage:
-                  state.currentProcess?.type && state.currentProcess?.type !== "default" && state.currentProcess?.active
-                    ? getBgByCurrentProcess(state.currentProcess.type, state.currentProcess?.type_id)
-                    : `url(${Assets.BG.homeBackground})`,
-                backgroundSize: "cover",
-                backgroundPosition: "bottom right",
-                zIndex: 0,
-              }}
-            />
-          </>
-        )}
-        {content}
-      </motion.div>
-    </AnimatePresence>
-  ), [state.currentProcess?.type, state.currentProcess?.active, state.currentProcess?.type_id, state.imagesLoaded, userId]);
+  const renderScene = useCallback(
+    (content) => (
+      <AnimatePresence mode="wait">
+        <motion.div
+          className="Home"
+          key={state.currentProcess?.type || "default"}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.5, ease: "easeInOut" }}
+          style={{
+            position: "absolute",
+            height: "100%",
+            width: "100%",
+            overflow: "hidden",
+            backgroundColor: isLoading ? "#f0f0f0" : "transparent",
+          }}
+        >
+          <GachaOverlay userId={userId} />
+          <DailyCheckInOverlay />
+          {state.imagesLoaded && (
+            <>
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.5, ease: "easeInOut" }}
+                style={{
+                  filter: "blur(1px)",
+                  position: "absolute",
+                  height: "53%",
+                  width: "53%",
+                  backgroundImage: `url(${Assets.BG.winter})`,
+                  backgroundSize: "cover",
+                  backgroundPosition: "center right",
+                  zIndex: 0,
+                }}
+              />
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.5, ease: "easeInOut" }}
+                style={{
+                  position: "absolute",
+                  height: "100%",
+                  width: "100%",
+                  backgroundImage:
+                    state.currentProcess?.type && state.currentProcess?.type !== "default" && state.currentProcess?.active
+                      ? getBgByCurrentProcess(state.currentProcess.type, state.currentProcess?.type_id)
+                      : `url(${Assets.BG.homeBackground})`,
+                  backgroundSize: "cover",
+                  backgroundPosition: "bottom right",
+                  zIndex: 0,
+                }}
+              />
+            </>
+          )}
+          {content}
+        </motion.div>
+      </AnimatePresence>
+    ),
+    [state.currentProcess?.type, state.currentProcess?.active, state.currentProcess?.type_id, state.imagesLoaded, userId]
+  );
 
-  if (isLoading || !isInitialized) return <FullScreenSpinner progress={loadingProgress} />;
+  // Wait for full initialization before rendering
+  if (!isInitializedFully || isLoading) {
+    return <FullScreenSpinner progress={loadingProgress} />;
+  }
 
   const homeContent = (
     <>
@@ -390,7 +424,14 @@ const Home = () => {
       <img className="shelf2" src={Assets.HOME.shelf} alt="shelf2" />
       <img className="couch" src={Assets.HOME.couch} alt="couch" />
       <div style={{ position: "absolute", zIndex: 2 }}>
-        <Player bottom={"calc(-85vh + 50px)"} width="39vw" left={"9vw"} top={"35vh"} personage={userPersonage} clothing={userClothing} />
+        <Player
+          bottom={"calc(-85vh + 50px)"}
+          width="39vw"
+          left={"9vw"}
+          top={"35vh"}
+          personage={userPersonage}
+          clothing={userClothing}
+        />
       </div>
       <Menu hasBg={false} />
       <motion.div
@@ -432,33 +473,22 @@ const Home = () => {
             </div>
             <div className="shelf-container2">
               {userShelf.neko?.shelf_link && (
-                <motion.div
-                  className="shelf-neko-container"
-                  style={{ position: "relative" }}
-                >
+                <motion.div className="shelf-neko-container" style={{ position: "relative" }}>
                   <motion.img
                     layout
                     className="shelf-neko"
                     src={userShelf.neko.shelf_link}
                     alt="neko"
                     style={{
-                      filter: state.nekoState.canClick
-                        ? "none"
-                        : "grayscale(100%)",
+                      filter: state.nekoState.canClick ? "none" : "grayscale(100%)",
                     }}
                     transition={{ duration: 0.5, ease: "easeOut" }}
                   />
                   {state.nekoState.canClick && (
                     <motion.div
                       className="pulse-effect"
-                      animate={{
-                        opacity: [0.5, 1, 0.5],
-                      }}
-                      transition={{
-                        duration: 2,
-                        repeat: Infinity,
-                        ease: "easeInOut",
-                      }}
+                      animate={{ opacity: [0.5, 1, 0.5] }}
+                      transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
                       style={{
                         position: "absolute",
                         top: 0,
@@ -532,16 +562,25 @@ const Home = () => {
   const workContent = (
     <>
       <HomeHeader onClick={() => setState((prev) => ({ ...prev, visibleSettingsModal: !prev.visibleSettingsModal }))} />
-      <Player bottom="calc(-1vh + 141px)" width="39vw" left={"9vw"} top={"35vh"} personage={userPersonage} clothing={userClothing} work />
-      {state.currentProcess && renderProcessProgressBar(
-        state.currentProcess,
-        countPercentage(
-          moment().tz("Europe/Moscow").diff(moment(state.currentProcess.createdAt).tz("Europe/Moscow"), "seconds"),
-          state.currentProcess.target_duration_in_seconds || state.currentProcess.base_duration_in_seconds
-        ),
-        state.currentProcess.formattedTime,
-        true
-      )}
+      <Player
+        bottom="calc(-1vh + 141px)"
+        width="39vw"
+        left={"9vw"}
+        top={"35vh"}
+        personage={userPersonage}
+        clothing={userClothing}
+        work
+      />
+      {state.currentProcess &&
+        renderProcessProgressBar(
+          state.currentProcess,
+          countPercentage(
+            moment().tz("Europe/Moscow").diff(moment(state.currentProcess.createdAt).tz("Europe/Moscow"), "seconds"),
+            state.currentProcess.target_duration_in_seconds || state.currentProcess.base_duration_in_seconds
+          ),
+          state.currentProcess.formattedTime,
+          true
+        )}
       <Menu noButton />
       {state.visibleWindow && (
         <Window
@@ -557,15 +596,24 @@ const Home = () => {
   const trainingContent = (
     <>
       <HomeHeader onClick={() => setState((prev) => ({ ...prev, visibleSettingsModal: !prev.visibleSettingsModal }))} />
-      <Player bottom="calc(-1vh + 141px)" width="39vw" left={"9vw"} top={"35vh"} personage={userPersonage} clothing={userClothing} training />
-      {state.currentProcess && renderProcessProgressBar(
-        state.currentProcess,
-        countPercentage(
-          moment().tz("Europe/Moscow").diff(moment(state.currentProcess.createdAt).tz("Europe/Moscow"), "seconds"),
-          state.currentProcess.target_duration_in_seconds || state.currentProcess.base_duration_in_seconds
-        ),
-        state.currentProcess.formattedTime
-      )}
+      <Player
+        bottom="calc(-1vh + 141px)"
+        width="39vw"
+        left={"9vw"}
+        top={"35vh"}
+        personage={userPersonage}
+        clothing={userClothing}
+        training
+      />
+      {state.currentProcess &&
+        renderProcessProgressBar(
+          state.currentProcess,
+          countPercentage(
+            moment().tz("Europe/Moscow").diff(moment(state.currentProcess.createdAt).tz("Europe/Moscow"), "seconds"),
+            state.currentProcess.target_duration_in_seconds || state.currentProcess.base_duration_in_seconds
+          ),
+          state.currentProcess.formattedTime
+        )}
       <Menu noButton />
       {state.visibleWindow && (
         <Window
@@ -581,12 +629,16 @@ const Home = () => {
   const sleepContent = (
     <>
       <HomeHeader onClick={() => setState((prev) => ({ ...prev, visibleSettingsModal: !prev.visibleSettingsModal }))} />
-      <SleepGame
-        sleepDuration={calculateInitialRemaining(state.currentProcess)}
-        onComplete={handleProcessCompletion}
-        onDurationUpdate={onDurationUpdate}
+      <SleepGame sleepDuration={remainingSeconds} onComplete={handleProcessCompletion} onDurationUpdate={onDurationUpdate} />
+      <Player
+        bottom={"calc(-468px)"}
+        width="81vw"
+        left={"5vw"}
+        top={"55vmax"}
+        personage={userPersonage}
+        clothing={userClothing}
+        sleep
       />
-      <Player bottom={"calc(-468px)"} width="81vw" left={"5vw"} top={"55vmax"} personage={userPersonage} clothing={userClothing} sleep />
       <motion.img
         src={Assets.Layers.cover}
         initial={{ opacity: 0 }}
@@ -595,11 +647,16 @@ const Home = () => {
         style={{ position: "absolute", width: "100%", height: "100%", bottom: 0, zIndex: 0 }}
         alt="cover"
       />
-      {state.currentProcess && renderProcessProgressBar(
-        state.currentProcess,
-        100 - countPercentage(remainingSeconds, state.currentProcess.target_duration_in_seconds || getUserSleepDuration() * 60),
-        state.currentProcess.formattedTime
-      )}
+      {state.currentProcess &&
+        renderProcessProgressBar(
+          state.currentProcess,
+          100 -
+            countPercentage(
+              remainingSeconds,
+              state.currentProcess.target_duration_in_seconds || getUserSleepDuration() * 60
+            ),
+          state.currentProcess.formattedTime
+        )}
       <Menu noButton />
       {state.visibleWindow && (
         <Window
@@ -612,12 +669,16 @@ const Home = () => {
     </>
   );
 
-  if (state?.currentProcess === null || state.currentProcess.type === "skill" || state.currentProcess.type === "food") {
+  // Render logic with explicit type checking
+  const currentProcessType = state.currentProcess?.type;
+  if (!currentProcessType || currentProcessType === "skill" || currentProcessType === "food") {
     return renderScene(homeContent);
   }
-  if (state.currentProcess?.type === "work") return renderScene(workContent);
-  if (state.currentProcess?.type === "training") return renderScene(trainingContent);
-  if (state.currentProcess?.type === "sleep") return renderScene(sleepContent);
+  if (currentProcessType === "work") return renderScene(workContent);
+  if (currentProcessType === "training") return renderScene(trainingContent);
+  if (currentProcessType === "sleep") return renderScene(sleepContent);
+
+  return renderScene(homeContent); // Fallback
 };
 
 export default Home;
