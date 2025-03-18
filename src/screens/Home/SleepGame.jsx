@@ -34,7 +34,7 @@ const SleepGame = ({
   // Preload assets
   const preloadAssets = useCallback(async () => {
     const assetPromises = [
-      ["coin", Assets.Icons.energyUp],
+      ["coin", Assets.Icons.clock],
       ["ground", Assets.Images.sleepSheepGroundGif],
       ["cloud", Assets.Images.sleepSheepCloud],
       ["player1", Assets.Images.sleepSheep1],
@@ -64,14 +64,14 @@ const SleepGame = ({
     const canvasWidth = 374;
     cloudsRef.current = Array.from({ length: CLOUD_COUNT }, (_, i) => ({
       x: i * CLOUD_SPACING,
-      y: Math.random() * 120,
+      y: Math.random() * 100,
       width: 80,
       height: 80,
     }));
     while (cloudsRef.current[cloudsRef.current.length - 1].x < canvasWidth + CLOUD_SPACING * 2) {
       cloudsRef.current.push({
         x: cloudsRef.current[cloudsRef.current.length - 1].x + CLOUD_SPACING,
-        y: Math.random() * 120,
+        y: Math.random() * 100,
         width: 80,
         height: 80,
       });
@@ -109,7 +109,7 @@ const SleepGame = ({
   const handleJump = useCallback(async () => {
     const player = playerRef.current;
     if (!player.jumping) {
-      player.velocityY = -12;
+      player.velocityY = -11;
       player.jumping = true;
       const jumpTime = new Date().toISOString();
       playerJumpsRef.current.push({ time: jumpTime, y: player.y });
@@ -209,7 +209,7 @@ const SleepGame = ({
     coinsRef.current.forEach((coin) => {
       if (!collectedCoinsRef.current.has(coin.id) && coin.localX >= -20 && coin.localX <= canvas.width) {
         if (assetsRef.current.coin) {
-          ctx.drawImage(assetsRef.current.coin, coin.localX, coin.y, 20, 20);
+          ctx.drawImage(assetsRef.current.coin, coin.localX, coin.y, 25, 25);
         }
 
         const playerRect = { left: player.x, right: player.x + 40, top: player.y, bottom: player.y + 40 };
@@ -278,12 +278,12 @@ const SleepGame = ({
   return (
     <div
       style={{
-        background: "linear-gradient(0deg, rgba(231, 231, 231, 1) 44%, rgba(208, 208, 208, 0) 100%)",
-        backgroundColor: "black",
+        background: "linear-gradient(0deg, rgb(27 37 61) 64%, rgba(255, 255, 255, 0) 100%)",
+        
         borderBottom: "3px solid rgb(32 20 30)",
         borderRadius: "8px",
         position: "absolute",
-        top: "26.5%",
+        top: "20.5%",
         left: "0%",
         width: "100%",
         height: "200px",
