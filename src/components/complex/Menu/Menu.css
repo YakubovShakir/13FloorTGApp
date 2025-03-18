@@ -22,15 +22,18 @@ html, body, #root{
   
     height: 7vh;
     position: absolute;
-    display: flex
-;
+    display: flex;
     justify-content: center;
     align-items: center;
     z-index: 4;
     bottom: 104%;
 }
 
+.Button span {
+  text-transform: uppercase;}
+
 .BigButton {
+  text-transform: uppercase;
   width: 200px; /* Ширина кнопки */
   height: 60px; /* Высота кнопки */
   background: linear-gradient(rgb(18, 4, 2) 0%, rgba(233, 27, 27, 0.12) 100%)2; /* Цвет кнопки */
