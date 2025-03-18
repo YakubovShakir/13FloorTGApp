@@ -64,14 +64,14 @@ const SleepGame = ({
     const canvasWidth = 374;
     cloudsRef.current = Array.from({ length: CLOUD_COUNT }, (_, i) => ({
       x: i * CLOUD_SPACING,
-      y: Math.random() * 100,
+      y: Math.random() * 120-19,
       width: 80,
       height: 80,
     }));
     while (cloudsRef.current[cloudsRef.current.length - 1].x < canvasWidth + CLOUD_SPACING * 2) {
       cloudsRef.current.push({
         x: cloudsRef.current[cloudsRef.current.length - 1].x + CLOUD_SPACING,
-        y: Math.random() * 100,
+        y: Math.random() * 120,
         width: 80,
         height: 80,
       });
