@@ -204,44 +204,12 @@ const SkillTab = ({
             },
         };
 
-        // Optional server sync
-        const syncInterval = setInterval(async () => {
-            if (!mountedRef.current) return;
-            try {
-                const serverTime = await getServerTime();
-                const drift = serverTime.diff(moment());
-                if (Math.abs(drift) > 5000) { // Adjust if drift > 5 seconds
-                    setState(prev => {
-                        const updatedSkills = prev.userLearningSkills.map(skill => {
-                            const adjustedRemaining = Math.max(0, skill.remainingSeconds - Math.floor(drift / 1000));
-                            return {
-                                ...skill,
-                                remainingSeconds: adjustedRemaining,
-                                formattedTime: formatTime(
-                                    Math.floor(adjustedRemaining / 60),
-                                    adjustedRemaining % 60
-                                ) || "0:00"
-                            };
-                        });
-                        lastSkillsRef.current = updatedSkills;
-                        return {
-                            ...prev,
-                            userLearningSkills: updatedSkills,
-                        };
-                    });
-                }
-            } catch (error) {
-                console.error("Sync failed:", error);
-            }
-        }, SYNC_INTERVAL);
-
         timerRef.current.clear = () => {
             clearInterval(tickInterval);
-            clearInterval(syncInterval);
             timerRef.current = null;
             setState(prev => ({ ...prev, timerRunning: false }));
         };
-    }, [state.userLearningSkills, state.isInitialized, calculateTime, initializeData]);
+    }, [state.userLearningSkills, state.isInitialized]);
 
     useEffect(() => {
         if (state.isInitialized && state.userLearningSkills?.length > 0) {
