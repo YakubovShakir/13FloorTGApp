@@ -161,7 +161,7 @@ export const WorkTab = ({
           fillPercent: '100%',
           fillBackground: userParameters?.coins < work?.coins_price
             ? "#4E1010" // red
-            : "#0E3228", // green
+            : "#00ff00", // green
         },
         work?.skill_id_required && {
           icon: skills?.find(
@@ -173,7 +173,7 @@ export const WorkTab = ({
           fillPercent: "100%",
           fillBackground: !checkLearnedSkill(work?.skill_id_required)
             ? "#4E1010" // red
-            : "#0E3228", // green
+            : "#00ff00", // green
         },
         {
           icon: Icons.respect,
@@ -182,7 +182,7 @@ export const WorkTab = ({
           fillBackground:
             userParameters?.respect < work?.respect_required
               ? "#4E1010" // red
-              : "#0E3228", // green
+              : "#00ff00", // green
         },
 
         {

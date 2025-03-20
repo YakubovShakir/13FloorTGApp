@@ -236,7 +236,7 @@ const PerksTab = ({
           fillPercent: '100%',
           fillBackground: userParameters?.coins < (effect?.next?.price || 0)
             ? "#4E1010"
-            : "#0E3228",
+            : "#00ff00",
         },
         {
           icon: Icons.levelIcon,
@@ -246,7 +246,7 @@ const PerksTab = ({
           fillBackground:
             userParameters?.level < (effect?.next?.required_level || 0)
               ? "#4E1010"
-              : "#0E3228",
+              : "#00ff00",
         },
         {
           icon: Icons.clock,

@@ -271,7 +271,7 @@ const DailyCheckInOverlay = () => {
                           borderRadius: "8px",
                           border:
                             streak === item.day && canClaim
-                              ? "2px solid #ff4444"
+                              ? "2px solid #ff9d00"
                               : "1px solid rgba(255, 255, 255, 0.1)",
                           transition: "all 0.2s ease",
                           textAlign: "center",

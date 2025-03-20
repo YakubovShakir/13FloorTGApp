@@ -112,7 +112,7 @@
 
 
 .Button img {
-  padding-bottom: 3px;
+  
   width: 10%; /* Зависит от ширины кнопки */
   height: auto; /* Сохраняет пропорции */
   max-width: 24px; /* Максимальный размер */
