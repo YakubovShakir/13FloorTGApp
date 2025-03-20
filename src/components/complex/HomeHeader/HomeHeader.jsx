@@ -24,6 +24,8 @@ import {
 import { formatCoins } from "../../../utils/formatCoins"
 import { formUsername } from "../../../utils/formUsername"
 import { instance } from "../../../services/instance"
+import { COLORS } from "../../../utils/paramBlockUtils"
+import globalTranslations from "../../../globalTranslations"
 
 const walletTranslations = {
   telegram: {
@@ -467,7 +469,7 @@ const StatItem = memo(({ title, iconLeft, value, color }) => (
     </div>
     <p
       style={{
-        color: color || "#00ff00",
+        color: color || COLORS.WHITE,
         fontWeight: "bold",
         fontSize: 16,
         margin: 0,
@@ -492,26 +494,94 @@ export const useCurrentEffects = (userId, lang) => {
         const response = await instance.get(`/users/${userId}/effects/current`);
         const { effects: rawEffects } = response.data;
 
+        const summedEffects = {};
+
+        // Sum non-autostart effects and deduplicate autostart
+        Object.keys(rawEffects).forEach((category) => {
+          const effectsData = rawEffects[category];
+
+          if (Array.isArray(effectsData) && effectsData.length > 0) {
+            if (category === 'autostart') {
+              // Deduplicate autostart by param
+              const uniqueAutostarts = new Map();
+              effectsData.forEach(({ param, value }) => {
+                if (!uniqueAutostarts.has(param)) {
+                  uniqueAutostarts.set(param, value);
+                }
+              });
+              summedEffects[category] = Array.from(uniqueAutostarts, ([param, value]) => ({ param, value }));
+            } else {
+              // Sum other effects by param
+              const paramSums = {};
+              effectsData.forEach(({ param, value }) => {
+                paramSums[param] = (paramSums[param] || 0) + value;
+              });
+              summedEffects[category] = Object.entries(paramSums).map(([param, value]) => ({ param, value }));
+            }
+          } else {
+            summedEffects[category] = [];
+          }
+        });
+
         const formattedEffects = [];
-        const translations = {
-          cant_fall_below_percent: { ru: "Мин. %", en: "Min. %" },
-          profit_hourly_percent: { ru: "Прибыль в час %", en: "Hourly Profit %" },
-          cost_hourly_percent: { ru: "Затраты в час %", en: "Hourly Cost %" },
-          profit_per_tick_fixed: { ru: "Прибыль за тик", en: "Profit per Tick" },
-          cost_per_tick_fixed: { ru: "Затраты за тик", en: "Cost per Tick" },
-          autostart: { ru: "Автостарт", en: "Autostart" },
+
+        const getEffectIcon = (category, param = 'default') => {
+          const map = {
+            cant_fall_below_percent: {
+              hungry: Assets.Icons.hungryUp,
+              energy: Assets.Icons.energyUp,
+              mood: Assets.Icons.moodUp,
+              coins: Assets.Icons.balance,
+            },
+            profit_hourly_percent: {
+              hungry: Assets.Icons.hungryUp,
+              energy: Assets.Icons.energyUp,
+              mood: Assets.Icons.moodUp,
+              coins: Assets.Icons.balance,
+            },
+            cost_hourly_percent: {
+              hungry: Assets.Icons.hungryUp,
+              energy: Assets.Icons.energyUp,
+              mood: Assets.Icons.moodUp,
+              coins: Assets.Icons.balance,
+            },
+            profit_per_tick_fixed: {
+              hungry: Assets.Icons.hungryUp,
+              energy: Assets.Icons.energyUp,
+              mood: Assets.Icons.moodUp,
+              coins: Assets.Icons.balance,
+            },
+            cost_per_tick_fixed: {
+              hungry: Assets.Icons.hungryUp,
+              energy: Assets.Icons.energyUp,
+              mood: Assets.Icons.moodUp,
+              coins: Assets.Icons.balance,
+            },
+            autostart: {
+              sleeping_when_energy_below: Assets.Icons.clock,
+              default: Assets.Icons.clock,
+            },
+          };
+          return map[category]?.[param] || Assets.Icons.energyUp;
         };
 
-        Object.keys(rawEffects).forEach(category => {
-          Object.keys(rawEffects[category]).forEach(param => {
-            const value = rawEffects[category][param];
+        const translations = globalTranslations.effects
+        const formatValue = (category, value) => {
+          const split = category.split('_');
+          const signedValue = value > 0 ? `+${value}` : (value === 0 ? value : `-${value}`);
+          return split[split.length - 1] === 'percent' ? `${signedValue}%` : `${signedValue}`;
+        };
+
+        // Format summed effects
+        Object.keys(summedEffects).forEach((category) => {
+          summedEffects[category].forEach(({ param, value }) => {
             formattedEffects.push({
               type: category,
               param,
-              value: category === "autostart" ? `${value}%` : value > 0 ? `+${value}` : `${value}`,
-              title: `${translations[category][lang]} (${param})`,
-              color: value > 0 ? PHONE_COLORS.GREEN : PHONE_COLORS.RED,
-              icon: Assets.Icons.energyUp, // Customize icons per effect type if needed
+              value: formatValue(category, value),
+              title: translations[category]?.[param]?.[lang] || category, // Fallback to category if no translation
+              color: value > 0 ? COLORS.GREEN : COLORS.RED,
+              icon: getEffectIcon(category, param),
             });
           });
         });
@@ -534,11 +604,18 @@ export const useCurrentEffects = (userId, lang) => {
 // Updated StatsModal
 const StatsModal = memo(({ baseStyles, setIsStatsShown, clothing }) => {
   const { userParameters } = useUser();
-  const { total_earned, level, energy_capacity, respect, id } = userParameters;
+  const { total_earned, level, energy_capacity, respect, id, experience } = userParameters;
   const { lang } = useSettingsProvider();
   const [activeTab, setActiveTab] = useState("stats");
   const { isLoading: isNekoLoading, effects: nekoEffects } = useNekoEffects(id, lang);
   const { isLoading: isEffectsLoading, effects: currentEffects } = useCurrentEffects(id, lang);
+  const [levelParameters, setLevelParameters] = useState()
+  const [isLevelsLoading, setIsLevelsLoading] = useState(true)
+
+
+  useEffect(() => {
+    getLevels().then(levels => setLevelParameters(levels))
+  }, [])
 
   const tabVariants = {
     hidden: { opacity: 0, x: 20 },
@@ -554,6 +631,8 @@ const StatsModal = memo(({ baseStyles, setIsStatsShown, clothing }) => {
   };
 
   const combinedEffects = [...nekoEffects, ...currentEffects];
+  const nextLevelExpRequired = levelParameters?.find(levelParameter => levelParameter.level === level + 1)?.experience_required
+  const thisLevelExpRequired = levelParameters?.find(levelParameter => levelParameter.level === level)?.experience_required
 
   const TabContent = () => (
     <AnimatePresence mode="wait">
@@ -567,9 +646,9 @@ const StatsModal = memo(({ baseStyles, setIsStatsShown, clothing }) => {
           transition={{ duration: 0.3 }}
         >
           <StatItem
-            iconLeft={Assets.Icons.boosterArrow}
+            iconLeft={Assets.Icons.levelIcon}
             title={translations.level[lang]}
-            value={level}
+            value={`${experience - thisLevelExpRequired}/${nextLevelExpRequired ? nextLevelExpRequired - thisLevelExpRequired : thisLevelExpRequired}`}
           />
           <StatItem
             iconLeft={Assets.Icons.respect}
@@ -777,10 +856,6 @@ const HomeHeader = ({ screenHeader }) => {
   const handleSettingsPress = () => {
     playClickSound();
     setIsSettingsShown(!isSettingsShown);
-  };
-
-  const getLevelByNumber = (number) => {
-    return levels?.find((level) => level?.level === number);
   };
 
   const getLevelWidth = () => {

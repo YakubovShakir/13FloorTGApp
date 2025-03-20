@@ -638,22 +638,22 @@ const CoinsTab = () => {
         return split.pop() === 'percent' ? `${signedValue}%` : `${signedValue}`
       }
 
-      Object.keys(item.effects).forEach((category) => {
-        const effectsData = item.effects[category];
-        // Handle case where effectsData is an array
-        effectsData.forEach(({ param, value }) => {
-          formattedEffects.push({
-            type: category,
-            param,
-            value: formatValue(category, value),
-            text: `${translations[category][param][lang] || category}`, // Fallback to category if no translation
-            fillBackground: value > 0 ? COLORS.GREEN : COLORS.RED,
-            icon: getEffectIcon(category, param) || Assets.Icons.energyUp, // Customize icons per effect type if needed
+      if(item.effects) {
+        Object.keys(item.effects).forEach((category) => {
+          const effectsData = item.effects[category];
+          // Handle case where effectsData is an array
+          effectsData.forEach(({ param, value }) => {
+            formattedEffects.push({
+              type: category,
+              param,
+              value: formatValue(category, value),
+              text: `${translations[category][param][lang] || category}`, // Fallback to category if no translation
+              fillBackground: value > 0 ? COLORS.GREEN : COLORS.RED,
+              icon: getEffectIcon(category, param) || Assets.Icons.energyUp, // Customize icons per effect type if needed
+            });
           });
         });
-      });
-  
-      console.log(formattedEffects);
+      }
   
       return {
         type: item.type,
@@ -1060,7 +1060,11 @@ const CoinsTab = () => {
           data={currentItem && {...createShopItemModalData(currentItem), buttons: [
               {
                 text: currentItem.price, 
-                active: true
+                active: currentItem.isPrem ? false : true,
+                icon: currentItem.isPrem ? Assets.Icons.starsIcon : Assets.Icons.balance,
+                onClick: () => {
+                  (currentItem.isPrem ? handleStarsBuy(currentItem) : handleCoinsBuy(currentItem) ).then(() => setCurrentItem(null))
+                }
               }
           ]}}
           bottom={"0"}

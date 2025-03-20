@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from "react"
+import { useState, useEffect, useContext, useCallback } from "react"
 import Assets from "../../../assets"
 import ScreenContainer from "../../../components/section/ScreenContainer/ScreenContainer"
 import ItemCard from "../../../components/simple/ItemCard/ItemCard"
@@ -21,6 +21,8 @@ import FullScreenSpinner from "../../Home/FullScreenSpinner"
 import FilterModal from "../../../components/complex/FilterModal/FilterModal"
 import { SquareButton } from "../../../components/simple/SquareButton/SquareButton"
 import { useSettingsProvider } from "../../../hooks"
+import { COLORS } from "../../../utils/paramBlockUtils"
+import globalTranslations from "../../../globalTranslations"
 
 const translations = {
   equipped: {
@@ -43,6 +45,7 @@ const GridItem = ({
   clothingId,
   type,
   productType,
+  setCurrentItem
 }) => {
   const { lang } = useSettingsProvider()
   return (
@@ -75,7 +78,7 @@ const GridItem = ({
         }}
       >
         {/* Заголовок и Иконка */}
-        <div className="clothing-item-header">
+        <div className="clothing-item-header" onClick={() => setCurrentItem()}>
           <div></div>
           {/* Иконка одежды и Тень активной одежды */}
           <motion.div
@@ -284,6 +287,7 @@ const GridLayout = ({
             clothingId={item.clothing_id}
             type={item.category}
             productType={item.productType}
+            setCurrentItem={() => setCurrentItem(item)}
           />
         ))}
       </div>
@@ -347,8 +351,100 @@ const InventoryTab = ({ userId }) => {
   const [isLoading, setIsLoading] = useState(true)
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false)
   const [currentComplexFilters, setCurrentComplexFilters] = useState([])
-  const { userPersonage } = useContext(UserContext)
+  const { userPersonage, userParameters } = useContext(UserContext)
   const { lang } = useSettingsProvider()
+
+  
+  const createShopItemModalData = useCallback(
+    (item) => {
+      if (!item) return null;
+  
+      const formattedEffects = [];
+
+      const getEffectIcon = (category, param = 'default') => {
+        const map = {
+          cant_fall_below_percent: {
+            hungry: Assets.Icons.hungryUp,
+            energy: Assets.Icons.energyUp,
+            mood: Assets.Icons.moodUp,
+            coins: Assets.Icons.balance,
+          },
+          profit_hourly_percent: {
+            hungry: Assets.Icons.hungryUp,
+            energy: Assets.Icons.energyUp,
+            mood: Assets.Icons.moodUp,
+            coins: Assets.Icons.balance
+          },
+          cost_hourly_percent: {
+            hungry: Assets.Icons.hungryUp,
+            energy: Assets.Icons.energyUp,
+            mood: Assets.Icons.moodUp,
+            coins: Assets.Icons.balance
+          },
+          profit_per_tick_fixed: {
+            hungry: Assets.Icons.hungryUp,
+            energy: Assets.Icons.energyUp,
+            mood: Assets.Icons.moodUp,
+            coins: Assets.Icons.balance
+          },
+          cost_per_tick_fixed: {
+            hungry: Assets.Icons.hungryUp,
+            energy: Assets.Icons.energyUp,
+            mood: Assets.Icons.moodUp,
+            coins: Assets.Icons.balance
+          },
+          autostart: {
+            sleeping_when_energy_below: Assets.Icons.clock,
+            'default': Assets.Icons.clock,
+          }
+        }
+
+        return map[category][param]
+      }
+  
+      const formatValue = (category, value) => {
+        const split = category.split('_')
+        const signedValue = value > 0 ? `+${value}` : (value === 0 ? value : `-${value}`)
+        return split.pop() === 'percent' ? `${signedValue}%` : `${signedValue}`
+      }
+
+      const translations = globalTranslations.effects
+
+      if(item.effects) {
+        Object.keys(item.effects).forEach((category) => {
+          const effectsData = item.effects[category];
+          // Handle case where effectsData is an array
+          effectsData.forEach(({ param, value }) => {
+            formattedEffects.push({
+              type: category,
+              param,
+              value: formatValue(category, value),
+              text: `${translations[category][param][lang] || category}`, // Fallback to category if no translation
+              fillBackground: value > 0 ? COLORS.GREEN : COLORS.RED,
+              icon: getEffectIcon(category, param) || Assets.Icons.energyUp, // Customize icons per effect type if needed
+            });
+          });
+        });
+      }
+  
+      return {
+        type: item.type,
+        id: item.id || item.clothing_id,
+        title: item?.name,
+        image: item.image,
+        blocks: [
+          {
+            value: item.respect || 0,
+            text: translations.respect[lang], // Fallback to category if no translation
+            fillBackground: COLORS.WHITE,
+            icon: Assets.Icons.respect
+          },
+          ...formattedEffects,
+        ].filter(Boolean),
+      };
+    },
+    [currentItem, lang, userParameters] // Ensure all dependencies are included
+  );
 
   useEffect(() => {
     getInventoryItems(userId)
@@ -645,6 +741,15 @@ const InventoryTab = ({ userId }) => {
           clothesUnequip={clothesUnequip}
           clothesEquip={clothesEquip}
           lang={lang}
+        />
+      )}
+      {currentItem && (
+        <Modal
+          onClose={() => setCurrentItem(null)}
+          data={currentItem && {...createShopItemModalData(currentItem), buttons: []}}
+          bottom={"0"}
+          width={"100vw"}
+          height={"80vh"}
         />
       )}
     </ScreenContainer>

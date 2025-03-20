@@ -14,6 +14,7 @@ const Button = ({
   shadowColor,
   fontSize,
   paddingTop,
+  paddingBottom = 3.75,
   fontFamily,
   fontWeight,
   borderColor,
@@ -57,7 +58,7 @@ const Button = ({
       }}
     >
       {icon && <img src={icon} style={iconStyles} alt="Button" />}
-      <span style={{ fontSize, paddingTop, fontFamily, fontWeight }}>{text}</span>
+      <span style={{ fontSize, paddingTop, fontFamily, fontWeight, paddingBottom }}>{text}</span>
     </button>
   );
 };
