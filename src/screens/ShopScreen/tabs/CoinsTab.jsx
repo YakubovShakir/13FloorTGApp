@@ -673,12 +673,6 @@ const CoinsTab = () => {
           },
           ...formattedEffects,
         ].filter(Boolean),
-        buttons: [
-          {
-            text: item.price,
-            active: true
-          }
-        ],
       };
     },
     [currentItem, lang, userParameters] // Ensure all dependencies are included
@@ -708,27 +702,25 @@ const CoinsTab = () => {
               userParameters.level >= item.requiredLevel,
             effects: item.effects,
           }))
-        const loadedShelfItems = data.shelf.map((item) => ({
-          id: item.id,
-          productType: "shelf",
-          name: item.name[lang],
-          image: item.link,
-          price: item.cost.stars || item.cost.coins,
-          category: "Shelf",
-          isPrem: item.cost.stars > 0,
-          available:
-            item.cost.stars > 0 ||
-            item.cost.coins === 0 ||
-            userParameters.coins >= item.cost.coins,
-          description: item.description["ru"],
-          respect: item.respect,
-          effects: item.effects,
-        }))
-        setClothesItems(loadedClothesItems)
-        setShelfItems(loadedShelfItems)
-        console.log("Clothes Items", clothesItems)
-      })
-      .finally(() => setIsLoading(false))
+          const loadedShelfItems = data.shelf.filter(item => !(item.type === 'neko' && item.id != 8)).map((item) => ({
+            id: item.id,
+            productType: "shelf",
+            name: item.name[lang],
+            image: item.link,
+            price: item.cost.stars || item.cost.coins,
+            category: "Shelf",
+            isPrem: item.cost.stars > 0,
+            available:
+              item.cost.stars > 0 ||
+              item.cost.coins === 0 ||
+              userParameters.coins >= item.cost.coins,
+            description: item.description && item.description[lang],
+            respect: item.respect,
+          }))
+          setClothesItems(loadedClothesItems)
+          setShelfItems(loadedShelfItems)
+        })
+        .finally(() => setIsLoading(false))
   }, [])
 
   const addComplexFilter = ({ filteredValue, filteredField }) => {
@@ -844,26 +836,25 @@ const CoinsTab = () => {
                 userParameters.coins >= item.price &&
                 userParameters.level >= item.requiredLevel,
             }))
-          const loadedShelfItems = data.shelf.map((item) => ({
-            id: item.id,
-            productType: "shelf",
-            name: item.name[lang],
-            image: item.link,
-            price: item.cost.stars || item.cost.coins,
-            category: "Shelf",
-            isPrem: item.cost.stars > 0,
-            available:
-              item.cost.stars > 0 ||
-              item.cost.coins === 0 ||
-              userParameters.coins >= item.cost.coins,
-            description: item.description["ru"],
-            respect: item.respect,
-          }))
-          setClothesItems(loadedClothesItems)
-          setShelfItems(loadedShelfItems)
-          console.log("Clothes Items", clothesItems)
-        })
-        .finally(() => setIsLoading(false))
+            const loadedShelfItems = data.shelf.filter(item => item.type === 'neko' && item.id === 8).map((item) => ({
+              id: item.id,
+              productType: "shelf",
+              name: item.name[lang],
+              image: item.link,
+              price: item.cost.stars || item.cost.coins,
+              category: "Shelf",
+              isPrem: item.cost.stars > 0,
+              available:
+                item.cost.stars > 0 ||
+                item.cost.coins === 0 ||
+                userParameters.coins >= item.cost.coins,
+              description: item.description && item.description[lang],
+              respect: item.respect,
+            }))
+            setClothesItems(loadedClothesItems)
+            setShelfItems(loadedShelfItems)
+          })
+          .finally(() => setIsLoading(false))
     } catch (err) {
       console.error(err)
     } finally {
@@ -896,7 +887,7 @@ const CoinsTab = () => {
               userParameters.coins >= item.price &&
               userParameters.level >= item.requiredLevel,
           }))
-          const loadedShelfItems = data.shelf.map((item) => ({
+          const loadedShelfItems = data.shelf.filter(item => item.type === 'neko' && item.id === 8).map((item) => ({
             id: item.id,
             productType: "shelf",
             name: item.name[lang],
@@ -1066,7 +1057,12 @@ const CoinsTab = () => {
       {currentItem && (
         <Modal
           onClose={() => setCurrentItem(null)}
-          data={currentItem && createShopItemModalData(currentItem)}
+          data={currentItem && {...createShopItemModalData(currentItem), buttons: [
+              {
+                text: currentItem.price, 
+                active: true
+              }
+          ]}}
           bottom={"0"}
           width={"100vw"}
           height={"80vh"}
