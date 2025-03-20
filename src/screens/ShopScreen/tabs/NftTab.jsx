@@ -562,21 +562,7 @@ const NftTab = () => {
   useEffect(() => {
     getShopItems(userId)
       .then((data) => {
-        // TODO: localize
-        const loadedClothesItems = data.clothing.filter(c => c.requiredLevel <= userParameters.level).map((item) => ({
-          id: item.clothing_id,
-          name: item.name[lang],
-          productType: 'clothes',
-          image:
-            userPersonage.gender === "male" ? item.male_icon : item.female_icon,
-          price: item.price,
-          respect: item.respect,
-          tier: item.tier,
-          tags: item.tag,
-          category: item.type,
-          available: userParameters.coins >= item.price && userParameters.level >= item.requiredLevel,
-        }))
-        const loadedShelfItems = data.shelf.map((item) => ({
+        const loadedShelfItems = data.shelf.filter(item => item.type === 'neko').map((item) => ({
           id: item.id,
           productType: 'shelf',
           name: item.name[lang],
@@ -585,17 +571,12 @@ const NftTab = () => {
           category: "Shelf",
           isPrem: item.cost.stars > 0,
           available: item.cost.stars > 0 || item.cost.coins === 0 || userParameters.coins >= item.cost.coins,
-          description: item.description['ru'],
+          description: item.description && item.description[lang],
           respect: item.respect
         }))
-        setClothesItems(loadedClothesItems)
         setShelfItems(loadedShelfItems)
-        console.log("Clothes Items", clothesItems)
       })
       .finally(() => setIsLoading(false))
-    // getFoods().then((r) => setFoods(r))
-    // getProcesses("food", userId).then((r) => setUserEatingFoods(r))
-    // updateInformation()
   }, [])
 
   const addComplexFilter = ({ filteredValue, filteredField }) => {
@@ -689,20 +670,7 @@ const NftTab = () => {
       await refreshData()
       getShopItems(userId)
       .then((data) => {
-        const loadedClothesItems = data.clothing.filter(c => c.requiredLevel <= userParameters.level).map((item) => ({
-          id: item.clothing_id,
-          name: item.name[lang],
-          productType: 'clothes',
-          image:
-            userPersonage.gender === "male" ? item.male_icon : item.female_icon,
-          price: item.price,
-          respect: item.respect,
-          tier: item.tier,
-          tags: item.tag,
-          category: item.type,
-          available: userParameters.coins >= item.price && userParameters.level >= item.requiredLevel,
-        }))
-        const loadedShelfItems = data.shelf.map((item) => ({
+        const loadedShelfItems = data.shelf.filter(item => item.type === 'neko').map((item) => ({
           id: item.id,
           productType: 'shelf',
           name: item.name[lang],
@@ -711,11 +679,10 @@ const NftTab = () => {
           category: "Shelf",
           isPrem: item.cost.stars > 0,
           available: item.cost.stars > 0 || item.cost.coins === 0 || userParameters.coins >= item.cost.coins,
-          description: item.description['ru']
+          description: item.description && item.description[lang],
+          respect: item.respect
         }))
-        setClothesItems(loadedClothesItems)
         setShelfItems(loadedShelfItems)
-        console.log("Clothes Items", clothesItems)
       })
       .finally(() => setIsLoading(false))
     } catch (err) {
@@ -732,20 +699,7 @@ const NftTab = () => {
       await refreshData()
       getShopItems(userId)
       .then((data) => {
-        const loadedClothesItems = data.clothing.map((item) => ({
-          id: item.clothing_id,
-          name: item.name[lang],
-          productType: 'clothes',
-          image:
-            userPersonage.gender === "male" ? item.male_icon : item.female_icon,
-          price: item.price,
-          respect: item.respect,
-          tier: item.tier,
-          tags: item.tag,
-          category: item.type,
-          available: userParameters.coins >= item.price && userParameters.level >= item.requiredLevel,
-        }))
-        const loadedShelfItems = data.shelf.map((item) => ({
+        const loadedShelfItems = data.shelf.filter(item => item.type === 'neko').map((item) => ({
           id: item.id,
           productType: 'shelf',
           name: item.name[lang],
@@ -757,7 +711,6 @@ const NftTab = () => {
           description: item.description && item.description[lang],
           respect: item.respect
         }))
-        setClothesItems(loadedClothesItems)
         setShelfItems(loadedShelfItems)
       })
       .finally(() => setIsLoading(false))
@@ -905,7 +858,7 @@ const NftTab = () => {
       </div>
       <GridLayout
         setCurrentItem={setCurrentItem}
-        items={applyFilter([...clothesItems, ...shelfItems])}
+        items={applyFilter([...shelfItems])}
         handleCoinsBuy={handleCoinsBuy}
         handleStarsBuy={handleStarsBuy}
       />
