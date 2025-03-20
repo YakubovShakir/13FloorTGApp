@@ -311,6 +311,7 @@ const loadClothesFromData = (data, userPersonage, lang) => {
         item.clothing_id
       ),
       productType: "clothes",
+      effects: item.effects
     }
   })
 }
@@ -327,6 +328,7 @@ const loadShelfFromData = (data, lang) => {
     category: item.type,
     equipped: Object.values(data.currentlyUsedShelf).includes(item.id),
     productType: "shelf",
+    effects: item.effects
   }))
 }
 
@@ -410,6 +412,7 @@ const InventoryTab = ({ userId }) => {
 
       const translations = globalTranslations.effects
 
+      console.log(item)
       if(item.effects) {
         Object.keys(item.effects).forEach((category) => {
           const effectsData = item.effects[category];
