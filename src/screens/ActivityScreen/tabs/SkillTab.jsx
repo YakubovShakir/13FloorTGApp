@@ -595,24 +595,6 @@ const SkillTab = ({
                     />
                 ))}
 
-            {/* {state.effects && Object.entries(state.effects)
-                .filter(([_, effect]) => effect?.next && checkLearningEffect(effect?.next?.id))
-                .map(([key, effect], index) => {
-                    const displayEffect = effect.current || effect.next;
-                    return (
-                        <ItemCard
-                            key={`learning-effect-${displayEffect.id}`}
-                            ItemIcon={displayEffect.link}
-                            ItemTitle={displayEffect.name[lang]}
-                            ItemDescription={displayEffect.description?.[lang]}
-                            ItemParamsBlocks={getItemEffectsParamsBlock(effect)}
-                            ItemButtons={getItemEffectButton(effect)}
-                            ItemBottomAmount={(lang === 'en' ? 'Level ' : 'Уровень ') + (effect.current?.level || 0)}
-                            ItemIndex={index + 1}
-                        />
-                    );
-                })} */}
-
             {state.skills?.filter(skill => !checkLearningSkill(skill.skill_id) && !checkLearnedSkill(skill.skill_id))
                 .map((skill, index) => (
                     <ItemCard
@@ -625,24 +607,6 @@ const SkillTab = ({
                         ItemIndex={index + 1}
                     />
                 ))}
-
-            {/* {state.effects && Object.entries(state.effects)
-                .filter(([_, effect]) => effect?.next && !checkLearningEffect(effect?.next?.id))
-                .map(([key, effect], index) => {
-                    const displayEffect = effect.current || effect.next;
-                    return (
-                        <ItemCard
-                            key={`available-effect-${displayEffect.id}`}
-                            ItemIcon={displayEffect.link}
-                            ItemTitle={displayEffect.name[lang]}
-                            ItemDescription={displayEffect.description?.[lang]}
-                            ItemParamsBlocks={getItemEffectsParamsBlock(effect)}
-                            ItemButtons={getItemEffectButton(effect)}
-                            ItemBottomAmount={(lang === 'en' ? 'Level ' : 'Уровень ') + (effect.current?.level || 0)}
-                            ItemIndex={index + 1}
-                        />
-                    );
-                })} */}
 
             {state.skills?.filter(skill => !checkLearningSkill(skill.skill_id) && checkLearnedSkill(skill.skill_id))
                 .map((skill, index) => (

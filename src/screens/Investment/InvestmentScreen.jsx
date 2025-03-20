@@ -70,9 +70,9 @@ export const useInvestmentTimer = ({
   }
 
   const calculateTimeLeft = useCallback(() => {
-    const now = moment().tz('Europe/Moscow')
-    const duration = 3600 
-    const startMoment = moment(virtualStartTime).tz('Europe/Moscow')
+    const now = moment().tz("Europe/Moscow")
+    const duration = 3600
+    const startMoment = moment(virtualStartTime).tz("Europe/Moscow")
     const end = startMoment.add(duration, "seconds")
 
     // Calculate the exact difference in seconds
@@ -120,41 +120,50 @@ export const useInvestmentTimer = ({
 }
 
 const Modal = ({ bottom, left, width, height, data, onClose, logoWidth }) => {
-  const { Icons } = Assets;
-  const { lang } = useSettingsProvider();
-  const { userId } = useContext(UserContext);
-  const { showNotification } = useNotification();
-  const [skillDetails, setSkillDetails] = useState(null);
+  const { Icons } = Assets
+  const { lang } = useSettingsProvider()
+  const { userId } = useContext(UserContext)
+  const { showNotification } = useNotification()
+  const [skillDetails, setSkillDetails] = useState(null)
 
   const translations = {
     invite: { en: "Invite", ru: "Пригласить" },
-    gameCenter: { en: "Invite friends to grow Game Center!", ru: "Приглашай друзей и развивай Игровой Центр!" },
+    gameCenter: {
+      en: "Invite friends to grow Game Center!",
+      ru: "Приглашай друзей и развивай Игровой Центр!",
+    },
     level: { en: "Current Level: ", ru: "Текущий уровень: " },
-    copied: { en: "Your referral link has been copied successfully!", ru: "Ваша реферальная ссылка была успешно скопирована!" },
+    copied: {
+      en: "Your referral link has been copied successfully!",
+      ru: "Ваша реферальная ссылка была успешно скопирована!",
+    },
     cost: { en: "Cost", ru: "Стоимость" },
     requiredLevel: { en: "Required Level", ru: "Необходимый уровень" },
     requiredSkill: { en: "Required Skill", ru: "Требуемый навык" },
-    requiredRespect: { en: "Respect Required", ru: "Необходимо респекта" }
-  };
+    requiredRespect: { en: "Respect Required", ru: "Необходимо респекта" },
+  }
 
   const getRefLink = () => {
     return import.meta.env.VITE_NODE_ENV === "test"
       ? `https://t.me/memecoin_multiplier3000_bot?start=${userId}`
-      : `https://t.me/Floor13th_bot?start=${userId}`;
-  };
+      : `https://t.me/Floor13th_bot?start=${userId}`
+  }
 
   const { userParameters } = useUser()
 
   // Fetch skill details if skill_id_required exists
   useEffect(() => {
     if (data?.skill_id_required) {
-      instance.get(`/users/skills/${data.skill_id_required}`).then(response => {
-        setSkillDetails(response.data);
-      }).catch(err => {
-        console.error("Failed to fetch skill details:", err);
-      });
+      instance
+        .get(`/users/skills/${data.skill_id_required}`)
+        .then((response) => {
+          setSkillDetails(response.data)
+        })
+        .catch((err) => {
+          console.error("Failed to fetch skill details:", err)
+        })
     }
-  }, [data?.skill_id_required]);
+  }, [data?.skill_id_required])
 
   const renderRequirementBar = (icon, text, value, isMet) => (
     <div
@@ -169,11 +178,15 @@ const Modal = ({ bottom, left, width, height, data, onClose, logoWidth }) => {
         boxShadow: "rgba(0, 0, 0, 0.24) 0px 0px 8px 2px inset",
       }}
     >
-      <img src={icon} alt={text} style={{ width: 24, height: 24, marginRight: 8 }} />
+      <img
+        src={icon}
+        alt={text}
+        style={{ width: 24, height: 24, marginRight: 8 }}
+      />
       <span style={{ color: "#fff", flex: 1 }}>{text}</span>
       <span style={{ color: isMet ? "#00FF00" : "#FF3333" }}>{value}</span>
     </div>
-  );
+  )
 
   return (
     <motion.div
@@ -230,12 +243,16 @@ const Modal = ({ bottom, left, width, height, data, onClose, logoWidth }) => {
                   width: data.to
                     ? Math.min(
                         100,
-                        ((data.gameCenterValues.friends - data.gameCenterValues.thisLevelFriendsRequired) /
-                          (data.gameCenterValues.nextLevelFriendsRequired - data.gameCenterValues.thisLevelFriendsRequired)) * 100
+                        ((data.gameCenterValues.friends -
+                          data.gameCenterValues.thisLevelFriendsRequired) /
+                          (data.gameCenterValues.nextLevelFriendsRequired -
+                            data.gameCenterValues.thisLevelFriendsRequired)) *
+                          100
                       ) + "%"
                     : "100%",
                   height: 30,
-                  background: "linear-gradient(90deg, rgba(233, 78, 27, 1) 0%, rgba(243, 117, 0, 1) 50%)",
+                  background:
+                    "linear-gradient(90deg, rgba(233, 78, 27, 1) 0%, rgba(243, 117, 0, 1) 50%)",
                   borderRadius: 12,
                 }}
               />
@@ -292,13 +309,13 @@ const Modal = ({ bottom, left, width, height, data, onClose, logoWidth }) => {
                 "",
                 data.userSkills.includes(data.skill_id_required)
               )}
-              {data.respect_required > 0 &&  
-                renderRequirementBar(
-                  Icons.respect,
-                  translations.requiredRespect[lang],
-                  data.respect_required,
-                  userParameters.respect >= data.respect_required
-                )}
+            {data.respect_required &&
+              renderRequirementBar(
+                Icons.respect,
+                translations.requiredRespect[lang],
+                data.respect_required,
+                userParameters.respect >= data.respect_required
+              )}
           </div>
         )}
       </div>
@@ -309,8 +326,8 @@ const Modal = ({ bottom, left, width, height, data, onClose, logoWidth }) => {
             active={data.canUpgrade}
             onClick={() => {
               copyTextToClipboard(getRefLink()).then(() => {
-                showNotification(translations.copied[lang], Assets.Icons.tasks);
-              });
+                showNotification(translations.copied[lang], Assets.Icons.tasks)
+              })
             }}
             text={translations.invite[lang]}
             width={100}
@@ -318,12 +335,14 @@ const Modal = ({ bottom, left, width, height, data, onClose, logoWidth }) => {
         ) : (
           <Button
             {...buttonStyle}
-            active={data.canUpgrade && 
-              (!data.level_required || data.userLevel >= data.level_required) && 
-              (!data.skill_id_required || data.userSkills.includes(data.skill_id_required)) && 
-              (!data.respect_required || userParameters.respect >= data.respect_required)
+            active={
+              data.canUpgrade &&
+              (!data.level_required || data.userLevel >= data.level_required) &&
+              (!data.skill_id_required ||
+                data.userSkills.includes(data.skill_id_required)) &&
+              (!data.respect_required ||
+                userParameters.respect >= data.respect_required)
             }
-
             onClick={data.canUpgrade ? data.handleUpgrade : () => {}}
             text={data.price}
             width={100}
@@ -332,8 +351,8 @@ const Modal = ({ bottom, left, width, height, data, onClose, logoWidth }) => {
         )}
       </div>
     </motion.div>
-  );
-};
+  )
+}
 
 const AutoclaimModal = ({
   bottom,
@@ -343,7 +362,7 @@ const AutoclaimModal = ({
   data,
   onClose,
   logoWidth,
-  handleAutoclaimPurchased
+  handleAutoclaimPurchased,
 }) => {
   const { Icons } = Assets
   return (
@@ -428,9 +447,9 @@ const ThreeSectionCard = ({
   openAutoclaimModal,
   handleStart,
   isGameCenter = false,
-  handleAutoclaimPurchased
+  handleAutoclaimPurchased,
 }) => {
-  const isTest =  import.meta.env.VITE_NODE_ENV === "test"
+  const isTest = import.meta.env.VITE_NODE_ENV === "test"
   const { lang } = useSettingsProvider()
 
   const translations = {
@@ -455,17 +474,17 @@ const ThreeSectionCard = ({
       en: "/HOUR",
     },
     start: {
-      ru: 'Начать',
-      en: 'Start'
+      ru: "Начать",
+      en: "Start",
     },
     friends: {
-      ru: 'Друзей: ',
-      en: 'Friends: '
+      ru: "Друзей: ",
+      en: "Friends: ",
     },
     invite: {
-      ru: 'Пригласить',
-      en: 'Invite',
-    }
+      ru: "Пригласить",
+      en: "Invite",
+    },
   }
 
   const { timer, shouldShowCollectButton } = useInvestmentTimer({
@@ -489,7 +508,8 @@ const ThreeSectionCard = ({
     },
     section: {
       margin: "5px 0px 5px 5px",
-      background: "repeating-linear-gradient(45deg, rgba(0, 0, 0, 0.21), rgba(0, 0, 0, 0.21) 2px, rgba(57, 57, 57, 0.06) 2px, rgba(57, 57, 57, 0.06) 6px) rgba(0, 0, 0, 0.51)",
+      background:
+        "repeating-linear-gradient(45deg, rgba(0, 0, 0, 0.21), rgba(0, 0, 0, 0.21) 2px, rgba(57, 57, 57, 0.06) 2px, rgba(57, 57, 57, 0.06) 6px) rgba(0, 0, 0, 0.51)",
       borderBottom: "1px solid rgba(117, 117, 117, 0.23)",
       boxShadow: "rgba(0, 0, 0, 0.24) 0px 0px 8px 2px inset",
       width: "30%",
@@ -528,7 +548,8 @@ const ThreeSectionCard = ({
   }
 
   const getBackgroundStyle = () => ({
-    backgroundImage: "repeating-linear-gradient(45deg, rgba(0, 0, 0, 0.21), rgba(0, 0, 0, 0.21) 2px, rgba(57, 57, 57, 0.06) 2px, rgba(57, 57, 57, 0.06) 6px) rgba(0, 0, 0, 0.51)",
+    backgroundImage:
+      "repeating-linear-gradient(45deg, rgba(0, 0, 0, 0.21), rgba(0, 0, 0, 0.21) 2px, rgba(57, 57, 57, 0.06) 2px, rgba(57, 57, 57, 0.06) 6px) rgba(0, 0, 0, 0.51)",
   })
 
   const getEmptyBackgroundStyle = () => ({
@@ -546,14 +567,14 @@ const ThreeSectionCard = ({
         layout: { duration: 0.3 },
         opacity: {
           duration: 0.3,
-          delay: index * 0.15 // Match the delay for opacity
+          delay: index * 0.15, // Match the delay for opacity
         },
         y: {
           type: "spring",
           damping: 20,
           stiffness: 100,
-          delay: index * 0.15 // Match the delay for y movement
-        }
+          delay: index * 0.15, // Match the delay for y movement
+        },
       }}
       style={styles.cardContainer}
     >
@@ -603,19 +624,20 @@ const ThreeSectionCard = ({
             border: getBorderStyle(),
             ...getEmptyBackgroundStyle(),
           }}
-          onClick={has_autoclaim ? () => { } : openAutoclaimModal}
+          onClick={has_autoclaim ? () => {} : openAutoclaimModal}
         >
           <motion.img
             layout
-            src={has_autoclaim ? Assets.Icons.investManagerActive : Assets.Icons.investManager}
+            src={
+              has_autoclaim
+                ? Assets.Icons.investManagerActive
+                : Assets.Icons.investManager
+            }
             alt="Manager Status"
             style={styles.image}
           />
           {has_autoclaim && (
-            <motion.p
-              layout
-              style={{ color: "white", paddingTop: 8 }}
-            >
+            <motion.p layout style={{ color: "white", paddingTop: 8 }}>
               {translations.autoclaim[lang]}
             </motion.p>
           )}
@@ -680,7 +702,8 @@ const ThreeSectionCard = ({
               width: "100%",
             }}
           >
-            {from}{translations.hour[lang]}
+            {from}
+            {translations.hour[lang]}
           </motion.p>
         </motion.div>
 
@@ -700,23 +723,21 @@ const ThreeSectionCard = ({
               text={translations.start[lang]}
             />
           )
+        ) : isGameCenter ? (
+          <Button
+            {...buttonStyle}
+            active={userParameters.coins >= upgrade_info.price}
+            text={translations.invite[lang]}
+            onClick={onClick}
+          />
         ) : (
-          isGameCenter ? (
-            <Button
-              {...buttonStyle}
-              active={userParameters.coins >= upgrade_info.price}
-              text={translations.invite[lang]}
-              onClick={onClick}
-            />
-          ) : (
-            <Button
-              {...buttonStyle}
-              active={userParameters.coins >= upgrade_info.price}
-              icon={Assets.Icons.balance}
-              text={upgrade_info.price}
-              onClick={onClick}
-            />
-          )
+          <Button
+            {...buttonStyle}
+            active={userParameters.coins >= upgrade_info.price}
+            icon={Assets.Icons.balance}
+            text={upgrade_info.price}
+            onClick={onClick}
+          />
         )}
       </motion.div>
     </motion.div>
@@ -762,7 +783,6 @@ const useInvestmentData = (userId) => {
     } finally {
       setIsLoading(false)
     }
-
   }
 
   const handleClaim = async (investment_type) => {
@@ -782,7 +802,6 @@ const useInvestmentData = (userId) => {
     } finally {
       setIsLoading(false)
     }
-
   }
 
   const handleStart = async (investment_type) => {
@@ -802,13 +821,12 @@ const useInvestmentData = (userId) => {
     } finally {
       setIsLoading(false)
     }
-
   }
 
   const { lang } = useSettingsProvider()
 
   const handleAutoclaimPurchased = async (investment_type) => {
-    await handleStarsPayment(userId, 'autoclaim', investment_type, lang)
+    await handleStarsPayment(userId, "autoclaim", investment_type, lang)
     await fetchInvestments()
     await refreshData()
   }
@@ -824,16 +842,16 @@ const useInvestmentData = (userId) => {
     handleUpgrade,
     handleClaim,
     handleAutoclaimPurchased,
-    handleStart
+    handleStart,
   }
 }
 
 const InvestmentScreen = () => {
-  const [modalData, setModalData] = useState(null);
-  const [isModalVisible, setIsModalVisible] = useState(false);
-  const { userId, userParameters } = useContext(UserContext);
-  const [autoClaimModalVisible, setIsAutoClaimModalVisible] = useState(false);
-  const [autoclaimModalData, setAutoclaimModalData] = useState();
+  const [modalData, setModalData] = useState(null)
+  const [isModalVisible, setIsModalVisible] = useState(false)
+  const { userId, userParameters } = useContext(UserContext)
+  const [autoClaimModalVisible, setIsAutoClaimModalVisible] = useState(false)
+  const [autoclaimModalData, setAutoclaimModalData] = useState()
 
   const {
     investments,
@@ -843,15 +861,15 @@ const InvestmentScreen = () => {
     handleClaim,
     handleAutoclaimPurchased,
     handleStart,
-  } = useInvestmentData(userId);
+  } = useInvestmentData(userId)
 
-  const { lang } = useSettingsProvider();
+  const { lang } = useSettingsProvider()
 
   const titlesMap = {
     coffee_shop: { ru: "Кофейня", en: "Coffeeshop" },
     zoo_shop: { ru: "Зоомагазин", en: "Zoo-shop" },
     game_center: { ru: "Игровой центр", en: "Game Center" },
-  };
+  }
 
   const translations = {
     autoclaim: { ru: "Автоклейм", en: "Autoclaim" },
@@ -864,23 +882,23 @@ const InvestmentScreen = () => {
       ru: "Инвестируй немного денег в бизнес, и забирай доход каждый час",
       en: "Invest a little - collect interest hourly",
     },
-  };
+  }
 
   const autoclaimModalDataFixed = {
     image: Assets.Icons.investManagerActive,
     title: translations.autoclaim[lang],
     description: translations.autoclaimDescription[lang],
-  };
+  }
 
   const handleModalOpen = (investment_type) => {
-    if (!investments) return;
+    if (!investments) return
 
-    const investmentData = investments[investment_type];
+    const investmentData = investments[investment_type]
     const iconMap = {
       coffee_shop: Assets.Icons.investmentCoffeeShopIcon,
       zoo_shop: Assets.Icons.investmentZooShopIcon,
       game_center: Assets.Icons.gameCenter,
-    };
+    }
 
     setModalData({
       image: iconMap[investment_type],
@@ -888,8 +906,8 @@ const InvestmentScreen = () => {
       to: investmentData.upgrade_info.to,
       price: investmentData.upgrade_info.price,
       handleUpgrade: async () => {
-        await handleUpgrade(investment_type);
-        setIsModalVisible(false);
+        await handleUpgrade(investment_type)
+        setIsModalVisible(false)
       },
       current_level: investmentData.current_level,
       title: titlesMap[investment_type][lang],
@@ -905,9 +923,10 @@ const InvestmentScreen = () => {
         inviteLink: userParameters.invite_link || "",
         handleInviteLink: async () => {},
       },
-    });
-    setIsModalVisible(true);
-  };
+      respect_required: investmentData.upgrade_info.respect_required || undefined
+    })
+    setIsModalVisible(true)
+  }
 
   const renderContent = () => {
     if (isLoading || !investments) {
@@ -927,7 +946,7 @@ const InvestmentScreen = () => {
         >
           {translations.investmentsDescription[lang]}
         </h2>
-      );
+      )
     }
 
     return (
@@ -948,7 +967,11 @@ const InvestmentScreen = () => {
           {translations.investmentsDescription[lang]}
         </h2>
 
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }}>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.3 }}
+        >
           <ThreeSectionCard
             index={0}
             from={investments?.coffee_shop?.upgrade_info?.from}
@@ -961,8 +984,11 @@ const InvestmentScreen = () => {
             started_at={investments?.coffee_shop?.started_at}
             handleClaim={() => handleClaim("coffee_shop")}
             openAutoclaimModal={() => {
-              setAutoclaimModalData({ ...autoclaimModalDataFixed, type: "coffee_shop" });
-              setIsAutoClaimModalVisible(true);
+              setAutoclaimModalData({
+                ...autoclaimModalDataFixed,
+                type: "coffee_shop",
+              })
+              setIsAutoClaimModalVisible(true)
             }}
             {...investments?.coffee_shop}
             userParameters={userParameters}
@@ -982,8 +1008,11 @@ const InvestmentScreen = () => {
             started_at={investments?.zoo_shop?.started_at}
             {...investments?.zoo_shop}
             openAutoclaimModal={() => {
-              setAutoclaimModalData({ ...autoclaimModalDataFixed, type: "zoo_shop" });
-              setIsAutoClaimModalVisible(true);
+              setAutoclaimModalData({
+                ...autoclaimModalDataFixed,
+                type: "zoo_shop",
+              })
+              setIsAutoClaimModalVisible(true)
             }}
             userParameters={userParameters}
             handleStart={() => handleStart("zoo_shop")}
@@ -1003,8 +1032,11 @@ const InvestmentScreen = () => {
             hideUpgrade={true}
             {...investments?.game_center}
             openAutoclaimModal={() => {
-              setAutoclaimModalData({ ...autoclaimModalDataFixed, type: "game_center" });
-              setIsAutoClaimModalVisible(true);
+              setAutoclaimModalData({
+                ...autoclaimModalDataFixed,
+                type: "game_center",
+              })
+              setIsAutoClaimModalVisible(true)
             }}
             userParameters={userParameters}
             handleStart={() => handleStart("game_center")}
@@ -1012,8 +1044,8 @@ const InvestmentScreen = () => {
           />
         </motion.div>
       </>
-    );
-  };
+    )
+  }
 
   return (
     <Screen>
@@ -1034,8 +1066,8 @@ const InvestmentScreen = () => {
             onClose={() => setIsAutoClaimModalVisible(false)}
             data={autoclaimModalData}
             handleAutoclaimPurchased={async (type) => {
-              setIsAutoClaimModalVisible(false);
-              await handleAutoclaimPurchased(type);
+              setIsAutoClaimModalVisible(false)
+              await handleAutoclaimPurchased(type)
             }}
             bottom={"0"}
             width={"100%"}
@@ -1048,7 +1080,7 @@ const InvestmentScreen = () => {
         <br />
       </ScreenBody>
     </Screen>
-  );
-};
+  )
+}
 
 export default InvestmentScreen

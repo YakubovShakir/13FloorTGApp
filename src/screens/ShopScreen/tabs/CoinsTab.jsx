@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from "react"
+import { useState, useEffect, useContext, useMemo, useCallback } from "react"
 import Assets from "../../../assets"
 import ScreenContainer from "../../../components/section/ScreenContainer/ScreenContainer"
 import { getShopItems } from "../../../services/user/user"
@@ -16,6 +16,7 @@ import { useSettingsProvider } from "../../../hooks"
 import { useNotification } from "../../../NotificationContext"
 import { handleStarsPayment } from "../../../utils/handleStarsPayment"
 import { isBiometryMounted } from "@telegram-apps/sdk"
+import { COLORS } from "../../../utils/paramBlockUtils"
 
 const GridItem = ({
   id,
@@ -29,6 +30,7 @@ const GridItem = ({
   isPrem = false,
   handleCoinsBuy,
   handleStarsBuy,
+  setCurrentItem,
 }) => {
   // Определим стиль для неактивных элементов (если цена больше 0 и кнопка неактивна)
   const isDisabled = !available && price > 0
@@ -63,7 +65,7 @@ const GridItem = ({
           justifyContent: "center",
         }}
       >
-        <div className="clothing-item-header">
+        <div className="clothing-item-header" onClick={() => setCurrentItem()}>
           <div></div>
           <motion.div
             className="clothing-item-icon-wrapper"
@@ -151,15 +153,12 @@ const GridItem = ({
             marginTop: 5,
             marginBottom: 10,
             height: 60,
-            color: 'white'
+            color: "white",
           }}
         >
           {respect > 0 && (
             <>
-              <img
-                src={Assets.Icons.respect}
-                height={22}
-              />
+              <img src={Assets.Icons.respect} height={22} />
               <p
                 style={{
                   textAlign: "center",
@@ -179,7 +178,7 @@ const GridItem = ({
                   fontWeight: "100",
                   fontFamily: "Oswald",
                   fontSize: "20px",
-                  paddingBottom: 4
+                  paddingBottom: 4,
                 }}
               >
                 {respect}
@@ -245,15 +244,11 @@ const GridItemShelf = ({
   title,
   isPrem,
   price,
-  starsPrice,
   available = true,
   respect = 100,
-  equipped,
+  setCurrentItem,
   handleCoinsBuy,
   handleStarsBuy,
-  clothingId,
-  type,
-  description,
 }) => {
   console.log(id)
   const isNftItem = id >= 9 && id <= 38 // Check if ID is in NFT range
@@ -291,7 +286,7 @@ const GridItemShelf = ({
           justifyContent: "center",
         }}
       >
-        <div className="clothing-item-header">
+        <div className="clothing-item-header" onClick={setCurrentItem}>
           <div></div>
           <motion.div
             className="clothing-item-icon-wrapper"
@@ -361,15 +356,12 @@ const GridItemShelf = ({
             marginTop: 5,
             marginBottom: 10,
             height: 60,
-            color: 'white'
+            color: "white",
           }}
         >
           {respect > 0 && (
             <>
-              <img
-                src={Assets.Icons.respect}
-                height={22}
-              />
+              <img src={Assets.Icons.respect} height={22} />
               <p
                 style={{
                   textAlign: "center",
@@ -389,7 +381,7 @@ const GridItemShelf = ({
                   fontWeight: "100",
                   fontFamily: "Oswald",
                   fontSize: "20px",
-                  paddingBottom: 4
+                  paddingBottom: 4,
                 }}
               >
                 {respect}
@@ -466,7 +458,12 @@ const GridItemShelf = ({
   )
 }
 
-const GridLayout = ({ items, handleCoinsBuy, handleStarsBuy }) => {
+const GridLayout = ({
+  items,
+  handleCoinsBuy,
+  handleStarsBuy,
+  setCurrentItem,
+}) => {
   return (
     <div
       style={{
@@ -503,6 +500,7 @@ const GridLayout = ({ items, handleCoinsBuy, handleStarsBuy }) => {
                 description={item.description}
                 id={item.id}
                 productType={item.productType}
+                setCurrentItem={() => setCurrentItem(item)}
               />
             )
           } else {
@@ -521,6 +519,7 @@ const GridLayout = ({ items, handleCoinsBuy, handleStarsBuy }) => {
                 type={item.category}
                 id={item.id}
                 productType={item.productType}
+                setCurrentItem={() => setCurrentItem(item)}
               />
             )
           }
@@ -531,9 +530,6 @@ const GridLayout = ({ items, handleCoinsBuy, handleStarsBuy }) => {
 }
 
 const CoinsTab = () => {
-  const [userEatingFoods, setUserEatingFoods] = useState(null)
-  const [foods, setFoods] = useState(null)
-  const [shopItems, setShopItems] = useState(null)
   const [filterTypeInUse, setFilterTypeInUse] = useState(null)
   const [currentItem, setCurrentItem] = useState(null)
   const [clothesItems, setClothesItems] = useState(null)
@@ -558,7 +554,135 @@ const CoinsTab = () => {
     Stars: "Stars",
   }
 
-  const TierFilters = [0, 1, 2, 3, 4, 5]
+  const createShopItemModalData = useCallback(
+    (item) => {
+      if (!item) return null;
+  
+      const formattedEffects = [];
+
+      const getEffectIcon = (category, param = 'default') => {
+        const map = {
+          cant_fall_below_percent: {
+            hungry: Assets.Icons.hungryUp,
+            energy: Assets.Icons.energyUp,
+            mood: Assets.Icons.moodUp,
+            coins: Assets.Icons.balance,
+          },
+          profit_hourly_percent: {
+            hungry: Assets.Icons.hungryUp,
+            energy: Assets.Icons.energyUp,
+            mood: Assets.Icons.moodUp,
+            coins: Assets.Icons.balance
+          },
+          cost_hourly_percent: {
+            hungry: Assets.Icons.hungryUp,
+            energy: Assets.Icons.energyUp,
+            mood: Assets.Icons.moodUp,
+            coins: Assets.Icons.balance
+          },
+          autostart: {
+            sleeping_when_energy_below: Assets.Icons.clock,
+            'default': Assets.Icons.clock,
+          }
+        }
+
+        return map[category][param]
+      }
+
+      const translations = {
+        cant_fall_below_percent: {
+          energy: {
+            ru: "Мин.", en: "Min." 
+          },
+          hungry: {
+            ru: "Мин.", en: "Min." 
+          },
+          mood: {
+            ru: "Мин.", en: "Min." 
+          }
+        },
+        profit_hourly_percent: {
+          energy: { ru: "Прибыль в час", en: "Hourly Profit" },
+          hungry: { ru: "Восстановление голода в час", en: "Hourly hungry restore" },
+          mood: { ru: "Прибыль в час", en: "Hourly Profit" },
+          coins: { ru: "Затраты в час", en: "Hourly Cost" }
+        },
+        profit_hourly_fixed: {
+          energy: { ru: "Прибыль в час", en: "Hourly Profit" },
+          hungry: { ru: "Восстановление голода в час", en: "Hourly hungry restore" },
+          mood: { ru: "Прибыль в час", en: "Hourly Profit" },
+          coins: { ru: "Затраты в час", en: "Hourly Cost" }
+        },
+        cost_hourly_percent: {
+          energy: { ru: "Затраты в час", en: "Hourly Cost" },
+          hungry: { ru: "Затраты в час", en: "Hourly Cost" },
+          mood: { ru: "Затраты в час", en: "Hourly Cost" },
+          coins: { ru: "Затраты в час", en: "Hourly Cost" }
+        },
+        autostart: {
+          sleeping_when_energy_below: { ru: "Автостарт", en: "Autostart" }
+        },
+        cost: {
+          en: "Cost",
+          ru: "Стоимость",
+        },
+        requiredLevel: {
+          en: "Required level",
+          ru: "Требуемый уровень",
+        },
+      };
+  
+      const formatValue = (category, value) => {
+        const split = category.split('_')
+        const signedValue = value > 0 ? `+${value}` : (value === 0 ? value : `-${value}`)
+        return split.pop() === 'percent' ? `${signedValue}%` : `${signedValue}`
+      }
+
+      Object.keys(item.effects).forEach((category) => {
+        const effectsData = item.effects[category];
+        // Handle case where effectsData is an array
+        effectsData.forEach(({ param, value }) => {
+          formattedEffects.push({
+            type: category,
+            param,
+            value: formatValue(category, value),
+            text: `${translations[category][param][lang] || category}`, // Fallback to category if no translation
+            fillBackground: value > 0 ? COLORS.GREEN : COLORS.RED,
+            icon: getEffectIcon(category, param) || Assets.Icons.energyUp, // Customize icons per effect type if needed
+          });
+        });
+      });
+  
+      console.log(formattedEffects);
+  
+      return {
+        type: item.type,
+        id: item.id || item.clothing_id,
+        title: item?.name,
+        image: item.image,
+        blocks: [
+          {
+            icon: Assets.Icons.balance,
+            text: translations.cost[lang],
+            value: item.price,
+            fillPercent: "100%",
+            fillBackground:
+              userParameters?.coins < item?.price
+                ? COLORS.RED
+                : COLORS.GREEN,
+          },
+          ...formattedEffects,
+        ].filter(Boolean),
+        buttons: [
+          {
+            text: item.price,
+            active: true
+          }
+        ],
+      };
+    },
+    [currentItem, lang, userParameters] // Ensure all dependencies are included
+  );
 
   useEffect(() => {
     getShopItems(userId)
@@ -582,6 +706,7 @@ const CoinsTab = () => {
             available:
               userParameters.coins >= item.price &&
               userParameters.level >= item.requiredLevel,
+            effects: item.effects,
           }))
         const loadedShelfItems = data.shelf.map((item) => ({
           id: item.id,
@@ -597,15 +722,13 @@ const CoinsTab = () => {
             userParameters.coins >= item.cost.coins,
           description: item.description["ru"],
           respect: item.respect,
+          effects: item.effects,
         }))
         setClothesItems(loadedClothesItems)
         setShelfItems(loadedShelfItems)
         console.log("Clothes Items", clothesItems)
       })
       .finally(() => setIsLoading(false))
-    // getFoods().then((r) => setFoods(r))
-    // getProcesses("food", userId).then((r) => setUserEatingFoods(r))
-    // updateInformation()
   }, [])
 
   const addComplexFilter = ({ filteredValue, filteredField }) => {
@@ -625,6 +748,8 @@ const CoinsTab = () => {
       )
     )
   }
+
+  useEffect(() => console.log(currentItem), [currentItem])
 
   const applyFilter = (items) => {
     if (!filterTypeInUse) {
@@ -940,10 +1065,11 @@ const CoinsTab = () => {
       />
       {currentItem && (
         <Modal
+          onClose={() => setCurrentItem(null)}
+          data={currentItem && createShopItemModalData(currentItem)}
+          bottom={"0"}
           width={"100vw"}
-          bottom={"-25vh"}
-          height={"100vh"}
-          data={{ title: "Lol" }}
+          height={"80vh"}
         />
       )}
     </ScreenContainer>

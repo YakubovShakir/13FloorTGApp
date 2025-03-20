@@ -1,7 +1,7 @@
 import formatTime from "./formatTime"
 
 // Effects applied to expected rewards and durations in actions
-const COLORS = {
+export const COLORS = {
   RED: "red",
   GREEN: "#22c7a3",
   WHITE: "white",

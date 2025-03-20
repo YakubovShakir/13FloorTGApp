@@ -481,7 +481,7 @@ const StatItem = memo(({ title, iconLeft, value, color }) => (
 StatItem.displayName = "StatItem"; // For React DevTools
 
 // Custom hook to fetch current effects
-const useCurrentEffects = (userId, lang) => {
+export const useCurrentEffects = (userId, lang) => {
   const [isLoading, setIsLoading] = useState(true);
   const [effects, setEffects] = useState([]);
 

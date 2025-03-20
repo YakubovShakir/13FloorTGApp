@@ -30,7 +30,6 @@ const Modal = ({ bottom, left, width, height, data, onClose, logoWidth }) => {
                 className="progressFill"
                 style={{
                   width: "100%",
-                  background: block?.fillBackground
                 }}
               ></span>
             <div style={{ width: "75%" }}>
@@ -41,7 +40,7 @@ const Modal = ({ bottom, left, width, height, data, onClose, logoWidth }) => {
               />
               <span >{block?.text}</span>
             </div>
-            <span>{block?.value}</span>
+            <span style={{ color: block?.fillBackground }}>{block?.value}</span>
           </div>
         ))}
       </div>

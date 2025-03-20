@@ -204,13 +204,18 @@ export const UserProvider = ({ children }) => {
 
   if (state.parameters.parametersError && state.personage.personageError) {
     return (
-      <div className="error-container">
-        <h2>Error loading user data</h2>
-        <p>Parameters Error: {state.parameters.parametersError}</p>
-        <p>Personage Error: {state.personage.personageError}</p>
-        <button onClick={() => debouncedFetchData(true)}>
-          Retry
-        </button>
+      <div style={{ width: '100vw', height: '100vh', position: 'fixed', zIndex: 999999,  }}>
+        <div className="error-container" style={{ color: 'white', textAlign: 'center', flex: 1, alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+          <h2>We're deploying</h2>
+          <p>Sorry :c</p>
+          <br/>
+          <button onClick={() => {
+            debouncedFetchData(true) 
+            fetchData()
+          }}>
+            Retry
+          </button>
+        </div>
       </div>
     )
   }

@@ -10,7 +10,7 @@ import {
   getShopItems,
   getInventoryItems,
   handleClothesUnequip,
-  handleClothesEquip
+  handleClothesEquip,
 } from "../../../services/user/user"
 import formatTime from "../../../utils/formatTime"
 import Button from "../../../components/simple/Button/Button"
@@ -19,18 +19,18 @@ import { motion, AnimatePresence, complex } from "framer-motion"
 import UserContext, { useUser } from "../../../UserContext"
 import FullScreenSpinner from "../../Home/FullScreenSpinner"
 import FilterModal from "../../../components/complex/FilterModal/FilterModal"
-import { SquareButton } from '../../../components/simple/SquareButton/SquareButton'
+import { SquareButton } from "../../../components/simple/SquareButton/SquareButton"
 import { useSettingsProvider } from "../../../hooks"
 
 const translations = {
   equipped: {
-    ru: 'Используется',
-    en: 'Equipped'
+    ru: "Используется",
+    en: "Equipped",
   },
   choose: {
-    ru: 'Выбрать',
-    en: 'Choose'
-  }
+    ru: "Выбрать",
+    en: "Choose",
+  },
 }
 
 const GridItem = ({
@@ -42,17 +42,17 @@ const GridItem = ({
   clothesEquip,
   clothingId,
   type,
-  productType
+  productType,
 }) => {
   const { lang } = useSettingsProvider()
   return (
     <div
       className="clothing-item-container" // Основной контейнер элемента одежды
       style={{
-    borderRadius: "8px",
-    border: "1px solid rgb(57, 57, 57)",
-    background: "0% 0% / cover rgb(32, 32, 32)",
-    padding: "10px",
+        borderRadius: "8px",
+        border: "1px solid rgb(57, 57, 57)",
+        background: "0% 0% / cover rgb(32, 32, 32)",
+        padding: "10px",
       }}
     >
       <div
@@ -65,28 +65,22 @@ const GridItem = ({
           overflow: "hidden",
           borderBottom: "solid 1px rgba(117, 117, 117, 0.23)",
           boxShadow: "rgba(0, 0, 0, 0.24) 0px 0px 8px 2px inset",
-          
-        background:"#00000082",
-         
+
+          background: "#00000082",
+
           borderRadius: "7px",
-          backgroundImage: "repeating-linear-gradient(45deg, #00000036, #00000036 2px, #3939390f 2px, #3939390f 6px)",
+          backgroundImage:
+            "repeating-linear-gradient(45deg, #00000036, #00000036 2px, #3939390f 2px, #3939390f 6px)",
           justifyContent: "center",
-
-
         }}
       >
         {/* Заголовок и Иконка */}
         <div className="clothing-item-header">
-          <div
-
-          >
-
-          </div>
+          <div></div>
           {/* Иконка одежды и Тень активной одежды */}
           <motion.div
             className="clothing-item-icon-wrapper"
             style={{
-
               width: "100%",
               display: "flex",
               justifyContent: "center",
@@ -120,7 +114,6 @@ const GridItem = ({
                     top: 0,
                     left: 0,
                     zIndex: 1,
-
                   }}
                 />
               )}
@@ -129,7 +122,6 @@ const GridItem = ({
                 src={icon}
                 alt={title}
                 style={{
-
                   width: "100%",
                   position: "relative",
                   zIndex: 2,
@@ -146,10 +138,9 @@ const GridItem = ({
           paddingBottom: "12px",
           display: "flex",
           flexDirection: "column",
-          alignItems: "center"
+          alignItems: "center",
         }}
       >
-
         <p
           style={{
             padding: "10px 5px 10px 5px",
@@ -174,15 +165,12 @@ const GridItem = ({
             marginTop: 5,
             marginBottom: 10,
             height: 60,
-            color: 'white'
+            color: "white",
           }}
         >
           {respect > 0 && (
             <>
-              <img
-                src={Assets.Icons.respect}
-                height={22}
-              />
+              <img src={Assets.Icons.respect} height={22} />
               <p
                 style={{
                   textAlign: "center",
@@ -202,7 +190,7 @@ const GridItem = ({
                   fontWeight: "100",
                   fontFamily: "Oswald",
                   fontSize: "20px",
-                  paddingBottom: 4
+                  paddingBottom: 4,
                 }}
               >
                 {respect}
@@ -215,7 +203,6 @@ const GridItem = ({
         {equipped ? (
           <Button
             className="clothing-item-unequip-button"
-           
             shadowColor={"rgba(243, 117, 0, 0)"}
             width={"88%"}
             marginBottom={"5"}
@@ -230,12 +217,15 @@ const GridItem = ({
             color={"rgb(10 255 186)"}
             ownColor={"rgb(166, 0, 243)"}
             bgColor={"rgba(126, 86, 49, 0)"}
-            onClick={() => productType === 'shelf' ? clothesUnequip(clothingId, type, productType) : null}
+            onClick={() =>
+              productType === "shelf"
+                ? clothesUnequip(clothingId, type, productType)
+                : null
+            }
           />
         ) : (
           <Button
             className="clothing-item-equip-button"
-           
             shadowColor={"rgb(199, 80, 21)"}
             width={"88%"}
             marginBottom={"5"}
@@ -254,12 +244,15 @@ const GridItem = ({
         )}
       </div>
     </div>
-  );
-};
+  )
+}
 
-
-
-const GridLayout = ({ setCurrentItem, items, clothesUnequip, clothesEquip }) => {
+const GridLayout = ({
+  setCurrentItem,
+  items,
+  clothesUnequip,
+  clothesEquip,
+}) => {
   return (
     <div
       style={{
@@ -313,13 +306,13 @@ const loadClothesFromData = (data, userPersonage, lang) => {
       equipped: Object.values(data.currentlyUsedClothes).includes(
         item.clothing_id
       ),
-      productType: 'clothes'
+      productType: "clothes",
     }
   })
 }
 
 const loadShelfFromData = (data, lang) => {
-  return data.shelf.map(item => ({
+  return data.shelf.map((item) => ({
     clothing_id: item.id,
     name: item.name[lang],
     image: item.link,
@@ -328,14 +321,10 @@ const loadShelfFromData = (data, lang) => {
     tier: item.tier,
     tags: item.tag,
     category: item.type,
-    equipped: Object.values(data.currentlyUsedShelf).includes(
-      item.id
-    ),
-    productType: 'shelf'
+    equipped: Object.values(data.currentlyUsedShelf).includes(item.id),
+    productType: "shelf",
   }))
 }
-
-
 
 const BaseFilters = {
   // Uses Clothing
@@ -347,7 +336,7 @@ const BaseFilters = {
   // Uses ShelfItems
   Shelf: "Shelf",
   Complex: "Complex",
-  Stars: "Stars"
+  Stars: "Stars",
 }
 
 const InventoryTab = ({ userId }) => {
@@ -364,29 +353,36 @@ const InventoryTab = ({ userId }) => {
   useEffect(() => {
     getInventoryItems(userId)
       .then((data) => {
-        const loadedClothesItems = loadClothesFromData(data, userPersonage, lang)
+        console.log(data)
+        const loadedClothesItems = loadClothesFromData(
+          data,
+          userPersonage,
+          lang
+        )
         const loadedShelfItems = loadShelfFromData(data, lang)
         setClothesItems(
           loadedClothesItems.sort((a, b) => b.equipped - a.equipped)
         )
-        setShelfItems(
-          loadedShelfItems.sort((a, b) => b.equipped - a.equipped)
-        )
+        setShelfItems(loadedShelfItems.sort((a, b) => b.equipped - a.equipped))
+        setIsLoading(false)
       })
-      .finally(() => setIsLoading(false))
-  }, [lang])
+      .catch((err) => console.log(err))
+  }, [])
 
   const clothesUnequip = async (clothing_id, type, productType) => {
     try {
       setIsLoading(true)
       await handleClothesUnequip(userId, clothing_id, type, productType)
     } catch (err) {
-
     } finally {
       getInventoryItems(userId)
         .then((data) => {
           // TODO: localize
-          const loadedClothesItems = loadClothesFromData(data, userPersonage, lang)
+          const loadedClothesItems = loadClothesFromData(
+            data,
+            userPersonage,
+            lang
+          )
           const loadedShelfItems = loadShelfFromData(data, lang)
           setClothesItems(
             loadedClothesItems.sort((a, b) => b.equipped - a.equipped)
@@ -406,15 +402,20 @@ const InventoryTab = ({ userId }) => {
       setIsLoading(true)
       await handleClothesEquip(userId, clothing_id, type, productType)
     } catch (err) {
-
     } finally {
       getInventoryItems(userId)
         .then((data) => {
           // TODO: localize
-          const loadedClothesItems = loadClothesFromData(data, userPersonage, lang)
+          const loadedClothesItems = loadClothesFromData(
+            data,
+            userPersonage,
+            lang
+          )
           const loadedShelfItems = loadShelfFromData(data, lang)
           setClothesItems(
-            loadedClothesItems.sort((a, b) => b.equipped - a.equipped).map(item => ({ ...item, isPrem: true }))
+            loadedClothesItems
+              .sort((a, b) => b.equipped - a.equipped)
+              .map((item) => ({ ...item, isPrem: true }))
           )
           setShelfItems(
             loadedShelfItems.sort((a, b) => b.equipped - a.equipped)
@@ -426,22 +427,24 @@ const InventoryTab = ({ userId }) => {
   }
 
   const addComplexFilter = ({ filteredValue, filteredField }) => {
-    setCurrentComplexFilters([...currentComplexFilters, { filteredField, filteredValue }]);
-  };
+    setCurrentComplexFilters([
+      ...currentComplexFilters,
+      { filteredField, filteredValue },
+    ])
+  }
 
   const removeComplexFilter = ({ filteredValue, filteredField }) => {
     setCurrentComplexFilters(
       currentComplexFilters.filter(
-        (filter) => filter.filteredField !== filteredField || filter.filteredValue !== filteredValue
+        (filter) =>
+          filter.filteredField !== filteredField ||
+          filter.filteredValue !== filteredValue
       )
-    );
-  };
-
+    )
+  }
 
   const applyFilter = (items) => {
-    if (
-      !filterTypeInUse
-    ) {
+    if (!filterTypeInUse) {
       return items
     }
 
@@ -450,13 +453,19 @@ const InventoryTab = ({ userId }) => {
         return items
       }
 
-      const tags = currentComplexFilters.filter(filter => filter.filteredField === 'tag').map(filter => filter.filteredValue)
-      const tiers = currentComplexFilters.filter(filter => filter.filteredField === 'tier').map(filter => filter.filteredValue)
-      console.log(tags, 'TAGS')
-      const filtered = items.filter(item => {
+      const tags = currentComplexFilters
+        .filter((filter) => filter.filteredField === "tag")
+        .map((filter) => filter.filteredValue)
+      const tiers = currentComplexFilters
+        .filter((filter) => filter.filteredField === "tier")
+        .map((filter) => filter.filteredValue)
+      console.log(tags, "TAGS")
+      const filtered = items.filter((item) => {
         let shouldTake = false
-        const isCorrectByTier = tiers.length > 0 ? tiers.includes(item.tier) : true
-        const isCorrectByTags = tags.length > 0 ? item.tag?.some(tag => tags.includes(tag)) : true
+        const isCorrectByTier =
+          tiers.length > 0 ? tiers.includes(item.tier) : true
+        const isCorrectByTags =
+          tags.length > 0 ? item.tag?.some((tag) => tags.includes(tag)) : true
 
         if (isCorrectByTier && isCorrectByTags) {
           shouldTake = true
@@ -501,22 +510,39 @@ const InventoryTab = ({ userId }) => {
   }
 
   if (isLoading) {
-    return <FullScreenSpinner />
+    return
   }
 
   return (
     <ScreenContainer withTab>
-      {isFilterModalOpen && <FilterModal baseStyles={{ position: 'fixed', height: '100vh', width: '100vw', backgroundColor: 'black', zIndex: 10, top: 0, left: 0 }} addComplexFilter={addComplexFilter} removeComplexFilter={removeComplexFilter} setIsFilterModalOpen={setIsFilterModalOpen} currentComplexFilters={currentComplexFilters} />}
+      {isFilterModalOpen && (
+        <FilterModal
+          baseStyles={{
+            position: "fixed",
+            height: "100vh",
+            width: "100vw",
+            backgroundColor: "black",
+            zIndex: 10,
+            top: 0,
+            left: 0,
+          }}
+          addComplexFilter={addComplexFilter}
+          removeComplexFilter={removeComplexFilter}
+          setIsFilterModalOpen={setIsFilterModalOpen}
+          currentComplexFilters={currentComplexFilters}
+        />
+      )}
       <div
         style={{ width: "100vw", display: "flex", justifyContent: "center" }}
       >
         <div
           style={{
-            background: "linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 1) 40%)",
-    padding: "20px 0px 30px 0px",
-    bottom:"0%",
+            background:
+              "linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 1) 40%)",
+            padding: "20px 0px 30px 0px",
+            bottom: "0%",
             zIndex: "5",
-            position:" fixed",
+            position: " fixed",
             width: "90vw",
             display: "flex",
             justifyContent: "space-around",
@@ -604,40 +630,23 @@ const InventoryTab = ({ userId }) => {
               filterTypeInUse === BaseFilters.Shelf
                 ? setFilterTypeInUse(null)
                 : setFilterTypeInUse(BaseFilters.Shelf)
-            }
-            }
+            }}
           />
-          {/* <SquareButton
-            size={36}
-            imageSize={34}
-            imageSrc={Assets.Icons.starsIcon}
-            selectedValue={filterTypeInUse}
-            assignedValue={BaseFilters.Stars}
-            handlePress={() =>
-              filterTypeInUse === BaseFilters.Stars
-                ? setFilterTypeInUse(null)
-                : setFilterTypeInUse(BaseFilters.Stars)
-            }
-          /> */}
         </div>
       </div>
-      <GridLayout
-        setCurrentItem={setCurrentItem}
-        items={applyFilter([...clothesItems, ...shelfItems].sort((a, b) => b.equipped - a.equipped))}
-        clothesUnequip={clothesUnequip}
-        clothesEquip={clothesEquip}
-        lang={lang}
-      />
-      {/* {foods?.map((food, index) => (
-        <ItemCard
-          key={index}
-          ItemIcon={food?.link}
-          ItemTitle={food?.name}
-          ItemParamsBlocks={getItemFoodParams(food)}
-          ItemButtons={getItemFoodButton(food)}
-          ItemIndex={index}
+      {!isLoading && (
+        <GridLayout
+          setCurrentItem={setCurrentItem}
+          items={applyFilter(
+            [...clothesItems, ...shelfItems].sort(
+              (a, b) => b.equipped - a.equipped
+            )
+          )}
+          clothesUnequip={clothesUnequip}
+          clothesEquip={clothesEquip}
+          lang={lang}
         />
-      ))} */}
+      )}
     </ScreenContainer>
   )
 }

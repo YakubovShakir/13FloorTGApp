@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useCallback, useState, memo } from "react";
+import { useRef, useEffect, useCallback, useState, memo } from "react";
 import Assets from "../../assets/index";
 import { instance } from "../../services/instance";
 import { useUser } from "../../UserContext";
@@ -135,13 +135,18 @@ const SleepGame = ({
     [onDurationUpdate, onComplete]
   );
 
+  const { refreshData } = useUser()
+
   const queueCollection = useCallback(
     async (collection) => {
       try {
-        await instance.post(`/users/sleep/collect-coin/${userId}`, collection);
-      } catch (err) {
-        // Silent fail
-      }
+        await Promise.all(
+          [
+            instance.post(`/users/sleep/collect-coin/${userId}`, collection),
+            refreshData()
+          ]
+        )
+      } catch (_) {}
     },
     [userId]
   );
