@@ -716,6 +716,7 @@ const CoinsTab = () => {
               userParameters.coins >= item.cost.coins,
             description: item.description && item.description[lang],
             respect: item.respect,
+            effects: item.effects,
           }))
           setClothesItems(loadedClothesItems)
           setShelfItems(loadedShelfItems)
