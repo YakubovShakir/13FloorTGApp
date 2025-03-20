@@ -630,6 +630,10 @@ const CoinsTab = () => {
           en: "Required level",
           ru: "Требуемый уровень",
         },
+        respect: {
+          en: 'Grants respect',
+          ru: 'Даёт респекта'
+        }
       };
   
       const formatValue = (category, value) => {
@@ -661,6 +665,13 @@ const CoinsTab = () => {
         title: item?.name,
         image: item.image,
         blocks: [
+          {
+            icon: Assets.Icons.respect,
+            text: translations.respect[lang],
+            value: item.respect || 0,
+            fillPercent: "100%",
+            fillBackground: COLORS.WHITE
+          },
           {
             icon: Assets.Icons.balance,
             text: translations.cost[lang],
