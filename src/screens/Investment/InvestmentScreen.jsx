@@ -183,7 +183,7 @@ const Modal = ({ bottom, left, width, height, data, onClose, logoWidth }) => {
         alt={text}
         style={{ width: 24, height: 24, marginRight: 8 }}
       />
-      <span style={{ color: "#fff", flex: 1 }}>{text}</span>
+      <span style={{ color: "#fff", flex: 1 , fontSize: "3.5cqw", fontWeight: 200 }}>{text}</span>
       <span style={{ color: isMet ? "#00FF00" : "#FF3333" }}>{value}</span>
     </div>
   )
@@ -217,7 +217,7 @@ const Modal = ({ bottom, left, width, height, data, onClose, logoWidth }) => {
           flexDirection: "column",
           justifyContent: "center",
           alignItems: "center",
-          height: 200,
+          height: 260,
           width: "100%",
           padding: "0 16px",
         }}
@@ -280,20 +280,23 @@ const Modal = ({ bottom, left, width, height, data, onClose, logoWidth }) => {
               {translations.level[lang]} {data.current_level}
             </p>
             <p>
-              {data.from} {data.to && "-> " + data.to}
+              {data.from} {data.to && "→ " + data.to}
             </p>
           </>
         ) : (
-          <div style={{ width: 300 }}>
-            <p>
-              {data.from} {data.to && "-> " + data.to}
-            </p>
-            {renderRequirementBar(
-              Icons.balance,
-              translations.cost[lang],
-              data.price,
-              data.canUpgrade
-            )}
+          <div style={{ width: 300, }}>
+ <p style={{ display: 'flex', alignItems: 'center', justifyContent: 'center',marginBottom: 20  }}>
+  <img src={Icons.balance} alt="Coin" style={{ width: '24px', height: '24px' }} /> 
+  <span style={{ fontSize: '18px', marginLeft: 7, marginRight: 7, }}>{data.from} {lang === 'ru' ? '/ в час' : '/ Hour'}</span>
+  {data.to && (
+    <>
+      {"➜ "}
+      <img src={Icons.balance} alt="Coin" style={{ width: '29px', height: '29px', marginLeft: 7 }} />
+      <span style={{ fontSize: '22px', marginLeft: 7, color: "#f5b700" }}>{" " + data.to} {lang === 'ru' ? '/ в час' : '/ Hour'}</span>
+    </>
+  )}
+</p>
+           
             {data.level_required > 0 &&
               renderRequirementBar(
                 Icons.levelIcon,
