@@ -247,6 +247,7 @@ const Home = () => {
         }
       }
     } finally {
+      await initializeProcess()
       setIsLoading(false);
       hasCompletedRef.current = false;
     }
