@@ -49,6 +49,18 @@ const translations = {
     ru: "Инвестиции",
     en: "Investments",
   },
+  sixh: {
+    ru: "6 Часов",
+    en: "6 Hours",
+  },
+  tenh: {
+    ru: "10 Часов",
+    en: "10 Hours",
+  },
+  eghth: {
+    ru: "18 Часов",
+    en: "18 Hours",
+  },
 }
 
 export const useInvestmentTimer = ({
@@ -322,6 +334,17 @@ const Modal = ({ bottom, left, width, height, data, onClose, logoWidth }) => {
           </div>
         )}
       </div>
+
+
+
+
+
+
+
+
+
+
+      
       <div className="ModalFooter" style={{ marginTop: 10 }}>
         {data?.gameCenterValues ? (
           <Button
@@ -353,6 +376,26 @@ const Modal = ({ bottom, left, width, height, data, onClose, logoWidth }) => {
           />
         )}
       </div>
+      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     </motion.div>
   )
 }
@@ -411,16 +454,55 @@ const AutoclaimModal = ({
           <p style={{ textAlign: "center" }}>{data.description}</p>
         </div>
       </div>
-      <div className="ModalFooter" style={{ marginTop: 10 }}>
-        <Button
-          {...buttonStyle}
-          active={data.canUpgrade}
-          onClick={() => handleAutoclaimPurchased(data.type)}
-          text={1}
-          width={100}
-          icon={Assets.Icons.starsIcon}
-        />
-      </div>
+
+
+     
+
+
+      
+      <div className="ModalFooter" style={{ margin: "auto", display: 'flex', flexDirection: 'row', justifyContent: 'space-between', width: '80%' }}>
+  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+    <span style={{color: '#fff', fontWeight: '300', textAlign: 'center', fontSize:" 14px", marginBottom: "5px",   }}> {data.sixh}</span>
+    <Button
+      {...buttonStyle}
+      active={data.canUpgrade}
+      onClick={() => handleAutoclaimPurchased(data.type)}
+      text={1}
+      width={100}
+      icon={Assets.Icons.starsIcon}
+    />
+  </div>
+  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+    <span style={{ color: '#fff', fontWeight: '300', textAlign: 'center', fontSize:" 14px", marginBottom: "5px",  }}>{data.tenh}</span>
+    <Button
+      {...buttonStyle}
+      active={data.canUpgrade}
+      onClick={() => handleAutoclaimPurchased(data.type)}
+      text={2}
+      width={100}
+      icon={Assets.Icons.starsIcon}
+    />
+  </div>
+  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+    <span style={{ color: '#fff', fontWeight: '300', textAlign: 'center', fontSize:" 14px", marginBottom: "5px",  }}>{data.eghth}</span>
+    <Button
+      {...buttonStyle}
+      active={data.canUpgrade}
+      onClick={() => handleAutoclaimPurchased(data.type)}
+      text={3}
+      width={100}
+      icon={Assets.Icons.starsIcon}
+    />
+  </div>
+</div>
+
+
+
+
+
+
+
+
     </motion.div>
   )
 }
@@ -885,12 +967,27 @@ const InvestmentScreen = () => {
       ru: "Инвестируй немного денег в бизнес, и забирай доход каждый час",
       en: "Invest a little - collect interest hourly",
     },
+    sixh: {
+      ru: "6 Часов",
+      en: "6 Hours",
+    },
+    tenh: {
+      ru: "10 Часов",
+      en: "10 Hours",
+    },
+    eghth: {
+      ru: "18 Часов",
+      en: "18 Hours",
+    },
   }
 
   const autoclaimModalDataFixed = {
     image: Assets.Icons.investManagerActive,
     title: translations.autoclaim[lang],
     description: translations.autoclaimDescription[lang],
+    sixh: translations.sixh[lang],
+    tenh: translations.tenh[lang],
+    eghth: translations.eghth[lang],
   }
 
   const handleModalOpen = (investment_type) => {
