@@ -15,21 +15,21 @@ export default {
       },
     },
     profit_hourly_percent: {
-      energy: { ru: "Прибыль в час", en: "Hourly Profit" },
+      energy: { ru: "Восстанавливает энергии в час", en: "Hourly Profit" },
       hungry: {
         ru: "Восстановление голода в час",
         en: "Hourly hungry restore",
       },
-      mood: { ru: "Прибыль в час", en: "Hourly Profit" },
+      mood: { ru: "Восстановление настроения в час", en: "Hourly Profit" },
       coins: { ru: "Затраты в час", en: "Hourly Cost" },
     },
     profit_hourly_fixed: {
-      energy: { ru: "Прибыль в час", en: "Hourly Profit" },
+      energy: { ru: "Восстановление энергии в час", en: "Hourly Profit" },
       hungry: {
         ru: "Восстановление голода в час",
         en: "Hourly hungry restore",
       },
-      mood: { ru: "Прибыль в час", en: "Hourly Profit" },
+      mood: { ru: "Восстановление настроения в час", en: "Hourly Profit" },
       coins: { ru: "Затраты в час", en: "Hourly Cost" },
     },
     cost_hourly_percent: {
