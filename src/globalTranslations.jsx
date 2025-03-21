@@ -54,4 +54,18 @@ export default {
       ru: "Даёт респекта",
     },
   },
+  errors: {
+    '500': {
+      en: "Internal server error",
+      ru: "Внутренняя ошибка сервера",
+    },
+    deployTitle: {
+      en: "Sorry",
+      ru: "Простите"
+    },
+    deployDescription: {
+      en: "We're deploying an upgrade",
+      ru: "Мы обновляем приложение"
+    }
+  }
 }

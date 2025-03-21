@@ -173,6 +173,7 @@ const FoodTab = ({ userId, userParameters, setUserParameters }) => {
         <ItemCard
           key={index}
           ItemIcon={food?.link}
+          ItemDescription={food?.description[lang]}
           ItemTitle={food?.name[lang]}
           ItemParamsBlocks={getItemFoodParams(food)}
           ItemButtons={getItemFoodButton(food)}

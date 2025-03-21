@@ -576,8 +576,6 @@ const StatsModal = memo(({ baseStyles, setIsStatsShown, clothing }) => {
   const { isLoading: isNekoLoading, effects: nekoEffects } = useNekoEffects(id, lang);
   const { isLoading: isEffectsLoading, effects: currentEffects } = useCurrentEffects(id, lang);
   const [levelParameters, setLevelParameters] = useState()
-  const [isLevelsLoading, setIsLevelsLoading] = useState(true)
-
 
   useEffect(() => {
     getLevels().then(levels => setLevelParameters(levels))

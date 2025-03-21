@@ -10,13 +10,13 @@ import { EmojiReactionProvider } from "./EmojiReactionContext.jsx"
 // config()
 
 createRoot(document.getElementById("root")).render(
-  <UserProvider>
-    <EmojiReactionProvider>
-      <SettingsProvider>
+  <SettingsProvider>
+    <UserProvider>
+      <EmojiReactionProvider>
         <NotificationProvider>
           <App />
         </NotificationProvider>
-      </SettingsProvider>
-    </EmojiReactionProvider>
-  </UserProvider>
+      </EmojiReactionProvider>
+    </UserProvider>
+  </SettingsProvider>
 )

@@ -12,6 +12,9 @@ import useTelegram from "./hooks/useTelegram";
 import FullScreenSpinner from "./screens/Home/FullScreenSpinner";
 import { useNotification } from "./NotificationContext";
 import { useSettingsProvider } from "./hooks";
+import Button from "./components/simple/Button/Button";
+import globalTranslations from "./globalTranslations";
+import ResponsiveSpinner from "./screens/Home/ResponsiveSpinner";
 
 const UserContext = createContext();
 
@@ -202,19 +205,16 @@ export const UserProvider = ({ children }) => {
     }
   }), [state, userId, updateParametersState, updatePersonageState, fetchData])
 
+  const { lang } = useSettingsProvider()
+
   if (state.parameters.parametersError && state.personage.personageError) {
     return (
-      <div style={{ width: '100vw', height: '100vh', position: 'fixed', zIndex: 999999,  }}>
-        <div className="error-container" style={{ color: 'white', textAlign: 'center', flex: 1, alignItems: 'center', justifyContent: 'center', height: '100%' }}>
-          <h2>We're deploying</h2>
-          <p>Sorry :c</p>
+      <div style={{ width: '100vw', height: '100vh', position: 'fixed', zIndex: 999999, display: 'flex', alignContent: 'center', alignItems: 'center' }}>
+        <div className="error-container" style={{ color: 'white', textAlign: 'center', flex: 1, alignItems: 'center', justifyContent: 'center', display: 'flex', flexDirection: 'column' }}>
+          <h2>{globalTranslations.errors.deployTitle[lang]}</h2>
+          <p>{globalTranslations.errors.deployDescription[lang]}</p>
           <br/>
-          <button onClick={() => {
-            debouncedFetchData(true) 
-            fetchData()
-          }}>
-            Retry
-          </button>
+          <ResponsiveSpinner/>
         </div>
       </div>
     )
