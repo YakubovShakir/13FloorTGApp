@@ -45,6 +45,7 @@ const FoodTab = ({ userId, userParameters, setUserParameters }) => {
     const instantEnergyRestore = food?.instant_energy_restore
     const instantHungryRestore = food?.instant_hungry_restore
     const instantMoodRestore = food?.instant_mood_restore
+    const instantMoodCost = food?.instant_mood_cost
 
     const longEnergyRestore = food?.long_energy_restore
     const longHungryRestore = food?.long_hungry_restore
@@ -65,6 +66,10 @@ const FoodTab = ({ userId, userParameters, setUserParameters }) => {
         instantEnergyRestore && {
           icon: Icons.energy,
           value: "+" + instantEnergyRestore?.value + "",
+        },
+        instantMoodCost && {
+          icon: Icons.moodDecrease,
+          value: "-" + instantMoodCost?.value + "%",
         },
         longEnergyRestore && {
           icon: Icons.energyUp,
