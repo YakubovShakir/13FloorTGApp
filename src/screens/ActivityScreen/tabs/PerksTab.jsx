@@ -388,10 +388,6 @@ const PerksTab = ({
         handleBoost
     ]);
 
-    const getCorrectEffect = (effect) => {
-        return effect
-    }
-
     const createEffectModalData = useCallback((effect) => {
         if (!effect || !effect.next) return null;
         
