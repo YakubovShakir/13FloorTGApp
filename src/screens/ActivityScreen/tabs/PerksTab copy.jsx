@@ -235,7 +235,7 @@ const PerksTab = ({
           value: effect?.next?.price || 0,
           fillPercent: '100%',
           fillBackground: userParameters?.coins < (effect?.next?.price || 0)
-            ? "#4E1010"
+            ? "#ff0000"
             : "#00ff00",
         },
         {
@@ -245,7 +245,7 @@ const PerksTab = ({
           fillPercent: "100%",
           fillBackground:
             userParameters?.level < (effect?.next?.required_level || 0)
-              ? "#4E1010"
+              ? "#ff0000"
               : "#00ff00",
         },
         {

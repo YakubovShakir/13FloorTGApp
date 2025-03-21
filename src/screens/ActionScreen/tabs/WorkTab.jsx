@@ -160,7 +160,7 @@ export const WorkTab = ({
           text: work?.coins_price,
           fillPercent: '100%',
           fillBackground: userParameters?.coins < work?.coins_price
-            ? "#4E1010" // red
+            ? "#ff0000" // red
             : "#00ff00", // green
         },
         work?.skill_id_required && {
@@ -172,7 +172,7 @@ export const WorkTab = ({
           )?.name,
           fillPercent: "100%",
           fillBackground: !checkLearnedSkill(work?.skill_id_required)
-            ? "#4E1010" // red
+            ? "#ff0000" // red
             : "#00ff00", // green
         },
         {
@@ -181,7 +181,7 @@ export const WorkTab = ({
           fillPercent: "100%",
           fillBackground:
             userParameters?.respect < work?.respect_required
-              ? "#4E1010" // red
+              ? "#ff0000" // red
               : "#00ff00", // green
         },
 
