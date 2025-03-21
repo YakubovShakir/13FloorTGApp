@@ -28,6 +28,7 @@ import { formatCoins } from "../../utils/formatCoins"
 import { useNotification } from "../../NotificationContext"
 import { copyTextToClipboard } from "../../utils/clipboard"
 import { handleStarsPayment } from "../../utils/handleStarsPayment"
+import { COLORS } from "../../utils/paramBlockUtils"
 
 const buttonStyle = {
   width: "100%",
@@ -195,8 +196,12 @@ const Modal = ({ bottom, left, width, height, data, onClose, logoWidth }) => {
         alt={text}
         style={{ width: 24, height: 24, marginRight: 8 }}
       />
-      <span style={{ color: "#fff", flex: 1 , fontSize: "3.5cqw", fontWeight: 200 }}>{text}</span>
-      <span style={{ color: isMet ? "#00FF00" : "#FF3333" }}>{value}</span>
+      <span
+        style={{ color: "#fff", flex: 1, fontSize: "3.5cqw", fontWeight: 200 }}
+      >
+        {text}
+      </span>
+      <span style={{ color: isMet ? COLORS.GREEN : COLORS.RED }}>{value}</span>
     </div>
   )
 
@@ -296,19 +301,44 @@ const Modal = ({ bottom, left, width, height, data, onClose, logoWidth }) => {
             </p>
           </>
         ) : (
-          <div style={{ width: 300, }}>
- <p style={{ display: 'flex', alignItems: 'center', justifyContent: 'center',marginBottom: 20  }}>
-  <img src={Icons.balance} alt="Coin" style={{ width: '24px', height: '24px' }} /> 
-  <span style={{ fontSize: '18px', marginLeft: 7, marginRight: 7, }}>{data.from} {lang === 'ru' ? '/ в час' : '/ Hour'}</span>
-  {data.to && (
-    <>
-      {"➜ "}
-      <img src={Icons.balance} alt="Coin" style={{ width: '29px', height: '29px', marginLeft: 7 }} />
-      <span style={{ fontSize: '22px', marginLeft: 7, color: "#f5b700" }}>{" " + data.to} {lang === 'ru' ? '/ в час' : '/ Hour'}</span>
-    </>
-  )}
-</p>
-           
+          <div style={{ width: 300 }}>
+            <p
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                marginBottom: 20,
+              }}
+            >
+              <img
+                src={Icons.balance}
+                alt="Coin"
+                style={{ width: "24px", height: "24px" }}
+              />
+              <span style={{ fontSize: "18px", marginLeft: 7, marginRight: 7 }}>
+                {data.from} {lang === "ru" ? "/ в час" : "/ Hour"}
+              </span>
+              {data.to && (
+                <>
+                  {"➜ "}
+                  <img
+                    src={Icons.balance}
+                    alt="Coin"
+                    style={{ width: "29px", height: "29px", marginLeft: 7 }}
+                  />
+                  <span
+                    style={{
+                      fontSize: "22px",
+                      marginLeft: 7,
+                      color: "#f5b700",
+                    }}
+                  >
+                    {" " + data.to} {lang === "ru" ? "/ в час" : "/ Hour"}
+                  </span>
+                </>
+              )}
+            </p>
+
             {data.level_required > 0 &&
               renderRequirementBar(
                 Icons.levelIcon,
@@ -320,8 +350,8 @@ const Modal = ({ bottom, left, width, height, data, onClose, logoWidth }) => {
               skillDetails &&
               renderRequirementBar(
                 skillDetails.link || Icons.lockedIcon,
-                `${translations.requiredSkill[lang]}: ${skillDetails.name[lang]}`,
-                "",
+                `${translations.requiredSkill[lang]}:`,
+                skillDetails.name[lang],
                 data.userSkills.includes(data.skill_id_required)
               )}
             {data.respect_required &&
@@ -335,16 +365,6 @@ const Modal = ({ bottom, left, width, height, data, onClose, logoWidth }) => {
         )}
       </div>
 
-
-
-
-
-
-
-
-
-
-      
       <div className="ModalFooter" style={{ marginTop: 10 }}>
         {data?.gameCenterValues ? (
           <Button
@@ -376,26 +396,6 @@ const Modal = ({ bottom, left, width, height, data, onClose, logoWidth }) => {
           />
         )}
       </div>
-      
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     </motion.div>
   )
 }
@@ -455,54 +455,99 @@ const AutoclaimModal = ({
         </div>
       </div>
 
-
-     
-
-
-      
-      <div className="ModalFooter" style={{ margin: "auto", display: 'flex', flexDirection: 'row', justifyContent: 'space-between', width: '80%' }}>
-  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-    <span style={{color: '#fff', fontWeight: '300', textAlign: 'center', fontSize:" 14px", marginBottom: "5px",   }}> {data.sixh}</span>
-    <Button
-      {...buttonStyle}
-      active={data.canUpgrade}
-      onClick={() => handleAutoclaimPurchased(data.type)}
-      text={1}
-      width={100}
-      icon={Assets.Icons.starsIcon}
-    />
-  </div>
-  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-    <span style={{ color: '#fff', fontWeight: '300', textAlign: 'center', fontSize:" 14px", marginBottom: "5px",  }}>{data.tenh}</span>
-    <Button
-      {...buttonStyle}
-      active={data.canUpgrade}
-      onClick={() => handleAutoclaimPurchased(data.type)}
-      text={2}
-      width={100}
-      icon={Assets.Icons.starsIcon}
-    />
-  </div>
-  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-    <span style={{ color: '#fff', fontWeight: '300', textAlign: 'center', fontSize:" 14px", marginBottom: "5px",  }}>{data.eghth}</span>
-    <Button
-      {...buttonStyle}
-      active={data.canUpgrade}
-      onClick={() => handleAutoclaimPurchased(data.type)}
-      text={3}
-      width={100}
-      icon={Assets.Icons.starsIcon}
-    />
-  </div>
-</div>
-
-
-
-
-
-
-
-
+      <div
+        className="ModalFooter"
+        style={{
+          margin: "auto",
+          display: "flex",
+          flexDirection: "row",
+          justifyContent: "space-between",
+          width: "80%",
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+          }}
+        >
+          <span
+            style={{
+              color: "#fff",
+              fontWeight: "300",
+              textAlign: "center",
+              fontSize: " 14px",
+              marginBottom: "5px",
+            }}
+          >
+            {" "}
+            {data.sixh}
+          </span>
+          <Button
+            {...buttonStyle}
+            active={data.canUpgrade}
+            onClick={() => handleAutoclaimPurchased(data.type)}
+            text={1}
+            width={100}
+            icon={Assets.Icons.starsIcon}
+          />
+        </div>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+          }}
+        >
+          <span
+            style={{
+              color: "#fff",
+              fontWeight: "300",
+              textAlign: "center",
+              fontSize: " 14px",
+              marginBottom: "5px",
+            }}
+          >
+            {data.tenh}
+          </span>
+          <Button
+            {...buttonStyle}
+            active={data.canUpgrade}
+            onClick={() => handleAutoclaimPurchased(data.type)}
+            text={2}
+            width={100}
+            icon={Assets.Icons.starsIcon}
+          />
+        </div>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+          }}
+        >
+          <span
+            style={{
+              color: "#fff",
+              fontWeight: "300",
+              textAlign: "center",
+              fontSize: " 14px",
+              marginBottom: "5px",
+            }}
+          >
+            {data.eghth}
+          </span>
+          <Button
+            {...buttonStyle}
+            active={data.canUpgrade}
+            onClick={() => handleAutoclaimPurchased(data.type)}
+            text={3}
+            width={100}
+            icon={Assets.Icons.starsIcon}
+          />
+        </div>
+      </div>
     </motion.div>
   )
 }
@@ -1023,7 +1068,8 @@ const InvestmentScreen = () => {
         inviteLink: userParameters.invite_link || "",
         handleInviteLink: async () => {},
       },
-      respect_required: investmentData.upgrade_info.respect_required || undefined
+      respect_required:
+        investmentData.upgrade_info.respect_required || undefined,
     })
     setIsModalVisible(true)
   }
