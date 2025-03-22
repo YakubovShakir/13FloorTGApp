@@ -73,6 +73,10 @@ export default {
       en: "We're deploying an upgrade",
       ru: "Мы обновляем приложение",
     },
+    autoLoad: {
+      en: 'Reconnecting to server',
+      ru: 'Соединение с сервером'
+    }
   },
   gacha: {
     buySpins: {

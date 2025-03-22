@@ -57,11 +57,15 @@ export const UserProvider = ({ children }) => {
   const isFetchingRef = useRef(false)
   const latestDataRef = useRef(null)
   const mountedRef = useRef(true)
+  const retryControllerRef = useRef(null)
 
   useEffect(() => {
     mountedRef.current = true
     return () => {
       mountedRef.current = false
+      if (retryControllerRef.current) {
+        retryControllerRef.current.abort()
+      }
     }
   }, [])
 
@@ -152,7 +156,7 @@ export const UserProvider = ({ children }) => {
           setState((prev) => ({ ...prev, isInitialized: true }))
         }
 
-        latestDataRef.current = data // Moved this line
+        latestDataRef.current = data
       } catch (error) {
         if (error.name === "AbortError") return
 
@@ -188,30 +192,43 @@ export const UserProvider = ({ children }) => {
 
   useEffect(() => {
     const controller = new AbortController()
+    retryControllerRef.current = new AbortController()
 
+    // Initial fetch
     debouncedFetchData(true, controller.signal)
 
-    const intervalId = setInterval(() => {
+    // Regular polling (set to a reasonable interval, e.g., 30 seconds)
+    const pollingIntervalId = setInterval(() => {
       debouncedFetchData(false, controller.signal)
-    }, 0)
+    }, 30000)
+
+    // Retry logic when there's an error
+    const retryIntervalId = setInterval(() => {
+      if (
+        state.parameters.parametersError && 
+        state.personage.personageError && 
+        mountedRef.current
+      ) {
+        debouncedFetchData(false, retryControllerRef.current.signal)
+      }
+    }, 3000) // Retry every 3 seconds
 
     return () => {
       controller.abort()
-      clearInterval(intervalId)
+      retryControllerRef.current.abort()
+      clearInterval(pollingIntervalId)
+      clearInterval(retryIntervalId)
       debouncedFetchData.cancel()
     }
-  }, [debouncedFetchData])
+  }, [debouncedFetchData, state.parameters.parametersError, state.personage.personageError])
 
   const contextValue = useMemo(
     () => ({
-      // Parameters related values
       userParameters: state.parameters.userParameters,
       isParametersLoading: state.parameters.isParametersLoading,
       parametersError: state.parameters.parametersError,
       setUserParameters: (newParams) =>
         updateParametersState({ userParameters: newParams }),
-
-      // Personage related values
       userPersonage: state.personage.userPersonage,
       userClothing: state.personage.userClothing,
       userShelf: state.personage.userShelf,
@@ -219,8 +236,6 @@ export const UserProvider = ({ children }) => {
       personageError: state.personage.personageError,
       setUserPersonage: (newPersonage) =>
         updatePersonageState({ userPersonage: newPersonage }),
-
-      // Common values
       userId,
       isInitialized: state.isInitialized,
       refreshData: async () => {
@@ -246,19 +261,16 @@ export const UserProvider = ({ children }) => {
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat'
       }}>
-        {/* Black overlay layer */}
         <div style={{
           position: 'absolute',
           top: 0,
           left: 0,
           width: '100%',
           height: '100%',
-          backgroundColor: 'rgba(0, 0, 0, 0.5)' // 50% opacity black overlay
+          backgroundColor: 'rgba(0, 0, 0, 0.5)'
         }}></div>
-        
-        {/* Content layer */}
         <div className="error-container" style={{ 
-          position: 'relative', // Ensures it sits above the overlay
+          position: 'relative',
           width: '100vw',
           height: '100vh',
           color: 'white', 
@@ -273,6 +285,7 @@ export const UserProvider = ({ children }) => {
           <p>{globalTranslations.errors.deployDescription[lang]}</p>
           <br/>
           <ResponsiveSpinner />
+          <p style={{ paddingBottom: '5%' }}>{globalTranslations.errors.autoLoad[lang]}</p>
         </div>
       </div>
     )
@@ -280,47 +293,44 @@ export const UserProvider = ({ children }) => {
 
   return (
     <UserContext.Provider value={contextValue}>
-        {state.parameters.isParametersLoading ||
-        state.personage.isPersonageLoading ? (
-          <div style={{ 
-            width: '100vw', 
-            height: '100vh', 
-            position: 'fixed', 
-            zIndex: 999999, 
-            backgroundImage: `url('https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/load2.png')`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            backgroundRepeat: 'no-repeat'
+      {state.parameters.isParametersLoading ||
+      state.personage.isPersonageLoading ? (
+        <div style={{ 
+          width: '100vw', 
+          height: '100vh', 
+          position: 'fixed', 
+          zIndex: 999999, 
+          backgroundImage: `url('https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/load2.png')`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat'
+        }}>
+          <div style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            backgroundColor: 'rgba(0, 0, 0, 0.5)'
+          }}></div>
+          <div className="error-container" style={{ 
+            position: 'relative',
+            width: '100vw',
+            height: '100vh',
+            color: 'white', 
+            textAlign: 'center', 
+            display: 'flex', 
+            flexDirection: 'column', 
+            justifyContent: 'center',
+            alignItems: 'center',
+            paddingTop: '20%'
           }}>
-            {/* Black overlay layer */}
-            <div style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              width: '100%',
-              height: '100%',
-              backgroundColor: 'rgba(0, 0, 0, 0.5)' // 50% opacity black overlay
-            }}></div>
-            
-            {/* Content layer */}
-            <div className="error-container" style={{ 
-              position: 'relative', // Ensures it sits above the overlay
-              width: '100vw',
-              height: '100vh',
-              color: 'white', 
-              textAlign: 'center', 
-              display: 'flex', 
-              flexDirection: 'column', 
-              justifyContent: 'center',
-              alignItems: 'center',
-              paddingTop: '20%'
-            }}>
-              <ResponsiveSpinner />
-            </div>
+            <ResponsiveSpinner />
           </div>
-        ) : (
-          children
-        )}
+        </div>
+      ) : (
+        children
+      )}
     </UserContext.Provider>
   )
 }

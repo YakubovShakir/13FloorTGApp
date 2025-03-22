@@ -124,7 +124,7 @@ const DailyCheckInOverlay = () => {
                   </h2>
                   <img
                     className="ModalClose2"
-                    onClick={() => navigate('/')}
+                    onClick={() => navigate("/")}
                     src={Assets.Icons.modalClose}
                     alt="closeIcon"
                     width="16"
@@ -172,6 +172,7 @@ const DailyCheckInOverlay = () => {
                       }}
                     />
                     {/* Контейнер со скроллом */}
+
                     <div
                       style={{
                         position: "relative",
@@ -190,102 +191,111 @@ const DailyCheckInOverlay = () => {
                       }}
                       className="custom-scroll"
                     >
-                      {rewards.map((item) => (
-                        <div
-                          key={item.day}
-                          style={{
-                            display: "flex",
-                            flexDirection: "column",
-                            alignItems: "center",
-                            // justifyContent: "center",
-                            padding: "5px",
-                            color: streak >= item.day ? "#000" : "#CCCCCC",
-                            background:
-                              streak >= item.day
-                                ? "linear-gradient(45deg, #ff7600, #ff9d00)"
-                                : "rgb(39 39 39)",
-                            borderRadius: "8px",
-                            border:
-                              streak === item.day && canClaim
-                                ? "2px solid #ff9d00"
-                                : "1px solid rgba(255, 255, 255, 0.1)",
-                            transition: "all 0.2s ease",
-                            textAlign: "center",
-                            minWidth: "100px", // Adjusted minWidth
-                            maxWidth: "110px", // Adjusted maxWidth
-                            minHeight: "130px", // Increased height for better spacing
-                          }}
-                        >
-                          <p
-                            style={{
-                              fontSize: "14px", // Reduced font size
-                              marginBottom: "5px",
-                              fontFamily: "Oswald",
-                              opacity: 0.9,
-                              wordBreak: "break-word",
-                              overflow: "hidden",
-                              textOverflow: "ellipsis",
-                              whiteSpace: "normal", // Allow wrapping
-                              maxWidth: "100%",
-                              textTransform: "uppercase",
-                            }}
-                          >
-                            {translations.day[lang] || translations.day.en}{" "}
-                            {item.day}
-                          </p>
+                      {rewards.map((item) => {
+                        const isPast = item.day <= streak
+                        const isCurrent = item.day === streak + 1 && canClaim
+                        const isFuture = item.day > streak + (canClaim ? 1 : 0)
+
+                        return (
                           <div
+                            key={item.day}
                             style={{
-                              background:
-                                "repeating-linear-gradient(45deg, rgba(0, 0, 0, 0.21), rgba(0, 0, 0, 0.21) 2px, rgba(57, 57, 57, 0.06) 2px, rgba(57, 57, 57, 0.06) 6px) rgb(26, 26, 26)", // Светлый полупрозрачный фон для контраста
-                              borderBottom:
-                                "1px solid rgba(117, 117, 117, 0.23)",
-                              boxShadow:
-                                "rgba(0, 0, 0, 0.24) 0px 0px 8px 2px inset",
-                              borderRadius: "6px",
-                              padding: "5px",
                               display: "flex",
                               flexDirection: "column",
                               alignItems: "center",
-                              width: "100%",
-                            }}
-                          >
-                            <img
-                              src={item.image}
-                              alt={item.name[lang] || item.name.en}
-                              style={{
-                                width: "60px",
-                                height: "60px",
-                                objectFit: "contain",
-                                marginBottom: "5px",
-                                filter:
-                                  streak < item.day ? "grayscale(80%)" : "none",
-                              }}
-                            />
-                          </div>
-                          <p
-                            style={{
-                              fontSize: "11px",
-                              marginTop: "0",
-                              fontFamily: "Oswald",
-                              opacity: streak >= item.day ? 1 : 0.7,
-                              wordBreak: "break-word",
-                              overflow: "hidden",
-                              textOverflow: "ellipsis",
-                              whiteSpace: "normal",
-                              maxWidth: "100%",
+                              padding: "5px",
+                              color: isPast ? "#000" : "#CCCCCC",
+                              background: isPast
+                                ? "linear-gradient(45deg, #ff7600, #ff9d00)"
+                                : "rgb(39, 39, 39)",
+                              borderRadius: "8px",
+                              border: isCurrent
+                                ? "2px solid #ff9d00"
+                                : "1px solid rgba(255, 255, 255, 0.1)",
+                              transition:
+                                "background 0.2s ease, border 0.2s ease", // Limit transition scope
                               textAlign: "center",
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "center",
-                              minHeight: "40px",
-                              fontWeight: "600",
-                              textTransform: "uppercase",
+                              minWidth: "100px",
+                              maxWidth: "110px",
+                              minHeight: "130px",
                             }}
                           >
-                            {item.name[lang] || item.name.en}
-                          </p>
-                        </div>
-                      ))}
+                            <p
+                              style={{
+                                fontSize: "14px",
+                                marginBottom: "5px",
+                                fontFamily: "Oswald",
+                                opacity: isPast || isCurrent ? 1 : 0.9,
+                                wordBreak: "break-word",
+                                overflow: "hidden",
+                                textOverflow: "ellipsis",
+                                whiteSpace: "normal",
+                                maxWidth: "100%",
+                                textTransform: "uppercase",
+                                textRendering: "optimizeLegibility", // Improve text clarity
+                                WebkitFontSmoothing: "antialiased", // Sharper text on Webkit
+                              }}
+                            >
+                              {translations.day[lang] || translations.day.en}{" "}
+                              {item.day}
+                            </p>
+                            <div
+                              style={{
+                                background: "rgb(26, 26, 26)", // Simplified background for clarity
+                                borderBottom:
+                                  "1px solid rgba(117, 117, 117, 0.23)",
+                                boxShadow:
+                                  "rgba(0, 0, 0, 0.15) 0px 0px 4px inset", // Reduced shadow radius
+                                borderRadius: "6px",
+                                padding: "5px",
+                                display: "flex",
+                                flexDirection: "column",
+                                alignItems: "center",
+                                width: "100%",
+                              }}
+                            >
+                              <img
+                                src={item.image}
+                                alt={item.name[lang] || item.name.en}
+                                style={{
+                                  width: "60px",
+                                  height: "60px",
+                                  objectFit: "contain",
+                                  marginBottom: "5px",
+                                  filter: isFuture
+                                    ? "grayscale(80%) opacity(0.6)"
+                                    : "none",
+                                  imageRendering: "auto", // Default rendering, adjust if needed
+                                }}
+                              />
+                            </div>
+                            <p
+                              style={{
+                                fontSize: "12px", // Slightly larger for readability
+                                marginTop: "0",
+                                fontFamily: "Oswald",
+                                opacity: isPast || isCurrent ? 1 : 0.7,
+                                wordBreak: "break-word",
+                                overflow: "hidden",
+                                textOverflow: "ellipsis",
+                                whiteSpace: "normal",
+                                maxWidth: "100%",
+                                textAlign: "center",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                minHeight: "40px",
+                                fontWeight: "600",
+                                textTransform: "uppercase",
+                                textRendering: "optimizeLegibility", // Improve text clarity
+                                WebkitFontSmoothing: "antialiased", // Sharper text on Webkit
+                              }}
+                            >
+                              {item.name[lang] || item.name.en}
+                            </p>
+                          </div>
+                        )
+                      })}
                     </div>
                   </div>
                   <div
