@@ -598,7 +598,7 @@ const StatsModal = memo(({ baseStyles, setIsStatsShown, clothing }) => {
     getLevels()
       .then((levels) => {
         if (mounted) {
-          setLevelParameters(levels);
+          setLevelParameters(levels || []);
           setIsDataLoading(false);
         }
       })
@@ -653,13 +653,33 @@ const StatsModal = memo(({ baseStyles, setIsStatsShown, clothing }) => {
   }
 
   const { total_earned, level, energy_capacity, respect, experience } = userParameters;
-  const combinedEffects = [...currentEffects];
+
+  // Log state for debugging
+  console.log("userParameters:", userParameters);
+  console.log("levelParameters:", levelParameters);
+
+  // Ensure all values are defined with fallbacks
+  const safeExperience = experience ?? 0; // Fallback to 0 if undefined/null
+  const safeLevel = level ?? 1; // Fallback to 1 if undefined/null
   const nextLevelExpRequired =
-    levelParameters?.find((lp) => lp.level === level + 1)?.experience_required || 0;
+    levelParameters?.find((lp) => lp.level === safeLevel + 1)?.experience_required ?? 0;
   const thisLevelExpRequired =
-    levelParameters?.find((lp) => lp.level === level)?.experience_required || 0;
-  const expProgress = experience - thisLevelExpRequired;
-  const expToNextLevel = nextLevelExpRequired - thisLevelExpRequired;
+    levelParameters?.find((lp) => lp.level === safeLevel)?.experience_required ?? 0;
+
+  // Handle edge cases in calculations
+  const expProgress = Number.isFinite(safeExperience - thisLevelExpRequired)
+    ? safeExperience - thisLevelExpRequired
+    : 0;
+  const expToNextLevel = Number.isFinite(nextLevelExpRequired - thisLevelExpRequired)
+    ? nextLevelExpRequired - thisLevelExpRequired
+    : 0;
+
+  // Log calculated values
+  console.log("safeExperience:", safeExperience);
+  console.log("thisLevelExpRequired:", thisLevelExpRequired);
+  console.log("nextLevelExpRequired:", nextLevelExpRequired);
+  console.log("expProgress:", expProgress);
+  console.log("expToNextLevel:", expToNextLevel);
 
   const TabContent = () => (
     <AnimatePresence mode="wait">
@@ -680,17 +700,17 @@ const StatsModal = memo(({ baseStyles, setIsStatsShown, clothing }) => {
           <StatItem
             iconLeft={Assets.Icons.respect}
             title={translations.respect[lang]}
-            value={respect}
+            value={respect ?? 0} // Fallback for respect
           />
           <StatItem
             iconLeft={Assets.Icons.balance}
             title={translations.total[lang]}
-            value={formatCoins(total_earned)}
+            value={formatCoins(total_earned ?? 0)} // Fallback for total_earned
           />
           <StatItem
             iconLeft={Assets.Icons.energy}
             title={translations.energy[lang]}
-            value={energy_capacity}
+            value={energy_capacity ?? 0} // Fallback for energy_capacity
           />
         </motion.div>
       ) : (
@@ -715,8 +735,8 @@ const StatsModal = memo(({ baseStyles, setIsStatsShown, clothing }) => {
                 margin: "150px auto",
               }}
             />
-          ) : combinedEffects.length > 0 ? (
-            combinedEffects.map((effect, index) => (
+          ) : currentEffects.length > 0 ? (
+            currentEffects.map((effect, index) => (
               <StatItem
                 key={`${effect.type}-${effect.param || index}`}
                 iconLeft={effect.icon || Assets.Icons.energyUp}
@@ -843,7 +863,6 @@ const StatsModal = memo(({ baseStyles, setIsStatsShown, clothing }) => {
     </div>
   );
 });
-
 // Memoize StatsModal and only re-render if critical props change
 StatsModal.displayName = "StatsModal";
 
