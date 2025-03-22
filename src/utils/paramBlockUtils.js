@@ -61,7 +61,7 @@ export const getCoinRewardAndColor = (workDuration, workRewardHourly, parameters
   ) / 100;
 
   // Set color based on whether there's any increase or boost
-  if ((parameters.work_hourly_income_increase || 0) > 0 || (parameters.neko_boost_percentage || 0) > 0) {
+  if ((parameters.work_hourly_income_increase || 0) > 0 || (parameters.neko_boost_percentage || 0) > 1) {
     color = COLORS.GREEN;
   } else {
     color = COLORS.WHITE;

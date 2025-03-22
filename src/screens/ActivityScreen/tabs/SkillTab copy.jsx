@@ -73,7 +73,8 @@ const SkillTab = ({
             en: "A good workout lifts your mood!"
         },
         duration: { ru: 'Длительность', en: 'Duration' },
-        requiredLevel: { ru: 'Необходимый уровень', en: 'Required level' }
+        requiredLevel: { ru: 'Необходимый уровень', en: 'Required level' },
+        requiredSkill: { ru: 'Необходимый навык: ', en: 'Required skill: ' }
     };
 
     const calculateTime = useCallback((skills, displayTime) => {
@@ -338,7 +339,8 @@ const handleBoost = useCallback(async (boostId, skillId, subType = null) => {
         },
         skill?.skill_id_required && {
           icon: state.skills?.find(sk => sk?.skill_id === skill?.skill_id_required)?.link,
-          text: state.skills?.find(sk => sk?.skill_id === skill?.skill_id_required)?.name[lang],
+          text: translations.requiredSkill[lang],
+          value: state.skills?.find(sk => sk?.skill_id === skill?.skill_id_required)?.name[lang],
           fillPercent: "100%",
           fillBackground: !checkLearnedSkill(skill?.skill_id_required) ? "#ff0000" : "#00ff00",
         },

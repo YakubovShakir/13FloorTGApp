@@ -582,18 +582,35 @@ export const useCurrentEffects = (userId, lang) => {
   return { isLoading, effects };
 };
 
-// Updated StatsModal
 const StatsModal = memo(({ baseStyles, setIsStatsShown, clothing }) => {
   const { userParameters } = useUser();
-  const { total_earned, level, energy_capacity, respect, id, experience } = userParameters;
   const { lang } = useSettingsProvider();
   const [activeTab, setActiveTab] = useState("stats");
+  const [levelParameters, setLevelParameters] = useState(null);
+  const [isDataLoading, setIsDataLoading] = useState(true);
+
+  const { id } = userParameters || {};
   const { isLoading: isEffectsLoading, effects: currentEffects } = useCurrentEffects(id, lang);
-  const [levelParameters, setLevelParameters] = useState()
 
   useEffect(() => {
-    getLevels().then(levels => setLevelParameters(levels))
-  }, [])
+    let mounted = true;
+    setIsDataLoading(true);
+    getLevels()
+      .then((levels) => {
+        if (mounted) {
+          setLevelParameters(levels);
+          setIsDataLoading(false);
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching levels:", error);
+        if (mounted) setIsDataLoading(false);
+      });
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   const tabVariants = {
     hidden: { opacity: 0, x: 20 },
@@ -608,9 +625,41 @@ const StatsModal = memo(({ baseStyles, setIsStatsShown, clothing }) => {
     },
   };
 
+  if (!userParameters || isDataLoading) {
+    return (
+      <div
+        style={{
+          ...baseStyles,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          background: "rgba(0,0,0,0.8)",
+          zIndex: 999999,
+        }}
+      >
+        <motion.div
+          variants={loadingVariants}
+          animate="animate"
+          style={{
+            width: 50,
+            height: 50,
+            border: "5px solid #333",
+            borderTop: "5px solid #ff7600",
+            borderRadius: "50%",
+          }}
+        />
+      </div>
+    );
+  }
+
+  const { total_earned, level, energy_capacity, respect, experience } = userParameters;
   const combinedEffects = [...currentEffects];
-  const nextLevelExpRequired = levelParameters?.find(levelParameter => levelParameter.level === level + 1)?.experience_required
-  const thisLevelExpRequired = levelParameters?.find(levelParameter => levelParameter.level === level)?.experience_required
+  const nextLevelExpRequired =
+    levelParameters?.find((lp) => lp.level === level + 1)?.experience_required || 0;
+  const thisLevelExpRequired =
+    levelParameters?.find((lp) => lp.level === level)?.experience_required || 0;
+  const expProgress = experience - thisLevelExpRequired;
+  const expToNextLevel = nextLevelExpRequired - thisLevelExpRequired;
 
   const TabContent = () => (
     <AnimatePresence mode="wait">
@@ -626,7 +675,7 @@ const StatsModal = memo(({ baseStyles, setIsStatsShown, clothing }) => {
           <StatItem
             iconLeft={Assets.Icons.levelIcon}
             title={translations.level[lang]}
-            value={`${experience - thisLevelExpRequired}/${nextLevelExpRequired ? nextLevelExpRequired - thisLevelExpRequired : thisLevelExpRequired}`}
+            value={`${expProgress}/${expToNextLevel}`}
           />
           <StatItem
             iconLeft={Assets.Icons.respect}
@@ -748,7 +797,6 @@ const StatsModal = memo(({ baseStyles, setIsStatsShown, clothing }) => {
             display: "flex",
             background: "#1a1a1a",
             borderRadius: 20,
-            
             marginBottom: 20,
           }}
         >
@@ -763,7 +811,7 @@ const StatsModal = memo(({ baseStyles, setIsStatsShown, clothing }) => {
               color: "#fff",
               fontWeight: "bold",
               cursor: "pointer",
-              fontFamily: "Oswald"
+              fontFamily: "Oswald",
             }}
             onClick={() => setActiveTab("stats")}
           >
@@ -788,13 +836,7 @@ const StatsModal = memo(({ baseStyles, setIsStatsShown, clothing }) => {
           </motion.button>
         </div>
 
-        <div
-          style={{
-            height: 340,
-            overflowY: "auto",
-            padding: "0",
-          }}
-        >
+        <div style={{ height: 340, overflowY: "auto", padding: "0" }}>
           <TabContent />
         </div>
       </motion.div>
