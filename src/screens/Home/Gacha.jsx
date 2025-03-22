@@ -6,6 +6,7 @@ import Button from "../../components/simple/Button/Button"
 import { useUser } from "../../UserContext"
 import { useSettingsProvider } from "../../hooks"
 import globalTranslations from "../../globalTranslations"
+import { useNavigate } from "react-router-dom"
 
 const translations = globalTranslations.gacha
 
@@ -132,7 +133,6 @@ const GachaOverlay = () => {
   }, [userId, isActive])
 
   const handleClose = () => {
-    setIsActive(false)
     setSpinning(false)
     setResult(null)
     setBurnedTo(null)
@@ -220,6 +220,8 @@ const GachaOverlay = () => {
     final: { opacity: 1, scale: 1 },
   }
 
+  const navigate = useNavigate()
+
   return (
     <>
       <AnimatePresence>
@@ -246,7 +248,7 @@ const GachaOverlay = () => {
           >
             <div style={{ width: "100%", zIndex: -1 }}>
               <button
-                onClick={!spinning ? handleClose : {}}
+                onClick={!spinning ? () => {handleClose();navigate('/')} : {}}
                 style={{
                   paddingBottom: "4px",
                   position: "absolute",

@@ -16,6 +16,7 @@ import {
     getProcesses,
     startProcess,
     getActiveProcess,
+    checkCanStop,
 } from "../../../services/process/process";
 import { getUserBoosts, useBoost } from "../../../services/boost/boost.js";
 import formatTime from "../../../utils/formatTime";
@@ -169,13 +170,16 @@ const PerksTab = ({
     
         setState(prev => ({ ...prev, timerRunning: true }));
     
-        const tick = () => {
+        const tick = async () => {
             if (!mountedRef.current) return;
-    
+
+            const updatedSkills = calculateTime(state.userLearningSkills);
+            await Promise.all(
+                updatedSkills.filter(skill => skill.remainingSeconds === 0).map(skill => checkCanStop(userId, skill.type_id, 'constant_effects'))
+            )
             setState(prev => {
-                const updatedSkills = calculateTime(prev.userLearningSkills);
                 const allCompleted = updatedSkills.every(skill => skill.remainingSeconds <= 0);
-    
+                
                 if (allCompleted) {
                     if (timerRef.current) {
                         timerRef.current.clear();
@@ -195,6 +199,7 @@ const PerksTab = ({
                     userLearningSkills: updatedSkills,
                 };
             });
+            initializeData();
         };
     
         tick(); // Initial tick

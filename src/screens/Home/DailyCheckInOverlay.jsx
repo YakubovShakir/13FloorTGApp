@@ -6,6 +6,7 @@ import Button from "../../components/simple/Button/Button"
 import { useSettingsProvider } from "../../hooks"
 import Assets from "../../assets"
 import globalTranslations from "../../globalTranslations"
+import { useNavigate } from "react-router-dom"
 
 const buttonStyle = {
   width: "100%",
@@ -64,6 +65,8 @@ const DailyCheckInOverlay = () => {
     }
   }
 
+  const navigate = useNavigate()
+
   return (
     <>
       <AnimatePresence>
@@ -121,7 +124,7 @@ const DailyCheckInOverlay = () => {
                   </h2>
                   <img
                     className="ModalClose2"
-                    onClick={() => setIsActive(false)}
+                    onClick={() => navigate('/')}
                     src={Assets.Icons.modalClose}
                     alt="closeIcon"
                     width="16"
