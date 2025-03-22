@@ -1,0 +1,13 @@
+.skill-card {
+    transition: all 0.5s ease;
+}
+
+.animate-update {
+    animation: pulse 0.5s ease;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.05); opacity: 0.8; }
+    100% { transform: scale(1); opacity: 1; }
+}

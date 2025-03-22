@@ -1,15 +1,12 @@
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useEffect, useState, useCallback, useRef, useMemo } from "react";
 import moment from "moment-timezone";
 import ScreenContainer from "../../../components/section/ScreenContainer/ScreenContainer";
-import ItemCard from "../../../components/simple/ItemCard/ItemCard";
+import SkillCard from "./SkillCard";
 import Assets from "../../../assets";
 import {
-    getSkills,
     getUserConstantEffects,
-    getUserSkills,
 } from "../../../services/skill/skill";
 import {
-    getServerTime,
     getTrainingParameters,
 } from "../../../services/user/user";
 import {
@@ -22,10 +19,8 @@ import { getUserBoosts, useBoost } from "../../../services/boost/boost.js";
 import formatTime from "../../../utils/formatTime";
 import countPercentage from "../../../utils/countPercentage.js";
 import { useSettingsProvider } from "../../../hooks";
-import { useUser } from "../../../UserContext.jsx";
 import FullScreenSpinner from "../../Home/FullScreenSpinner.jsx";
 
-const SYNC_INTERVAL = 5 * 60 * 1000;
 const TICK_INTERVAL = 1000;
 
 const PerksTab = ({
@@ -39,20 +34,19 @@ const PerksTab = ({
     const { Icons } = Assets;
     const mountedRef = useRef(true);
     const timerRef = useRef(null);
-    const lastSkillsRef = useRef(null);
     const isInitializingRef = useRef(false);
     const modalUpdateRef = useRef(false);
+    const lastUpdateRef = useRef(0);
+    const lastTickRef = useRef(0); // To debounce ticks
+    const timerLockRef = useRef(false); // To prevent multiple timers
 
     const [state, setState] = useState({
-        skills: null,
         effects: null,
-        userLearningSkills: [],
-        userLearnedSkills: null,
+        userLearningEffects: [],
         trainingParameters: null,
         activeProcess: null,
         userBoosts: null,
         isInitialized: false,
-        timerRunning: false,
     });
 
     const translations = {
@@ -79,50 +73,49 @@ const PerksTab = ({
         requiredLevel: { ru: 'Необходимый уровень', en: 'Required level' }
     };
 
-    const calculateTime = useCallback((skills) => {
-        return skills.map(skill => {
-            const remainingSeconds = Math.max(0, skill.remainingSeconds - 1);
+    const calculateTime = useCallback((effects) => {
+        return effects.map(effect => {
+            const remainingSeconds = Math.max(0, effect.remainingSeconds - 1);
             const formatted = formatTime(
                 Math.floor(remainingSeconds / 60),
                 remainingSeconds % 60
             );
-
+            const justCompleted = remainingSeconds === 0 && effect.remainingSeconds > 0;
+            console.log(`Effect ${effect.type_id}: ${effect.remainingSeconds} -> ${remainingSeconds}, justCompleted: ${justCompleted}`);
             return {
-                ...skill,
+                ...effect,
                 remainingSeconds,
                 formattedTime: formatted || "0:00",
+                justCompleted,
             };
         });
     }, []);
 
     const initializeData = useCallback(async () => {
+        const now = Date.now();
+        if (now - lastUpdateRef.current < 2000) return;
+        lastUpdateRef.current = now;
+
         try {
-            isInitializingRef.current = true; // Prevent concurrent updates
+            isInitializingRef.current = true;
             const [
                 learningSkills,
                 boosts,
                 constantEffects,
-                skillsList,
                 activeProc,
-                userSkills,
                 trainingParams,
             ] = await Promise.all([
                 getProcesses("skill", userId),
                 getUserBoosts(userId),
                 getUserConstantEffects(userId),
-                getSkills(),
                 getActiveProcess(userId),
-                getUserSkills(userId),
                 getTrainingParameters(userId),
             ]);
-    
             if (mountedRef.current) {
-                setState(prev => ({
-                    ...prev,
-                    skills: skillsList,
-                    effects: constantEffects,
-                    userLearningSkills: learningSkills.map(skill => {
-                        const totalSeconds = skill.target_duration_in_seconds || skill.base_duration_in_seconds;
+                const userLearningEffects = learningSkills
+                    .filter(skill => skill.sub_type === "constant_effects")
+                    .map(skill => {
+                        const totalSeconds = skill.target_duration_in_seconds || skill.base_duration_in_seconds || 60;
                         const processStart = moment(skill.createdAt).tz("Europe/Moscow");
                         const elapsedSeconds = moment().diff(processStart, "seconds");
                         const initialRemaining = Math.max(0, totalSeconds - elapsedSeconds);
@@ -134,13 +127,20 @@ const PerksTab = ({
                                 Math.floor(initialRemaining / 60),
                                 initialRemaining % 60
                             ) || "0:00",
+                            justCompleted: false,
                         };
-                    }),
-                    userLearnedSkills: userSkills,
+                    });
+
+                console.log("constantEffects:", constantEffects);
+                console.log("userLearningEffects:", userLearningEffects);
+                setState(prev => ({
+                    ...prev,
+                    effects: constantEffects,
+                    userLearningEffects,
                     trainingParameters: trainingParams,
                     activeProcess: activeProc,
                     userBoosts: boosts,
-                    isInitialized: true, // Always set to true after successful initialization
+                    isInitialized: true,
                 }));
             }
         } catch (error) {
@@ -150,311 +150,225 @@ const PerksTab = ({
         }
     }, [userId]);
 
+    const startTimer = useCallback(() => {
+        if (timerLockRef.current) {
+            console.log("Timer already running, skipping start");
+            return;
+        }
+        if (timerRef.current) {
+            console.log("Clearing existing timer");
+            clearInterval(timerRef.current);
+            timerRef.current = null;
+        }
+
+        if (!state.isInitialized || !state.userLearningEffects.length) {
+            console.log("Timer not started:", {
+                isInitialized: state.isInitialized,
+                hasEffects: state.userLearningEffects.length,
+            });
+            return;
+        }
+
+        timerLockRef.current = true;
+        console.log("Starting timer for effects:", state.userLearningEffects);
+        const tick = () => {
+            const now = Date.now();
+            if (now - lastTickRef.current < TICK_INTERVAL - 100) {
+                return; // Skip if less than ~900ms since last tick
+            }
+            lastTickRef.current = now;
+
+            if (!mountedRef.current) return;
+
+            setState(prev => {
+                const updatedEffects = calculateTime(prev.userLearningEffects);
+                console.log(`Tick at ${new Date().toISOString()}:`, updatedEffects);
+
+                const completedEffects = updatedEffects.filter(effect => effect.justCompleted);
+                if (completedEffects.length > 0) {
+                    console.log("Completing effects:", completedEffects);
+                    Promise.all(
+                        completedEffects.map(effect => {
+                            console.log(`Calling checkCanStop for ${effect.type_id}`);
+                            return checkCanStop(userId, effect.type_id, 'constant_effects');
+                        })
+                    )
+                    .then(() => {
+                        console.log("checkCanStop completed, refreshing data");
+                        if (mountedRef.current) {
+                            setTimeout(() => initializeData(), 1000);
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Failed to stop completed effects:", error);
+                        if (mountedRef.current) {
+                            setTimeout(() => initializeData(), 1000);
+                        }
+                    });
+                }
+
+                const activeEffects = updatedEffects.filter(effect => effect.remainingSeconds > 0);
+                if (!activeEffects.length && timerRef.current) {
+                    console.log("All effects completed, stopping timer");
+                    clearInterval(timerRef.current);
+                    timerRef.current = null;
+                    timerLockRef.current = false;
+                }
+
+                return {
+                    ...prev,
+                    userLearningEffects: updatedEffects.map(effect => ({
+                        ...effect,
+                        justCompleted: false,
+                    })),
+                };
+            });
+        };
+
+        tick(); // Immediate first tick
+        timerRef.current = setInterval(tick, TICK_INTERVAL);
+    }, [state.isInitialized, state.userLearningEffects, calculateTime, initializeData, userId]);
+
     useEffect(() => {
         mountedRef.current = true;
-        if (!state.isInitialized) { // Only initialize if not already initialized
-            initializeData();
-        }
+        initializeData();
         return () => {
             mountedRef.current = false;
             if (timerRef.current) {
-                timerRef.current.clear();
+                clearInterval(timerRef.current);
+                timerRef.current = null;
+                timerLockRef.current = false;
             }
         };
-    }, [initializeData, state.isInitialized]);
-
-    const setupTimer = useCallback(() => {
-        if (!state.userLearningSkills?.length || !state.isInitialized || state.timerRunning) {
-            return;
-        }
-    
-        setState(prev => ({ ...prev, timerRunning: true }));
-    
-        const tick = async () => {
-            if (!mountedRef.current) return;
-
-            const updatedSkills = calculateTime(state.userLearningSkills);
-            await Promise.all(
-                updatedSkills.filter(skill => skill.remainingSeconds === 0).map(skill => checkCanStop(userId, skill.type_id, 'constant_effects'))
-            )
-            setState(prev => {
-                const allCompleted = updatedSkills.every(skill => skill.remainingSeconds <= 0);
-                
-                if (allCompleted) {
-                    if (timerRef.current) {
-                        timerRef.current.clear();
-                    }
-                    // Instead of resetting everything, trigger a data refresh
-                    initializeData(); // Re-fetch data without resetting isInitialized yet
-                    return {
-                        ...prev,
-                        userLearningSkills: updatedSkills, // Keep updated skills until new data arrives
-                        timerRunning: false,
-                    };
-                }
-    
-                lastSkillsRef.current = updatedSkills;
-                return {
-                    ...prev,
-                    userLearningSkills: updatedSkills,
-                };
-            });
-            initializeData();
-        };
-    
-        tick(); // Initial tick
-        const tickInterval = setInterval(tick, TICK_INTERVAL);
-    
-        timerRef.current = {
-            clear: () => {
-                clearInterval(tickInterval);
-                timerRef.current = null;
-                setState(prev => ({ ...prev, timerRunning: false }));
-            },
-        };
-    
-        timerRef.current.clear = () => {
-            clearInterval(tickInterval);
-            timerRef.current = null;
-            setState(prev => ({ ...prev, timerRunning: false }));
-        };
-    }, [state.userLearningSkills, state.isInitialized, calculateTime, initializeData]);
+    }, [initializeData]);
 
     useEffect(() => {
-        if (state.isInitialized && state.userLearningSkills?.length > 0) {
-            setupTimer();
-            lastSkillsRef.current = state.userLearningSkills;
-        } else if (timerRef.current) {
-            timerRef.current.clear();
-            setState(prev => ({ ...prev, timerRunning: false }));
+        console.log("Timer check:", {
+            isInitialized: state.isInitialized,
+            hasLearningEffects: state.userLearningEffects.length,
+            timerRunning: !!timerRef.current,
+            effects: state.userLearningEffects,
+        });
+        if (state.isInitialized && state.userLearningEffects.length > 0 && !timerRef.current) {
+            startTimer();
         }
-    }, [state.userLearningSkills, state.isInitialized, setupTimer]);
-
-    const checkLearnedSkill = useCallback((skillId) => {
-        return state.userLearnedSkills?.find(skill => skill?.skill_id === skillId);
-    }, [state.userLearnedSkills]);
-
-    const checkLearningSkill = useCallback((skillId) => {
-        return state.userLearningSkills?.find(skill => skill?.type_id === skillId && !skill?.sub_type);
-    }, [state.userLearningSkills]);
+    }, [state.isInitialized, state.userLearningEffects.length, startTimer]);
 
     const checkLearningEffect = useCallback((effectId) => {
-        return state.userLearningSkills?.find(
+        return state.userLearningEffects?.find(
             skill => skill?.type_id === effectId && skill?.sub_type === 'constant_effects'
         );
-    }, [state.userLearningSkills]);
+    }, [state.userLearningEffects]);
 
-    const { refreshData } = useUser()
-
-    const handleBuySkill = useCallback(async (skill, sub_type = null) => {
+    const handleBuySkill = useCallback(async (effect) => {
         try {
             if (isInitializingRef.current) return;
             isInitializingRef.current = true;
 
-            const skillId = sub_type ? skill.next?.id : skill.skill_id;
-            await startProcess("skill", userId, skillId, sub_type);
-            
+            if (!effect?.next?.id) {
+                console.error("No next effect ID to buy:", effect);
+                return;
+            }
+
+            await startProcess("skill", userId, effect.next.id, "constant_effects");
             await initializeData();
-            await refreshData();
-            lastSkillsRef.current = state.userLearningSkills;
+            if (!timerRef.current) {
+                startTimer();
+            }
             setVisibleModal(false);
         } catch (error) {
-            console.error("Buy skill failed:", error);
+            console.error("Buy effect failed:", error);
         } finally {
             isInitializingRef.current = false;
         }
-    }, [userId, initializeData, setVisibleModal]);
+    }, [userId, initializeData, setVisibleModal, startTimer]);
 
-    const handleBoost = useCallback(async (boostId, skillId, subType = null) => {
+    const handleBoost = useCallback(async (boostId, effectId) => {
         try {
             if (isInitializingRef.current) return;
             isInitializingRef.current = true;
 
-            await useBoost(userId, boostId, skillId, subType);
-
-            setState(prev => {
-                const updatedSkills = prev.userLearningSkills.map(skill => {
-                    if (skill.type_id === skillId && ((!subType && !skill.sub_type) || 
-                        (subType === skill.sub_type))) {
-                        const reductionFactor = boostId === 7 ? 0.75 : boostId === 8 ? 0.5 : 1;
-                        const currentRemaining = skill.remainingSeconds;
-                        const newRemainingSeconds = Math.max(0, Math.floor(currentRemaining * reductionFactor));
-                        
-                        return {
-                            ...skill,
-                            remainingSeconds: newRemainingSeconds,
-                            formattedTime: formatTime(
-                                Math.floor(newRemainingSeconds / 60),
-                                newRemainingSeconds % 60
-                            ) || "0:00"
-                        };
-                    }
-                    return skill;
-                });
-                
-                lastSkillsRef.current = updatedSkills;
-                return {
-                    ...prev,
-                    userLearningSkills: updatedSkills
-                };
-            });
-
+            await useBoost(userId, boostId, effectId, "constant_effects");
+            await initializeData();
+            if (!timerRef.current) {
+                startTimer();
+            }
             setVisibleModal(false);
         } catch (error) {
             console.error("Boost failed:", error);
         } finally {
             isInitializingRef.current = false;
         }
-    }, [userId, setVisibleModal]);
+    }, [userId, setVisibleModal, initializeData, startTimer]);
 
-    const createSkillModalData = useCallback((skill) => {
-        if (!skill) return null;
-        
-        const learned = checkLearnedSkill(skill?.skill_id);
-        const learning = checkLearningSkill(skill?.skill_id);
-        
-        return {
-            type: "skill",
-            id: skill?.skill_id,
-            sub_type: null,
-            title: skill?.name[lang] || skill?.name,
-            image: skill?.link,
-            blocks: [
-                {
-                    icon: Icons.balance,
-                    text: translations.cost[lang],
-                    value: skill?.coins_price,
-                    fillPercent: '100%',
-                    fillBackground: userParameters?.coins < skill?.coins_price ? "#ff0000" : "#00ff00",
-                },
-                {
-                    icon: Icons.levelIcon,
-                    text: translations.requiredLevel[lang],
-                    value: skill?.requiredLevel,
-                    fillPercent: "100%",
-                    fillBackground: userParameters?.level < skill?.requiredLevel ? "#ff0000" : "#00ff00",
-                },
-                skill?.skill_id_required && {
-                    icon: state.skills?.find(sk => sk?.skill_id === skill?.skill_id_required)?.link,
-                    text: state.skills?.find(sk => sk?.skill_id === skill?.skill_id_required)?.name[lang],
-                    fillPercent: "100%",
-                    fillBackground: !checkLearnedSkill(skill?.skill_id_required) ? "#ff0000" : "#00ff00",
-                },
-                {
-                    icon: Icons.clock,
-                    text: translations.duration[lang],
-                    fillPercent: learning ? countPercentage(
-                        learning.remainingSeconds,
-                        learning.totalSeconds
-                    ) : 0,
-                    value: learning ? learning.formattedTime : formatTime(skill?.duration)
-                },
-            ].filter(Boolean),
-            buttons: [
-                {
-                    text: learned ? translations.learned[lang] : 
-                          learning ? translations.learning[lang] : 
-                          skill?.coins_price,
-                    icon: learned || learning ? null : Icons.balance,
-                    onClick: !(learning || learned) ? () => handleBuySkill(skill) : null,
-                    active: !(learning || learned) && 
-                        (skill?.skill_id_required ? checkLearnedSkill(skill?.skill_id_required) : true) && 
-                        userParameters?.level >= skill?.requiredLevel && 
-                        userParameters.coins >= skill.coins_price,
-                },
-                ...(learning && !learned ? [
+    const createEffectModalData = useMemo(() => {
+        console.log('@@@', state.userBoosts)
+        return (effect) => {
+            if (!effect || !effect.next || typeof effect.next !== 'object' || !effect.next.id) {
+                console.warn("Invalid effect passed to createEffectModalData:", effect);
+                return null;
+            }
+            
+            const learning = checkLearningEffect(effect.next.id);
+            
+            return {
+                type: "skill",
+                sub_type: 'constant_effects',
+                id: effect.next.id,
+                title: effect.next?.name?.[lang] || effect.current?.name?.[lang] || 'Unnamed Effect',
+                image: effect.next?.link || '',
+                blocks: [
                     {
-                        icon: "https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/Boost%2FBoost3.webp",
-                        text: translations.boost[lang] + ' x25%',
-                        active: state.userBoosts?.find(boost => boost.boost_id === 7),
-                        onClick: state.userBoosts?.find(boost => boost.boost_id === 7) ? 
-                            () => handleBoost(7, skill.skill_id, null) : null,
+                        icon: Icons.balance,
+                        text: translations.cost[lang],
+                        value: effect.next.price || 0,
+                        fillPercent: '100%',
+                        fillBackground: userParameters?.coins < (effect.next.price || 0) ? "#ff0000" : "#00ff00",
                     },
                     {
-                        icon: "https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/Boost%2FBoost2.webp",
-                        text: translations.boost[lang] + ' x50%',
-                        active: state.userBoosts?.find(boost => boost.boost_id === 8),
-                        onClick: state.userBoosts?.find(boost => boost.boost_id === 8) ? 
-                            () => handleBoost(8, skill.skill_id, null) : null,
-                    },
-                ] : [])
-            ],
-        };
-    }, [
-        Icons, 
-        lang, 
-        translations, 
-        checkLearnedSkill, 
-        checkLearningSkill, 
-        userParameters,
-        state.skills,
-        state.userBoosts,
-        handleBuySkill,
-        handleBoost
-    ]);
-
-    const createEffectModalData = useCallback((effect) => {
-        if (!effect || !effect.next) return null;
-        
-        const learning = checkLearningEffect(effect?.next?.id);
-        
-        return {
-            type: "skill",
-            sub_type: 'constant_effects',
-            id: effect?.next?.id,
-            title: effect.next?.name?.[lang] || effect.current?.name?.[lang] || 'Unnamed Effect',
-            image: effect?.next?.link,
-            blocks: [
-                {
-                    icon: Icons.balance,
-                    text: translations.cost[lang],
-                    value: effect?.next?.price || 0,
-                    fillPercent: '100%',
-                    fillBackground: userParameters?.coins < (effect?.next?.price || 0) ? "#ff0000" : "#00ff00",
-                },
-                {
-                    icon: Icons.levelIcon,
-                    text: translations.requiredLevel[lang],
-                    value: effect?.next?.required_level || 0,
-                    fillPercent: "100%",
-                    fillBackground: userParameters?.level < (effect?.next?.required_level || 0) ? "#ff0000" : "#00ff00",
-                },
-                {
-                    icon: Icons.clock,
-                    text: translations.duration[lang],
-                    fillPercent: learning ? countPercentage(
-                        learning.remainingSeconds,
-                        learning.totalSeconds
-                    ) : 0,
-                    value: learning ? learning.formattedTime : formatTime(effect?.next?.duration || 0)
-                }
-            ].filter(Boolean),
-            buttons: [
-                {
-                    text: learning ? translations.learning[lang] : effect?.next?.price,
-                    icon: learning ? null : Icons.balance,
-                    onClick: !learning ? () => handleBuySkill(effect, 'constant_effects') : null,
-                    active: !learning && 
-                        userParameters?.level >= (effect?.next?.required_level || 0) && 
-                        userParameters.coins >= (effect?.next?.price || 0),
-                },
-                ...(learning ? [
-                    {
-                        icon: "https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/Boost%2FBoost3.webp",
-                        text: translations.boost[lang] + ' x25%',
-                        active: state.userBoosts?.find(boost => boost.boost_id === 7),
-                        onClick: state.userBoosts?.find(boost => boost.boost_id === 7) ? 
-                            () => handleBoost(7, effect.next?.id, 'constant_effects') : null,
+                        icon: Icons.levelIcon,
+                        text: translations.requiredLevel[lang],
+                        value: effect.next.required_level || 0,
+                        fillPercent: "100%",
+                        fillBackground: userParameters?.level < (effect.next.required_level || 0) ? "#ff0000" : "#00ff00",
                     },
                     {
-                        icon: "https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/Boost%2FBoost2.webp",
-                        text: translations.boost[lang] + ' x50%',
-                        active: state.userBoosts?.find(boost => boost.boost_id === 8),
-                        onClick: state.userBoosts?.find(boost => boost.boost_id === 8) ? 
-                            () => handleBoost(8, effect?.next?.id, 'constant_effects') : null,
+                        icon: Icons.clock,
+                        text: translations.duration[lang],
+                        fillPercent: learning ? countPercentage(
+                            learning.remainingSeconds,
+                            learning.totalSeconds
+                        ) : 0,
+                        value: learning ? learning.formattedTime : formatTime(effect.next.duration || 1),
+                    }
+                ].filter(Boolean),
+                buttons: [
+                    {
+                        text: learning ? translations.learning[lang] : (effect.next.price || 0),
+                        icon: learning ? null : Icons.balance,
+                        onClick: !learning ? () => handleBuySkill(effect) : null,
+                        active: !learning && 
+                            userParameters?.level >= (effect.next.required_level || 0) && 
+                            userParameters.coins >= (effect.next.price || 0),
                     },
-                ] : [])
-            ],
+                    ...(learning ? [
+                        {
+                            icon: "https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/Boost%2FBoost3.webp",
+                            text: translations.boost[lang] + ' x25%',
+                            active: state.userBoosts?.find(boost => boost.boost_id === 7),
+                            onClick: state.userBoosts?.find(boost => boost.boost_id === 7) ? 
+                                () => handleBoost(7, effect.next.id) : null,
+                        },
+                        {
+                            icon: "https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/Boost%2FBoost2.webp",
+                            text: translations.boost[lang] + ' x50%',
+                            active: state.userBoosts?.find(boost => boost.boost_id === 8),
+                            onClick: state.userBoosts?.find(boost => boost.boost_id === 8) ? 
+                                () => handleBoost(8, effect.next.id) : null,
+                        },
+                    ] : [])
+                ],
+            };
         };
     }, [
         Icons, 
@@ -467,52 +381,83 @@ const PerksTab = ({
         handleBoost
     ]);
 
-    const getItemEffectsParamsBlock = useCallback((effect) => {
-        const learning = checkLearningEffect(effect?.next?.id);
-        const totalSeconds = learning?.totalSeconds || (effect.next.duration * 60);
-        const remainingSeconds = learning?.remainingSeconds || totalSeconds;
+    const getItemEffectsParamsBlock = useMemo(() => {
+        return (effect) => {
+            if (!effect || !effect.next || typeof effect.next !== 'object' || !effect.next.id) {
+                console.warn("Invalid effect in getItemEffectsParamsBlock:", effect);
+                return [[{
+                    icon: Icons.clock,
+                    text: translations.duration[lang],
+                    fillPercent: 0,
+                    value: "N/A",
+                }], [{
+                    icon: Icons.lockedIcon,
+                    value: translations.unavailable[lang],
+                }]];
+            }
 
-        const timerBar = {
-            icon: Icons.clock,
-            fillPercent: learning ? countPercentage(
-                remainingSeconds,
-                totalSeconds
-            ) : 0,
-            value: learning ? learning.formattedTime : formatTime(effect.next.duration),
+            const learning = checkLearningEffect(effect.next.id);
+            const totalSeconds = learning?.totalSeconds || ((effect.next.duration || 1) * 60);
+            const remainingSeconds = learning?.remainingSeconds || totalSeconds;
+
+            const timerBar = {
+                icon: Icons.clock,
+                fillPercent: learning ? countPercentage(remainingSeconds, totalSeconds) : 0,
+                value: learning ? learning.formattedTime : formatTime(effect.next.duration || 1),
+            };
+
+            const accessStatus = !learning && 
+                userParameters?.coins >= (effect.next.price || 0) && 
+                userParameters.level >= (effect.next.required_level || 0);
+
+            const accessBar = {
+                icon: accessStatus ? Icons.unlockedIcon : Icons.lockedIcon,
+                value: accessStatus ? translations.available[lang] : translations.unavailable[lang],
+            };
+
+            return [[timerBar], [accessBar]];
         };
-
-        const accessStatus = !learning && 
-            userParameters?.coins >= effect.next.price && 
-            userParameters.level >= effect.next.required_level;
-
-        const accessBar = {
-            icon: accessStatus ? Icons.unlockedIcon : Icons.lockedIcon,
-            value: accessStatus ? translations.available[lang] : translations.unavailable[lang],
-        };
-
-        return [[timerBar], [accessBar]];
     }, [checkLearningEffect, userParameters, Icons, translations, lang]);
 
-    const openEffectModal = useCallback((effect) => {
-        const modalData = createEffectModalData(effect);
-        setModalData(modalData);
-        setVisibleModal(true);
-    }, [createEffectModalData, setModalData, setVisibleModal]);
-
-
     const getItemEffectButton = useCallback((effect) => {
-        const learning = checkLearningEffect(effect?.next?.id);
+        if (!effect || !effect.next || typeof effect.next !== 'object' || !effect.next.id) {
+            console.warn("Invalid effect in getItemEffectButton:", effect);
+            return [{
+                text: translations.unavailable[lang],
+                icon: null,
+                onClick: null,
+                active: false,
+            }];
+        }
+
+        const learning = checkLearningEffect(effect.next.id);
         const active = !learning && 
-            userParameters?.coins >= effect.next.price && 
-            userParameters.level >= effect.next.required_level;
+            userParameters?.coins >= (effect.next.price || 0) && 
+            userParameters.level >= (effect.next.required_level || 0);
 
         return [{
-            text: learning ? translations.learning[lang] : effect?.next?.price,
+            text: learning ? translations.learning[lang] : (effect.next.price || 0),
             icon: learning ? null : Icons.balance,
-            onClick: () => openEffectModal(effect),
+            onClick: () => {
+                const newModalData = createEffectModalData(effect);
+                if (newModalData) {
+                    setModalData(newModalData);
+                    setVisibleModal(true);
+                }
+            },
             active: learning ? true : active,
         }];
-    }, [checkLearningEffect, userParameters, lang, Icons, translations, openEffectModal]);
+    }, [checkLearningEffect, userParameters, lang, Icons, translations, setModalData, setVisibleModal, createEffectModalData]);
+
+    const handleEffectUpdate = useCallback((updatedEffect) => {
+        setState(prev => ({
+            ...prev,
+            userLearningEffects: prev.userLearningEffects.map(effect =>
+                effect.type_id === updatedEffect.type_id && effect.sub_type === "constant_effects" ? 
+                { ...updatedEffect, justCompleted: false } : effect
+            ),
+        }));
+    }, []);
 
     useEffect(() => {
         if (!modalData || !state.isInitialized || modalUpdateRef.current) return;
@@ -520,23 +465,15 @@ const PerksTab = ({
         modalUpdateRef.current = true;
         
         try {
-            if (modalData?.type === "skill") {
-                if (modalData?.sub_type === 'constant_effects') {
-                    const effectEntry = Object.entries(state.effects || {}).find(([_, effect]) => 
-                        effect?.next?.id === modalData.id || effect?.current?.id === modalData.id
-                    );
-                    
-                    if (effectEntry) {
-                        const updatedModalData = createEffectModalData(effectEntry[1]);
-                        if (updatedModalData && updatedModalData.id === modalData.id) {
-                            setModalData(updatedModalData);
-                        }
-                    }
-                } else {
-                    const currentSkill = state.skills?.find(skill => skill?.skill_id === modalData?.id);
-                    if (currentSkill) {
-                        const updatedModalData = createSkillModalData(currentSkill);
-                        if (updatedModalData && updatedModalData.id === modalData.id) {
+            if (modalData?.type === "skill" && modalData?.sub_type === 'constant_effects') {
+                const effectEntry = Object.entries(state.effects || {}).find(([_, effect]) => 
+                    effect?.next?.id === modalData.id || effect?.current?.id === modalData.id
+                );
+                
+                if (effectEntry) {
+                    const updatedModalData = createEffectModalData(effectEntry[1]);
+                    if (updatedModalData && updatedModalData.id === modalData.id) {
+                        if (JSON.stringify(updatedModalData) !== JSON.stringify(modalData)) {
                             setModalData(updatedModalData);
                         }
                     }
@@ -545,86 +482,53 @@ const PerksTab = ({
         } finally {
             modalUpdateRef.current = false;
         }
-    }, [state.userLearningSkills]);
+    }, [modalData, state.isInitialized, state.effects, createEffectModalData, setModalData]);
 
     if (!state.isInitialized) return <FullScreenSpinner/>;
 
     return (
         <ScreenContainer withTab>
-            {/* {state.skills?.filter(skill => checkLearningSkill(skill.skill_id) && !checkLearnedSkill(skill.skill_id))
-                .map((skill, index) => (
-                    <ItemCard
-                        key={`learning-skill-${skill.skill_id}`}
-                        ItemIcon={skill?.link}
-                        ItemTitle={skill.name[lang]}
-                        ItemDescription={skill?.description?.[lang]}
-                        ItemParamsBlocks={getItemSkillParamsBlock(skill)}
-                        ItemButtons={getItemSkillButton(skill)}
-                        ItemIndex={index + 1}
+            {state.userLearningEffects.map((effect, index) => {
+                const matchedEffect = Object.values(state.effects || {}).find(e => e?.next?.id === effect.type_id) || {};
+                return (
+                    <SkillCard
+                        key={`learning-effect-${effect.type_id}`}
+                        skill={{
+                            ...effect,
+                            skill_id: effect.type_id,
+                            next: matchedEffect.next,
+                            current: matchedEffect.current,
+                        }}
+                        lang={lang}
+                        translations={translations}
+                        userParameters={userParameters}
+                        checkLearningSkill={checkLearningEffect}
+                        getItemSkillParamsBlock={getItemEffectsParamsBlock}
+                        getItemSkillButton={getItemEffectButton}
+                        index={index}
+                        onUpdate={handleEffectUpdate}
+                        bottomText={(lang === 'en' ? 'Level ' : 'Уровень ') + (matchedEffect?.current?.level || 0)}
                     />
-                ))} */}
+                );
+            })}
 
             {state.effects && Object.entries(state.effects)
-                .filter(([_, effect]) => effect?.next && checkLearningEffect(effect?.next?.id))
-                .map(([key, effect], index) => {
-                    const displayEffect = effect.next;
-                    return (
-                        <ItemCard
-                            key={`learning-effect-${displayEffect.id}`}
-                            ItemIcon={displayEffect.link}
-                            ItemTitle={displayEffect.name[lang]}
-                            ItemDescription={displayEffect.description?.[lang]}
-                            ItemParamsBlocks={getItemEffectsParamsBlock(effect)}
-                            ItemButtons={getItemEffectButton(effect)}
-                            ItemBottomAmount={(lang === 'en' ? 'Level ' : 'Уровень ') + (effect.current?.level || 0)}
-                            ItemIndex={index + 1}
-                        />
-                    );
-                })}
-
-            {/* {state.skills?.filter(skill => !checkLearningSkill(skill.skill_id) && !checkLearnedSkill(skill.skill_id))
-                .map((skill, index) => (
-                    <ItemCard
-                        key={`available-skill-${skill.skill_id}`}
-                        ItemIcon={skill?.link}
-                        ItemTitle={skill.name[lang]}
-                        ItemDescription={skill?.description?.[lang]}
-                        ItemParamsBlocks={getItemSkillParamsBlock(skill)}
-                        ItemButtons={getItemSkillButton(skill)}
-                        ItemIndex={index + 1}
+                .filter(([_, effect]) => effect?.next && typeof effect.next === 'object' && effect.next.id && !checkLearningEffect(effect.next.id))
+                .map(([key, effect], index) => (
+                    <SkillCard
+                        key={`available-effect-${effect.next.id}`}
+                        skill={effect}
+                        lang={lang}
+                        translations={translations}
+                        userParameters={userParameters}
+                        checkLearningSkill={checkLearningEffect}
+                        getItemSkillParamsBlock={getItemEffectsParamsBlock}
+                        getItemSkillButton={getItemEffectButton}
+                        index={index}
+                        onUpdate={handleEffectUpdate}
+                        bottomText={(lang === 'en' ? 'Level ' : 'Уровень ') + (effect.current?.level || 0)}
                     />
-                ))} */}
-
-            {state.effects && Object.entries(state.effects)
-                .filter(([_, effect]) => effect?.next && !checkLearningEffect(effect?.next?.id))
-                .map(([key, effect], index) => {
-                    const displayEffect = effect.next;
-                    return (
-                        <ItemCard
-                            key={`available-effect-${displayEffect.id}`}
-                            ItemIcon={displayEffect.link}
-                            ItemTitle={displayEffect.name[lang]}
-                            ItemDescription={displayEffect?.description?.[lang]}
-                            ItemParamsBlocks={getItemEffectsParamsBlock(effect)}
-                            ItemButtons={getItemEffectButton(effect)}
-                            ItemBottomAmount={(lang === 'en' ? 'Level ' : 'Уровень ') + (effect.current?.level || 0)}
-                            ItemIndex={index + 1}
-                        />
-                    );
-                })}
-
-            {/* {state.skills?.filter(skill => !checkLearningSkill(skill.skill_id) && checkLearnedSkill(skill.skill_id))
-                .map((skill, index) => (
-                    <ItemCard
-                        key={`learned-skill-${skill.skill_id}`}
-                        ItemIcon={skill?.link}
-                        ItemTitle={skill.name[lang]}
-                        ItemDescription={skill?.description?.[lang]}
-                        ItemParamsBlocks={getItemSkillParamsBlock(skill)}
-                        ItemButtons={getItemSkillButton(skill)}
-                        ItemIndex={index + 1}
-                    />
-                ))} */}
+                ))}
         </ScreenContainer>
     );
 };
