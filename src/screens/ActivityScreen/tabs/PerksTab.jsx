@@ -20,6 +20,7 @@ import formatTime from "../../../utils/formatTime";
 import countPercentage from "../../../utils/countPercentage.js";
 import { useSettingsProvider } from "../../../hooks";
 import FullScreenSpinner from "../../Home/FullScreenSpinner.jsx";
+import { useUser } from "../../../UserContext.jsx";
 
 const TICK_INTERVAL = 1000;
 
@@ -260,6 +261,8 @@ const PerksTab = ({
         );
     }, [state.userLearningEffects]);
 
+    const { refreshData } = useUser()
+
     const handleBuySkill = useCallback(async (effect) => {
         try {
             if (isInitializingRef.current) return;
@@ -271,6 +274,7 @@ const PerksTab = ({
             }
 
             await startProcess("skill", userId, effect.next.id, "constant_effects");
+            await refreshData()
             await initializeData();
             if (!timerRef.current) {
                 startTimer();

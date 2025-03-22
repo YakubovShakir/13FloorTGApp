@@ -53,6 +53,12 @@ export default {
       en: "Grants respect",
       ru: "Даёт респекта",
     },
+    neko_boost_percentage: {
+      neko_boost: {
+        en: "Neko Boost",
+        ru: "Неко-буст",
+      },
+    },
   },
   errors: {
     500: {

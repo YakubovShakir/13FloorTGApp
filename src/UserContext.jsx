@@ -130,6 +130,7 @@ export const UserProvider = ({ children }) => {
               work_duration_decrease: data.work_duration_decrease,
               sleeping_duration_decrease: data.sleeping_duration_decrease,
               training_duration_decrease: data.training_duration_decrease,
+              neko_boost_percentage: data.neko_boost_percentage
             },
             isParametersLoading: false,
             parametersError: null,
@@ -420,6 +421,7 @@ export const useForeignUser = (userId) => {
               ...data.parameters,
               work_hourly_income_increase: data.work_hourly_income_increase,
               work_duration_decrease: data.work_duration_decrease,
+              neko_boost_percentage: data.neko_boost_percentage
             },
             isParametersLoading: false,
             parametersError: null,

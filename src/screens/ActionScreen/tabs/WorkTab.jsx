@@ -249,7 +249,7 @@ export const WorkTab = ({
       return [
         [
           {
-            ...getCoinRewardAndColor(workDurationBase, work.coins_in_hour / 3600 * workDurationBase, userParameters ),
+            ...getCoinRewardAndColor(workDurationBase, work.coins_in_hour, userParameters ),
             icon: Icons.balance,
           },
         ],

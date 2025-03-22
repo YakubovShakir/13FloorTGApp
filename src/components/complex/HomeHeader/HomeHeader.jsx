@@ -483,7 +483,6 @@ const StatItem = memo(({ title, iconLeft, value, color }) => (
 
 StatItem.displayName = "StatItem"; // For React DevTools
 
-// Custom hook to fetch current effects
 export const useCurrentEffects = (userId, lang) => {
   const [isLoading, setIsLoading] = useState(true);
   const [effects, setEffects] = useState([]);
@@ -499,54 +498,70 @@ export const useCurrentEffects = (userId, lang) => {
 
         // Sum non-autostart effects and deduplicate autostart
         Object.keys(rawEffects).forEach((category) => {
-          const effectsData = rawEffects[category];
-
-          if (Array.isArray(effectsData) && effectsData.length > 0) {
-            if (category === 'autostart') {
-              // Deduplicate autostart by param
-              const uniqueAutostarts = new Map();
-              effectsData.forEach(({ param, value }) => {
-                if (!uniqueAutostarts.has(param)) {
-                  uniqueAutostarts.set(param, value);
-                }
-              });
-              summedEffects[category] = Array.from(uniqueAutostarts, ([param, value]) => ({ param, value }));
-            } else {
-              // Sum other effects by param
-              const paramSums = {};
-              effectsData.forEach(({ param, value }) => {
-                paramSums[param] = (paramSums[param] || 0) + value;
-              });
-              summedEffects[category] = Object.entries(paramSums).map(([param, value]) => ({ param, value }));
-            }
+          if (category === 'neko_boost_percentage') {
+            // Handle Neko boost separately
+            summedEffects[category] = [{ param: 'neko_boost', value: rawEffects[category] }];
           } else {
-            summedEffects[category] = [];
+            const effectsData = rawEffects[category];
+            if (Array.isArray(effectsData) && effectsData.length > 0) {
+              if (category === 'autostart') {
+                // Deduplicate autostart by param
+                const uniqueAutostarts = new Map();
+                effectsData.forEach(({ param, value }) => {
+                  if (!uniqueAutostarts.has(param)) {
+                    uniqueAutostarts.set(param, value);
+                  }
+                });
+                summedEffects[category] = Array.from(uniqueAutostarts, ([param, value]) => ({ param, value }));
+              } else {
+                // Sum other effects by param
+                const paramSums = {};
+                effectsData.forEach(({ param, value }) => {
+                  paramSums[param] = (paramSums[param] || 0) + value;
+                });
+                summedEffects[category] = Object.entries(paramSums).map(([param, value]) => ({ param, value }));
+              }
+            } else if (effectsData !== null && !Array.isArray(effectsData)) {
+              // Handle scalar effects (e.g., duration_decrease), though not displayed
+              summedEffects[category] = [{ param, value: effectsData }];
+            } else {
+              summedEffects[category] = [];
+            }
           }
         });
 
         const formattedEffects = [];
 
         const getEffectIcon = (category, param = 'default') => {
-          const map = effectIconMap
+          const map = effectIconMap;
+          if (category === 'neko_boost_percentage') {
+            return map.neko_boost_percentage; // Unique icon for Neko boost
+          }
           return map[category]?.[param] || Assets.Icons.energyUp;
         };
 
-        const translations = globalTranslations.effects
+        const translations = globalTranslations.effects;
         const formatValue = (category, value) => {
           const split = category.split('_');
           const signedValue = value > 0 ? `+${value}` : (value === 0 ? value : `-${value}`);
-          return split[split.length - 1] === 'percent' ? `${signedValue}%` : `${signedValue}`;
+          return split[split.length - 1] === 'percent' || category === 'neko_boost_percentage'
+            ? `${Math.floor(signedValue)}%`
+            : `${Math.floor(signedValue)}`;
         };
 
         // Format summed effects
         Object.keys(summedEffects).forEach((category) => {
           summedEffects[category].forEach(({ param, value }) => {
+            // Skip scalar effects that aren’t displayed
+            if (['duration_decrease', 'mood_increase', 'reward_increase', 'energy_cost_decrease', 'hunger_cost_decrease'].includes(category)) {
+              return;
+            }
             formattedEffects.push({
               type: category,
               param,
               value: formatValue(category, value),
               title: translations[category]?.[param]?.[lang] || category, // Fallback to category if no translation
-              color: value > 0 ? COLORS.GREEN : COLORS.RED,
+              color: value > 0 ? COLORS.GREEN : (value === 0 ? COLORS.WHITE : COLORS.RED),
               icon: getEffectIcon(category, param),
             });
           });
@@ -573,7 +588,6 @@ const StatsModal = memo(({ baseStyles, setIsStatsShown, clothing }) => {
   const { total_earned, level, energy_capacity, respect, id, experience } = userParameters;
   const { lang } = useSettingsProvider();
   const [activeTab, setActiveTab] = useState("stats");
-  const { isLoading: isNekoLoading, effects: nekoEffects } = useNekoEffects(id, lang);
   const { isLoading: isEffectsLoading, effects: currentEffects } = useCurrentEffects(id, lang);
   const [levelParameters, setLevelParameters] = useState()
 
@@ -594,7 +608,7 @@ const StatsModal = memo(({ baseStyles, setIsStatsShown, clothing }) => {
     },
   };
 
-  const combinedEffects = [...nekoEffects, ...currentEffects];
+  const combinedEffects = [...currentEffects];
   const nextLevelExpRequired = levelParameters?.find(levelParameter => levelParameter.level === level + 1)?.experience_required
   const thisLevelExpRequired = levelParameters?.find(levelParameter => levelParameter.level === level)?.experience_required
 
@@ -639,7 +653,7 @@ const StatsModal = memo(({ baseStyles, setIsStatsShown, clothing }) => {
           exit="exit"
           transition={{ duration: 0.3 }}
         >
-          {isNekoLoading || isEffectsLoading ? (
+          {isEffectsLoading ? (
             <motion.div
               variants={loadingVariants}
               animate="animate"
@@ -846,20 +860,6 @@ const HomeHeader = ({ screenHeader }) => {
   useEffect(() => {
     console.log(window.Telegram?.WebApp.safeAreaInset?.top);
     getLevels().then((levels) => setLevels(levels));
-    getUserActiveProcess(userId).then((activeProcess) =>
-      setActiveProcess(activeProcess)
-    );
-    // Fetch neko state once on mount
-    getOwnNekoState(userId)
-      .then((neko) => {
-        setNekoEffects(neko);
-        setIsNekoLoading(false);
-      })
-      .catch((error) => {
-        console.error("Failed to fetch neko state:", error);
-        setNekoEffects(null);
-        setIsNekoLoading(false);
-      });
   }, [userId]); // Re-fetch if userId changes
 
   const getEnergyIcon = (energy, energy_capacity) => {

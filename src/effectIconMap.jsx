@@ -34,5 +34,6 @@ export default {
     autostart: {
       sleeping_when_energy_below: Assets.Icons.clock,
       'default': Assets.Icons.clock,
-    }
+    },
+    neko_boost_percentage: Assets.Icons.nftEffectIcon
   }

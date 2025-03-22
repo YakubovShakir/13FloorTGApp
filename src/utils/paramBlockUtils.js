@@ -45,21 +45,30 @@ export const getDurationAndColor = (
   }
 }
 
-export const getCoinRewardAndColor = (workDuration, workReward, parameters) => {
-  let color
-  let targetReward = workReward
-  const rewardIncreasePerSecond =
-    (parameters.work_hourly_income_increase || 0) / 3600
+export const getCoinRewardAndColor = (workDuration, workRewardHourly, parameters) => {
+  let color;
+  
+  // Base hourly rate plus any increase
+  const baseHourlyRate = workRewardHourly + (parameters.work_hourly_income_increase || 0);
+  
+  // Neko boost multiplier (converting percentage to multiplier)
+  const nekoBoostMultiplier = parameters.neko_boost_percentage 
+  
+  // Calculate final reward:
+  // (hourly rate * boost) / 3600 * duration, rounded to 2 decimal places
+  const targetReward = Math.round(
+    (((baseHourlyRate * nekoBoostMultiplier) / 3600) * workDuration) * 100
+  ) / 100;
 
-  if (rewardIncreasePerSecond > 0) {
-    color = COLORS.GREEN
-    targetReward += rewardIncreasePerSecond * workDuration
+  // Set color based on whether there's any increase or boost
+  if ((parameters.work_hourly_income_increase || 0) > 0 || (parameters.neko_boost_percentage || 0) > 0) {
+    color = COLORS.GREEN;
   } else {
-    color = COLORS.WHITE
+    color = COLORS.WHITE;
   }
 
   return {
     value: targetReward,
     color,
-  }
-}
+  };
+};
