@@ -21,6 +21,7 @@ import countPercentage from "../../../utils/countPercentage.js";
 import { useSettingsProvider } from "../../../hooks";
 import FullScreenSpinner from "../../Home/FullScreenSpinner.jsx";
 import { useUser } from "../../../UserContext.jsx";
+import { useNavigate } from "react-router-dom";
 
 const TICK_INTERVAL = 1000;
 
@@ -305,6 +306,8 @@ const PerksTab = ({
         }
     }, [userId, setVisibleModal, initializeData, startTimer]);
 
+    const navigate = useNavigate()
+
     const createEffectModalData = useMemo(() => {
         console.log('@@@', state.userBoosts)
         return (effect) => {
@@ -361,14 +364,14 @@ const PerksTab = ({
                             text: translations.boost[lang] + ' x25%',
                             active: state.userBoosts?.find(boost => boost.boost_id === 7),
                             onClick: state.userBoosts?.find(boost => boost.boost_id === 7) ? 
-                                () => handleBoost(7, effect.next.id) : null,
+                                () => handleBoost(7, effect.next?.id, 'constant_effects') : () => navigate('/boost'),
                         },
                         {
                             icon: "https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/Boost%2FBoost2.webp",
                             text: translations.boost[lang] + ' x50%',
                             active: state.userBoosts?.find(boost => boost.boost_id === 8),
                             onClick: state.userBoosts?.find(boost => boost.boost_id === 8) ? 
-                                () => handleBoost(8, effect.next.id) : null,
+                                () => handleBoost(8, effect?.next?.id, 'constant_effects') : () => navigate('/boost'),
                         },
                     ] : [])
                 ],

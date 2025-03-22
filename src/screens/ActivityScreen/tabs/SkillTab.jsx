@@ -22,6 +22,7 @@ import formatTime from "../../../utils/formatTime";
 import countPercentage from "../../../utils/countPercentage.js";
 import { useSettingsProvider } from "../../../hooks";
 import { useUser } from "../../../UserContext.jsx";
+import { useNavigate } from "react-router-dom";
 
 const SYNC_INTERVAL = 5 * 60 * 1000;
 const TICK_INTERVAL = 1000;
@@ -404,6 +405,8 @@ const SkillTab = ({
         handleBoost
     ]);
 
+    const navigate = useNavigate()
+
     const createEffectModalData = useMemo(() => {
         return (effect) => {
             if (!effect || !effect.next) return null;
@@ -456,14 +459,14 @@ const SkillTab = ({
                             text: translations.boost[lang] + ' x25%',
                             active: state.userBoosts?.find(boost => boost.boost_id === 7),
                             onClick: state.userBoosts?.find(boost => boost.boost_id === 7) ? 
-                                () => handleBoost(7, effect.next?.id, 'constant_effects') : null,
+                                () => handleBoost(7, effect.next?.id, 'constant_effects') : () => navigate('/boost'),
                         },
                         {
                             icon: "https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/Boost%2FBoost2.webp",
                             text: translations.boost[lang] + ' x50%',
                             active: state.userBoosts?.find(boost => boost.boost_id === 8),
                             onClick: state.userBoosts?.find(boost => boost.boost_id === 8) ? 
-                                () => handleBoost(8, effect?.next?.id, 'constant_effects') : null,
+                                () => handleBoost(8, effect?.next?.id, 'constant_effects') : () => navigate('/boost'),
                         },
                     ] : [])
                 ],
