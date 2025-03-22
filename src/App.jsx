@@ -21,6 +21,8 @@ import { config } from "dotenv"
 import { NotificationProvider, useNotification } from "./NotificationContext";
 import WebApp from '@twa-dev/sdk';
 import { submitProfileData } from "./services/user/user";
+import GachaOverlay from "./screens/Home/Gacha";
+import DailyCheckInOverlay from "./screens/Home/DailyCheckInOverlay";
 const BlockerMessage = () => (
   <div style={{
     height: '100vh',
@@ -230,19 +232,16 @@ function App() {
     };
 
     submitUserData();
-  }, [userId, WebApp]);
+  }, []);
 
   return (
     // <TelegramPlatformCheck>
     <TonConnectUIProvider manifestUrl="https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/tonconnect-manifest.json">
-
       <MemoryRouter>
         <Routes>
-          {/* <Route index element={<StartCustomize />} /> */}
           <Route path="/" index element={<Home />} />
           <Route path="/learning/:slideIndex?" element={<Learning />} />
           <Route path="/personage-create" element={<PersonageCreationScreen />} />
-          {/* <Route index element={<PersonageCreationScreen />} /> */}
           <Route path="/care" element={<CareScreen />} />
           <Route path="/shop" element={<ShopScreen />} />
           <Route path="/activity/:type" element={<ActivityScreen />} />
@@ -251,6 +250,8 @@ function App() {
           <Route path="/investment" element={<InvestmentScreen />} />
           <Route path="/boost" element={<BoostTab />} />
           <Route path="/foreign-user/:userId" element={< ForeignHome />} />
+          <Route path="/gacha" element={<GachaOverlay />} />
+          <Route path="/daily-rewards" element={<DailyCheckInOverlay />} />
         </Routes>
       </MemoryRouter>
     </TonConnectUIProvider>

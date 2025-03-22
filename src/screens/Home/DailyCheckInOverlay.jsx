@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { instance } from "../../services/instance";
-import { useUser } from "../../UserContext";
-import Button from "../../components/simple/Button/Button";
-import { useSettingsProvider } from "../../hooks";
-import Assets from "../../assets";
+import React, { useState, useEffect } from "react"
+import { motion, AnimatePresence } from "framer-motion"
+import { instance } from "../../services/instance"
+import { useUser } from "../../UserContext"
+import Button from "../../components/simple/Button/Button"
+import { useSettingsProvider } from "../../hooks"
+import Assets from "../../assets"
+import globalTranslations from "../../globalTranslations"
 
 const buttonStyle = {
   width: "100%",
@@ -16,119 +17,55 @@ const buttonStyle = {
   fontSize: 14,
   fontFamily: "Oswald",
   fontWeight: "normal",
-};
+}
 
-// Static translations for UI text
-const translations = {
-  dailyCheckInCalendar: {
-    en: "Daily Rewards",
-    ru: "Ежедневные награды",
-  },
-  currentStreak: {
-    en: "Come back every day to collect as many rewards as you can in a week",
-    ru: "Заходите каждый день, чтобы собрать как можно больше наград за неделю",
-  },
-  checkIn: {
-    en: "Check In",
-    ru: "Отметиться",
-  },
-  claimReward: {
-    en: "CLAIM REWARD",
-    ru: "ПОЛУЧИТЬ НАГРАДУ",
-  },
-  close: {
-    en: "Close",
-    ru: "Закрыть",
-  },
-  youWon: {
-    en: "Congratulations!",
-    ru: "Поздравляем!",
-  },
-  ok: {
-    en: "OK",
-    ru: "ОК",
-  },
-  daily: {
-    en: "Rewards",
-    ru: "Награды",
-  },
-  day: {
-    en: "Day",
-    ru: "День",
-  },
-};
+const translations = globalTranslations.daily
 
 const DailyCheckInOverlay = () => {
-  const [isActive, setIsActive] = useState(false);
-  const [streak, setStreak] = useState(0);
-  const [canClaim, setCanClaim] = useState(false);
-  const [hasCheckedInToday, setHasCheckedInToday] = useState(false);
-  const [reward, setReward] = useState(null);
-  const [rewards, setRewards] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const { userId } = useUser();
-  const { lang } = useSettingsProvider(); // Language setting
+  const [isActive, setIsActive] = useState(true)
+  const [streak, setStreak] = useState(0)
+  const [canClaim, setCanClaim] = useState(false)
+  const [hasCheckedInToday, setHasCheckedInToday] = useState(false)
+  const [reward, setReward] = useState(null)
+  const [rewards, setRewards] = useState([])
+  const [isLoading, setIsLoading] = useState(true)
+  const { userId } = useUser()
+  const { lang } = useSettingsProvider() // Language setting
 
   const fetchStatus = async () => {
-    setIsLoading(true);
+    setIsLoading(true)
     try {
-      const { data } = await instance.get(`/users/${userId}/daily/status`);
-      setStreak(data.streak);
-      setCanClaim(data.canClaim);
-      setHasCheckedInToday(data.hasCheckedInToday);
-      setRewards(data.rewards);
+      const { data } = await instance.get(`/users/${userId}/daily/status`)
+      setStreak(data.streak)
+      setCanClaim(data.canClaim)
+      setHasCheckedInToday(data.hasCheckedInToday)
+      setRewards(data.rewards)
     } catch (error) {
-      console.error("Error fetching daily status:", error);
+      console.error("Error fetching daily status:", error)
     }
-    setIsLoading(false);
-  };
+    setIsLoading(false)
+  }
 
   useEffect(() => {
     if (userId && isActive) {
-      fetchStatus();
+      fetchStatus()
     }
-  }, [userId, isActive]);
+  }, [userId, isActive])
 
   const handleClaim = async () => {
     try {
       setIsLoading(true)
-      const { data } = await instance.get(`/users/${userId}/daily/claim`);
-      setReward(data.wonItem);
-      setCanClaim(false);
+      const { data } = await instance.get(`/users/${userId}/daily/claim`)
+      setReward(data.wonItem)
+      setCanClaim(false)
       fetchStatus().finally(() => setIsLoading(false))
     } catch (error) {
-      console.error("Error claiming reward:", error);
+      console.error("Error claiming reward:", error)
     }
-  };
+  }
 
   return (
     <>
-      <div
-        onClick={() => setIsActive(true)}
-        style={{
-          cursor: "pointer",
-          position: "fixed",
-          bottom: "13vh",
-          right: "3.5vw",
-          color: "white",
-          zIndex: 99999,
-          fontSize: "14px",
-          textAlign: "center",
-        }}
-      >
-        <img src={Assets.Icons.task} width={50} alt="Daily" />
-        <p
-        style={{
-          textShadow: "1px 1px 0px #000000, -1px -1px 0px #000000, 1px -1px 0px #000000, -1px 1px 0px #000000",
-          textTransform: "uppercase",
-          fontStyle: "italic",
-          fontFamily: "Oswald",
-          fontWeight: "400",
-          
-        }}
-        >{translations.daily[lang]}</p>
-      </div>
-     
       <AnimatePresence>
         {isActive && (
           <motion.div
@@ -145,7 +82,6 @@ const DailyCheckInOverlay = () => {
               justifyContent: "center",
               alignItems: "center",
               flexDirection: "column",
-              
             }}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -167,7 +103,7 @@ const DailyCheckInOverlay = () => {
                     width: "90%",
                     color: "white",
                     textAlign: "center",
-                     position: "absolute",
+                    position: "absolute",
                   }}
                 >
                   <h2
@@ -184,170 +120,170 @@ const DailyCheckInOverlay = () => {
                       translations.dailyCheckInCalendar.en}
                   </h2>
                   <img
-  className="ModalClose2"
-  onClick={() => setIsActive(false)} 
-  src={Assets.Icons.modalClose} 
-  alt="closeIcon"
-  width= "16"
-  height= "16"
-  style={{ 
-    cursor: "pointer",
-    position: "absolute",
-    right: "17px",
-    top: "15px",
-   
-    }} 
-/>
+                    className="ModalClose2"
+                    onClick={() => setIsActive(false)}
+                    src={Assets.Icons.modalClose}
+                    alt="closeIcon"
+                    width="16"
+                    height="16"
+                    style={{
+                      cursor: "pointer",
+                      position: "absolute",
+                      right: "17px",
+                      top: "15px",
+                    }}
+                  />
                   {/* Single Row with Horizontal Scroll */}
                   <div
-  style={{
-    position: "relative", 
-    marginBottom: "15px", 
-  }}
->
-  {/* Левый градиент */}
-  <div
-    style={{
-      position: "absolute",
-      top: "10px",
-      left: "0px",
-      width: "10px",
-      height: "calc(100% - 20px)",
-      background: "linear-gradient(to right, rgba(18, 18, 18, 1), rgba(18, 18, 18, 0))",
-      zIndex: 1,
-      pointerEvents: "none",
-    }}
-  />
-  {/* Правый градиент */}
-  <div
-    style={{
-      position: "absolute",
-      top: "10px",
-      right: "0px",
-      width: "10px",
-      height: "calc(100% - 20px)",
-      background: "linear-gradient(to left, rgba(18, 18, 18, 1), rgba(18, 18, 18, 0))",
-      zIndex: 1,
-      pointerEvents: "none",
-    }}
-  />
-  {/* Контейнер со скроллом */}
-  <div
-    style={{
-      position: "relative",
-      display: "flex",
-      flexDirection: "row",
-      gap: "15px",
-      padding: "10px",
-      background: "rgb(18, 18, 18)",
-      borderRadius: "8px",
-      overflowX: "auto",
-      whiteSpace: "nowrap",
-      scrollbarWidth: "thin",
-      scrollbarColor: "#ff7600 #2a2a2a",
-      WebkitOverflowScrolling: "touch",
-      borderBottom: "1px solid rgba(117, 117, 117, 0.23)",
-    }}
-    className="custom-scroll"
-  >
-    
-                    {rewards.map((item) => (
-                      <div
-                        key={item.day}
-                        style={{
-                          display: "flex",
-                          flexDirection: "column",
-                          alignItems: "center",
-                          // justifyContent: "center",
-                          padding: "5px",
-                          color:
-                          streak >= item.day
-                            ? "#000"
-                            : "#CCCCCC",
-                          background:
-                            streak >= item.day
-                              ? "linear-gradient(45deg, #ff7600, #ff9d00)"
-                              : "rgb(39 39 39)",
-                          borderRadius: "8px",
-                          border:
-                            streak === item.day && canClaim
-                              ? "2px solid #ff9d00"
-                              : "1px solid rgba(255, 255, 255, 0.1)",
-                          transition: "all 0.2s ease",
-                          textAlign: "center",
-                          minWidth: "100px", // Adjusted minWidth
-                          maxWidth: "110px", // Adjusted maxWidth
-                          minHeight: "130px", // Increased height for better spacing
-                        }}
-                      >
-                        <p
+                    style={{
+                      position: "relative",
+                      marginBottom: "15px",
+                    }}
+                  >
+                    {/* Левый градиент */}
+                    <div
+                      style={{
+                        position: "absolute",
+                        top: "10px",
+                        left: "0px",
+                        width: "10px",
+                        height: "calc(100% - 20px)",
+                        background:
+                          "linear-gradient(to right, rgba(18, 18, 18, 1), rgba(18, 18, 18, 0))",
+                        zIndex: 1,
+                        pointerEvents: "none",
+                      }}
+                    />
+                    {/* Правый градиент */}
+                    <div
+                      style={{
+                        position: "absolute",
+                        top: "10px",
+                        right: "0px",
+                        width: "10px",
+                        height: "calc(100% - 20px)",
+                        background:
+                          "linear-gradient(to left, rgba(18, 18, 18, 1), rgba(18, 18, 18, 0))",
+                        zIndex: 1,
+                        pointerEvents: "none",
+                      }}
+                    />
+                    {/* Контейнер со скроллом */}
+                    <div
+                      style={{
+                        position: "relative",
+                        display: "flex",
+                        flexDirection: "row",
+                        gap: "15px",
+                        padding: "10px",
+                        background: "rgb(18, 18, 18)",
+                        borderRadius: "8px",
+                        overflowX: "auto",
+                        whiteSpace: "nowrap",
+                        scrollbarWidth: "thin",
+                        scrollbarColor: "#ff7600 #2a2a2a",
+                        WebkitOverflowScrolling: "touch",
+                        borderBottom: "1px solid rgba(117, 117, 117, 0.23)",
+                      }}
+                      className="custom-scroll"
+                    >
+                      {rewards.map((item) => (
+                        <div
+                          key={item.day}
                           style={{
-                            fontSize: "14px", // Reduced font size
-                            marginBottom: "5px",
-                            fontFamily: "Oswald",
-                            opacity: 0.9,
-                            wordBreak: "break-word",
-                            overflow: "hidden",
-                            textOverflow: "ellipsis",
-                            whiteSpace: "normal", // Allow wrapping
-                            maxWidth: "100%",
-                            textTransform: "uppercase",
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "center",
+                            // justifyContent: "center",
+                            padding: "5px",
+                            color: streak >= item.day ? "#000" : "#CCCCCC",
+                            background:
+                              streak >= item.day
+                                ? "linear-gradient(45deg, #ff7600, #ff9d00)"
+                                : "rgb(39 39 39)",
+                            borderRadius: "8px",
+                            border:
+                              streak === item.day && canClaim
+                                ? "2px solid #ff9d00"
+                                : "1px solid rgba(255, 255, 255, 0.1)",
+                            transition: "all 0.2s ease",
+                            textAlign: "center",
+                            minWidth: "100px", // Adjusted minWidth
+                            maxWidth: "110px", // Adjusted maxWidth
+                            minHeight: "130px", // Increased height for better spacing
                           }}
                         >
-                          {translations.day[lang] || translations.day.en}{" "}
-                          {item.day}
-                        </p>
-                        <div
-    style={{
-      background: "repeating-linear-gradient(45deg, rgba(0, 0, 0, 0.21), rgba(0, 0, 0, 0.21) 2px, rgba(57, 57, 57, 0.06) 2px, rgba(57, 57, 57, 0.06) 6px) rgb(26, 26, 26)", // Светлый полупрозрачный фон для контраста
-      borderBottom: "1px solid rgba(117, 117, 117, 0.23)", 
-      boxShadow: "rgba(0, 0, 0, 0.24) 0px 0px 8px 2px inset",
-      borderRadius: "6px", 
-      padding: "5px", 
-      display: "flex",
-      flexDirection: "column",
-      alignItems: "center",
-      width: "100%", 
-    }}
-  >
-    <img
-      src={item.image}
-      alt={item.name[lang] || item.name.en}
-      style={{
-        width: "60px",
-        height: "60px",
-        objectFit: "contain",
-        marginBottom: "5px",
-        filter: streak < item.day ? "grayscale(80%)" : "none",
-      }}
-    />
-    </div>
-    <p
-  style={{
-    fontSize: "11px",
-    marginTop: "0",
-    fontFamily: "Oswald",
-    opacity: streak >= item.day ? 1 : 0.7,
-    wordBreak: "break-word",
-    overflow: "hidden",
-    textOverflow: "ellipsis",
-    whiteSpace: "normal",
-    maxWidth: "100%",
-    textAlign: "center",
-    display: "flex", 
-    alignItems: "center", 
-    justifyContent: "center", 
-    minHeight: "40px", 
-    fontWeight: "600",
-    textTransform: "uppercase",
-  }}
->
-      {item.name[lang] || item.name.en}
-    </p>
-  
-</div>
-                    ))}
-                  </div>
+                          <p
+                            style={{
+                              fontSize: "14px", // Reduced font size
+                              marginBottom: "5px",
+                              fontFamily: "Oswald",
+                              opacity: 0.9,
+                              wordBreak: "break-word",
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
+                              whiteSpace: "normal", // Allow wrapping
+                              maxWidth: "100%",
+                              textTransform: "uppercase",
+                            }}
+                          >
+                            {translations.day[lang] || translations.day.en}{" "}
+                            {item.day}
+                          </p>
+                          <div
+                            style={{
+                              background:
+                                "repeating-linear-gradient(45deg, rgba(0, 0, 0, 0.21), rgba(0, 0, 0, 0.21) 2px, rgba(57, 57, 57, 0.06) 2px, rgba(57, 57, 57, 0.06) 6px) rgb(26, 26, 26)", // Светлый полупрозрачный фон для контраста
+                              borderBottom:
+                                "1px solid rgba(117, 117, 117, 0.23)",
+                              boxShadow:
+                                "rgba(0, 0, 0, 0.24) 0px 0px 8px 2px inset",
+                              borderRadius: "6px",
+                              padding: "5px",
+                              display: "flex",
+                              flexDirection: "column",
+                              alignItems: "center",
+                              width: "100%",
+                            }}
+                          >
+                            <img
+                              src={item.image}
+                              alt={item.name[lang] || item.name.en}
+                              style={{
+                                width: "60px",
+                                height: "60px",
+                                objectFit: "contain",
+                                marginBottom: "5px",
+                                filter:
+                                  streak < item.day ? "grayscale(80%)" : "none",
+                              }}
+                            />
+                          </div>
+                          <p
+                            style={{
+                              fontSize: "11px",
+                              marginTop: "0",
+                              fontFamily: "Oswald",
+                              opacity: streak >= item.day ? 1 : 0.7,
+                              wordBreak: "break-word",
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
+                              whiteSpace: "normal",
+                              maxWidth: "100%",
+                              textAlign: "center",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              minHeight: "40px",
+                              fontWeight: "600",
+                              textTransform: "uppercase",
+                            }}
+                          >
+                            {item.name[lang] || item.name.en}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                   <div
                     style={{
@@ -370,8 +306,7 @@ const DailyCheckInOverlay = () => {
                       {streak} / 7
                     </p>
                     <div style={{ display: "flex", gap: "10px" }}>
-                     {
-                       canClaim ? (
+                      {canClaim ? (
                         <Button
                           onClick={handleClaim}
                           style={buttonStyle}
@@ -381,11 +316,10 @@ const DailyCheckInOverlay = () => {
                           }
                           width={180}
                           active={true}
-                          color={'white'}
+                          color={"white"}
                           fontSize={14}
                           fontWeight={400}
                           fontFamily={"Oswald"}
-                         
                         />
                       ) : (
                         <Button
@@ -396,60 +330,58 @@ const DailyCheckInOverlay = () => {
                           }
                           width={180}
                           active={false} // Disabled state
-                          color={'white'}
+                          color={"white"}
                           fontSize={14}
                           fontWeight={400}
                           fontFamily={"Oswald"}
                         />
-                      )
-                     }
-                      
+                      )}
                     </div>
                   </div>
                 </div>
 
                 {reward && (
-                <motion.div
-                initial={{ opacity: 0, scale: 0.5 }}
-                animate={{ 
-                  opacity: 1, 
-                  scale: 1,
-                  background: [
-                    "radial-gradient(circle at center, rgba(255, 98, 0, 0.56) 0%, rgba(255, 98, 0, 0) 30%)",
-                    "radial-gradient(circle at center, rgba(255, 140, 0, 0.53) 0%, rgba(255, 140, 0, 0) 50%)",
-                    "radial-gradient(circle at center, rgba(255, 98, 0, 0.58) 0%, rgba(255, 98, 0, 0) 30%)",
-                  ],
-                }}
-                transition={{ 
-                  opacity: { duration: 0.5 },
-                  scale: { duration: 0.5 },
-                  background: { 
-                    delay: 0.5,
-                    duration: 1.5,
-                    repeat: Infinity,
-                    ease: "easeInOut",
-                  },
-                }}
-                style={{
-                 
-                  flexDirection: "column",
-                  alignItems: "center",
-                  display: "flex",
-                  padding: "20px",
-                  borderRadius: "6px",
-                  justifyContent: "center",
-                  zIndex: 10000,
-                  width: "100%",
-                  height:"100%",
-                  textAlign: "center",
-                  color: "white",
-                  boxShadow: "0px 0px 100px 100px rgba(0, 0, 0, 0.47) inset",
-                  backdropFilter: "blur(5px)",
-                }}
-              >
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.5 }}
+                    animate={{
+                      opacity: 1,
+                      scale: 1,
+                      background: [
+                        "radial-gradient(circle at center, rgba(255, 98, 0, 0.56) 0%, rgba(255, 98, 0, 0) 30%)",
+                        "radial-gradient(circle at center, rgba(255, 140, 0, 0.53) 0%, rgba(255, 140, 0, 0) 50%)",
+                        "radial-gradient(circle at center, rgba(255, 98, 0, 0.58) 0%, rgba(255, 98, 0, 0) 30%)",
+                      ],
+                    }}
+                    transition={{
+                      opacity: { duration: 0.5 },
+                      scale: { duration: 0.5 },
+                      background: {
+                        delay: 0.5,
+                        duration: 1.5,
+                        repeat: Infinity,
+                        ease: "easeInOut",
+                      },
+                    }}
+                    style={{
+                      flexDirection: "column",
+                      alignItems: "center",
+                      display: "flex",
+                      padding: "20px",
+                      borderRadius: "6px",
+                      justifyContent: "center",
+                      zIndex: 10000,
+                      width: "100%",
+                      height: "100%",
+                      textAlign: "center",
+                      color: "white",
+                      boxShadow:
+                        "0px 0px 100px 100px rgba(0, 0, 0, 0.47) inset",
+                      backdropFilter: "blur(5px)",
+                    }}
+                  >
                     <h2
                       style={{
-                        textTransform:"uppercase",
+                        textTransform: "uppercase",
                         textShadow: " 1px 1px 10px black",
                         fontSize: "16px",
                         marginBottom: "15px",
@@ -471,7 +403,7 @@ const DailyCheckInOverlay = () => {
                     />
                     <p
                       style={{
-                        textTransform:"uppercase",
+                        textTransform: "uppercase",
                         textShadow: " 1px 1px 10px black",
                         fontSize: "18px",
                         fontFamily: "Oswald",
@@ -500,8 +432,8 @@ const DailyCheckInOverlay = () => {
         )}
       </AnimatePresence>
     </>
-  );
-};
+  )
+}
 
 // Custom CSS for scrollbar (Webkit browsers)
 const styles = `
@@ -519,12 +451,12 @@ const styles = `
   .custom-scroll::-webkit-scrollbar-thumb:hover {
     background: #ff9d00;
   }
-`;
+`
 
 // Inject styles into the document
-const styleSheet = document.createElement("style");
-styleSheet.type = "text/css";
-styleSheet.innerText = styles;
-document.head.appendChild(styleSheet);
+const styleSheet = document.createElement("style")
+styleSheet.type = "text/css"
+styleSheet.innerText = styles
+document.head.appendChild(styleSheet)
 
-export default DailyCheckInOverlay;
+export default DailyCheckInOverlay

@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion'
 
-const ResponsiveSpinner = ({ color = "#f37500", size = 70 }) => {
+const ResponsiveSpinner = ({ color = "#f37500", size = 50 }) => {
   const backgroundFrames = Array.from({ length: 60 }, (_, i) => {
     const opacity = (i + 1) / 60
     return `#000000, ${opacity})`
@@ -8,8 +8,7 @@ const ResponsiveSpinner = ({ color = "#f37500", size = 70 }) => {
 
   return (
     <motion.div
-      initial={{ opacity: 0, backgroundColor: "transparent" }}
-      animate={{ opacity: 1, backgroundColor: backgroundFrames }}
+      initial={{ opacity: 1, backgroundColor: "transparent" }}
       transition={{ duration: 1, ease: "easeInOut" }}
       style={{
         width: "100%",
