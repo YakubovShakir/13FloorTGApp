@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useEffect, useState, useCallback, useRef, useMemo } from "react";
 import moment from "moment-timezone";
 import ScreenContainer from "../../../components/section/ScreenContainer/ScreenContainer";
 import ItemCard from "../../../components/simple/ItemCard/ItemCard";
@@ -40,6 +40,8 @@ const SkillTab = ({
     const lastSkillsRef = useRef(null);
     const isInitializingRef = useRef(false);
     const modalUpdateRef = useRef(false);
+    const lastTickRef = useRef(0); // To debounce ticks
+    const timerLockRef = useRef(false); // To prevent multiple timers
 
     const [state, setState] = useState({
         skills: null,
@@ -50,7 +52,6 @@ const SkillTab = ({
         activeProcess: null,
         userBoosts: null,
         isInitialized: false,
-        timerRunning: false,
     });
 
     const translations = {
@@ -84,7 +85,7 @@ const SkillTab = ({
                 Math.floor(remainingSeconds / 60),
                 remainingSeconds % 60
             );
-
+            console.log(`Skill ${skill.type_id}: ${skill.remainingSeconds} -> ${remainingSeconds}`);
             return {
                 ...skill,
                 remainingSeconds,
@@ -95,6 +96,7 @@ const SkillTab = ({
 
     const initializeData = useCallback(async () => {
         try {
+            isInitializingRef.current = true;
             const [
                 learningSkills,
                 boosts,
@@ -114,25 +116,28 @@ const SkillTab = ({
             ]);
 
             if (mountedRef.current) {
+                const userLearningSkills = learningSkills.map(skill => {
+                    const totalSeconds = skill.target_duration_in_seconds || skill.base_duration_in_seconds;
+                    const processStart = moment(skill.createdAt).tz("Europe/Moscow");
+                    const elapsedSeconds = moment().diff(processStart, "seconds");
+                    const initialRemaining = Math.max(0, totalSeconds - elapsedSeconds);
+                    return {
+                        ...skill,
+                        remainingSeconds: initialRemaining,
+                        totalSeconds,
+                        formattedTime: formatTime(
+                            Math.floor(initialRemaining / 60),
+                            initialRemaining % 60
+                        ) || "0:00"
+                    };
+                });
+
+                console.log("userLearningSkills:", userLearningSkills);
                 setState(prev => ({
                     ...prev,
                     skills: skillsList,
                     effects: constantEffects,
-                    userLearningSkills: learningSkills.map(skill => {
-                        const totalSeconds = skill.target_duration_in_seconds || skill.base_duration_in_seconds;
-                        const processStart = moment(skill.createdAt).tz("Europe/Moscow");
-                        const elapsedSeconds = moment().diff(processStart, "seconds");
-                        const initialRemaining = Math.max(0, totalSeconds - elapsedSeconds);
-                        return {
-                            ...skill,
-                            remainingSeconds: initialRemaining,
-                            totalSeconds,
-                            formattedTime: formatTime(
-                                Math.floor(initialRemaining / 60),
-                                initialRemaining % 60
-                            ) || "0:00"
-                        };
-                    }),
+                    userLearningSkills,
                     userLearnedSkills: userSkills,
                     trainingParameters: trainingParams,
                     activeProcess: activeProc,
@@ -147,41 +152,53 @@ const SkillTab = ({
         }
     }, [userId]);
 
-    useEffect(() => {
-        mountedRef.current = true;
-        initializeData();
-        return () => {
-            mountedRef.current = false;
-            if (timerRef.current) {
-                timerRef.current.clear();
-            }
-        };
-    }, [initializeData]);
-
     const setupTimer = useCallback(() => {
-        if (!state.userLearningSkills?.length || !state.isInitialized || state.timerRunning) {
+        if (timerLockRef.current) {
+            console.log("Timer already running, skipping start");
+            return;
+        }
+        if (timerRef.current) {
+            console.log("Clearing existing timer");
+            clearInterval(timerRef.current);
+            timerRef.current = null;
+        }
+
+        if (!state.isInitialized || !state.userLearningSkills.length) {
+            console.log("Timer not started:", {
+                isInitialized: state.isInitialized,
+                hasSkills: state.userLearningSkills.length,
+            });
             return;
         }
 
-        setState(prev => ({ ...prev, timerRunning: true }));
-
+        timerLockRef.current = true;
+        console.log("Starting timer for skills:", state.userLearningSkills);
         const tick = () => {
+            const now = Date.now();
+            if (now - lastTickRef.current < TICK_INTERVAL - 100) {
+                return; // Skip if too soon
+            }
+            lastTickRef.current = now;
+
             if (!mountedRef.current) return;
 
             setState(prev => {
                 const updatedSkills = calculateTime(prev.userLearningSkills);
-                const allCompleted = updatedSkills.every(skill => skill.remainingSeconds <= 0);
+                console.log(`Tick at ${new Date().toISOString()}:`, updatedSkills);
 
+                const allCompleted = updatedSkills.every(skill => skill.remainingSeconds <= 0);
                 if (allCompleted) {
+                    console.log("All skills completed, stopping timer");
                     if (timerRef.current) {
-                        timerRef.current.clear();
+                        clearInterval(timerRef.current);
+                        timerRef.current = null;
+                        timerLockRef.current = false;
                     }
                     initializeData();
                     return {
                         ...prev,
                         userLearningSkills: [],
                         isInitialized: false,
-                        timerRunning: false,
                     };
                 }
 
@@ -194,32 +211,33 @@ const SkillTab = ({
         };
 
         tick(); // Initial tick
-        const tickInterval = setInterval(tick, TICK_INTERVAL);
-
-        timerRef.current = {
-            clear: () => {
-                clearInterval(tickInterval);
-                timerRef.current = null;
-                setState(prev => ({ ...prev, timerRunning: false }));
-            },
-        };
-
-        timerRef.current.clear = () => {
-            clearInterval(tickInterval);
-            timerRef.current = null;
-            setState(prev => ({ ...prev, timerRunning: false }));
-        };
-    }, [state.userLearningSkills, state.isInitialized]);
+        timerRef.current = setInterval(tick, TICK_INTERVAL);
+    }, [state.isInitialized, state.userLearningSkills, calculateTime, initializeData]);
 
     useEffect(() => {
-        if (state.isInitialized && state.userLearningSkills?.length > 0) {
+        mountedRef.current = true;
+        initializeData();
+        return () => {
+            mountedRef.current = false;
+            if (timerRef.current) {
+                clearInterval(timerRef.current);
+                timerRef.current = null;
+                timerLockRef.current = false;
+            }
+        };
+    }, [initializeData]);
+
+    useEffect(() => {
+        console.log("Timer check:", {
+            isInitialized: state.isInitialized,
+            hasLearningSkills: state.userLearningSkills.length,
+            timerRunning: !!timerRef.current,
+            skills: state.userLearningSkills,
+        });
+        if (state.isInitialized && state.userLearningSkills.length > 0 && !timerRef.current) {
             setupTimer();
-            lastSkillsRef.current = state.userLearningSkills;
-        } else if (timerRef.current) {
-            timerRef.current.clear();
-            setState(prev => ({ ...prev, timerRunning: false }));
         }
-    }, [state.userLearningSkills, state.isInitialized, setupTimer]);
+    }, [state.isInitialized, state.userLearningSkills.length, setupTimer]);
 
     const checkLearnedSkill = useCallback((skillId) => {
         return state.userLearnedSkills?.find(skill => skill?.skill_id === skillId);
@@ -235,7 +253,7 @@ const SkillTab = ({
         );
     }, [state.userLearningSkills]);
 
-    const { refreshData } = useUser()
+    const { refreshData } = useUser();
 
     const handleBuySkill = useCallback(async (skill, sub_type = null) => {
         try {
@@ -254,7 +272,7 @@ const SkillTab = ({
         } finally {
             isInitializingRef.current = false;
         }
-    }, [userId, initializeData, setVisibleModal]);
+    }, [userId, initializeData, setVisibleModal, refreshData]);
 
     const handleBoost = useCallback(async (boostId, skillId, subType = null) => {
         try {
@@ -298,79 +316,80 @@ const SkillTab = ({
         }
     }, [userId, setVisibleModal]);
 
-    const createSkillModalData = useCallback((skill) => {
-        if (!skill) return null;
-        
-        const learned = checkLearnedSkill(skill?.skill_id);
-        const learning = checkLearningSkill(skill?.skill_id);
-        
-        return {
-            type: "skill",
-            id: skill?.skill_id,
-            sub_type: null,
-            title: skill?.name[lang] || skill?.name,
-            image: skill?.link,
-            blocks: [
-                {
-                    icon: Icons.balance,
-                    text: translations.cost[lang],
-                    value: skill?.coins_price,
-                    fillPercent: '100%',
-                    fillBackground: userParameters?.coins < skill?.coins_price ? "#ff0000" : "#00ff00",
-                },
-                {
-                    icon: Icons.levelIcon,
-                    text: translations.requiredLevel[lang],
-                    value: skill?.requiredLevel,
-                    fillPercent: "100%",
-                    fillBackground: userParameters?.level < skill?.requiredLevel ? "#ff0000" : "#00ff00",
-                },
-                skill?.skill_id_required && {
-                    icon: state.skills?.find(sk => sk?.skill_id === skill?.skill_id_required)?.link,
-                    text: state.skills?.find(sk => sk?.skill_id === skill?.skill_id_required)?.name[lang],
-                    fillPercent: "100%",
-                    fillBackground: !checkLearnedSkill(skill?.skill_id_required) ? "#ff0000" : "#00ff00",
-                },
-                {
-                    icon: Icons.clock,
-                    text: translations.duration[lang],
-                    fillPercent: learning ? countPercentage(
-                        learning.remainingSeconds,
-                        learning.totalSeconds
-                    ) : 0,
-                    value: learning ? learning.formattedTime : formatTime(skill?.duration)
-                },
-            ].filter(Boolean),
-            buttons: [
-                {
-                    text: learned ? translations.learned[lang] : 
-                          learning ? translations.learning[lang] : 
-                          skill?.coins_price,
-                    icon: learned || learning ? null : Icons.balance,
-                    onClick: !(learning || learned) ? () => handleBuySkill(skill) : null,
-                    active: !(learning || learned) && 
-                        (skill?.skill_id_required ? checkLearnedSkill(skill?.skill_id_required) : true) && 
-                        userParameters?.level >= skill?.requiredLevel && 
-                        userParameters.coins >= skill.coins_price,
-                },
-                ...(learning && !learned ? [
-                    
+    const createSkillModalData = useMemo(() => {
+        return (skill) => {
+            if (!skill) return null;
+            
+            const learned = checkLearnedSkill(skill?.skill_id);
+            const learning = checkLearningSkill(skill?.skill_id);
+            
+            return {
+                type: "skill",
+                id: skill?.skill_id,
+                sub_type: null,
+                title: skill?.name[lang] || skill?.name,
+                image: skill?.link,
+                blocks: [
                     {
-                        icon: "https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/Boost%2FBoost3.webp",
-                        text: translations.boost[lang] + ' x25%',
-                        active: state.userBoosts?.find(boost => boost.boost_id === 7),
-                        onClick: state.userBoosts?.find(boost => boost.boost_id === 7) ? 
-                            () => handleBoost(7, skill.skill_id, null) : null,
+                        icon: Icons.balance,
+                        text: translations.cost[lang],
+                        value: skill?.coins_price,
+                        fillPercent: '100%',
+                        fillBackground: userParameters?.coins < skill?.coins_price ? "#ff0000" : "#00ff00",
                     },
                     {
-                        icon: "https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/Boost%2FBoost2.webp",
-                        text: translations.boost[lang] + ' x50%',
-                        active: state.userBoosts?.find(boost => boost.boost_id === 8),
-                        onClick: state.userBoosts?.find(boost => boost.boost_id === 8) ? 
-                            () => handleBoost(8, skill.skill_id, null) : null,
+                        icon: Icons.levelIcon,
+                        text: translations.requiredLevel[lang],
+                        value: skill?.requiredLevel,
+                        fillPercent: "100%",
+                        fillBackground: userParameters?.level < skill?.requiredLevel ? "#ff0000" : "#00ff00",
                     },
-                ] : [])
-            ],
+                    skill?.skill_id_required && {
+                        icon: state.skills?.find(sk => sk?.skill_id === skill?.skill_id_required)?.link,
+                        text: state.skills?.find(sk => sk?.skill_id === skill?.skill_id_required)?.name[lang],
+                        fillPercent: "100%",
+                        fillBackground: !checkLearnedSkill(skill?.skill_id_required) ? "#ff0000" : "#00ff00",
+                    },
+                    {
+                        icon: Icons.clock,
+                        text: translations.duration[lang],
+                        fillPercent: learning ? countPercentage(
+                            learning.remainingSeconds,
+                            learning.totalSeconds
+                        ) : 0,
+                        value: learning ? learning.formattedTime : formatTime(skill?.duration)
+                    },
+                ].filter(Boolean),
+                buttons: [
+                    {
+                        text: learned ? translations.learned[lang] : 
+                              learning ? translations.learning[lang] : 
+                              skill?.coins_price,
+                        icon: learned || learning ? null : Icons.balance,
+                        onClick: !(learning || learned) ? () => handleBuySkill(skill) : null,
+                        active: !(learning || learned) && 
+                            (skill?.skill_id_required ? checkLearnedSkill(skill?.skill_id_required) : true) && 
+                            userParameters?.level >= skill?.requiredLevel && 
+                            userParameters.coins >= skill.coins_price,
+                    },
+                    ...(learning && !learned ? [
+                        {
+                            icon: "https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/Boost%2FBoost3.webp",
+                            text: translations.boost[lang] + ' x25%',
+                            active: state.userBoosts?.find(boost => boost.boost_id === 7),
+                            onClick: state.userBoosts?.find(boost => boost.boost_id === 7) ? 
+                                () => handleBoost(7, skill.skill_id, null) : null,
+                        },
+                        {
+                            icon: "https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/Boost%2FBoost2.webp",
+                            text: translations.boost[lang] + ' x50%',
+                            active: state.userBoosts?.find(boost => boost.boost_id === 8),
+                            onClick: state.userBoosts?.find(boost => boost.boost_id === 8) ? 
+                                () => handleBoost(8, skill.skill_id, null) : null,
+                        },
+                    ] : [])
+                ],
+            };
         };
     }, [
         Icons, 
@@ -385,68 +404,70 @@ const SkillTab = ({
         handleBoost
     ]);
 
-    const createEffectModalData = useCallback((effect) => {
-        if (!effect || !effect.next) return null;
-        
-        const learning = checkLearningEffect(effect?.next?.id);
-        
-        return {
-            type: "skill",
-            sub_type: 'constant_effects',
-            id: effect?.next?.id,
-            title: effect?.next?.name?.[lang] || 'Unnamed Effect',
-            image: effect?.next?.link,
-            blocks: [
-                {
-                    icon: Icons.balance,
-                    text: translations.cost[lang],
-                    value: effect?.next?.price || 0,
-                    fillPercent: '100%',
-                    fillBackground: userParameters?.coins < (effect?.next?.price || 0) ? "#ff0000" : "#00ff00",
-                },
-                {
-                    icon: Icons.levelIcon,
-                    text: translations.requiredLevel[lang],
-                    value: effect?.next?.required_level || 0,
-                    fillPercent: "100%",
-                    fillBackground: userParameters?.level < (effect?.next?.required_level || 0) ? "#ff0000" : "#00ff00",
-                },
-                {
-                    icon: Icons.clock,
-                    text: translations.duration[lang],
-                    fillPercent: learning ? countPercentage(
-                        learning.remainingSeconds,
-                        learning.totalSeconds
-                    ) : 0,
-                    value: learning ? learning.formattedTime : formatTime(effect?.next?.duration || 0)
-                }
-            ].filter(Boolean),
-            buttons: [
-                {
-                    text: learning ? translations.learning[lang] : effect?.next?.price,
-                    icon: learning ? null : Icons.balance,
-                    onClick: !learning ? () => handleBuySkill(effect, 'constant_effects') : null,
-                    active: !learning && 
-                        userParameters?.level >= (effect?.next?.required_level || 0) && 
-                        userParameters.coins >= (effect?.next?.price || 0),
-                },
-                ...(learning ? [
+    const createEffectModalData = useMemo(() => {
+        return (effect) => {
+            if (!effect || !effect.next) return null;
+            
+            const learning = checkLearningEffect(effect?.next?.id);
+            
+            return {
+                type: "skill",
+                sub_type: 'constant_effects',
+                id: effect?.next?.id,
+                title: effect?.next?.name?.[lang] || 'Unnamed Effect',
+                image: effect?.next?.link,
+                blocks: [
                     {
-                        icon: "https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/Boost%2FBoost3.webp",
-                        text: translations.boost[lang] + ' x25%',
-                        active: state.userBoosts?.find(boost => boost.boost_id === 7),
-                        onClick: state.userBoosts?.find(boost => boost.boost_id === 7) ? 
-                            () => handleBoost(7, effect.next?.id, 'constant_effects') : null,
+                        icon: Icons.balance,
+                        text: translations.cost[lang],
+                        value: effect?.next?.price || 0,
+                        fillPercent: '100%',
+                        fillBackground: userParameters?.coins < (effect?.next?.price || 0) ? "#ff0000" : "#00ff00",
                     },
                     {
-                        icon: "https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/Boost%2FBoost2.webp",
-                        text: translations.boost[lang] + ' x50%',
-                        active: state.userBoosts?.find(boost => boost.boost_id === 8),
-                        onClick: state.userBoosts?.find(boost => boost.boost_id === 8) ? 
-                            () => handleBoost(8, effect?.next?.id, 'constant_effects') : null,
+                        icon: Icons.levelIcon,
+                        text: translations.requiredLevel[lang],
+                        value: effect?.next?.required_level || 0,
+                        fillPercent: "100%",
+                        fillBackground: userParameters?.level < (effect?.next?.required_level || 0) ? "#ff0000" : "#00ff00",
                     },
-                ] : [])
-            ],
+                    {
+                        icon: Icons.clock,
+                        text: translations.duration[lang],
+                        fillPercent: learning ? countPercentage(
+                            learning.remainingSeconds,
+                            learning.totalSeconds
+                        ) : 0,
+                        value: learning ? learning.formattedTime : formatTime(effect?.next?.duration || 0)
+                    }
+                ].filter(Boolean),
+                buttons: [
+                    {
+                        text: learning ? translations.learning[lang] : effect?.next?.price,
+                        icon: learning ? null : Icons.balance,
+                        onClick: !learning ? () => handleBuySkill(effect, 'constant_effects') : null,
+                        active: !learning && 
+                            userParameters?.level >= (effect?.next?.required_level || 0) && 
+                            userParameters.coins >= (effect?.next?.price || 0),
+                    },
+                    ...(learning ? [
+                        {
+                            icon: "https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/Boost%2FBoost3.webp",
+                            text: translations.boost[lang] + ' x25%',
+                            active: state.userBoosts?.find(boost => boost.boost_id === 7),
+                            onClick: state.userBoosts?.find(boost => boost.boost_id === 7) ? 
+                                () => handleBoost(7, effect.next?.id, 'constant_effects') : null,
+                        },
+                        {
+                            icon: "https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/Boost%2FBoost2.webp",
+                            text: translations.boost[lang] + ' x50%',
+                            active: state.userBoosts?.find(boost => boost.boost_id === 8),
+                            onClick: state.userBoosts?.find(boost => boost.boost_id === 8) ? 
+                                () => handleBoost(8, effect?.next?.id, 'constant_effects') : null,
+                        },
+                    ] : [])
+                ],
+            };
         };
     }, [
         Icons, 
@@ -459,34 +480,33 @@ const SkillTab = ({
         handleBoost
     ]);
 
-    const getItemSkillParamsBlock = useCallback((skill) => {
-        const learned = checkLearnedSkill(skill?.skill_id);
-        if (learned) return [];
+    const getItemSkillParamsBlock = useMemo(() => {
+        return (skill) => {
+            const learned = checkLearnedSkill(skill?.skill_id);
+            if (learned) return [];
 
-        const learning = checkLearningSkill(skill?.skill_id);
-        const totalSeconds = learning?.totalSeconds || (skill.duration * 60);
-        const remainingSeconds = learning?.remainingSeconds || totalSeconds;
+            const learning = checkLearningSkill(skill?.skill_id);
+            const totalSeconds = learning?.totalSeconds || (skill.duration * 60);
+            const remainingSeconds = learning?.remainingSeconds || totalSeconds;
 
-        const timerBar = {
-            icon: Icons.clock,
-            fillPercent: learning ? countPercentage(
-                remainingSeconds,
-                totalSeconds
-            ) : 0,
-            value: learning ? learning.formattedTime : formatTime(skill.duration)
+            const timerBar = {
+                icon: Icons.clock,
+                fillPercent: learning ? countPercentage(remainingSeconds, totalSeconds) : 0,
+                value: learning ? learning.formattedTime : formatTime(skill.duration)
+            };
+
+            const accessStatus = !learned && !learning && 
+                (!skill.skill_id_required || checkLearnedSkill(skill.skill_id_required)) &&
+                userParameters?.coins >= skill.coins_price &&
+                userParameters.level >= skill.requiredLevel;
+
+            const accessBar = {
+                icon: accessStatus ? Icons.unlockedIcon : Icons.lockedIcon,
+                value: accessStatus ? translations.available[lang] : translations.unavailable[lang],
+            };
+
+            return [[timerBar], [accessBar]];
         };
-
-        const accessStatus = !learned && !learning && 
-            (!skill.skill_id_required || checkLearnedSkill(skill.skill_id_required)) &&
-            userParameters?.coins >= skill.coins_price &&
-            userParameters.level >= skill.requiredLevel;
-
-        const accessBar = {
-            icon: accessStatus ? Icons.unlockedIcon : Icons.lockedIcon,
-            value: accessStatus ? translations.available[lang] : translations.unavailable[lang],
-        };
-
-        return [[timerBar], [accessBar]];
     }, [checkLearnedSkill, checkLearningSkill, userParameters, Icons, translations, lang]);
 
     const openSkillModal = useCallback((skill) => {
@@ -544,7 +564,7 @@ const SkillTab = ({
         } finally {
             modalUpdateRef.current = false;
         }
-    }, [state.userLearningSkills]);
+    }, [modalData, state.isInitialized, state.effects, state.skills, createSkillModalData, createEffectModalData, setModalData]);
 
     if (!state.isInitialized) return null;
 
