@@ -16,6 +16,7 @@ import { getSkills } from "../../../services/skill/skill"
 import { a } from "framer-motion/client"
 import { useSettingsProvider } from "../../../hooks"
 import UserContext, { useUser } from "../../../UserContext"
+import globalTranslations from "../../../globalTranslations"
 export const WorkTab = ({
   modalData,
   setModalData,
@@ -164,7 +165,8 @@ export const WorkTab = ({
           icon: skills?.find(
             (skill) => skill?.skill_id === work?.skill_id_required
           )?.link,
-          text: skills?.find(
+          text: globalTranslations.skills.requiredSkill[lang],
+          value: skills?.find(
             (skill) => skill?.skill_id === work?.skill_id_required
           )?.name[lang],
           fillPercent: "100%",

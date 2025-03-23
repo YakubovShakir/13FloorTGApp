@@ -1,4 +1,10 @@
 export default {
+  skills: {
+    requiredSkill: {
+      en: 'Required skill: ',
+      ru: 'Необходимый навык: '
+    }
+  },
   effects: {
     cant_fall_below_percent: {
       energy: {
