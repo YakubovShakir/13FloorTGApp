@@ -618,7 +618,7 @@ const Home = () => {
                 <motion.img
                   layout
                   className="shelf-flower"
-                  src={userShelf.flower.shelf_link}
+                  src={userShelf.star.shelf_link}
                   alt="flower"
                   transition={{ duration: 0.5, ease: "easeOut" }}
                 />
