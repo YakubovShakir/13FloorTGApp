@@ -171,7 +171,10 @@ const Home = () => {
     }
   }, [userId, calculateInitialRemaining])
 
+
+
   const fetchNekoState = useCallback(async () => {
+    
     try {
       const nekoData = await getOwnNekoState(userId)
       if (mountedRef.current) {
@@ -182,6 +185,7 @@ const Home = () => {
     }
   }, [userId])
 
+ 
   useEffect(() => {
     if (!state.nekoState.cooldownUntil || state.nekoState.canClick) return
 

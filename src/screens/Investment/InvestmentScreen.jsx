@@ -29,6 +29,7 @@ import { useNotification } from "../../NotificationContext"
 import { copyTextToClipboard } from "../../utils/clipboard"
 import { handleStarsPayment } from "../../utils/handleStarsPayment"
 import { COLORS } from "../../utils/paramBlockUtils"
+import { useEmojiReaction } from "../../EmojiReactionContext"
 
 const buttonStyle = {
   width: "100%",
@@ -915,15 +916,20 @@ const useInvestmentData = (userId) => {
     }
   }
 
+  const triggerEmojiReaction = useEmojiReaction()
+
   const handleClaim = async (investment_type) => {
     if (!investments) return
 
     // Optimistically update the UI
     try {
+
       setIsLoading(true)
       await claimInvestment(userId, investment_type)
       await fetchInvestments()
       await refreshData()
+      triggerEmojiReaction([Assets.Icons.balance])
+
       // Fetch real data after successful claim
     } catch (err) {
       console.error("Failed to claim:", err)

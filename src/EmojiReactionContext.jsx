@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 console.log("EmojiReactionHook.js loaded");
@@ -6,41 +6,52 @@ console.log("EmojiReactionHook.js loaded");
 const EmojiReactionContext = createContext();
 
 const EmojiReactionOverlay = ({ emojis, isActive, onComplete }) => {
-  console.log("EmojiReactionOverlay rendered", { emojis, isActive });
   const [reactions, setReactions] = useState([]);
+  const spawnCountRef = useRef(0);
+
+  console.log("EmojiReactionOverlay rendered", { emojis, isActive, reactions });
 
   const spawnReactions = (count) => {
-    if (!emojis || emojis.length === 0) {
-      console.log("No emojis provided to spawnReactions");
+    if (!emojis || emojis.length === 0 || spawnCountRef.current >= 50) {
+      console.log("Spawn limit reached or no emojis:", { count, emojis });
       return [];
     }
-    return Array.from({ length: count }, () => {
+    const newReactions = Array.from({ length: Math.min(count, 50 - spawnCountRef.current) }, () => {
       const randomEmoji = emojis[Math.floor(Math.random() * emojis.length)];
-      const randomX = Math.random() * (window.innerWidth - 35); // Adjust for 35px width
-      const id = Date.now() + Math.random();
-      console.log("Spawning reaction:", { id, image: randomEmoji, x: randomX });
-      return { id, image: randomEmoji, x: randomX };
+      const randomX = Math.random() * (window.innerWidth - 50); // Full width
+      const randomY = Math.random() * (window.innerHeight - 50); // Full height
+      const size = 25 + Math.random() * 25; // 25-50px
+      spawnCountRef.current += 1;
+      return { 
+        id: Date.now() + Math.random(), 
+        image: randomEmoji, 
+        x: randomX, 
+        y: randomY, 
+        size 
+      };
     });
+    console.log("Spawning reactions:", newReactions);
+    return newReactions;
   };
 
   useEffect(() => {
     console.log("useEffect triggered", { isActive, emojis });
     if (!isActive || !emojis || emojis.length === 0) return;
 
-    const initialReactions = spawnReactions(30); // More icons for rush
-    console.log("Setting initial reactions:", initialReactions);
+    spawnCountRef.current = 0;
+    const initialReactions = spawnReactions(20);
+    console.log("Initial reactions set:", initialReactions);
     setReactions(initialReactions);
 
     const interval = setInterval(() => {
-      console.log("Interval tick");
-      setReactions((prev) => {
-        const filtered = prev.filter((r) => r.id > Date.now() - 2000);
-        const newReactions = spawnReactions(10); // Even more for density
+      setReactions(prev => {
+        const filtered = prev.filter(r => r.id > Date.now() - 1500);
+        const newReactions = spawnReactions(5);
         const updated = [...filtered, ...newReactions];
         console.log("Updated reactions:", updated);
         return updated;
       });
-    }, 150); // Faster interval for rapid effect
+    }, 200);
 
     const timeout = setTimeout(() => {
       console.log("Timeout triggered, stopping animation");
@@ -58,25 +69,22 @@ const EmojiReactionOverlay = ({ emojis, isActive, onComplete }) => {
 
   const overlayVariants = {
     hidden: { opacity: 0 },
-    visible: { opacity: 1, transition: { duration: 0.75 } },
-    exit: { opacity: 0, transition: { duration: 0.3 } },
+    visible: { opacity: 1 },
   };
 
   const emojiVariants = {
-    initial: { y: 0, opacity: 1 },
+    initial: { opacity: 0, scale: 0.5 }, // Start small and invisible
     animate: {
-      y: window.innerHeight, // Full screen height for clear fall
-      opacity: 0,
-      transition: {
-        duration: 1.5, // Rapid fall
-        ease: "linear",
-      },
+      opacity: [0, 1, 0], // Fade in then out
+      scale: 1, // Grow to full size
+      y: -50, // Slight upward drift
+      transition: { duration: 1.5, ease: "easeOut" },
     },
     exit: { opacity: 0 },
   };
 
   return (
-    <AnimatePresence>
+    <div>
       {isActive && (
         <motion.div
           style={{
@@ -87,12 +95,11 @@ const EmojiReactionOverlay = ({ emojis, isActive, onComplete }) => {
             height: "100vh",
             pointerEvents: "none",
             zIndex: 9999,
-            background: "rgba(255, 0, 0, 0.1)",
           }}
           variants={overlayVariants}
           initial="hidden"
           animate="visible"
-          exit="exit"
+          exit="hidden"
         >
           <AnimatePresence>
             {reactions.map((reaction) => (
@@ -105,17 +112,19 @@ const EmojiReactionOverlay = ({ emojis, isActive, onComplete }) => {
                 exit="exit"
                 style={{
                   position: "absolute",
-                  left: reaction.x,
-                  width: "35px", // Smaller size
-                  height: "35px",
+                  left: `${reaction.x}px`,
+                  top: `${reaction.y}px`,
+                  width: `${reaction.size}px`,
+                  height: `${reaction.size}px`,
                 }}
-                onError={(e) => console.log("Image failed to load:", reaction.image)}
+                onLoad={() => console.log("Image loaded:", reaction.image)}
+                onError={() => console.error("Image failed:", reaction.image)}
               />
             ))}
           </AnimatePresence>
         </motion.div>
       )}
-    </AnimatePresence>
+    </div>
   );
 };
 

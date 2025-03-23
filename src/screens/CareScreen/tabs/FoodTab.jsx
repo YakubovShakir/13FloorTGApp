@@ -9,6 +9,8 @@ import { getParameters } from "../../../services/user/user";
 import formatTime from "../../../utils/formatTime";
 import countPercentage from "../../../utils/countPercentage";
 import { useSettingsProvider } from "../../../hooks";
+import { useEmojiReaction } from "../../../EmojiReactionContext";
+import { useUser } from "../../../UserContext";
 
 const TICK_INTERVAL = 1000; // 1 second tick
 
@@ -20,14 +22,28 @@ const FoodTab = ({ userId, userParameters, setUserParameters }) => {
   const timerRef = useRef(null);
   const lastTickRef = useRef(0);
   const timerLockRef = useRef(false);
-
+  const triggerEmojiReaction = useEmojiReaction(); // Hook for reaction effect
+  const { refreshData } = useUser()
   const handleBuyFood = async (foodId) => {
     await startProcess("food", userId, foodId);
-    const userParameters = await getParameters(userId);
+    await refreshData()
     const userEatingFoodsRaw = await getProcesses("food", userId);
     const userEatingFoods = initializeFoodTimers(userEatingFoodsRaw);
-    setUserParameters(userParameters.parameters);
     setUserEatingFoods(userEatingFoods);
+
+    // Trigger reaction with icons from paramData
+    const food = foods.find(f => f.food_id === foodId);
+    if (food) {
+      const paramData = getItemFoodParams(food);
+      const icons = paramData
+        .flat() // Flatten the nested arrays
+        .filter(param => param && param.icon) // Ensure param has an icon
+        .map(param => param.icon); // Extract icons
+      console.log("Triggering reaction with icons:", icons);
+      if (icons.length > 0) {
+        triggerEmojiReaction(icons);
+      }
+    }
   };
 
   const initializeFoodTimers = (foodsList) => {

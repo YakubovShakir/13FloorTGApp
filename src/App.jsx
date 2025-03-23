@@ -145,19 +145,19 @@ function App() {
         en: 'Critical condition. Work and other activities have big penalty',
       },
       moodBelow9: {
-        ru: 'Настроение ниже 9%! Теперь вы получаете большой штраф к доходу',
-        en: 'The mood is below 9%! Now you get a big penalty to the income',
+        ru: 'Настроение ниже 19%! Теперь вы получаете большой штраф к доходу',
+        en: 'The mood is below 19%! Now you get a big penalty to the income',
       },
       moodBelow49: {
-        ru: 'Настроение ниже 49%! Теперь вы получаете небольшой штраф к доходу',
-        en: 'The mood is below 49%! Now you get a small penalty to the income',
+        ru: 'Настроение ниже 59%! Теперь вы получаете небольшой штраф к доходу',
+        en: 'The mood is below 59%! Now you get a small penalty to the income',
       },
       hungryBelow9: {
-        ru: 'Уровень голода ниже 9%. Теперь вы получаете большой штраф к настроению',
+        ru: 'Уровень голода ниже 19%. Теперь вы получаете большой штраф к настроению',
         en: 'The hunger rate is below 9%. Now you get a big mood penalty',
       },
       hungryBelow49: {
-        ru: 'Уровень голода ниже 49%. Теперь вы получаете небольшой штраф к настроению',
+        ru: 'Уровень голода ниже 59%. Теперь вы получаете небольшой штраф к настроению',
         en: 'The hunger rate is below 49%! Now you get a small mood penalty',
       },
     };
