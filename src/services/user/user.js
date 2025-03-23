@@ -236,10 +236,10 @@ export const disconnectUserWallet = async (userId) => {
   }
 }
 
-export const getLeaderboard = async () => {
-  const { data } = await instance.get(`/users/leaderboard`)
-  return data.leaderboard
-}
+export const getLeaderboard = async (page, limit, userId) => {
+  const { data } = await instance.get(`/users/leaderboard?page=${page}&limit=${limit}&userId=${userId}`);
+  return data
+};
 
 export const getServerTime = async () => {
   const { data } = await instance.get(`/users/time`)
