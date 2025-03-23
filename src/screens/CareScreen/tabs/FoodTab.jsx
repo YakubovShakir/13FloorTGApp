@@ -10,7 +10,6 @@ import formatTime from "../../../utils/formatTime";
 import countPercentage from "../../../utils/countPercentage";
 import { useSettingsProvider } from "../../../hooks";
 import { useEmojiReaction } from "../../../EmojiReactionContext";
-import { useUser } from "../../../UserContext";
 
 const TICK_INTERVAL = 1000; // 1 second tick
 
@@ -22,27 +21,39 @@ const FoodTab = ({ userId, userParameters, setUserParameters }) => {
   const timerRef = useRef(null);
   const lastTickRef = useRef(0);
   const timerLockRef = useRef(false);
-  const triggerEmojiReaction = useEmojiReaction(); // Hook for reaction effect
-  const { refreshData } = useUser()
-  const handleBuyFood = async (foodId) => {
-    await startProcess("food", userId, foodId);
-    await refreshData()
-    const userEatingFoodsRaw = await getProcesses("food", userId);
-    const userEatingFoods = initializeFoodTimers(userEatingFoodsRaw);
-    setUserEatingFoods(userEatingFoods);
+  const triggerEmojiReaction = useEmojiReaction();
 
-    // Trigger reaction with icons from paramData
-    const food = foods.find(f => f.food_id === foodId);
-    if (food) {
-      const paramData = getItemFoodParams(food);
-      const icons = paramData
-        .flat() // Flatten the nested arrays
-        .filter(param => param && param.icon) // Ensure param has an icon
-        .map(param => param.icon); // Extract icons
-      console.log("Triggering reaction with icons:", icons);
-      if (icons.length > 0) {
-        triggerEmojiReaction(icons);
+  const handleBuyFood = async (foodId) => {
+    try {
+      // Start process and fetch updates in parallel
+      const startPromise = startProcess("food", userId, foodId);
+      const food = foods.find(f => f.food_id === foodId);
+
+      // Trigger reaction immediately with icons (non-blocking)
+      if (food) {
+        const paramData = getItemFoodParams(food);
+        const icons = paramData
+          .flat()
+          .filter(param => param && param.icon)
+          .map(param => param.icon)
+          .slice(0, 3); // Limit to 3 icons to reduce load
+        console.log("Triggering reaction with icons:", icons);
+        if (icons.length > 0) {
+          triggerEmojiReaction(icons); // Run async, don’t await
+        }
       }
+
+      // Wait for process to start, then update state
+      await startPromise;
+      const [userParametersRes, userEatingFoodsRaw] = await Promise.all([
+        getParameters(userId),
+        getProcesses("food", userId),
+      ]);
+      const userEatingFoods = initializeFoodTimers(userEatingFoodsRaw);
+      setUserParameters(userParametersRes.parameters);
+      setUserEatingFoods(userEatingFoods);
+    } catch (error) {
+      console.error("Error in handleBuyFood:", error);
     }
   };
 
@@ -57,10 +68,7 @@ const FoodTab = ({ userId, userParameters, setUserParameters }) => {
         ...food,
         totalSeconds,
         remainingSeconds,
-        formattedTime: formatTime(
-          Math.floor(remainingSeconds / 60),
-          remainingSeconds % 60
-        ) || "0:00",
+        formattedTime: formatTime(Math.floor(remainingSeconds / 60), remainingSeconds % 60) || "0:00",
         justCompleted: false,
       };
     });
@@ -73,10 +81,7 @@ const FoodTab = ({ userId, userParameters, setUserParameters }) => {
       return {
         ...food,
         remainingSeconds,
-        formattedTime: formatTime(
-          Math.floor(remainingSeconds / 60),
-          remainingSeconds % 60
-        ) || "0:00",
+        formattedTime: formatTime(Math.floor(remainingSeconds / 60), remainingSeconds % 60) || "0:00",
         justCompleted,
       };
     });
@@ -103,9 +108,7 @@ const FoodTab = ({ userId, userParameters, setUserParameters }) => {
 
     const tick = () => {
       const now = Date.now();
-      if (now - lastTickRef.current < TICK_INTERVAL - 100) {
-        return; // Debounce
-      }
+      if (now - lastTickRef.current < TICK_INTERVAL - 100) return;
       lastTickRef.current = now;
 
       setUserEatingFoods(prev => {
@@ -119,26 +122,24 @@ const FoodTab = ({ userId, userParameters, setUserParameters }) => {
         }
 
         const updatedFoods = calculateTime(prev);
-        console.log(`Tick at ${new Date().toISOString()}:`, updatedFoods);
-
         const completedFoods = updatedFoods.filter(food => food.justCompleted);
         if (completedFoods.length > 0) {
           console.log("Completing foods:", completedFoods);
           Promise.all(
             completedFoods.map(food => {
               console.log(`Calling checkCanStop for food type_id: ${food.type_id}`);
-              return checkCanStop(userId, food.type_id, null, 'food');
+              return checkCanStop(userId, food.type_id, null, "food");
             })
           )
-          .then(() => {
-            console.log("checkCanStop completed, refreshing data");
-            getProcesses("food", userId).then(raw => setUserEatingFoods(initializeFoodTimers(raw)));
-            getParameters(userId).then(res => setUserParameters(res.parameters));
-          })
-          .catch(error => {
-            console.error("Failed to stop completed foods:", error);
-            getProcesses("food", userId).then(raw => setUserEatingFoods(initializeFoodTimers(raw)));
-          });
+            .then(() => {
+              console.log("checkCanStop completed, refreshing data");
+              getProcesses("food", userId).then(raw => setUserEatingFoods(initializeFoodTimers(raw)));
+              getParameters(userId).then(res => setUserParameters(res.parameters));
+            })
+            .catch(error => {
+              console.error("Failed to stop completed foods:", error);
+              getProcesses("food", userId).then(raw => setUserEatingFoods(initializeFoodTimers(raw)));
+            });
         }
 
         const activeFoods = updatedFoods.filter(food => food.remainingSeconds > 0);
@@ -153,29 +154,24 @@ const FoodTab = ({ userId, userParameters, setUserParameters }) => {
       });
     };
 
-    tick(); // Immediate first tick
+    tick();
     timerRef.current = setInterval(tick, TICK_INTERVAL);
   };
 
   const updateInformation = () => {
     try {
-      getProcesses("food", userId).then((rawFoods) => {
+      getProcesses("food", userId).then(rawFoods => {
         const updatedFoods = initializeFoodTimers(rawFoods);
         setUserEatingFoods(updatedFoods);
-        if (updatedFoods.length > 0) {
-          setupTimer(); // Restart timer only if there are active foods
-        }
+        if (updatedFoods.length > 0) setupTimer();
       });
     } catch (e) {
       console.log("Error when updateInformation", e);
     }
   };
 
-  const checkFoodIsEating = (food) => {
-    const eatingFood = userEatingFoods?.find(
-      (eatingFood) => eatingFood?.type_id === food?.food_id
-    );
-    console.log(`Checking if ${food?.food_id} is eating:`, eatingFood);
+  const checkFoodIsEating = food => {
+    const eatingFood = userEatingFoods?.find(e => e?.type_id === food?.food_id);
     return eatingFood;
   };
 
@@ -184,55 +180,35 @@ const FoodTab = ({ userId, userParameters, setUserParameters }) => {
     const instantHungryRestore = food?.instant_hungry_restore;
     const instantMoodRestore = food?.instant_mood_restore;
     const instantMoodCost = food?.instant_mood_cost;
-
     const longEnergyRestore = food?.long_energy_restore;
     const longHungryRestore = food?.long_hungry_restore;
     const longMoodRestore = food?.long_mood_restore;
-
     const eatingFood = checkFoodIsEating(food);
+
     return [
       [
-        instantHungryRestore && {
-          icon: Icons.hungry,
-          value: "+" + instantHungryRestore?.value + "%",
-        },
-        longHungryRestore && {
-          icon: Icons.hungryUp,
-          value: "+" + longHungryRestore?.value + "%/h",
-        },
-        instantEnergyRestore && {
-          icon: Icons.energy,
-          value: "+" + instantEnergyRestore?.value + "",
-        },
-        instantMoodCost && {
-          icon: Icons.moodDecrease,
-          value: "-" + instantMoodCost?.value + "%",
-        },
+        instantHungryRestore && { icon: Icons.hungry, value: `+${instantHungryRestore?.value}%` },
+        longHungryRestore && { icon: Icons.hungryUp, value: `+${longHungryRestore?.value}%/h` },
+        instantEnergyRestore && { icon: Icons.energy, value: `+${instantEnergyRestore?.value}` },
+        instantMoodCost && { icon: Icons.moodDecrease, value: `-${instantMoodCost?.value}%` },
         longEnergyRestore && {
           icon: Icons.energyUp,
-          value: "+" + longEnergyRestore?.value + (longEnergyRestore?.percent ? "" : "") + "/h",
+          value: `+${longEnergyRestore?.value}${longEnergyRestore?.percent ? "" : ""}/h`,
         },
-        instantMoodRestore && {
-          icon: Icons.happiness,
-          value: "+" + instantMoodRestore?.value + "%",
-        },
+        instantMoodRestore && { icon: Icons.happiness, value: `+${instantMoodRestore?.value}%` },
         longMoodRestore && {
           icon: Icons.moodUp,
-          value: "+" + longMoodRestore?.value + (longMoodRestore?.percent ? "%" : "") + "/h",
+          value: `+${longMoodRestore?.value}${longMoodRestore?.percent ? "%" : ""}/h`,
         },
       ].filter(Boolean),
       [
         {
           icon: Icons.clock,
-          value: eatingFood
-            ? eatingFood.formattedTime
-            : formatTime(food?.duration),
-          fillPercent: eatingFood
-            ? countPercentage(eatingFood.remainingSeconds, eatingFood.totalSeconds)
-            : null,
+          value: eatingFood ? eatingFood.formattedTime : formatTime(food?.duration),
+          fillPercent: eatingFood ? countPercentage(eatingFood.remainingSeconds, eatingFood.totalSeconds) : null,
         },
       ],
-    ].filter((param) => param.length > 0);
+    ].filter(param => param.length > 0);
   };
 
   const getItemFoodButton = (food) => {
@@ -245,7 +221,7 @@ const FoodTab = ({ userId, userParameters, setUserParameters }) => {
         text: price,
         active: status,
         icon: Icons.balance,
-        onClick: status ? async () => await handleBuyFood(food?.food_id) : null,
+        onClick: status ? () => handleBuyFood(food?.food_id) : null, // Remove async here
       },
     ];
   };
@@ -262,7 +238,7 @@ const FoodTab = ({ userId, userParameters, setUserParameters }) => {
     };
 
     fetchInitialData();
-    const syncInterval = setInterval(updateInformation, 30000); // Sync every 30s
+    const syncInterval = setInterval(updateInformation, 30000);
 
     return () => {
       clearInterval(syncInterval);
@@ -275,7 +251,6 @@ const FoodTab = ({ userId, userParameters, setUserParameters }) => {
   }, [userId]);
 
   useEffect(() => {
-    console.log("userEatingFoods updated:", userEatingFoods);
     if (userEatingFoods && userEatingFoods.length > 0 && !timerRef.current) {
       setupTimer();
     }
