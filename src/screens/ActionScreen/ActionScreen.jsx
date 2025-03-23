@@ -438,32 +438,21 @@ const ActionScreen = memo(() => {
     ];
   }, [userParameters, activeProcess, handleStartSleep, handleStopSleep, lang, translations]);
 
-  if (isPreloading) {
+  if (isPreloading || error || !userParameters) {
     return (
       <Screen>
-        <div style={{ color: "white", textAlign: "center", padding: "20px" }}>Loading...</div>
-      </Screen>
+      <HomeHeader>{translations.development[lang]}</HomeHeader>
+      <ScreenBody activity={translations.activities[lang]}>
+        <ScreenContainer>
+          <div style={{ flex: 1, height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+              <div style={{ color: "white", textAlign: "center", padding: "20px" }}>Loading...</div>
+          </div>
+        </ScreenContainer>
+      </ScreenBody>
+    </Screen>
     );
   }
-
-  if (error) {
-    return (
-      <Screen>
-        <div style={{ color: "red", textAlign: "center", padding: "20px" }}>{error}</div>
-      </Screen>
-    );
-  }
-
-  if (!userParameters) {
-    return (
-      <Screen>
-        <div style={{ color: "white", textAlign: "center", padding: "20px" }}>
-          User data not available
-        </div>
-      </Screen>
-    );
-  }
-
+  
   return (
     <Screen>
       <HomeHeader>{translations.development[lang]}</HomeHeader>
