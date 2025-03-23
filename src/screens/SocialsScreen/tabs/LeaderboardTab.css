@@ -1,0 +1,50 @@
+.leaderboard-tab {
+  position: relative;
+  height: 100%;
+  overflow-y: auto;
+}
+
+.leaderboard-list {
+  padding-bottom: 100px; /* Increased space for sticky footer to avoid overlap */
+}
+
+/* Ensure ItemCard has enough height and avatar fits */
+.item-card {
+  display: flex;
+  align-items: center;
+  min-height: 80px; /* Minimum height to fit avatar and text */
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+.item-card img[item-avatar] { /* Targeting the avatar inside ItemCard */
+  width: 60px;
+  height: 60px;
+  object-fit: cover; /* Ensures avatar fits without distortion */
+  border-radius: 50%;
+  margin-right: 10px;
+}
+
+.loading-trigger {
+  text-align: center;
+  padding: 20px;
+  color: #666;
+}
+
+.sticky-user-place {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 10px;
+  z-index: 1000;
+  box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.current-user {
+  background-color: #f0f8ff; /* Light blue for current user in list */
+}
+
+.current-user-sticky {
+  background-color: #e6f0fa; /* Slightly different shade for sticky */
+}
