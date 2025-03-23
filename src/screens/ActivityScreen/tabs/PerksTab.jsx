@@ -192,7 +192,7 @@ const PerksTab = ({
                     Promise.all(
                         completedEffects.map(effect => {
                             console.log(`Calling checkCanStop for ${effect.type_id}`);
-                            return checkCanStop(userId, effect.type_id, 'constant_effects');
+                            return checkCanStop(userId, effect.type_id, 'constant_effects', 'skill');
                         })
                     )
                     .then(() => {

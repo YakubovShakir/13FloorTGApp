@@ -16,6 +16,7 @@ import {
     getProcesses,
     startProcess,
     getActiveProcess,
+    checkCanStop, // Added import
 } from "../../../services/process/process";
 import { getUserBoosts, useBoost } from "../../../services/boost/boost.js";
 import formatTime from "../../../utils/formatTime";
@@ -87,11 +88,13 @@ const SkillTab = ({
                 Math.floor(remainingSeconds / 60),
                 remainingSeconds % 60
             );
-            console.log(`Skill ${skill.type_id}: ${skill.remainingSeconds} -> ${remainingSeconds}`);
+            const justCompleted = remainingSeconds === 0 && skill.remainingSeconds > 0;
+            console.log(`Skill ${skill.type_id}: ${skill.remainingSeconds} -> ${remainingSeconds}, justCompleted: ${justCompleted}`);
             return {
                 ...skill,
                 remainingSeconds,
                 formattedTime: formatted || "0:00",
+                justCompleted, // Track if just completed this tick
             };
         });
     }, []);
@@ -130,7 +133,8 @@ const SkillTab = ({
                         formattedTime: formatTime(
                             Math.floor(initialRemaining / 60),
                             initialRemaining % 60
-                        ) || "0:00"
+                        ) || "0:00",
+                        justCompleted: false, // Initialize flag
                     };
                 });
 
@@ -175,10 +179,11 @@ const SkillTab = ({
 
         timerLockRef.current = true;
         console.log("Starting timer for skills:", state.userLearningSkills);
+
         const tick = () => {
             const now = Date.now();
             if (now - lastTickRef.current < TICK_INTERVAL - 100) {
-                return; // Skip if too soon
+                return; // Debounce to ensure ~1s intervals
             }
             lastTickRef.current = now;
 
@@ -188,33 +193,53 @@ const SkillTab = ({
                 const updatedSkills = calculateTime(prev.userLearningSkills);
                 console.log(`Tick at ${new Date().toISOString()}:`, updatedSkills);
 
-                const allCompleted = updatedSkills.every(skill => skill.remainingSeconds <= 0);
-                if (allCompleted) {
+                // Handle completed skills
+                const completedSkills = updatedSkills.filter(skill => skill.justCompleted);
+                if (completedSkills.length > 0) {
+                    console.log("Completing skills:", completedSkills);
+                    Promise.all(
+                        completedSkills.map(skill => {
+                            console.log(`Calling checkCanStop for ${skill.type_id}`);
+                            return checkCanStop(userId, skill.type_id, null, 'skill');
+                        })
+                    )
+                    .then(() => {
+                        console.log("checkCanStop completed, refreshing data");
+                        if (mountedRef.current) {
+                            setTimeout(() => initializeData(), 1000); // Delay to ensure server sync
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Failed to stop completed skills:", error);
+                        if (mountedRef.current) {
+                            setTimeout(() => initializeData(), 1000);
+                        }
+                    });
+                }
+
+                // Filter out completed skills or stop timer if all done
+                const activeSkills = updatedSkills.filter(skill => skill.remainingSeconds > 0);
+                if (!activeSkills.length && timerRef.current) {
                     console.log("All skills completed, stopping timer");
-                    if (timerRef.current) {
-                        clearInterval(timerRef.current);
-                        timerRef.current = null;
-                        timerLockRef.current = false;
-                    }
-                    initializeData();
-                    return {
-                        ...prev,
-                        userLearningSkills: [],
-                        isInitialized: false,
-                    };
+                    clearInterval(timerRef.current);
+                    timerRef.current = null;
+                    timerLockRef.current = false;
                 }
 
                 lastSkillsRef.current = updatedSkills;
                 return {
                     ...prev,
-                    userLearningSkills: updatedSkills,
+                    userLearningSkills: updatedSkills.map(skill => ({
+                        ...skill,
+                        justCompleted: false, // Reset flag after handling
+                    })),
                 };
             });
         };
 
-        tick(); // Initial tick
+        tick(); // Immediate first tick
         timerRef.current = setInterval(tick, TICK_INTERVAL);
-    }, [state.isInitialized, state.userLearningSkills, calculateTime, initializeData]);
+    }, [state.isInitialized, state.userLearningSkills, calculateTime, initializeData, userId]);
 
     useEffect(() => {
         mountedRef.current = true;
@@ -407,7 +432,7 @@ const SkillTab = ({
         handleBoost
     ]);
 
-    const navigate = useNavigate()
+    const navigate = useNavigate();
 
     const createEffectModalData = useMemo(() => {
         return (effect) => {

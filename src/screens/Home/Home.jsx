@@ -284,7 +284,7 @@ const Home = () => {
     setIsLoading(true)
     try {
       await new Promise((resolve) => setTimeout(resolve, 1000))
-      await checkCanStop(userId)
+      await checkCanStop(userId, null, null, state.currentProcess.type)
       if (mountedRef.current) {
         setState((prev) => ({ ...prev, currentProcess: null }))
         setRemainingSeconds(null)
@@ -294,7 +294,7 @@ const Home = () => {
       console.error("Error in handleProcessCompletion:", err)
       if (err.status !== 404) {
         await new Promise((resolve) => setTimeout(resolve, 2000))
-        await checkCanStop(userId)
+        await checkCanStop(userId, null, null, state.currentProcess.type)
         if (mountedRef.current) {
           setState((prev) => ({ ...prev, currentProcess: null }))
           setRemainingSeconds(null)
@@ -336,7 +336,7 @@ const Home = () => {
       const processType = state.currentProcess.type
       if (!canContinue(processType)) {
         setIsLoading(true)
-        checkCanStop(userId).finally(() => {
+        checkCanStop(userId, null, null, state.currentProcess.type).finally(() => {
           if (mountedRef.current) {
             setState((prev) => ({ ...prev, currentProcess: null }))
             setRemainingSeconds(null)
@@ -494,7 +494,7 @@ const Home = () => {
             </p>
           </div>
           <div
-            onClick={() => navigate('/daily-rewards')}
+            onClick={() => navigate("/daily-rewards")}
             style={{
               cursor: "pointer",
               position: "fixed",
@@ -614,7 +614,7 @@ const Home = () => {
         {userShelf && (
           <>
             <div className="shelf-container1">
-              {userShelf.flower?.shelf_link && (
+              {userShelf.star?.shelf_link && (
                 <motion.img
                   layout
                   className="shelf-flower"
@@ -629,6 +629,15 @@ const Home = () => {
                   className="shelf-award"
                   src={userShelf.award.shelf_link}
                   alt="award"
+                  transition={{ duration: 0.5, ease: "easeOut" }}
+                />
+              )}
+              {userShelf.flower?.shelf_link && (
+                <motion.img
+                  layout
+                  className="shelf-flower"
+                  src={userShelf.flower.shelf_link}
+                  alt="flower"
                   transition={{ duration: 0.5, ease: "easeOut" }}
                 />
               )}
