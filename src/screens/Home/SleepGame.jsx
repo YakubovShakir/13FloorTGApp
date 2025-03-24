@@ -31,7 +31,6 @@ const SleepGame = ({
   const CLOUD_SPACING = 100;
   const CLOUD_COUNT = 10;
 
-  // Preload assets
   const preloadAssets = useCallback(async () => {
     const assetPromises = [
       ["coin", Assets.Icons.clock],
@@ -49,16 +48,16 @@ const SleepGame = ({
           resolve();
         };
         img.onerror = () => {
-          assetsRef.current[key] = null;
+          console.warn(`Failed to load asset ${key}: ${src}`);
+          assetsRef.current[key] = null; // Set to null but still resolve
           resolve();
         };
       })
     );
-
+  
     await Promise.all(assetPromises);
     setIsLoaded(true);
   }, []);
-
   // Initialize clouds
   const initializeClouds = useCallback(() => {
     const canvasWidth = 374;
@@ -78,12 +77,14 @@ const SleepGame = ({
     }
   }, []);
 
-  // Sync coins from server (no time sync)
   const syncCoinsFromServer = useCallback(async () => {
     try {
       const response = await instance.get(`/users/sleep/state/${userId}`);
-      if (!response.data.success) return;
-
+      if (!response.data.success) {
+        console.warn("Failed to sync coins from server:", response.data);
+        return;
+      }
+  
       const now = Date.now();
       const serverCoins = response.data.coins || [];
       coinsRef.current = serverCoins
@@ -92,7 +93,7 @@ const SleepGame = ({
           ...coin,
           localX: coin.x + COIN_SPEED * ((now - new Date(coin.spawnTime).getTime()) / 1000),
         }));
-
+  
       const newRemainingSeconds = response.data.remainingSeconds;
       remainingSecondsRef.current = newRemainingSeconds;
       if (Math.abs(newRemainingSeconds - lastReportedSecondsRef.current) >= 1) {
@@ -101,7 +102,7 @@ const SleepGame = ({
       }
       if (newRemainingSeconds <= 0) onComplete();
     } catch (err) {
-      // Silent fail
+      console.error("Error syncing coins:", err);
     }
   }, [userId, onDurationUpdate, onComplete]);
 
