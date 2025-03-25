@@ -14,7 +14,7 @@ const Button = ({
   shadowColor,
   fontSize,
   paddingTop,
-  paddingBottom = 3.75,
+  paddingBottom = 0,
   fontFamily,
   fontWeight,
   borderColor,
