@@ -5,6 +5,7 @@ import { useSettingsProvider } from "../../../hooks"
 import Button from "../../../components/simple/Button/Button"
 import { useNotification } from "../../../NotificationContext"
 import { copyTextToClipboard } from "../../../utils/clipboard"
+import { transform } from "lodash"
 
 const buttonStyle = {
   width: "100%",
@@ -47,6 +48,19 @@ const TaskTab = ({ userId, userParameters, setUserParameters }) => {
     copied: {
       ru: "Ваша реферальная ссылка была успешно скопирована!",
       en: "Your referral link has been copied successfully!",
+    },
+
+    referaltext: {
+      ru: "Получайте 10% кешбэка ",
+      en: "Get 10% cashback ",
+    },
+    referaltext2: {
+      ru: "со всех внутриигровых покупок, совершенных вашими приглашенными друзьями! Каждый приглашенный друг усиливает ваш Игровой Центр, принося вам доход каждый час. Чем больше друзей, тем выше ваш доход!",
+      en: "on all in-game purchases made by your invited friends! Every invited friend boosts your Game Center, earning you hourly income. The more friends you invite, the greater your earnings!",
+    },
+    exclusive: {
+      ru: "Мы также открыты к индивидуальному сотрудничеству и готовы предложить уникальные условия по кешбэку и другим бонусам. Свяжитесь с нами для обсуждения деталей!",
+      en: "We are also open to individual partnerships and can offer unique cashback terms and other bonuses. Contact us to discuss the details!",
     },
   }
 
@@ -165,7 +179,46 @@ const TaskTab = ({ userId, userParameters, setUserParameters }) => {
             </p>
             
           </div>
-         
+          <p
+            style={{
+              textTransform: "uppercase",
+              fontSize: "22px",
+              color: "rgb(255, 118, 0)",
+              fontWeight:"600",
+              paddingTop: 16,
+              width: "100%",
+              textAlign: "center",
+              margin: 0,
+            }}
+          >
+            {translations.referaltext[lang]} 
+          </p>
+          <p
+            style={{
+              fontSize: "16px",
+              fontFamily: "roboto",
+              fontWeight:"300",
+             
+              width: "100%",
+              textAlign: "center",
+              margin: 0,
+            }}
+          >
+            {translations.referaltext2[lang]} 
+          </p>
+          <p
+            style={{
+              fontSize: "12px",
+              fontFamily: "roboto",
+              fontWeight:"100",
+              paddingTop: 16,
+              width: "100%",
+              textAlign: "center",
+              margin: 0,
+            }}
+          >
+            {translations.exclusive[lang]} 
+          </p>
           
           </div>
         </>
