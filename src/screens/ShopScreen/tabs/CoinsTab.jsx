@@ -764,7 +764,7 @@ const CoinsTab = () => {
       getShopItems(userId)
         .then((data) => {
           const loadedClothesItems = data.clothing
-            .filter((c) => c.requiredLevel <= userParameters.level)
+            .filter((c) => c.requiredLevel <= userParameters?.level)
             .map((item) => ({
               id: item.clothing_id,
               name: item.name[lang],

@@ -1,25 +1,54 @@
-import React, { useEffect, useState, useRef } from "react";
-import "./Home.css";
-import Player from "../../components/complex/Player/Player";
-import Menu from "../../components/complex/Menu/Menu";
-import Assets from "../../assets/index";
-import { getForeignNekoState, getUserActiveProcess, interactWithNeko } from "../../services/user/user";
-import { useForeignUser, useUser } from "../../UserContext";
-import { getLevels } from "../../services/levels/levels";
-import { getTrainingParameters } from "../../services/user/user";
-import { motion, AnimatePresence } from "framer-motion";
-import { useParams } from "react-router-dom";
-import FullScreenSpinner from "./FullScreenSpinner";
-import moment from "moment-timezone";
-import { useVisibilityChange, useWindowFocus } from "../../hooks/userActivities";
-import { formatCoins } from "../../utils/formatCoins";
-import { formUsername } from "../../utils/formUsername";
-import { useSettingsProvider } from "../../hooks";
+import React, { useEffect, useState, useRef } from "react"
+import "./Home.css"
+import Player from "../../components/complex/Player/Player"
+import Menu from "../../components/complex/Menu/Menu"
+import Assets from "../../assets/index"
+import {
+  getForeignNekoState,
+  getUserActiveProcess,
+  interactWithNeko,
+} from "../../services/user/user"
+import { useForeignUser, useUser } from "../../UserContext"
+import { getLevels } from "../../services/levels/levels"
+import { getTrainingParameters } from "../../services/user/user"
+import { motion, AnimatePresence } from "framer-motion"
+import { useParams } from "react-router-dom"
+import FullScreenSpinner from "./FullScreenSpinner"
+import moment from "moment-timezone"
+import { useVisibilityChange, useWindowFocus } from "../../hooks/userActivities"
+import { formatCoins } from "../../utils/formatCoins"
+import { formUsername } from "../../utils/formUsername"
+import { useSettingsProvider } from "../../hooks"
+import Button from "../../components/simple/Button/Button"
+import { useEmojiReaction } from "../../EmojiReactionContext"
+
+const translations = {
+  neko: {
+    ru: "Вы заклеймили",
+    en: `YOU'VE JUST CLAIMED`,
+  },
+  coins: {
+    ru: "МОНЕТ",
+    en: "COINS",
+  },
+  nekoSub: {
+    ru: "Успейте собрать монеты через час!",
+    en: "Be the one to collect more in an hour!",
+  },
+  boostToOwner5: {
+    ru: "И активировали владельцу буст к доходу в 5%!",
+    en: "And boosted owners hourly income by 5%!",
+  },
+  boostToOwner10: {
+    ru: "И активировали владельцу буст к доходу в 5%!",
+    en: "And boosted owners hourly income by 5%!",
+  },
+}
 
 const ForeignHome = () => {
-  const mountedRef = useRef(false);
-  const { userId = "0" } = useParams();
-  const { lang } = useSettingsProvider();
+  const mountedRef = useRef(false)
+  const { userId = "0" } = useParams()
+  const { lang } = useSettingsProvider()
   const [state, setState] = useState({
     currentWindow: null,
     currentProcess: null,
@@ -30,9 +59,13 @@ const ForeignHome = () => {
     isStoppingProcess: false,
     imagesLoaded: false,
     nekoState: { canClick: false, cooldownUntil: null },
-  });
-  const [isLoading, setIsLoading] = useState(true);
-  const [timer, setTimer] = useState(null);
+  })
+  const [result, setResult] = useState(null)
+  const [ownersBoost, setOwnersBoost] = useState(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [timer, setTimer] = useState(null)
+
+  const triggerEmojiReaction = useEmojiReaction()
 
   const {
     userParameters,
@@ -41,17 +74,17 @@ const ForeignHome = () => {
     userClothing,
     userShelf,
     refreshData,
-  } = useForeignUser(userId);
+  } = useForeignUser(userId)
 
   const { userId: ownUserId } = useUser()
 
   useEffect(() => {
-    mountedRef.current = true;
-    refreshData();
+    mountedRef.current = true
+    refreshData()
     return () => {
-      mountedRef.current = false;
-    };
-  }, []);
+      mountedRef.current = false
+    }
+  }, [])
 
   const preloadImages = async () => {
     const imageUrls = [
@@ -64,38 +97,39 @@ const ForeignHome = () => {
       Assets.HOME.couch,
       Assets.BG.backgroundSun,
       Assets.BG.winter,
-    ];
+    ]
 
     try {
       await Promise.all(
-        imageUrls.map((url) =>
-          new Promise((resolve) => {
-            const img = new Image();
-            img.onload = resolve;
-            img.onerror = resolve;
-            img.src = url;
-          })
+        imageUrls.map(
+          (url) =>
+            new Promise((resolve) => {
+              const img = new Image()
+              img.onload = resolve
+              img.onerror = resolve
+              img.src = url
+            })
         )
-      );
+      )
     } catch (error) {
-      console.error("Error preloading images:", error);
+      console.error("Error preloading images:", error)
     }
-  };
+  }
 
   const initializeProcess = async () => {
     try {
-      const process = await getUserActiveProcess(userId);
-      if (!mountedRef.current) return;
+      const process = await getUserActiveProcess(userId)
+      if (!mountedRef.current) return
 
       if (!process) {
-        setState((prev) => ({ ...prev, currentProcess: null }));
-        return;
+        setState((prev) => ({ ...prev, currentProcess: null }))
+        return
       }
 
       const [trainingParams, levelsData] = await Promise.all([
         getTrainingParameters(userId),
         getLevels(),
-      ]);
+      ])
 
       if (mountedRef.current) {
         setState((prev) => ({
@@ -103,100 +137,110 @@ const ForeignHome = () => {
           currentProcess: process,
           trainingParameters: trainingParams,
           levels: levelsData,
-        }));
+        }))
       }
     } catch (error) {
-      console.error("Error initializing process:", error);
+      console.error("Error initializing process:", error)
       if (mountedRef.current) {
-        setState((prev) => ({ ...prev, currentProcess: null }));
+        setState((prev) => ({ ...prev, currentProcess: null }))
       }
     }
-  };
+  }
 
   const fetchNekoState = async () => {
     try {
-      const nekoData = await getForeignNekoState(ownUserId, userId);
+      const nekoData = await getForeignNekoState(ownUserId, userId)
       if (mountedRef.current) {
-        setState((prev) => ({ ...prev, nekoState: nekoData }));
+        setState((prev) => ({ ...prev, nekoState: nekoData }))
       }
     } catch (error) {
-      console.error("Error fetching neko state:", error);
+      console.error("Error fetching neko state:", error)
     }
-  };
+  }
 
   useEffect(() => {
-    if (!state.nekoState.cooldownUntil || state.nekoState.canClick) return;
+    if (!state.nekoState.cooldownUntil || state.nekoState.canClick) return
 
     const updateTimer = () => {
-      if (!mountedRef.current) return;
+      if (!mountedRef.current) return
 
-      const now = moment().tz("Europe/Moscow");
-      const end = moment(state.nekoState.cooldownUntil).tz("Europe/Moscow");
-      const diff = end.diff(now);
+      const now = moment().tz("Europe/Moscow")
+      const end = moment(state.nekoState.cooldownUntil).tz("Europe/Moscow")
+      const diff = end.diff(now)
 
       if (diff <= 0) {
         setState((prev) => ({
           ...prev,
           nekoState: { ...prev.nekoState, canClick: true, cooldownUntil: null },
-        }));
-        setTimer(null);
-        return;
+        }))
+        setTimer(null)
+        return
       }
 
-      const duration = moment.duration(diff);
-      const hours = Math.floor(duration.asHours());
-      const minutes = duration.minutes();
-      setTimer(`${hours.toString().padStart(2, "0")}:${minutes
-        .toString()
-        .padStart(2, "0")}`);
-    };
+      const duration = moment.duration(diff)
+      const hours = Math.floor(duration.asHours())
+      const minutes = duration.minutes()
+      setTimer(
+        `${hours.toString().padStart(2, "0")}:${minutes
+          .toString()
+          .padStart(2, "0")}`
+      )
+    }
 
-    updateTimer();
-    const interval = setInterval(updateTimer, 1000);
-    return () => clearInterval(interval);
-  }, [state.nekoState]);
+    updateTimer()
+    const interval = setInterval(updateTimer, 1000)
+    return () => clearInterval(interval)
+  }, [state.nekoState])
 
   useEffect(() => {
-    if (!isInitialized) return;
+    if (!isInitialized) return
 
     const initialize = async () => {
-      setIsLoading(true);
+      setIsLoading(true)
       try {
-        await Promise.all([initializeProcess(), preloadImages(), fetchNekoState()]);
+        await Promise.all([
+          initializeProcess(),
+          preloadImages(),
+          fetchNekoState(),
+        ])
         if (mountedRef.current) {
-          setState((prev) => ({ ...prev, imagesLoaded: true }));
+          setState((prev) => ({ ...prev, imagesLoaded: true }))
         }
       } catch (error) {
-        console.error("Initialization error:", error);
+        console.error("Initialization error:", error)
       } finally {
         if (mountedRef.current) {
-          setIsLoading(false);
+          setIsLoading(false)
         }
       }
-    };
+    }
 
-    initialize();
-  }, [isInitialized]);
+    initialize()
+  }, [isInitialized])
 
   useVisibilityChange(() => {
     if (mountedRef.current && document.visibilityState === "visible") {
-      initializeProcess();
-      fetchNekoState();
+      initializeProcess()
+      fetchNekoState()
     }
-  });
+  })
 
   useWindowFocus(() => {
     if (mountedRef.current) {
-      initializeProcess();
-      fetchNekoState();
+      initializeProcess()
+      fetchNekoState()
     }
-  });
+  })
 
   const handleNekoClick = async () => {
-    if (!state.nekoState.canClick) return;
+    if (!state.nekoState.canClick) return
 
     try {
-      const response = await interactWithNeko(ownUserId, userId);
+      const response = await interactWithNeko(ownUserId, userId)
+      await refreshData()
+      triggerEmojiReaction([Assets.Icons.balance])
+      setOwnersBoost(response.owners_boost)
+      setResult(response.received_coins)
       if (mountedRef.current) {
         setState((prev) => ({
           ...prev,
@@ -204,12 +248,12 @@ const ForeignHome = () => {
             canClick: false,
             cooldownUntil: response.cooldownUntil,
           },
-        }));
+        }))
       }
     } catch (error) {
-      console.error("Error interacting with neko:", error);
+      console.error("Error interacting with neko:", error)
     }
-  };
+  }
 
   const renderScene = (content) => (
     <AnimatePresence mode="wait">
@@ -249,10 +293,10 @@ const ForeignHome = () => {
         {content}
       </motion.div>
     </AnimatePresence>
-  );
+  )
 
   if (isLoading || !isInitialized) {
-    return <FullScreenSpinner />;
+    return <FullScreenSpinner />
   }
 
   return renderScene(
@@ -279,15 +323,21 @@ const ForeignHome = () => {
         >
           <div style={{ display: "flex" }}>
             <img src={Assets.Icons.balance} width={15} alt="balance" />
-            <p style={{ paddingLeft: 8 }}>{formatCoins(Math.floor(userParameters.total_earned))}</p>
+            <p style={{ paddingLeft: 8 }}>
+              {formatCoins(Math.floor(userParameters.total_earned))}
+            </p>
           </div>
           <div style={{ display: "flex" }}>
             <img src={Assets.Icons.respect} width={15} alt="respect" />
-            <p style={{ paddingLeft: 8 }}>{formatCoins(userParameters.respect)}</p>
+            <p style={{ paddingLeft: 8 }}>
+              {formatCoins(userParameters.respect)}
+            </p>
           </div>
           <div style={{ display: "flex" }}>
             <img src={Assets.Icons.levelIcon} width={15} alt="level" />
-            <p style={{ paddingLeft: 8 }}>{formatCoins(userParameters.level)}</p>
+            <p style={{ paddingLeft: 8 }}>
+              {formatCoins(userParameters.level)}
+            </p>
           </div>
         </div>
       </div>
@@ -315,13 +365,25 @@ const ForeignHome = () => {
           <>
             <div className="shelf-container1">
               {userShelf.flower?.shelf_link && (
-                <img className="shelf-flower" src={userShelf.flower.shelf_link} alt="flower" />
+                <img
+                  className="shelf-flower"
+                  src={userShelf.flower.shelf_link}
+                  alt="flower"
+                />
               )}
               {userShelf.award?.shelf_link && (
-                <img className="shelf-award" src={userShelf.award.shelf_link} alt="award" />
+                <img
+                  className="shelf-award"
+                  src={userShelf.award.shelf_link}
+                  alt="award"
+                />
               )}
               {userShelf.event?.shelf_link && (
-                <img className="shelf-event" src={userShelf.event.shelf_link} alt="event" />
+                <img
+                  className="shelf-event"
+                  src={userShelf.event.shelf_link}
+                  alt="event"
+                />
               )}
             </div>
             <div className="shelf-container2">
@@ -336,7 +398,9 @@ const ForeignHome = () => {
                     src={userShelf.neko.shelf_link}
                     alt="neko"
                     style={{
-                      filter: state.nekoState.canClick ? "none" : "grayscale(100%)",
+                      filter: state.nekoState.canClick
+                        ? "none"
+                        : "grayscale(100%)",
                       cursor: state.nekoState.canClick ? "pointer" : "default",
                     }}
                   />
@@ -358,7 +422,8 @@ const ForeignHome = () => {
                         left: 0,
                         width: "30%",
                         height: "100%",
-                        background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent)",
+                        background:
+                          "linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent)",
                         pointerEvents: "none",
                       }}
                     />
@@ -377,7 +442,7 @@ const ForeignHome = () => {
                         borderRadius: "4px",
                         fontSize: "14px",
                         pointerEvents: "none",
-                        zIndex: 9999
+                        zIndex: 9999,
                       }}
                     >
                       {timer}
@@ -386,14 +451,118 @@ const ForeignHome = () => {
                 </motion.div>
               )}
               {userShelf.flag?.shelf_link && (
-                <img className="shelf-flag" src={userShelf.flag.shelf_link} alt="flag" />
+                <img
+                  className="shelf-flag"
+                  src={userShelf.flag.shelf_link}
+                  alt="flag"
+                />
               )}
             </div>
           </>
         )}
+        {result && (
+          <div
+            style={{
+              position: "fixed",
+              width: "100vw",
+              height: "100vh",
+              left: 0,
+              top: 0,
+              zIndex: 99999,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              background: "rgb(0 0 0 / 45%)",
+              backdropFilter: "blur(10px)",
+            }}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.5 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5 }}
+              style={{
+                borderRadius: "15px",
+                textAlign: "center",
+                zIndex: 10000,
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                height: "auto",
+                padding: "20px",
+                position: "relative",
+              }}
+            >
+              <h2
+                style={{
+                  fontFamily: "Oswald",
+                  color: "#fff",
+                  marginBottom: "11px",
+                  textTransform: "uppercase",
+                }}
+              >
+                {translations.neko[lang]}
+              </h2>
+              <motion.div
+                initial="initial"
+                animate={"final"}
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                }}
+              >
+                <img
+                  src={Assets.Icons.shittonsmoney}
+                  alt={"coins"}
+                  style={{
+                    width: "120px",
+                    height: "120px",
+                    borderRadius: "10px",
+                    border: "2px solid #ff7700",
+                    background:
+                      "repeating-linear-gradient(45deg, rgba(0, 0, 0, 0.21), rgba(0, 0, 0, 0.21) 2px, rgba(57, 57, 57, 0.06) 2px, rgba(57, 57, 57, 0.06) 6px) rgba(0, 0, 0, 0.51)",
+                  }}
+                />
+                <p
+                  style={{
+                    fontFamily: "Oswald",
+                    color: "#fff",
+                    fontSize: "28px",
+                    margin: "15px 0",
+                  }}
+                >
+                  {result} {translations.coins[lang]}
+                </p>
+                <p
+                  style={{
+                    fontFamily: "Oswald",
+                    color: "#fff",
+                    fontSize: "14px",
+                    marginBottom: 24,
+                  }}
+                >
+                  {translations[`boostToOwner${ownersBoost}`][lang]}
+                </p>
+              </motion.div>
+              <Button
+                onClick={() => {
+                  setResult(null)
+                }}
+                style={{}}
+                text={"OK"}
+                height={25}
+                width={75}
+                active={true}
+                color={"white"}
+                fontFamily={"Oswald"}
+              />
+            </motion.div>
+          </div>
+        )}
       </motion.div>
     </>
-  );
-};
+  )
+}
 
-export default ForeignHome;
+export default ForeignHome
