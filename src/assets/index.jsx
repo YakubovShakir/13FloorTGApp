@@ -204,6 +204,7 @@ import moodDecrease from "./IMG/icons/moodDecrease.png"
 import hungryDecrease from "./IMG/icons/hungryDecrease.png"
 
 import starsIcon from "./IMG/icons/starsIcon.png"
+import tonIcon from "./IMG/icons/tonIcon.png"
 
 import accIcon from './IMG/icons/accIcon.png'
 import bodyIcon from './IMG/icons/bodyIcon.png'
@@ -337,6 +338,7 @@ const Assets = {
     maleWhiteIcon,
     arrowIcon,
     starsIcon,
+    tonIcon,
     femaleAsianIcon,
     shopIcon,
     femaleBlackIcon,

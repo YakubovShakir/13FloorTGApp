@@ -62,6 +62,26 @@ const TaskTab = ({ userId, userParameters, setUserParameters }) => {
       ru: "Мы также открыты к индивидуальному сотрудничеству и готовы предложить уникальные условия по кешбэку и другим бонусам. Свяжитесь с нами для обсуждения деталей!",
       en: "We are also open to individual partnerships and can offer unique cashback terms and other bonuses. Contact us to discuss the details!",
     },
+    cashback: {
+      ru: "Накопленная сумма",
+      en: "Accumulated amount",
+    },
+    withdraw: {
+      ru: "Готово к выводу",
+      en: "Ready to withdraw",
+    },
+    rule: {
+      ru: "В течении 21 дня вы накапливаете сумму кэшбэка, и после она становится доступной к выводу",
+      en: "Within 21 days, you accumulate the amount of cashback, and after that it becomes available for withdrawal",
+    },
+    stars: {
+      ru: "Stars:",
+      en: "Stars:",
+    },
+    ton: {
+      ru: "Ton:",
+      en: "Ton:",
+    },
   }
 
   const { Icons } = Assets
@@ -102,7 +122,7 @@ const TaskTab = ({ userId, userParameters, setUserParameters }) => {
     
   }}
 >
-  <h4 style={{  marginBottom: " 10px", }}>{translations.gameCenter[lang]}</h4>
+  <h4 style={{  marginBottom: " 10px",fontSize: "14px"  , textTransform: "uppercase" }}>{translations.gameCenter[lang]}</h4>
   <Button
     {...buttonStyle}
     active={true}
@@ -126,10 +146,13 @@ const TaskTab = ({ userId, userParameters, setUserParameters }) => {
             }}>
                <p
             style={{
-              paddingBottom: 16,
+              paddingBottom: 6,
               width: "100%",
               textAlign: "center",
               margin: 0,
+              fontWeight:"200",
+              fontFamily: "roboto",
+              fontSize:"14px"
             }}
           >
             {translations.level[lang]} {data.current_level}
@@ -138,9 +161,11 @@ const TaskTab = ({ userId, userParameters, setUserParameters }) => {
           <div
             style={{
               display: "flex",
-              width: "50%",
-              background: "grey",
-              borderRadius: 12,
+              width: "95%",
+              borderBottom: "1px solid rgba(117, 117, 117, 0.23)",
+    boxShadow:" rgba(0, 0, 0, 0.24) 0px 0px 8px 2px inset",
+    background: "rgb(18, 18, 18)",
+              borderRadius: 5,
               alignItems: "center",
               position: "relative",
               margin: "auto"
@@ -159,10 +184,10 @@ const TaskTab = ({ userId, userParameters, setUserParameters }) => {
                         100
                     ) + "%"
                   : "100%",
-                height: 30,
+                height: 22,
                 background:
                   "linear-gradient(90deg, rgba(233, 78, 27, 1) 0%, rgba(243, 117, 0, 1) 50%)",
-                borderRadius: 12,
+                borderRadius: 5,
               }}
             />
             <p
@@ -171,6 +196,8 @@ const TaskTab = ({ userId, userParameters, setUserParameters }) => {
                 width: "100%",
                 textAlign: "center",
                 margin: 0,
+                fontWeight: "bold",
+                textShadow: "1px 1px 0px #000000, -1px -1px 0px #000000, 1px -1px 0px #000000, -1px 1px 0px #000000",
               }}
             >
               {data.to
@@ -185,7 +212,7 @@ const TaskTab = ({ userId, userParameters, setUserParameters }) => {
               fontSize: "22px",
               color: "rgb(255, 118, 0)",
               fontWeight:"600",
-              paddingTop: 16,
+              paddingTop: 10,
               width: "100%",
               textAlign: "center",
               margin: 0,
@@ -195,7 +222,7 @@ const TaskTab = ({ userId, userParameters, setUserParameters }) => {
           </p>
           <p
             style={{
-              fontSize: "16px",
+              fontSize: "12px",
               fontFamily: "roboto",
               fontWeight:"300",
              
@@ -206,12 +233,204 @@ const TaskTab = ({ userId, userParameters, setUserParameters }) => {
           >
             {translations.referaltext2[lang]} 
           </p>
+         
+
+          <div style={{
+            marginTop: "20px",
+             width: "100%",
+             display: "flex",
+             justifyContent: "space-between",
+             borderBottom: "1px solid rgba(117, 117, 117, 0.23)",
+             boxShadow: "rgba(0, 0, 0, 0.24) 0px 0px 8px 2px inset",
+             background: "rgb(18, 18, 18)",
+             borderRadius: "5px",
+             marginBottom: "10px",
+            }}>
+
+
+             <div style={{
+             display: "flex",
+             flexDirection: "column",
+             padding:"14px",
+             justifyContent: "center",
+            }}>
+            <p
+            style={{
+              fontSize: "12px",
+              fontFamily: "Oswald",
+              
+              paddingTop: 5,
+              width: "100%",
+              textAlign: "center",
+              margin: 0,
+              textTransform: "uppercase",
+             
+             fontWeight: "400",
+            }}
+          >
+            {translations.cashback[lang]} 
+            </p>
+            <div style={{
+             display: "flex",
+             alignItems: "center",
+             paddingTop: 5,
+                }}>
+         <img
+  src={Icons.starsIcon}
+  alt="Coin"
+  style={{ width: "20px", height: "20px" }} 
+/>
+            
+            <p
+            style={{
+              fontSize: "18px",
+              fontFamily: "Oswald",
+              fontWeight:"500",
+              paddingLeft: 5,
+              width: "100%",
+              margin: 0,
+            }}
+          >
+            {translations.stars[lang]}  100
+            </p>
+            </div>
+            <div style={{
+             display: "flex",
+             alignItems: "center",
+             paddingTop: 5,
+                }}>
+         <img
+  src={Icons.tonIcon}
+  alt="Coin"
+  style={{ width: "20px", height: "20px" }} // Установлены ширина и высота 20px
+/>
+            
+            <p
+            style={{
+              fontSize: "18px",
+              fontFamily: "Oswald",
+              fontWeight:"500",
+              paddingLeft: 5,
+              width: "100%",
+              margin: 0,
+            }}
+          >
+            {translations.ton[lang]}  100
+            </p>
+            </div>
+          </div>
+
+          
+        
+          <div style={{
+             display: "flex",
+             flexDirection: "column",
+             padding:"14px",
+             justifyContent: "center",
+             
+             borderRadius: "5px",
+             border: "2px solid rgb(49 187 249)"
+            }}>
+            <p
+            style={{
+              fontSize: "16px",
+              fontFamily: "Oswald",
+            
+              paddingTop: 5,
+              width: "100%",
+              textAlign: "center",
+              margin: 0,
+              textTransform: "uppercase",
+             
+             fontWeight: "400",
+            }}
+          >
+            {translations.withdraw[lang]} 
+            </p>
+            <div style={{
+             display: "flex",
+             alignItems: "center",
+             paddingTop: 5,
+                }}>
+         <img
+  src={Icons.starsIcon}
+  alt="Coin"
+  style={{ width: "20px", height: "20px" }} // Установлены ширина и высота 20px
+/>
+            
+            <p
+            style={{
+              fontSize: "22px",
+              fontFamily: "Oswald",
+              fontWeight:"500",
+              paddingLeft: 5,
+              width: "100%",
+              margin: 0,
+            }}
+          >
+            {translations.stars[lang]}  100
+            </p>
+            </div>
+            <div style={{
+             display: "flex",
+             alignItems: "center",
+             paddingTop: 5,
+                }}>
+         <img
+  src={Icons.tonIcon}
+  alt="Coin"
+  style={{ width: "20px", height: "20px" }} // Установлены ширина и высота 20px
+/>
+            
+            <p
+            style={{
+              fontSize: "22px",
+              fontFamily: "Oswald",
+              fontWeight:"500",
+              paddingLeft: 5,
+              width: "100%",
+              margin: 0,
+            }}
+          >
+            {translations.ton[lang]}  100
+            </p>
+            </div>
+          </div>
+          </div>
+<div style={{ 
+  justifyContent: "center",
+   display: "flex",
+   marginBottom: "20px"
+  }}>    
+     <Button
+    {...buttonStyle}
+    active={true}
+    onClick={handleInviteClick}
+    text={translations.invite[lang]}
+    width={120}
+    style={{ marginTop: 20 }} 
+  /></div>
+   
+          <p
+            style={{
+              fontSize: "13px",
+              fontFamily: "roboto",
+              fontWeight:"100",
+              paddingTop: 5,
+              width: "100%",
+              textAlign: "center",
+              margin: 0,
+            }}
+          >
+          {translations.rule[lang]} 
+          </p>
           <p
             style={{
               fontSize: "12px",
+              fontStyle: "italic",
               fontFamily: "roboto",
               fontWeight:"100",
-              paddingTop: 16,
+              paddingTop: 5,
               width: "100%",
               textAlign: "center",
               margin: 0,
@@ -219,7 +438,6 @@ const TaskTab = ({ userId, userParameters, setUserParameters }) => {
           >
             {translations.exclusive[lang]} 
           </p>
-          
           </div>
         </>
       ) : (
