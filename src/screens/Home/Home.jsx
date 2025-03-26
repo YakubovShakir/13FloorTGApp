@@ -104,25 +104,29 @@ const Home = () => {
       Assets.HOME.couch,
       Assets.BG.backgroundSun,
       Assets.BG.winter,
-    ];
+    ]
     const imagePromises = imageUrls.map(
       (url) =>
         new Promise((resolve) => {
-          const img = new Image();
+          const img = new Image()
           img.onload = () => {
-            setLoadingProgress((prev) => Math.min(prev + 100 / imageUrls.length, 100));
-            resolve();
-          };
+            setLoadingProgress((prev) =>
+              Math.min(prev + 100 / imageUrls.length, 100)
+            )
+            resolve()
+          }
           img.onerror = () => {
-            console.warn(`Failed to load image: ${url}`);
-            setLoadingProgress((prev) => Math.min(prev + 100 / imageUrls.length, 100));
-            resolve(); // Resolve even on error to avoid hanging
-          };
-          img.src = url;
+            console.warn(`Failed to load image: ${url}`)
+            setLoadingProgress((prev) =>
+              Math.min(prev + 100 / imageUrls.length, 100)
+            )
+            resolve() // Resolve even on error to avoid hanging
+          }
+          img.src = url
         })
-    );
-    await Promise.all(imagePromises);
-  }, []);
+    )
+    await Promise.all(imagePromises)
+  }, [])
 
   const calculateInitialRemaining = useCallback((process) => {
     if (!process?.createdAt) return null
@@ -172,10 +176,7 @@ const Home = () => {
     }
   }, [userId, calculateInitialRemaining])
 
-
-
   const fetchNekoState = useCallback(async () => {
-    
     try {
       const nekoData = await getOwnNekoState(userId)
       if (mountedRef.current) {
@@ -186,7 +187,6 @@ const Home = () => {
     }
   }, [userId])
 
- 
   useEffect(() => {
     if (!state.nekoState.cooldownUntil || state.nekoState.canClick) return
 
@@ -219,50 +219,50 @@ const Home = () => {
   }, [state.nekoState])
 
   useEffect(() => {
-    if (!isInitialized) return;
-  
+    if (!isInitialized) return
+
     const initialize = async () => {
       if (!userPersonage?.gender) {
-        navigate("/personage-create");
-        return;
+        navigate("/personage-create")
+        return
       }
-      setIsLoading(true);
-      setLoadingProgress(0);
-  
+      setIsLoading(true)
+      setLoadingProgress(0)
+
       // Add a timeout to prevent infinite hanging
       const timeout = setTimeout(() => {
-        console.warn("Initialization timed out");
+        console.warn("Initialization timed out")
         if (mountedRef.current) {
-          setIsLoading(false);
-          setIsInitializedFully(true);
+          setIsLoading(false)
+          setIsInitializedFully(true)
         }
-      }, 30000); // 30 seconds timeout
-  
+      }, 30000) // 30 seconds timeout
+
       try {
         await Promise.all([
           preloadImages(),
           fetchNekoState(),
           initializeProcess(),
-        ]);
+        ])
         if (mountedRef.current) {
-          setState((prev) => ({ ...prev, imagesLoaded: true }));
-          setIsInitializedFully(true);
+          setState((prev) => ({ ...prev, imagesLoaded: true }))
+          setIsInitializedFully(true)
         }
       } catch (err) {
-        console.error("Initialization error:", err);
+        console.error("Initialization error:", err)
         // Always resolve even on error
         if (mountedRef.current) {
-          setIsInitializedFully(true);
+          setIsInitializedFully(true)
         }
       } finally {
-        clearTimeout(timeout);
+        clearTimeout(timeout)
         if (mountedRef.current) {
-          setIsLoading(false);
+          setIsLoading(false)
         }
       }
-    };
-  
-    initialize();
+    }
+
+    initialize()
   }, [
     isInitialized,
     navigate,
@@ -270,7 +270,7 @@ const Home = () => {
     preloadImages,
     fetchNekoState,
     initializeProcess,
-  ]);
+  ])
 
   const canContinue = useCallback(
     (processType) => {
@@ -313,7 +313,7 @@ const Home = () => {
       console.error("Error in handleProcessCompletion:", err)
       if (err.status !== 404) {
         await new Promise((resolve) => setTimeout(resolve, 2000))
-        if(state.currentProcess) {
+        if (state.currentProcess) {
           await checkCanStop(userId, null, null, state.currentProcess?.type)
         }
         if (mountedRef.current) {
@@ -357,14 +357,16 @@ const Home = () => {
       const processType = state.currentProcess.type
       if (!canContinue(processType)) {
         setIsLoading(true)
-        checkCanStop(userId, null, null, state.currentProcess.type).finally(() => {
-          if (mountedRef.current) {
-            setState((prev) => ({ ...prev, currentProcess: null }))
-            setRemainingSeconds(null)
-            refreshData()
-            setIsLoading(false)
+        checkCanStop(userId, null, null, state.currentProcess.type).finally(
+          () => {
+            if (mountedRef.current) {
+              setState((prev) => ({ ...prev, currentProcess: null }))
+              setRemainingSeconds(null)
+              refreshData()
+              setIsLoading(false)
+            }
           }
-        })
+        )
         return
       }
 

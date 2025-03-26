@@ -237,10 +237,10 @@ const ForeignHome = () => {
 
     try {
       const response = await interactWithNeko(ownUserId, userId)
-      await refreshData()
       triggerEmojiReaction([Assets.Icons.balance])
       setOwnersBoost(response.owners_boost)
       setResult(response.received_coins)
+      await refreshData()
       if (mountedRef.current) {
         setState((prev) => ({
           ...prev,
@@ -394,6 +394,7 @@ const ForeignHome = () => {
                   style={{ position: "relative" }}
                 >
                   <motion.img
+                    layout
                     className="shelf-neko"
                     src={userShelf.neko.shelf_link}
                     alt="neko"
@@ -401,16 +402,13 @@ const ForeignHome = () => {
                       filter: state.nekoState.canClick
                         ? "none"
                         : "grayscale(100%)",
-                      cursor: state.nekoState.canClick ? "pointer" : "default",
                     }}
+                    transition={{ duration: 0.5, ease: "easeOut" }}
                   />
                   {state.nekoState.canClick && (
                     <motion.div
-                      className="glare-effect"
-                      animate={{
-                        x: ["-100%", "100%"],
-                        opacity: [0, 1, 0],
-                      }}
+                      className="pulse-effect"
+                      animate={{ opacity: [0.5, 1, 0.5] }}
                       transition={{
                         duration: 2,
                         repeat: Infinity,
@@ -420,13 +418,25 @@ const ForeignHome = () => {
                         position: "absolute",
                         top: 0,
                         left: 0,
-                        width: "30%",
+                        width: "46%",
                         height: "100%",
-                        background:
-                          "linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent)",
+                        overflow: "hidden",
                         pointerEvents: "none",
+                        filter: "blur(10px)",
+                        borderRadius: "50%",
                       }}
-                    />
+                    >
+                      <div
+                        style={{
+                          width: "70%",
+                          height: "100%",
+                          background: "#00ffb7",
+                          borderRadius: "50% 50% 0 0 / 100% 100% 0 0",
+                          transform: "translateY(-50%)",
+                          filter: "blur(30px)",
+                        }}
+                      />
+                    </motion.div>
                   )}
                   {!state.nekoState.canClick && timer && (
                     <motion.div
@@ -442,7 +452,7 @@ const ForeignHome = () => {
                         borderRadius: "4px",
                         fontSize: "14px",
                         pointerEvents: "none",
-                        zIndex: 9999,
+                        zIndex: 999999,
                       }}
                     >
                       {timer}
