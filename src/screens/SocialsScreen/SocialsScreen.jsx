@@ -9,6 +9,7 @@ import UserContext from "../../UserContext";
 import useTelegram from "../../hooks/useTelegram";
 import TaskTab from "./tabs/TaskTab";
 import LeaderboardTab from "./tabs/LeaderboardTab";
+import RefTab from "./tabs/RefTab";
 import { useSettingsProvider } from "../../hooks";
 
 const translations = {
@@ -23,6 +24,10 @@ const translations = {
   social: {
     ru: "Сеть",
     en: "Social",
+  },
+  referal: {
+    ru: "Рефералы",
+    en: "Referals",
   },
 };
 
@@ -44,6 +49,11 @@ const TaskScreen = () => {
       type: "task",
       callback: () => setActiveTab("task"),
     },
+    {
+      label: translations.referal[lang],
+      type: "referal",
+      callback: () => setActiveTab("referal"),
+    },
    
   ];
 
@@ -61,6 +71,7 @@ const TaskScreen = () => {
           <TaskTab userId={userId} userParameters={userParameters} setUserParameters={setUserParameters} />
         )}
         {activeTab === "leaderboard" && <LeaderboardTab userId={userId} userParameters={userParameters} setUserParameters={setUserParameters} />}
+        {activeTab === "referal" && <RefTab userId={userId} userParameters={userParameters} setUserParameters={setUserParameters} />}
       </ScreenBody>
     </Screen>
   );
