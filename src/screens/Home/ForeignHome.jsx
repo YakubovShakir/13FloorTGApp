@@ -322,19 +322,19 @@ const ForeignHome = () => {
           }}
         >
           <div style={{ display: "flex" }}>
-            <img src={Assets.Icons.balance} width={15} alt="balance" />
+            <img src={Assets.Icons.balance} width={25} alt="balance" />
             <p style={{ paddingLeft: 8 }}>
               {formatCoins(Math.floor(userParameters.total_earned))}
             </p>
           </div>
           <div style={{ display: "flex" }}>
-            <img src={Assets.Icons.respect} width={15} alt="respect" />
+            <img src={Assets.Icons.respect} width={25} alt="respect" />
             <p style={{ paddingLeft: 8 }}>
               {formatCoins(userParameters.respect)}
             </p>
           </div>
           <div style={{ display: "flex" }}>
-            <img src={Assets.Icons.levelIcon} width={15} alt="level" />
+            <img src={Assets.Icons.levelIcon} width={25} alt="level" />
             <p style={{ paddingLeft: 8 }}>
               {formatCoins(userParameters.level)}
             </p>

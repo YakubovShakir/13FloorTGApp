@@ -242,18 +242,33 @@ const Modal = ({ bottom, left, width, height, data, onClose, logoWidth }) => {
       >
         {data?.gameCenterValues ? (
           <>
-            <div>
-              <h4>{translations.gameCenter[lang]}</h4>
+            <div   style={{
+                textAlign:"center",
+                fontSize:"15px",
+              }}>
+              {translations.gameCenter[lang]}
+                
+              
             </div>
-            <br />
+            <p style={{
+                textAlign:"center",
+                fontSize:"22px",
+              }}>
+            {translations.level[lang]} {data.current_level}
+            </p>
+          
+           
             <div
               style={{
                 display: "flex",
-                width: "50%",
-                background: "grey",
+                width: "250px",
+               
                 borderRadius: 12,
                 alignItems: "center",
                 position: "relative",
+                borderBottom: "1px solid rgba(117, 117, 117, 0.23)",
+    boxShadow: "rgba(0, 0, 0, 0.24) 0px 0px 8px 2px inset",
+    background: "rgb(18, 18, 18)",
               }}
             >
               <span
@@ -268,7 +283,7 @@ const Modal = ({ bottom, left, width, height, data, onClose, logoWidth }) => {
                           100
                       ) + "%"
                     : "100%",
-                  height: 30,
+                  height: 22,
                   background:
                     "linear-gradient(90deg, rgba(233, 78, 27, 1) 0%, rgba(243, 117, 0, 1) 50%)",
                   borderRadius: 12,
@@ -289,16 +304,39 @@ const Modal = ({ bottom, left, width, height, data, onClose, logoWidth }) => {
             </div>
             <p
               style={{
-                paddingTop: 16,
-                width: "100%",
-                textAlign: "center",
-                margin: 0,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                marginBottom: 20,
               }}
             >
-              {translations.level[lang]} {data.current_level}
-            </p>
-            <p>
-              {data.from} {data.to && "→ " + data.to}
+              <img
+                src={Icons.balance}
+                alt="Coin"
+                style={{ width: "24px", height: "24px" }}
+              />
+              <span style={{ fontSize: "18px", marginLeft: 7, marginRight: 7 }}>
+                {data.from} {lang === "ru" ? "/ в час" : "/ Hour"}
+              </span>
+              {data.to && (
+                <>
+                  {"➜ "}
+                  <img
+                    src={Icons.balance}
+                    alt="Coin"
+                    style={{ width: "29px", height: "29px", marginLeft: 7 }}
+                  />
+                  <span
+                    style={{
+                      fontSize: "22px",
+                      marginLeft: 7,
+                      color: "#f5b700",
+                    }}
+                  >
+                    {" " + data.to} {lang === "ru" ? "/ в час" : "/ Hour"}
+                  </span>
+                </>
+              )}
             </p>
           </>
         ) : (
