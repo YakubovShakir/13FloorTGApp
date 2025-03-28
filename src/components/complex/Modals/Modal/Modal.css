@@ -1,5 +1,5 @@
 .Modal {
-  position: absolute;
+  position: fixed;
   background: rgb(32, 32, 32);
   border-top-left-radius: 10px;
   border-top-right-radius: 10px;
