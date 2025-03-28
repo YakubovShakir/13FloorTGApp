@@ -781,7 +781,7 @@ const StatsModal = memo(({ baseStyles, setIsStatsShown, clothing }) => {
           boxShadow: "0 0 20px rgba(0,0,0,0.5)",
           border: "1px solid rgb(57, 57, 57)",
           overflow: "hidden",
-          marginTop: 25,
+          marginTop: "13vh",
         }}
       >
         <div

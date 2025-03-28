@@ -11,10 +11,10 @@
 .HomeHeaderBottomName {
   border-bottom: 1px solid rgba(117, 117, 117, 0.23);
   border-top: 1px solid rgba(117, 117, 117, 0.23);
-  display: 'none';
+  
  
   background: repeating-linear-gradient(45deg, rgba(0, 0, 0, 0.21), rgba(0, 0, 0, 0.21) 2px, rgba(57, 57, 57, 0.06) 2px, rgba(57, 57, 57, 0.06) 6px) rgb(20, 20, 20);
-  animation: pulseLinearGradient 6s infinite ease-in-out; /* Плавная анимация для фона */
+  
 }
 
 

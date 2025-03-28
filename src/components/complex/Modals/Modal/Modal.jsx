@@ -32,7 +32,7 @@ const Modal = ({ bottom, left, width, height, data, onClose, logoWidth }) => {
                   width: "100%",
                 }}
               ></span>
-            <div style={{ width: "75%" }}>
+            <div style={{ width: "64%" }}>
               <img
                 style={{ marginRight: "5%" }}
                 src={block?.icon}

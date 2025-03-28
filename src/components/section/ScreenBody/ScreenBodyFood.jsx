@@ -25,7 +25,7 @@ const ScreenBody = ({ children, activity }) => {
             <div className="HomeHeaderBottomName" style={{ 
                  textTransform: "uppercase",
                 boxShadow:' rgb(0, 0, 0) 2px 5px 12px 0px',
-                zIndex:' 1',
+               
                 height: '55px',
                 minHeight: '55px',
                 display: 'flex',
