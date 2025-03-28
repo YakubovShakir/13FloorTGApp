@@ -4,35 +4,22 @@
   height: 100%;
   width: 100%;
  
+ 
   padding-top: 186.5px;
 }
 
 .HomeHeaderBottomName {
-
+  border-bottom: 1px solid rgba(117, 117, 117, 0.23);
+  border-top: 1px solid rgba(117, 117, 117, 0.23);
   display: 'none';
-  position: relative; /* Для псевдоэлементов */
+ 
   background: repeating-linear-gradient(45deg, rgba(0, 0, 0, 0.21), rgba(0, 0, 0, 0.21) 2px, rgba(57, 57, 57, 0.06) 2px, rgba(57, 57, 57, 0.06) 6px) rgb(20, 20, 20);
   animation: pulseLinearGradient 6s infinite ease-in-out; /* Плавная анимация для фона */
 }
 
-.HomeHeaderBottomName::before,
-.HomeHeaderBottomName::after {
-  content: ""; /* Создаём пустой элемент */
-  position: absolute;
-  left: 0;
-  right: 0;
-  height: 1px; /* Толщина границы */
-  background: radial-gradient(circle,  rgb(49 49 49) 0%, transparent 70%); /* Градиент для псевдоэлементов */
 
-}
 
-.HomeHeaderBottomName::before {
-  top: 0; /* Имитация border-top */
-}
 
-.HomeHeaderBottomName::after {
-  bottom: 0; /* Имитация border-bottom */
-}
 
 
 

@@ -39,7 +39,7 @@ const ScreenBody = ({ children, activity }) => {
               fontWeight: '400',
               position: 'relative',
               backgroundColor:' #141414',
-                
+              
             }}>
                 <div>
                     <p>{activity}</p>
