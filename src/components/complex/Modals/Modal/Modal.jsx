@@ -2,14 +2,24 @@ import "./Modal.css"
 import Button from "../../../simple/Button/Button"
 import { motion } from "framer-motion"
 import Assets from "../../../../assets"
+import { createPortal } from "react-dom"
 const Modal = ({ bottom, left, width, height, data, onClose, logoWidth }) => {
-  const { Icons } = Assets
-  return (
+  const { Icons } = Assets;
+  const modalContent = (
     <motion.div
       initial={{ opacity: 0, y: 100 }}
       animate={{ opacity: 1, y: 0 }}
       className="Modal"
-      style={{  top: "165.5px", left: left, width: width, height: "100%", zIndex: 99999, position: 'absolute' }}
+      style={{
+        position: 'fixed',
+        top: bottom ? 'auto' : '165.5px',
+        bottom: bottom || 'auto',
+        left: left || 0,
+        width: width || '100vw',
+        height: height || '100vh',
+        zIndex: 99999,
+        overflowY: 'auto',
+      }}
     >
       
       <img
@@ -66,6 +76,8 @@ const Modal = ({ bottom, left, width, height, data, onClose, logoWidth }) => {
       </div>
     </motion.div>
   )
+
+  return createPortal(modalContent, document.body)
 }
 
 export default Modal
