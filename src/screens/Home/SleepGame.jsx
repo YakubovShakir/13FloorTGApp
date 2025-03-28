@@ -289,7 +289,7 @@ const SleepGame = ({
         borderBottom: "3px solid rgb(32 20 30)",
         borderRadius: "8px",
         position: "absolute",
-        top: "20.5%",
+        top:(window.Telegram?.WebApp.safeAreaInset?.top || 0) + 155.5,
         left: "0%",
         width: "100%",
         height: "200px",
