@@ -57,7 +57,7 @@ const ActionScreen = memo(() => {
     minute: { ru: "м.", en: "m." },
     currentWork: { ru: "Текущая работа", en: "Current work" },
     unlock: { ru: "Открыть", en: "Unlock" },
-    noBoosts: { ru: "Усилений нет", en: "No boosts" },
+    noBoosts: { ru: "Открыто", en: "Done" },
     learned: { ru: "Изучено", en: "Learned" },
     boost: { ru: "Ускорить", en: "Boost" },
     training: { ru: "Тренировка", en: "Training" },

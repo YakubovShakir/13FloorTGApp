@@ -61,7 +61,9 @@ const PerksTab = ({
         minute: { ru: 'м.', en: 'm.' },
         currentWork: { ru: 'Текущая работа', en: 'Current work' },
         unlock: { ru: 'Открыть', en: 'Unlock' },
-        noBoosts: { ru: 'Усилений нет', en: 'No boosts' },
+        noBoosts: 
+    { ru: "Открыто", 
+      en: "Done" },
         learned: { ru: 'Изучено', en: 'Learned' },
         learning: { ru: 'Ускорить', en: 'Boost' },
         boost: { ru: 'Ускорить', en: 'Boost' },

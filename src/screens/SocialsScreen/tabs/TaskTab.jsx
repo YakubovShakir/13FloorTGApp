@@ -50,10 +50,9 @@ const TaskTab = ({ userId, userParameters, setUserParameters }) => {
       ru: 'Открыть',
       en: 'Unlock'
     },
-    noBoosts: {
-      ru: 'Усилений нет',
-      en: 'No boosts'
-    },
+    noBoosts: 
+    { ru: "Открыто", 
+      en: "Done" },
     hungryDecrease: {
       ru: 'Расход голода',
       en: 'Satiety consumption '

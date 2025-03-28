@@ -78,10 +78,9 @@ const PerksTab = ({
       ru: 'Открыть',
       en: 'Unlock'
     },
-    noBoosts: {
-      ru: 'Усилений нет',
-      en: 'No boosts'
-    },
+    noBoosts: 
+    { ru: "Открыто", 
+      en: "Done" },
     learned: {
       ru: 'Изучено',
       en: 'Learned'
