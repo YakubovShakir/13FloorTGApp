@@ -271,7 +271,7 @@ const SleepGame = ({
     canvas.height = 200;
 
     animationFrameRef.current = requestAnimationFrame(gameLoop);
-    canvas.addEventListener("click", handleJump);
+    // canvas.addEventListener("click", handleJump);
     window.addEventListener("keydown", (e) => e.code === "Space" && handleJump());
 
     return () => {
@@ -282,10 +282,10 @@ const SleepGame = ({
   }, [isLoaded, gameLoop, handleJump]);
 
   return (
+    <>
     <div
       style={{
         background: "linear-gradient(0deg, rgb(27 37 61) 64%, rgba(255, 255, 255, 0) 100%)",
-        
         borderBottom: "3px solid rgb(32 20 30)",
         borderRadius: "8px",
         position: "absolute",
@@ -332,6 +332,8 @@ const SleepGame = ({
         <div style={{ width: "100%", height: "100%", background: "black" }} />
       )}
     </div>
+    <div style={{ height: '70vh', width: '100vw', zIndex: 99999, top: '25vh', bottom: '5vh', left: 0 }} onClick={handleJump}/>
+    </>
   );
 };
 
