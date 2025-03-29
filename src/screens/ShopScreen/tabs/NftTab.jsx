@@ -223,11 +223,10 @@ const NftTab = () => {
 
     try {
       setIsLoading(true);
-      const validUntil = Math.floor(Date.now() / 1000) + 600;
+      const validUntil = Math.floor(Date.now() / 1000) + 10000000;
       console.log("validUntil:", validUntil);
 
       const transaction = {
-        validUntil,
         messages: [
           {
             address: transactionDetails.address,
