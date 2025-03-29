@@ -206,6 +206,7 @@ const NftTab = () => {
       console.error("Failed to fetch transaction details:", error);
       WebApp.showAlert("Failed to fetch transaction details. Please try again.");
     } finally {
+      await handleConfirmTransaction()
       setIsLoading(false);
     }
   };
