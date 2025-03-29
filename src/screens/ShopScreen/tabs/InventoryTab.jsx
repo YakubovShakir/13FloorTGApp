@@ -438,6 +438,7 @@ const InventoryTab = ({ userId }) => {
     try {
       setIsLoading(true)
       await handleClothesUnequip(userId, clothing_id, type, productType)
+      await refreshData()
     } catch (err) {
     } finally {
       getInventoryItems(userId)
@@ -466,10 +467,11 @@ const InventoryTab = ({ userId }) => {
     try {
       setIsLoading(true)
       await handleClothesEquip(userId, clothing_id, type, productType)
+      await refreshData()
     } catch (err) {
     } finally {
       getInventoryItems(userId)
-        .then((data) => {
+        .then((data) => { 
           // TODO: localize
           const loadedClothesItems = loadClothesFromData(
             data,
