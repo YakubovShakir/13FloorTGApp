@@ -532,67 +532,105 @@ const GridLayout = ({
 }
 
 const CoinsTab = () => {
-  const [filterTypeInUse, setFilterTypeInUse] = useState(null)
-  const [currentItem, setCurrentItem] = useState(null)
-  const [clothesItems, setClothesItems] = useState(null)
-  const [shelfItems, setShelfItems] = useState(null)
-  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false)
-  const [currentComplexFilters, setCurrentComplexFilters] = useState([])
-  const [isLoading, setIsLoading] = useState(true)
+  const [filterTypeInUse, setFilterTypeInUse] = useState(null);
+  const [currentItem, setCurrentItem] = useState(null);
+  const [clothesItems, setClothesItems] = useState(null);
+  const [shelfItems, setShelfItems] = useState(null);
+  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
+  const [currentComplexFilters, setCurrentComplexFilters] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const { userPersonage, userParameters } = useContext(UserContext)
-  const { lang } = useSettingsProvider()
+  const { userPersonage, userParameters } = useContext(UserContext);
+  const { lang } = useSettingsProvider();
+  const { refreshData, userId } = useUser();
 
   const BaseFilters = {
-    // Uses Clothing
     Hat: "Hat",
     Top: "Top",
     Pants: "Pants",
     Shoes: "Shoes",
     Accessories: "Accessory",
-    // Uses ShelfItems
     Shelf: "Shelf",
     Complex: "Complex",
     Stars: "Stars",
-  }
+  };
+
+  // Function to refresh shop items, respecting level and coin restrictions
+  const refreshShopItems = useCallback(async () => {
+    try {
+      const data = await getShopItems(userId);
+      const loadedClothesItems = data.clothing
+        .filter((c) => c.requiredLevel <= userParameters.level) // Keep level restriction
+        .map((item) => ({
+          id: item.clothing_id,
+          name: item.name[lang],
+          productType: "clothes",
+          image: userPersonage.gender === "male" ? item.male_icon : item.female_icon,
+          price: item.price,
+          respect: item.respect,
+          tier: item.tier,
+          tags: item.tag,
+          category: item.type,
+          available: userParameters.coins >= item.price && userParameters.level >= item.requiredLevel,
+          effects: item.effects,
+        }));
+      const loadedShelfItems = data.shelf
+        .filter(item => !(item.type === 'neko' && item.id !== 8)) // Existing neko filter
+        .map((item) => ({
+          id: item.id,
+          productType: "shelf",
+          name: item.name[lang],
+          image: item.link,
+          price: item.cost.stars || item.cost.coins,
+          category: "Shelf",
+          isPrem: item.cost.stars > 0,
+          available: item.cost.stars > 0 || item.cost.coins === 0 || userParameters.coins >= item.cost.coins,
+          description: item.description && item.description[lang],
+          respect: item.respect,
+          effects: item.effects,
+        }));
+      setClothesItems(loadedClothesItems);
+      setShelfItems(loadedShelfItems);
+    } catch (err) {
+      console.error("Error refreshing shop items:", err);
+    }
+  }, [userId, lang, userPersonage.gender, userParameters]);
+
+  // Initial load of shop items
+  useEffect(() => {
+    refreshShopItems().finally(() => setIsLoading(false));
+  }, [refreshShopItems]);
 
   const createShopItemModalData = useCallback(
     (item) => {
       if (!item) return null;
-  
+
       const formattedEffects = [];
+      const translations = globalTranslations.effects;
 
-      const getEffectIcon = (category, param = 'default') => {
-        const map = effectIconMap
-
-        return map[category][param]
-      }
-
-      const translations = globalTranslations.effects
-  
+      const getEffectIcon = (category, param = 'default') => effectIconMap[category][param];
       const formatValue = (category, value) => {
-        const split = category.split('_')
-        const signedValue = value > 0 ? `+${value}` : (value === 0 ? value : `-${value}`)
-        return split.pop() === 'percent' ? `${signedValue}%` : `${signedValue}`
-      }
+        const split = category.split('_');
+        const signedValue = value > 0 ? `+${value}` : (value === 0 ? value : `-${value}`);
+        return split.pop() === 'percent' ? `${signedValue}%` : `${signedValue}`;
+      };
 
-      if(item.effects) {
+      if (item.effects) {
         Object.keys(item.effects).forEach((category) => {
           const effectsData = item.effects[category];
-          // Handle case where effectsData is an array
           effectsData.forEach(({ param, value }) => {
             formattedEffects.push({
               type: category,
               param,
               value: formatValue(category, value),
-              text: `${translations[category][param][lang] || category}`, // Fallback to category if no translation
+              text: translations[category][param][lang] || category,
               fillBackground: value > 0 ? COLORS.GREEN : COLORS.RED,
-              icon: getEffectIcon(category, param) || Assets.Icons.energyUp, // Customize icons per effect type if needed
+              icon: getEffectIcon(category, param) || Assets.Icons.energyUp,
             });
           });
         });
       }
-  
+
       return {
         type: item.type,
         id: item.id || item.clothing_id,
@@ -604,262 +642,87 @@ const CoinsTab = () => {
             text: translations.respect[lang],
             value: item.respect || 0,
             fillPercent: "100%",
-            fillBackground: COLORS.WHITE
+            fillBackground: COLORS.WHITE,
           },
           {
             icon: Assets.Icons.balance,
             text: translations.cost[lang],
             value: item.price,
             fillPercent: "100%",
-            fillBackground:
-              userParameters?.coins < item?.price
-                ? COLORS.RED
-                : COLORS.GREEN,
+            fillBackground: userParameters?.coins < item?.price ? COLORS.RED : COLORS.GREEN,
           },
           ...formattedEffects,
         ].filter(Boolean),
       };
     },
-    [currentItem, lang, userParameters] // Ensure all dependencies are included
+    [lang, userParameters]
   );
 
-  useEffect(() => {
-    getShopItems(userId)
-      .then((data) => {
-        // TODO: localize
-        const loadedClothesItems = data.clothing
-          .filter((c) => c.requiredLevel <= userParameters.level)
-          .map((item) => ({
-            id: item.clothing_id,
-            name: item.name[lang],
-            productType: "clothes",
-            image:
-              userPersonage.gender === "male"
-                ? item.male_icon
-                : item.female_icon,
-            price: item.price,
-            respect: item.respect,
-            tier: item.tier,
-            tags: item.tag,
-            category: item.type,
-            available:
-              userParameters.coins >= item.price &&
-              userParameters.level >= item.requiredLevel,
-            effects: item.effects,
-          }))
-          const loadedShelfItems = data.shelf.filter(item => !(item.type === 'neko' && item.id != 8)).map((item) => ({
-            id: item.id,
-            productType: "shelf",
-            name: item.name[lang],
-            image: item.link,
-            price: item.cost.stars || item.cost.coins,
-            category: "Shelf",
-            isPrem: item.cost.stars > 0,
-            available:
-              item.cost.stars > 0 ||
-              item.cost.coins === 0 ||
-              userParameters.coins >= item.cost.coins,
-            description: item.description && item.description[lang],
-            respect: item.respect,
-            effects: item.effects,
-          }))
-          setClothesItems(loadedClothesItems)
-          setShelfItems(loadedShelfItems)
-        })
-        .finally(() => setIsLoading(false))
-  }, [])
+  const handleStarsBuy = async (item) => {
+    try {
+      setIsLoading(true);
+      await handleStarsPayment(userId, item.productType, item.id, lang);
+      await refreshData(); // Ensure user data (e.g., level) is updated
+      await refreshShopItems(); // Refetch items with updated userParameters
+    } catch (err) {
+      console.error("Error during stars purchase:", err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleCoinsBuy = async (item) => {
+    try {
+      setIsLoading(true);
+      await buyItemsForCoins(userId, item.id, item.productType);
+      await refreshData(); // Ensure user data (e.g., level) is updated
+      await refreshShopItems(); // Refetch items with updated userParameters
+    } catch (err) {
+      console.error("Error during coins purchase:", err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const addComplexFilter = ({ filteredValue, filteredField }) => {
-    console.log("filters", currentComplexFilters)
-    setCurrentComplexFilters([
-      ...currentComplexFilters,
-      { filteredField, filteredValue },
-    ])
-  }
+    setCurrentComplexFilters([...currentComplexFilters, { filteredField, filteredValue }]);
+  };
 
   const removeComplexFilter = ({ filteredValue, filteredField }) => {
     setCurrentComplexFilters(
       currentComplexFilters.filter(
-        (filter) =>
-          filter.filteredField !== filteredField ||
-          filter.filteredValue !== filteredValue
+        (filter) => filter.filteredField !== filteredField || filter.filteredValue !== filteredValue
       )
-    )
-  }
-
-  useEffect(() => console.log(currentItem), [currentItem])
+    );
+  };
 
   const applyFilter = (items) => {
-    if (!filterTypeInUse) {
-      return items
-    }
+    if (!filterTypeInUse) return items;
 
     if (filterTypeInUse === BaseFilters.Complex) {
-      if (!currentComplexFilters || currentComplexFilters.length === 0) {
-        return items
-      }
-
-      const tags = currentComplexFilters
-        .filter((filter) => filter.filteredField === "tag")
-        .map((filter) => filter.filteredValue)
-      const tiers = currentComplexFilters
-        .filter((filter) => filter.filteredField === "tier")
-        .map((filter) => filter.filteredValue)
-
-      console.log("@", tags)
-
-      const filtered = items.filter((item) => {
-        let shouldTake = false
-        const isCorrectByTier =
-          tiers.length > 0 ? tiers.includes(item.tier) : true
-
-        const isCorrectByTags =
-          tags.length > 0 ? item.tags?.some((tag) => tags.includes(tag)) : true
-
-        if (isCorrectByTier && isCorrectByTags) {
-          shouldTake = true
-        }
-
-        return shouldTake
-      })
-
-      return filtered
+      if (!currentComplexFilters || currentComplexFilters.length === 0) return items;
+      const tags = currentComplexFilters.filter(f => f.filteredField === "tag").map(f => f.filteredValue);
+      const tiers = currentComplexFilters.filter(f => f.filteredField === "tier").map(f => f.filteredValue);
+      return items.filter(item => {
+        const isCorrectByTier = tiers.length > 0 ? tiers.includes(item.tier) : true;
+        const isCorrectByTags = tags.length > 0 ? item.tags?.some(tag => tags.includes(tag)) : true;
+        return isCorrectByTier && isCorrectByTags;
+      });
     }
 
-    if (filterTypeInUse === BaseFilters.Hat) {
-      return items.filter((item) => item.category === "Hat")
-    }
+    return items.filter(item => {
+      if (filterTypeInUse === BaseFilters.Hat) return item.category === "Hat";
+      if (filterTypeInUse === BaseFilters.Top) return item.category === "Top";
+      if (filterTypeInUse === BaseFilters.Pants) return item.category === "Pants";
+      if (filterTypeInUse === BaseFilters.Shoes) return item.category === "Shoes";
+      if (filterTypeInUse === BaseFilters.Accessories) return item.category === "Accessory";
+      if (filterTypeInUse === BaseFilters.Shelf) return item.productType === "shelf";
+      if (filterTypeInUse === BaseFilters.Stars) return item.isPrem === true;
+      return true;
+    });
+  };
 
-    if (filterTypeInUse === BaseFilters.Top) {
-      return items.filter((item) => item.category === "Top")
-    }
-
-    if (filterTypeInUse === BaseFilters.Pants) {
-      return items.filter((item) => item.category === "Pants")
-    }
-
-    if (filterTypeInUse === BaseFilters.Shoes) {
-      return items.filter((item) => item.category === "Shoes")
-    }
-
-    if (filterTypeInUse === BaseFilters.Accessories) {
-      return items.filter((item) => item.category === "Accessory")
-    }
-
-    if (filterTypeInUse === BaseFilters.Shelf) {
-      return items.filter((item) => item.productType === "shelf")
-    }
-
-    if (filterTypeInUse === BaseFilters.Stars) {
-      return items.filter((item) => item.isPrem === true)
-    }
-  }
-
-  const { refreshData, userId } = useUser()
-
-  const handleStarsBuy = async (item) => {
-    try {
-      await handleStarsPayment(userId, item.productType, item.id, lang)
-      await refreshData()
-      getShopItems(userId)
-        .then((data) => {
-          const loadedClothesItems = data.clothing
-            .filter((c) => c.requiredLevel <= userParameters?.level)
-            .map((item) => ({
-              id: item.clothing_id,
-              name: item.name[lang],
-              productType: "clothes",
-              image:
-                userPersonage.gender === "male"
-                  ? item.male_icon
-                  : item.female_icon,
-              price: item.price,
-              respect: item.respect,
-              tier: item.tier,
-              tags: item.tag,
-              category: item.type,
-              available:
-                userParameters.coins >= item.price &&
-                userParameters.level >= item.requiredLevel,
-            }))
-            const loadedShelfItems = data.shelf.filter(item => item.type === 'neko' && item.id === 8).map((item) => ({
-              id: item.id,
-              productType: "shelf",
-              name: item.name[lang],
-              image: item.link,
-              price: item.cost.stars || item.cost.coins,
-              category: "Shelf",
-              isPrem: item.cost.stars > 0,
-              available:
-                item.cost.stars > 0 ||
-                item.cost.coins === 0 ||
-                userParameters.coins >= item.cost.coins,
-              description: item.description && item.description[lang],
-              respect: item.respect,
-            }))
-            setClothesItems(loadedClothesItems)
-            setShelfItems(loadedShelfItems)
-          })
-          .finally(() => setIsLoading(false))
-    } catch (err) {
-      console.error(err)
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  const handleCoinsBuy = async (item) => {
-    try {
-      setIsLoading(true)
-      await buyItemsForCoins(userId, item.id, item.productType)
-      await refreshData()
-      getShopItems(userId)
-        .then((data) => {
-          // TODO: localize
-          const loadedClothesItems = data.clothing.map((item) => ({
-            id: item.clothing_id,
-            name: item.name[lang],
-            productType: "clothes",
-            image:
-              userPersonage.gender === "male"
-                ? item.male_icon
-                : item.female_icon,
-            price: item.price,
-            respect: item.respect,
-            tier: item.tier,
-            tags: item.tag,
-            category: item.type,
-            available:
-              userParameters.coins >= item.price &&
-              userParameters.level >= item.requiredLevel,
-          }))
-          const loadedShelfItems = data.shelf.filter(item => item.type === 'neko' && item.id === 8).map((item) => ({
-            id: item.id,
-            productType: "shelf",
-            name: item.name[lang],
-            image: item.link,
-            price: item.cost.stars || item.cost.coins,
-            category: "Shelf",
-            isPrem: item.cost.stars > 0,
-            available:
-              item.cost.stars > 0 ||
-              item.cost.coins === 0 ||
-              userParameters.coins >= item.cost.coins,
-            description: item.description && item.description[lang],
-            respect: item.respect,
-          }))
-          setClothesItems(loadedClothesItems)
-          setShelfItems(loadedShelfItems)
-        })
-        .finally(() => setIsLoading(false))
-    } catch (err) {
-      console.error(err)
-    }
-  }
-
-  if (isLoading) {
-    return <FullScreenSpinner />
-  }
+  if (isLoading) return <FullScreenSpinner />;
 
   return (
     <ScreenContainer withTab>
@@ -879,147 +742,59 @@ const CoinsTab = () => {
           setIsFilterModalOpen={setIsFilterModalOpen}
           currentComplexFilters={currentComplexFilters}
         />
-      )}{" "}
-      <div
-        style={{ width: "100vw", display: "flex", justifyContent: "center" }}
-      >
+      )}
+      <div style={{ width: "100vw", display: "flex", justifyContent: "center" }}>
         <div
           style={{
-            background:
-              "linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 1) 40%)",
+            background: "linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 1) 40%)",
             padding: "20px 0px 30px 0px",
             bottom: "0%",
             zIndex: "5",
-            position: " fixed",
+            position: "fixed",
             width: "95vw",
             display: "flex",
             justifyContent: "space-around",
           }}
         >
-          <SquareButton
-            size={36}
-            imageH={35}
-            imageSrc={Assets.Icons.settingsIcon}
-            assignedValue={true}
-            selectedValue={currentComplexFilters.length > 0}
-            handlePress={() => {
-              setFilterTypeInUse(BaseFilters.Complex)
-              setIsFilterModalOpen(true)
-            }}
-          />
-          <SquareButton
-            size={36}
-            imageSize={42}
-            imageSrc={Assets.Icons.hairIcon}
-            selectedValue={filterTypeInUse}
-            assignedValue={BaseFilters.Hat}
-            handlePress={() =>
-              filterTypeInUse === BaseFilters.Hat
-                ? setFilterTypeInUse(null)
-                : setFilterTypeInUse(BaseFilters.Hat)
-            }
-          />
-          <SquareButton
-            size={36}
-            imageSize={30}
-            imageSrc={Assets.Icons.bodyIcon}
-            selectedValue={filterTypeInUse}
-            assignedValue={BaseFilters.Top}
-            handlePress={() =>
-              filterTypeInUse === BaseFilters.Top
-                ? setFilterTypeInUse(null)
-                : setFilterTypeInUse(BaseFilters.Top)
-            }
-          />
-          <SquareButton
-            size={36}
-            imageSize={28}
-            imageSrc={Assets.Icons.legsIcon}
-            selectedValue={filterTypeInUse}
-            assignedValue={BaseFilters.Pants}
-            handlePress={() =>
-              filterTypeInUse === BaseFilters.Pants
-                ? setFilterTypeInUse(null)
-                : setFilterTypeInUse(BaseFilters.Pants)
-            }
-          />
-          <SquareButton
-            size={36}
-            imageSize={35}
-            imageSrc={Assets.Icons.shoesIcon}
-            assignedValue={BaseFilters.Shoes}
-            selectedValue={filterTypeInUse}
-            handlePress={() =>
-              filterTypeInUse === BaseFilters.Shoes
-                ? setFilterTypeInUse(null)
-                : setFilterTypeInUse(BaseFilters.Shoes)
-            }
-          />
-          <SquareButton
-            size={36}
-            imageSize={28}
-            imageSrc={Assets.Icons.accIcon}
-            selectedValue={filterTypeInUse}
-            assignedValue={BaseFilters.Accessories}
-            handlePress={() =>
-              filterTypeInUse === BaseFilters.Accessories
-                ? setFilterTypeInUse(null)
-                : setFilterTypeInUse(BaseFilters.Accessories)
-            }
-          />
-          <SquareButton
-            size={36}
-            imageSize={30}
-            imageSrc={Assets.Icons.homeIcon}
-            selectedValue={filterTypeInUse}
-            assignedValue={BaseFilters.Shelf}
-            handlePress={() => {
-              setCurrentComplexFilters([])
-              filterTypeInUse === BaseFilters.Shelf
-                ? setFilterTypeInUse(null)
-                : setFilterTypeInUse(BaseFilters.Shelf)
-            }}
-          />
-          <SquareButton
-            size={36}
-            imageSize={34}
-            imageSrc={Assets.Icons.starsIcon}
-            selectedValue={filterTypeInUse}
-            assignedValue={BaseFilters.Stars}
-            handlePress={() =>
-              filterTypeInUse === BaseFilters.Stars
-                ? setFilterTypeInUse(null)
-                : setFilterTypeInUse(BaseFilters.Stars)
-            }
-          />
+          <SquareButton size={36} imageH={35} imageSrc={Assets.Icons.settingsIcon} assignedValue={true} selectedValue={currentComplexFilters.length > 0} handlePress={() => { setFilterTypeInUse(BaseFilters.Complex); setIsFilterModalOpen(true); }} />
+          <SquareButton size={36} imageSize={42} imageSrc={Assets.Icons.hairIcon} selectedValue={filterTypeInUse} assignedValue={BaseFilters.Hat} handlePress={() => setFilterTypeInUse(filterTypeInUse === BaseFilters.Hat ? null : BaseFilters.Hat)} />
+          <SquareButton size={36} imageSize={30} imageSrc={Assets.Icons.bodyIcon} selectedValue={filterTypeInUse} assignedValue={BaseFilters.Top} handlePress={() => setFilterTypeInUse(filterTypeInUse === BaseFilters.Top ? null : BaseFilters.Top)} />
+          <SquareButton size={36} imageSize={28} imageSrc={Assets.Icons.legsIcon} selectedValue={filterTypeInUse} assignedValue={BaseFilters.Pants} handlePress={() => setFilterTypeInUse(filterTypeInUse === BaseFilters.Pants ? null : BaseFilters.Pants)} />
+          <SquareButton size={36} imageSize={35} imageSrc={Assets.Icons.shoesIcon} assignedValue={BaseFilters.Shoes} selectedValue={filterTypeInUse} handlePress={() => setFilterTypeInUse(filterTypeInUse === BaseFilters.Shoes ? null : BaseFilters.Shoes)} />
+          <SquareButton size={36} imageSize={28} imageSrc={Assets.Icons.accIcon} selectedValue={filterTypeInUse} assignedValue={BaseFilters.Accessories} handlePress={() => setFilterTypeInUse(filterTypeInUse === BaseFilters.Accessories ? null : BaseFilters.Accessories)} />
+          <SquareButton size={36} imageSize={30} imageSrc={Assets.Icons.homeIcon} selectedValue={filterTypeInUse} assignedValue={BaseFilters.Shelf} handlePress={() => { setCurrentComplexFilters([]); setFilterTypeInUse(filterTypeInUse === BaseFilters.Shelf ? null : BaseFilters.Shelf); }} />
+          <SquareButton size={36} imageSize={34} imageSrc={Assets.Icons.starsIcon} selectedValue={filterTypeInUse} assignedValue={BaseFilters.Stars} handlePress={() => setFilterTypeInUse(filterTypeInUse === BaseFilters.Stars ? null : BaseFilters.Stars)} />
         </div>
       </div>
       <GridLayout
         setCurrentItem={setCurrentItem}
-        items={applyFilter([...clothesItems, ...shelfItems])}
+        items={applyFilter([...(clothesItems || []), ...(shelfItems || [])])}
         handleCoinsBuy={handleCoinsBuy}
         handleStarsBuy={handleStarsBuy}
       />
       {currentItem && (
         <Modal
           onClose={() => setCurrentItem(null)}
-          data={currentItem && {...createShopItemModalData(currentItem), buttons: [
+          data={{
+            ...createShopItemModalData(currentItem),
+            buttons: [
               {
-                text: currentItem.price, 
+                text: currentItem.price,
                 active: currentItem.isPrem ? false : true,
                 icon: currentItem.isPrem ? Assets.Icons.starsIcon : Assets.Icons.balance,
                 onClick: () => {
-                  (currentItem.isPrem ? handleStarsBuy(currentItem) : handleCoinsBuy(currentItem) ).then(() => setCurrentItem(null))
-                }
-              }
-          ]}}
+                  (currentItem.isPrem ? handleStarsBuy(currentItem) : handleCoinsBuy(currentItem)).then(() => setCurrentItem(null));
+                },
+              },
+            ],
+          }}
           bottom={"0"}
           width={"100vw"}
           height={"80vh"}
         />
       )}
     </ScreenContainer>
-  )
-}
+  );
+};
 
-export default CoinsTab
+export default CoinsTab;
