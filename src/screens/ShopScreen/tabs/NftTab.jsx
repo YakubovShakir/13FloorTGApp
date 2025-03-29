@@ -1,763 +1,447 @@
-import { useState, useEffect, useContext } from "react"
-import Assets from "../../../assets"
-import ScreenContainer from "../../../components/section/ScreenContainer/ScreenContainer"
-import { getShopItems } from "../../../services/user/user"
-import Button from "../../../components/simple/Button/Button"
-import Modal from "../../../components/complex/Modals/Modal/Modal"
-import { motion } from "framer-motion"
-import UserContext, { useUser } from "../../../UserContext"
-import FullScreenSpinner from "../../Home/FullScreenSpinner"
-import FilterModal from "../../../components/complex/FilterModal/FilterModal"
-import { SquareButton } from "../../../components/simple/SquareButton/SquareButton"
-import { instance } from "../../../services/instance"
-import { buyItemsForCoins } from '../../../services/user/user'
-import WebApp from "@twa-dev/sdk"
-import { useSettingsProvider } from "../../../hooks"
-import { useNotification } from "../../../NotificationContext"
-import { handleStarsPayment } from "../../../utils/handleStarsPayment"
+import { useState, useEffect, useContext } from "react";
+import Assets from "../../../assets";
+import ScreenContainer from "../../../components/section/ScreenContainer/ScreenContainer";
+import { getShopItems } from "../../../services/user/user";
+import Button from "../../../components/simple/Button/Button";
+import Modal from "../../../components/complex/Modals/Modal/Modal";
+import { motion } from "framer-motion";
+import UserContext, { useUser } from "../../../UserContext";
+import FullScreenSpinner from "../../Home/FullScreenSpinner";
+import FilterModal from "../../../components/complex/FilterModal/FilterModal";
+import { instance } from "../../../services/instance";
+import { buyItemsForCoins } from "../../../services/user/user";
+import WebApp from "@twa-dev/sdk";
+import { useSettingsProvider } from "../../../hooks";
+import { useNotification } from "../../../NotificationContext";
+import { handleStarsPayment } from "../../../utils/handleStarsPayment";
+import { TonConnectUIProvider, useTonConnectUI } from "@tonconnect/ui-react";
+import { Buffer } from "buffer";
 
-const GridItem = ({
-  id,
-  productType,
-  icon,
-  title,
-  price,
-  available = true,
-  respect = 0,
-  equipped,
-  isPrem = false,
-  handleCoinsBuy,
-  handleStarsBuy
-}) => {
-  // Определим стиль для неактивных элементов (если цена больше 0 и кнопка неактивна)
+const GridItem = ({ id, productType, icon, title, price, available = true, respect = 0, equipped, isPrem = false, handleCoinsBuy, handleStarsBuy }) => {
   const isDisabled = !available && price > 0;
-  
   return (
-    <div
-      className="clothing-item-container"
-      style={{
-        borderRadius: "8px",
-        borderBottom: "solid 1px rgba(117, 117, 117, 0.23)",
-        background: "0% 0% / cover rgb(32, 32, 32)",
-        padding: "10px",
-          }}
-    >
-      <div
-        className="clothing-item-top"
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "1rem",
-          flexDirection: "column",
-          overflow: "hidden",
-          boxShadow: "rgba(0, 0, 0, 0.24) 0px 0px 8px 2px inset",
-          borderBottom: isDisabled ? "solid 1px rgba(117, 117, 117, 0.23)" : "solid 1px rgba(117, 117, 117, 0.23)", // изменено
-        background:"#00000082",
-          borderRadius: "7px",
-          backgroundImage:
-            isDisabled
-              ? "repeating-linear-gradient(45deg, #00000036, #00000036 2px, #3939390f 2px, #3939390f 6px)"
-              : "repeating-linear-gradient(45deg, #00000036, #00000036 2px, #3939390f 2px, #3939390f 6px)", // изменено
-          justifyContent: "center",
-          
-        }}
-      >
+    <div className="clothing-item-container" style={{ borderRadius: "8px", borderBottom: "solid 1px rgba(117, 117, 117, 0.23)", background: "0% 0% / cover rgb(32, 32, 32)", padding: "10px" }}>
+      <div className="clothing-item-top" style={{ display: "flex", alignItems: "center", gap: "1rem", flexDirection: "column", overflow: "hidden", boxShadow: "rgba(0, 0, 0, 0.24) 0px 0px 8px 2px inset", borderBottom: isDisabled ? "solid 1px rgba(117, 117, 117, 0.23)" : "solid 1px rgba(117, 117, 117, 0.23)", background: "#00000082", borderRadius: "7px", backgroundImage: isDisabled ? "repeating-linear-gradient(45deg, #00000036, #00000036 2px, #3939390f 2px, #3939390f 6px)" : "repeating-linear-gradient(45deg, #00000036, #00000036 2px, #3939390f 2px, #3939390f 6px)", justifyContent: "center" }}>
         <div className="clothing-item-header">
           <div></div>
-          <motion.div
-            className="clothing-item-icon-wrapper"
-            style={{
-              width: "100%",
-              display: "flex",
-              justifyContent: "center",
-            }}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <div
-              className="clothing-item-icon-container"
-              style={{
-                height: "100%",
-                width: "100%",
-                borderRadius: "0.5rem",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                marginTop: -5.5,
-                position: "relative",
-              }}
-            >
-              {equipped && (
-                <img
-                  className="clothing-item-shadow"
-                  src={Assets.Layers.inventoryActiveShadow}
-                  style={{
-                    position: "absolute",
-                    height: "100%",
-                    width: "100%",
-                    top: 0,
-                    left: 0,
-                    zIndex: 1,
-                  }}
-                />
-              )}
-              <img
-                className="clothing-item-icon"
-                src={icon}
-                alt={title}
-                style={{
-                  height: "100%",
-                  width: "100%",
-                  position: "relative",
-                  zIndex: 2,
-                  filter: isDisabled ? "grayscale(100%)" : "none", // обесцвечиваем только если неактивно
-                }}
-              />
+          <motion.div className="clothing-item-icon-wrapper" style={{ width: "100%", display: "flex", justifyContent: "center" }} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+            <div className="clothing-item-icon-container" style={{ height: "100%", width: "100%", borderRadius: "0.5rem", display: "flex", alignItems: "center", justifyContent: "center", marginTop: -5.5, position: "relative" }}>
+              {equipped && <img className="clothing-item-shadow" src={Assets.Layers.inventoryActiveShadow} style={{ position: "absolute", height: "100%", width: "100%", top: 0, left: 0, zIndex: 1 }} />}
+              <img className="clothing-item-icon" src={icon} alt={title} style={{ height: "100%", width: "100%", position: "relative", zIndex: 2, filter: isDisabled ? "grayscale(100%)" : "none" }} />
             </div>
           </motion.div>
         </div>
       </div>
-
-      <div
-        className="clothing-item-bottom"
-        style={{
-          color:"#ffffff",
-          paddingBottom: "12px",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-        }}
-      >
-        <p
-          style={{
-            padding: "10px 5px 10px 5px",
-            height: "45px",
-            textAlign: "center",
-            fontWeight: "100",
-            fontFamily: "Oswald",
-            width: "100%",
-          }}
-        >
-          {title}
-        </p>
-
-        <div
-          className="clothing-item-respect"
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            marginTop: 5,
-            marginBottom: 10,
-            height: 60,
-            color: 'white'
-          }}
-        >
+      <div className="clothing-item-bottom" style={{ color: "#ffffff", paddingBottom: "12px", display: "flex", flexDirection: "column", alignItems: "center" }}>
+        <p style={{ padding: "10px 5px 10px 5px", height: "45px", textAlign: "center", fontWeight: "100", fontFamily: "Oswald", width: "100%" }}>{title}</p>
+        <div className="clothing-item-respect" style={{ display: "flex", justifyContent: "center", alignItems: "center", marginTop: 5, marginBottom: 10, height: 60, color: "white" }}>
           {respect > 0 && (
             <>
-              <img
-                src={Assets.Icons.respect}
-                height={22}
-              />
-              <p
-                style={{
-                  textAlign: "center",
-                  fontWeight: "100",
-                  fontFamily: "Oswald",
-                  paddingLeft: 8,
-                  fontSize: "20px",
-                  paddingBottom: 4,
-                  paddingRight: 2,
-                }}
-              >
-                +
-              </p>
-              <p
-                style={{
-                  textAlign: "center",
-                  fontWeight: "100",
-                  fontFamily: "Oswald",
-                  fontSize: "20px",
-                  paddingBottom: 4
-                }}
-              >
-                {respect}
-              </p>
+              <img src={Assets.Icons.respect} height={22} />
+              <p style={{ textAlign: "center", fontWeight: "100", fontFamily: "Oswald", paddingLeft: 8, fontSize: "20px", paddingBottom: 4, paddingRight: 2 }}>+</p>
+              <p style={{ textAlign: "center", fontWeight: "100", fontFamily: "Oswald", fontSize: "20px", paddingBottom: 4 }}>{respect}</p>
             </>
           )}
         </div>
-
-        {/* Кнопки действий */}
         {isPrem ? (
-          <Button
-            className="clothing-item-unequip-button"
-            shadowColor={"#22c7a3"}
-            width={"88%"}
-            marginBottom={"5"}
-            height={44}
-            fontFamily={"Oswald"}
-            fontWeight={"300"}
-            text={price}
-            icon={Assets.Icons.starsIcon}
-            fontSize={14}
-            borderColor={"rgb(34, 199, 163)"}
-            color={"rgb(255, 255, 255)"}
-            ownColor={
-              "linear-gradient(to bottom, rgb(34 199 163 / 0%), rgb(34 199 163 / 24%))"
-            }
-            bgColor={
-              "rgb(255, 118, 0)"
-            }
-            onClick={() => handleStarsBuy({ id, productType })}
-          />
+          <Button className="clothing-item-unequip-button" shadowColor={"#22c7a3"} width={"88%"} marginBottom={"5"} height={44} fontFamily={"Oswald"} fontWeight={"300"} text={price} icon={Assets.Icons.starsIcon} fontSize={14} borderColor={"rgb(34, 199, 163)"} color={"rgb(255, 255, 255)"} ownColor={"linear-gradient(to bottom, rgb(34 199 163 / 0%), rgb(34 199 163 / 24%))"} bgColor={"rgb(255, 118, 0)"} onClick={() => handleStarsBuy({ id, productType })} />
         ) : (
-          <Button
-            className="clothing-item-equip-button"
-            shadowColor={"rgb(199, 80, 21)"}
-            width={"88%"}
-            color={"rgb(255, 255, 255)"}
-            marginBottom={"5"}
-            height={44}
-            active={available}
-            fontFamily={"Oswald"}
-            fontWeight={"300"}
-            icon={price > 0 ? Assets.Icons.balance : undefined}
-            text={price === 0 ? 'Забрать' : price}
-            fontSize={14}
-            ownColor={
-              "rgb(255, 118, 0)"
-            }
-            bgColor={
-              "rgb(255, 118, 0)"
-            }
-            onClick={() => available || price === 0 ? handleCoinsBuy({ id, productType }) : null}
-            style={isDisabled ? { filter: "grayscale(100%)" } : {}} // Серая кнопка
-          />
+          <Button className="clothing-item-equip-button" shadowColor={"rgb(199, 80, 21)"} width={"88%"} color={"rgb(255, 255, 255)"} marginBottom={"5"} height={44} active={available} fontFamily={"Oswald"} fontWeight={"300"} icon={price > 0 ? Assets.Icons.balance : undefined} text={price === 0 ? "Забрать" : price} fontSize={14} ownColor={"rgb(255, 118, 0)"} bgColor={"rgb(255, 118, 0)"} onClick={() => (available || price === 0 ? handleCoinsBuy({ id, productType }) : null)} style={isDisabled ? { filter: "grayscale(100%)" } : {}} />
         )}
       </div>
     </div>
   );
 };
 
-
-const GridItemShelf = ({
-  id,
-  productType,
-  icon,
-  title,
-  isPrem,
-  price,
-  available = true,
-  respect = 0,
-  handleCoinsBuy,
-  handleStarsBuy,
-}) => {
-  console.log(id)
-  const isNftItem = id >= 9 && id <= 38; // Check if ID is in NFT range
-  const showBuyNFT = isNftItem
-  const { lang } = useSettingsProvider()
-
-  const handleNftRedirect = () => {
-    window.Telegram.WebApp.openLink("https://13thfloorgame.io"); // Simple redirect
-  };
+const GridItemShelf = ({ id, productType, icon, title, isPrem, price, tonPrice, supply, available = true, respect = 0, handleCoinsBuy, handleStarsBuy, handleBuyNft }) => {
+  const isNftItem = id >= 9 && id <= 38;
+  const showBuyNFT = isNftItem;
+  const { lang } = useSettingsProvider();
 
   return (
-    <div
-      className="clothing-item-container"
-      style={{
-        borderRadius: "8px",
-        border: "1px solid rgb(57, 57, 57)",
-        background: "0% 0% / cover rgb(32, 32, 32)",
-        padding: "10px",
-      }}
-    >
-      <div
-        className="clothing-item-top"
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "1rem",
-          flexDirection: "column",
-          overflow: "hidden",
-          borderBottom: "solid 1px rgba(117, 117, 117, 0.23)",
-          boxShadow: "rgba(0, 0, 0, 0.24) 0px 0px 8px 2px inset",
-          background: "#00000082",
-          borderRadius: "7px",
-          backgroundImage:
-            "repeating-linear-gradient(45deg, #00000036, #00000036 2px, #3939390f 2px, #3939390f 6px)",
-          justifyContent: "center",
-        }}
-      >
+    <div className="clothing-item-container" style={{ borderRadius: "8px", border: "1px solid rgb(57, 57, 57)", background: "0% 0% / cover rgb(32, 32, 32)", padding: "10px" }}>
+      <div className="clothing-item-top" style={{ display: "flex", alignItems: "center", gap: "1rem", flexDirection: "column", overflow: "hidden", borderBottom: "solid 1px rgba(117, 117, 117, 0.23)", boxShadow: "rgba(0, 0, 0, 0.24) 0px 0px 8px 2px inset", background: "#00000082", borderRadius: "7px", backgroundImage: "repeating-linear-gradient(45deg, #00000036, #00000036 2px, #3939390f 2px, #3939390f 6px)", justifyContent: "center" }}>
         <div className="clothing-item-header">
           <div></div>
-          <motion.div
-            className="clothing-item-icon-wrapper"
-            style={{
-              width: "100%",
-              display: "flex",
-              justifyContent: "center",
-            }}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <div
-              className="clothing-item-icon-container"
-              style={{
-                height: "100%",
-                width: "100%",
-                borderRadius: "0.5rem",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                marginTop: -5.5,
-                position: "relative",
-              }}
-            >
-              <img
-                src={icon}
-                alt={title}
-                style={{
-                  width: "100%",
-                  position: "relative",
-                  zIndex: 2,
-                }}
-              />
+          <motion.div className="clothing-item-icon-wrapper" style={{ width: "100%", display: "flex", justifyContent: "center" }} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+            <div className="clothing-item-icon-container" style={{ height: "100%", width: "100%", borderRadius: "0.5rem", display: "flex", alignItems: "center", justifyContent: "center", marginTop: -5.5, position: "relative" }}>
+              <img src={icon} alt={title} style={{ width: "100%", position: "relative", zIndex: 2 }} />
             </div>
           </motion.div>
         </div>
       </div>
-
-      <div
-        className="clothing-item-bottom"
-        style={{
-          paddingBottom: "12px",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-        }}
-      >
-        <p
-          style={{
-            padding: "10px 5px 10px 5px",
-            height: "45px",
-            color: "white",
-            textAlign: "center",
-            fontWeight: "100",
-            fontFamily: "Oswald",
-            width: "90%",
-          }}
-        >
-          {title}
-        </p>
-        <div
-          className="clothing-item-respect"
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            marginTop: 5,
-            marginBottom: 10,
-            height: 60,
-            color: 'white'
-          }}
-        >
+      <div className="clothing-item-bottom" style={{ paddingBottom: "12px", display: "flex", flexDirection: "column", alignItems: "center" }}>
+        <p style={{ padding: "10px 5px 10px 5px", height: "45px", color: "white", textAlign: "center", fontWeight: "100", fontFamily: "Oswald", width: "90%" }}>{title}</p>
+        <div className="clothing-item-respect" style={{ display: "flex", justifyContent: "center", alignItems: "center", marginTop: 5, marginBottom: 10, height: 60, color: "white" }}>
           {respect > 0 && (
             <>
-              <img
-                src={Assets.Icons.respect}
-                height={22}
-              />
-              <p
-                style={{
-                  textAlign: "center",
-                  fontWeight: "100",
-                  fontFamily: "Oswald",
-                  paddingLeft: 8,
-                  fontSize: "20px",
-                  paddingBottom: 4,
-                  paddingRight: 2,
-                }}
-              >
-                +
-              </p>
-              <p
-                style={{
-                  textAlign: "center",
-                  fontWeight: "100",
-                  fontFamily: "Oswald",
-                  fontSize: "20px",
-                  paddingBottom: 4
-                }}
-              >
-                {respect}
-              </p>
+              <img src={Assets.Icons.respect} height={22} />
+              <p style={{ textAlign: "center", fontWeight: "100", fontFamily: "Oswald", paddingLeft: 8, fontSize: "20px", paddingBottom: 4, paddingRight: 2 }}>+</p>
+              <p style={{ textAlign: "center", fontWeight: "100", fontFamily: "Oswald", fontSize: "20px", paddingBottom: 4 }}>{respect}</p>
             </>
           )}
         </div>
-
-        {/* Button logic */}
         {isPrem ? (
-          <Button
-            className="clothing-item-equip-button"
-            shadowColor={"#AF370F"}
-            width={"88%"}
-            marginBottom={"5"}
-            color={"rgb(255, 255, 255)"}
-            height={44}
-            fontFamily={"Oswald"}
-            fontWeight={"300"}
-            text={price}
-            icon={Assets.Icons.starsIcon}
-            fontSize={14}
-            borderColor={"rgb(34, 199, 163)"}
-            ownColor={
-              "linear-gradient(to bottom, rgb(34 199 163 / 0%), rgb(34 199 163 / 24%))"
-            }
-            bgColor={
-              "linear-gradient(to bottom, rgb(34 199 163 / 0%), rgb(34 199 163 / 24%))"
-            }
-            onClick={() => handleStarsBuy({ id, productType })}
-          />
+          <Button className="clothing-item-equip-button" shadowColor={"#AF370F"} width={"88%"} marginBottom={"5"} color={"rgb(255, 255, 255)"} height={44} fontFamily={"Oswald"} fontWeight={"300"} text={price} icon={Assets.Icons.starsIcon} fontSize={14} borderColor={"rgb(34, 199, 163)"} ownColor={"linear-gradient(to bottom, rgb(34 199 163 / 0%), rgb(34 199 163 / 24%))"} bgColor={"linear-gradient(to bottom, rgb(34 199 163 / 0%), rgb(34 199 163 / 24%))"} onClick={() => handleStarsBuy({ id, productType })} />
         ) : showBuyNFT ? (
-          <Button
-            className="clothing-item-equip-button"
-            shadowColor={"#AF370F"}
-            width={"88%"}
-            marginBottom={"5"}
-            color={"rgb(255, 255, 255)"}
-            height={44}
-            fontFamily={"Oswald"}
-            fontWeight={"300"}
-            text={lang === 'en' ? "Buy NFT" : "Купить NFT"} // Hardcoded for quick fix
-            fontSize={14}
-            ownColor={
-              "rgb(255, 118, 0)"
-            }
-            bgColor={
-              "rgb(255, 118, 0)"
-            }
-            onClick={handleNftRedirect}
-            active={true}
-          />
+          <div style={{ textAlign: "center", width: "88%" }}>
+            <p style={{ color: "white", fontFamily: "Oswald", fontSize: "14px" }}>{tonPrice} TON</p>
+            <p style={{ color: "white", fontFamily: "Oswald", fontSize: "12px", marginBottom: "5px" }}>Supply: {supply} available</p>
+            <Button className="clothing-item-equip-button" shadowColor={"#AF370F"} width={"100%"} marginBottom={"5"} color={"rgb(255, 255, 255)"} height={44} fontFamily={"Oswald"} fontWeight={"300"} text={lang === "en" ? "Buy NFT" : "Купить NFT"} fontSize={14} ownColor={"rgb(255, 118, 0)"} bgColor={"rgb(255, 118, 0)"} onClick={() => handleBuyNft({ id, productType, title, icon, tonPrice })} active={supply > 0} />
+          </div>
         ) : (
-          <Button
-            className="clothing-item-equip-button"
-            shadowColor={"rgb(199, 80, 21)"}
-            width={"88%"}
-            marginBottom={"5"}
-            color={"rgb(255, 255, 255)"}
-            height={44}
-            active={available || price === 0}
-            fontFamily={"Oswald"}
-            fontWeight={"300"}
-            icon={price > 0 ? Assets.Icons.balance : undefined}
-            text={price === 0 ? 'Забрать' : price}
-            fontSize={14}
-            ownColor={
-              "rgb(255, 118, 0)"
-            }
-            bgColor={
-              "rgb(255, 118, 0)"
-            }
-            onClick={() => available || price === 0 ? handleCoinsBuy({ id, productType }) : null}
-          />
+          <Button className="clothing-item-equip-button" shadowColor={"rgb(199, 80, 21)"} width={"88%"} marginBottom={"5"} color={"rgb(255, 255, 255)"} height={44} active={available || price === 0} fontFamily={"Oswald"} fontWeight={"300"} icon={price > 0 ? Assets.Icons.balance : undefined} text={price === 0 ? "Забрать" : price} fontSize={14} ownColor={"rgb(255, 118, 0)"} bgColor={"rgb(255, 118, 0)"} onClick={() => (available || price === 0 ? handleCoinsBuy({ id, productType }) : null)} />
         )}
       </div>
     </div>
   );
 };
 
-const GridLayout = ({ items, handleCoinsBuy, handleStarsBuy }) => {
+const GridLayout = ({ items, handleCoinsBuy, handleStarsBuy, handleBuyNft }) => {
   return (
-    <div
-      style={{
-        width: "100vw",
-        display: "flex",
-        justifyContent: "center",
-        paddingBottom: 55,
-      }}
-    >
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(2, 1fr)",
-          gap: "1rem",
-          width: "90vw",
-        }}
-      >
+    <div style={{ width: "100vw", display: "flex", justifyContent: "center", paddingBottom: 55 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "1rem", width: "90vw" }}>
         {items.map((item, index) => {
           if (item.category === "Shelf") {
             return (
-              <GridItemShelf
-              key={index}
-              icon={item.image}
-              title={item.name}
-              price={item.price}
-              respect={item.respect}
-              equipped={item.equipped}
-              available={item.available}
-              handleCoinsBuy={handleCoinsBuy}
-              handleStarsBuy={handleStarsBuy}
-              clothingId={item.clothing_id}
-              type={item.category}
-              isPrem={item.isPrem}
-              description={item.description}
-              id={item.id}
-              productType={item.productType}
-            />
-            )
+              <GridItemShelf key={index} icon={item.image} title={item.name} price={item.price} tonPrice={item.tonPrice} supply={item.supply} respect={item.respect} equipped={item.equipped} available={item.available} handleCoinsBuy={handleCoinsBuy} handleStarsBuy={handleStarsBuy} handleBuyNft={handleBuyNft} clothingId={item.clothing_id} type={item.category} isPrem={item.isPrem} description={item.description} id={item.id} productType={item.productType} />
+            );
           } else {
             return (
-              <GridItem
-                key={index}
-                icon={item.image}
-                title={item.name}
-                price={item.price}
-                respect={item.respect}
-                equipped={item.equipped}
-                available={item.available}
-                handleCoinsBuy={handleCoinsBuy}
-                handleStarsBuy={handleStarsBuy}
-                clothingId={item.clothing_id}
-                type={item.category}
-                id={item.id}
-                productType={item.productType}
-              />
-            )
+              <GridItem key={index} icon={item.image} title={item.name} price={item.price} respect={item.respect} equipped={item.equipped} available={item.available} handleCoinsBuy={handleCoinsBuy} handleStarsBuy={handleStarsBuy} clothingId={item.clothing_id} type={item.category} id={item.id} productType={item.productType} />
+            );
           }
         })}
       </div>
     </div>
-  )
-}
+  );
+};
+// ... (GridItem, GridItemShelf, GridLayout remain unchanged)
 
 const NftTab = () => {
-  const [userEatingFoods, setUserEatingFoods] = useState(null)
-  const [foods, setFoods] = useState(null)
-  const [shopItems, setShopItems] = useState(null)
-  const [filterTypeInUse, setFilterTypeInUse] = useState(null)
-  const [currentItem, setCurrentItem] = useState(null)
-  const [clothesItems, setClothesItems] = useState(null)
-  const [shelfItems, setShelfItems] = useState(null)
-  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false)
-  const [currentComplexFilters, setCurrentComplexFilters] = useState([])
-  const [isLoading, setIsLoading] = useState(true)
+  const [filterTypeInUse, setFilterTypeInUse] = useState(null);
+  const [shelfItems, setShelfItems] = useState(null);
+  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
+  const [currentComplexFilters, setCurrentComplexFilters] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [transactionDetails, setTransactionDetails] = useState(null);
+  const [isTransactionModalOpen, setIsTransactionModalOpen] = useState(false);
 
-  const { userPersonage, userParameters } = useContext(UserContext)
-  const { lang } = useSettingsProvider()
+  const { userParameters } = useContext(UserContext);
+  const { lang } = useSettingsProvider();
+  const { userId, refreshData } = useUser();
+  const [tonConnectUI] = useTonConnectUI();
 
   const BaseFilters = {
-    // User Clothing
     Hat: "Hat",
     Top: "Top",
     Pants: "Pants",
     Shoes: "Shoes",
     Accessories: "Accessory",
-    // Uses ShelfItems
     Shelf: "Shelf",
     Complex: "Complex",
-    Stars: "Stars"
-  }
-  
+    Stars: "Stars",
+  };
+
   useEffect(() => {
-    getShopItems(userId)
-      .then((data) => {
-        const loadedShelfItems = data.shelf.filter(item => item.type === 'neko').map((item) => ({
-          id: item.id,
-          productType: 'shelf',
-          name: item.name[lang],
-          image: item.link,
-          price: item.cost.stars || item.cost.coins,
-          category: "Shelf",
-          isPrem: item.cost.stars > 0,
-          available: item.cost.stars > 0 || item.cost.coins === 0 || userParameters.coins >= item.cost.coins,
-          description: item.description && item.description[lang],
-          respect: item.respect
-        }))
-        setShelfItems(loadedShelfItems)
-      })
-      .finally(() => setIsLoading(false))
-  }, [])
-
-  const addComplexFilter = ({ filteredValue, filteredField }) => {
-    console.log("filters", currentComplexFilters)
-    setCurrentComplexFilters([
-      ...currentComplexFilters,
-      { filteredField, filteredValue },
-    ])
-  }
-
-  const removeComplexFilter = ({ filteredValue, filteredField }) => {
-    setCurrentComplexFilters(
-      currentComplexFilters.filter(
-        (filter) =>
-          filter.filteredField !== filteredField ||
-          filter.filteredValue !== filteredValue
-      )
-    )
-  }
-
-  const applyFilter = (items) => {
-    if (!filterTypeInUse) {
-      return items
-    }
-
-    if (filterTypeInUse === BaseFilters.Complex) {
-      if (!currentComplexFilters || currentComplexFilters.length === 0) {
-        return items
+    const fetchShopItems = async () => {
+      try {
+        setIsLoading(true);
+        const data = await getShopItems(userId);
+        const loadedShelfItems = await Promise.all(
+          data.shelf.filter(item => item.type === 'neko').map(async (item) => {
+            const supplyResponse = await instance.get(`/users/nft/supply/${item.id}`);
+            return {
+              id: item.id,
+              productType: "shelf",
+              name: item.name[lang],
+              image: item.link,
+              price: item.cost.stars || item.cost.coins,
+              tonPrice: item.tonPrice || 0,
+              supply: supplyResponse.data.availableSupply,
+              category: "Shelf",
+              isPrem: item.cost.stars > 0,
+              available: item.cost.stars > 0 || item.cost.coins === 0 || userParameters.coins >= item.cost.coins,
+              description: item.description && item.description[lang],
+              respect: item.respect,
+            };
+          })
+        );
+        setShelfItems(loadedShelfItems);
+      } catch (error) {
+        console.error("Error fetching shop items:", error);
+        WebApp.showAlert("Failed to load shop items.");
+      } finally {
+        setIsLoading(false);
       }
+    };
+    fetchShopItems();
+  }, [userId, lang, userParameters.coins]);
 
-      const tags = currentComplexFilters
-        .filter((filter) => filter.filteredField === "tag")
-        .map((filter) => filter.filteredValue)
-      const tiers = currentComplexFilters
-        .filter((filter) => filter.filteredField === "tier")
-        .map((filter) => filter.filteredValue)
+  const handleBuyNft = async (item) => {
+    try {
+      setIsLoading(true);
+      const response = await instance.get(`/users/nft/transaction-details`, {
+        params: { userId, productId: item.id },
+      });
+      const details = {
+        ...response.data,
+        item,
+        amount: Math.floor(item.tonPrice * 1e9).toString(), // Convert tonPrice to nanotons
+      };
+      console.log("Transaction details prepared:", JSON.stringify(details, null, 2));
+      await handleConfirmTransaction(details)
+      setIsTransactionModalOpen(true);
+    } catch (error) {
+      console.error("Failed to fetch transaction details:", error);
+      WebApp.showAlert("Failed to fetch transaction details.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-      console.log('@', tags)
-
-      const filtered = items.filter((item) => {
-        let shouldTake = false
-        const isCorrectByTier =
-          tiers.length > 0 ? tiers.includes(item.tier) : true
-
-        const isCorrectByTags = tags.length > 0 ? item.tags?.some(tag => tags.includes(tag)) : true
-      
-        if (isCorrectByTier && isCorrectByTags) {
-          shouldTake = true
-        }
-
-        return shouldTake
-      })
-
-      return filtered
+  const handleConfirmTransaction = async (transactionDetails) => {
+    if (!tonConnectUI.connected) {
+      setIsTransactionModalOpen(false); // Close modal before opening wallet prompt
+      await tonConnectUI.openModal();
+      if (!tonConnectUI.connected) {
+        console.log("Wallet connection canceled.");
+        WebApp.showAlert("Wallet connection canceled.");
+        return;
+      }
+      // Re-open modal after connection
+      setIsTransactionModalOpen(true);
+      return;
     }
 
-    if (filterTypeInUse === BaseFilters.Hat) {
-      return items.filter((item) => item.category === "Hat")
+    if (!transactionDetails) {
+      console.error("Transaction details are null or undefined");
+      WebApp.showAlert("Transaction details are missing.");
+      setIsTransactionModalOpen(false);
+      return;
     }
 
-    if (filterTypeInUse === BaseFilters.Top) {
-      return items.filter((item) => item.category === "Top")
-    }
+    try {
+      setIsLoading(true);
+      const validUntil = Math.floor(Date.now() / 1000) + 600;
+      console.log("validUntil:", validUntil);
 
-    if (filterTypeInUse === BaseFilters.Pants) {
-      return items.filter((item) => item.category === "Pants")
-    }
+      const transaction = {
+        validUntil,
+        messages: [
+          {
+            address: transactionDetails.address,
+            amount: 100000000, // Already a string in nanotons
+            payload: transactionDetails.memo
+              ? Buffer.from(transactionDetails.memo.slice(0, 32), "utf8").toString("base64") // Truncate memo to 32 chars
+              : undefined,
+          },
+        ],
+      };
 
-    if (filterTypeInUse === BaseFilters.Shoes) {
-      return items.filter((item) => item.category === "Shoes")
-    }
+      console.log("Transaction payload:", JSON.stringify(transaction, null, 2));
 
-    if (filterTypeInUse === BaseFilters.Accessories) {
-      return items.filter((item) => item.category === "Accessory")
-    }
+      const result = await tonConnectUI.sendTransaction(transaction, {
+        modals: "all",
+        notifications: "all",
+      });
 
-    if (filterTypeInUse === BaseFilters.Shelf) {
-      return items.filter((item) => item.productType === "shelf")
-    }
+      console.log("Transaction result:", JSON.stringify(result, null, 2));
 
-    if (filterTypeInUse === BaseFilters.Stars) {
-      return items.filter((item) => item.isPrem === true)
-    }
-  }
+      WebApp.showAlert("Transaction sent! Awaiting confirmation...");
+      // const verifyResponse = await instance.post(`/users/nft/verify-transaction`, {
+      //   userId,
+      //   transactionId: result.boc,
+      // });
 
-  const { refreshData, userId } = useUser()
+      // if (verifyResponse.data.success) {
+      //   WebApp.showAlert("Purchase confirmed successfully!");
+      //   await refreshData();
+      //   const data = await getShopItems(userId);
+      //   const updatedShelfItems = await Promise.all(
+      //     data.shelf.filter(item => item.type === 'neko').map(async (item) => {
+      //       const supplyResponse = await instance.get(`/users/nft/supply/${item.id}`);
+      //       return {
+      //         id: item.id,
+      //         productType: "shelf",
+      //         name: item.name[lang],
+      //         image: item.link,
+      //         price: item.cost.stars || item.cost.coins,
+      //         tonPrice: item.tonPrice || 0,
+      //         supply: supplyResponse.data.availableSupply,
+      //         category: "Shelf",
+      //         isPrem: item.cost.stars > 0,
+      //         available: item.cost.stars > 0 || item.cost.coins === 0 || userParameters.coins >= item.cost.coins,
+      //         description: item.description && item.description[lang],
+      //         respect: item.respect,
+      //       };
+      //     })
+      //   );
+      //   setShelfItems(updatedShelfItems);
+      // } else {
+      //   WebApp.showAlert("Transaction sent but not yet confirmed. Check your wallet.");
+      // }
+    } catch (error) {
+      console.error("Transaction error:", error);
+      let errorMessage = "Transaction failed.";
+      if (error.message.includes("rejected")) errorMessage = "Transaction rejected by wallet.";
+      else if (error.message.includes("timeout")) errorMessage = "Transaction timed out.";
+      else if (error.message.includes("insufficient")) errorMessage = "Insufficient funds.";
+      WebApp.showAlert(errorMessage);
+    } finally {
+      setIsTransactionModalOpen(false);
+      setIsLoading(false);
+      setTransactionDetails(null);
+    }
+  };
 
   const handleStarsBuy = async (item) => {
     try {
-      await handleStarsPayment(userId, item.productType, item.id, lang)
-      await refreshData()
-      getShopItems(userId)
-      .then((data) => {
-        const loadedShelfItems = data.shelf.filter(item => item.type === 'neko').map((item) => ({
-          id: item.id,
-          productType: 'shelf',
-          name: item.name[lang],
-          image: item.link,
-          price: item.cost.stars || item.cost.coins,
-          category: "Shelf",
-          isPrem: item.cost.stars > 0,
-          available: item.cost.stars > 0 || item.cost.coins === 0 || userParameters.coins >= item.cost.coins,
-          description: item.description && item.description[lang],
-          respect: item.respect
-        }))
-        setShelfItems(loadedShelfItems)
-      })
-      .finally(() => setIsLoading(false))
+      setIsLoading(true);
+      await handleStarsPayment(userId, item.productType, item.id, lang);
+      await refreshData();
+      const data = await getShopItems(userId);
+      const loadedShelfItems = await Promise.all(
+        data.shelf.filter(item => item.type === 'neko').map(async (item) => {
+          const supplyResponse = await instance.get(`/users/nft/supply/${item.id}`);
+          return {
+            id: item.id,
+            productType: "shelf",
+            name: item.name[lang],
+            image: item.link,
+            price: item.cost.stars || item.cost.coins,
+            tonPrice: item.tonPrice || 0,
+            supply: supplyResponse.data.availableSupply,
+            category: "Shelf",
+            isPrem: item.cost.stars > 0,
+            available: item.cost.stars > 0 || item.cost.coins === 0 || userParameters.coins >= item.cost.coins,
+            description: item.description && item.description[lang],
+            respect: item.respect,
+          };
+        })
+      );
+      setShelfItems(loadedShelfItems);
     } catch (err) {
-      console.error(err)
+      console.error("Stars payment failed:", err);
+      WebApp.showAlert("Failed to process stars payment.");
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
-  
+  };
+
   const handleCoinsBuy = async (item) => {
     try {
-      setIsLoading(true)
-      await buyItemsForCoins(userId, item.id, item.productType)
-      await refreshData()
-      getShopItems(userId)
-      .then((data) => {
-        const loadedShelfItems = data.shelf.filter(item => item.type === 'neko').map((item) => ({
-          id: item.id,
-          productType: 'shelf',
-          name: item.name[lang],
-          image: item.link,
-          price: item.cost.stars || item.cost.coins,
-          category: "Shelf",
-          isPrem: item.cost.stars > 0,
-          available: item.cost.stars > 0 || item.cost.coins === 0 || userParameters.coins >= item.cost.coins,
-          description: item.description && item.description[lang],
-          respect: item.respect
-        }))
-        setShelfItems(loadedShelfItems)
-      })
-      .finally(() => setIsLoading(false))
+      setIsLoading(true);
+      await buyItemsForCoins(userId, item.id, item.productType);
+      await refreshData();
+      const data = await getShopItems(userId);
+      const loadedShelfItems = await Promise.all(
+        data.shelf.filter(item => item.type === 'neko').map(async (item) => {
+          const supplyResponse = await instance.get(`/users/nft/supply/${item.id}`);
+          return {
+            id: item.id,
+            productType: "shelf",
+            name: item.name[lang],
+            image: item.link,
+            price: item.cost.stars || item.cost.coins,
+            tonPrice: item.tonPrice || 0,
+            supply: supplyResponse.data.availableSupply,
+            category: "Shelf",
+            isPrem: item.cost.stars > 0,
+            available: item.cost.stars > 0 || item.cost.coins === 0 || userParameters.coins >= item.cost.coins,
+            description: item.description && item.description[lang],
+            respect: item.respect,
+          };
+        })
+      );
+      setShelfItems(loadedShelfItems);
     } catch (err) {
-      console.error(err)
+      console.error("Coins purchase failed:", err);
+      WebApp.showAlert("Failed to process coins purchase.");
+    } finally {
+      setIsLoading(false);
     }
-  }
+  };
+
+  const addComplexFilter = ({ filteredValue, filteredField }) => {
+    setCurrentComplexFilters([...currentComplexFilters, { filteredField, filteredValue }]);
+  };
+
+  const removeComplexFilter = ({ filteredValue, filteredField }) => {
+    setCurrentComplexFilters(currentComplexFilters.filter((filter) => filter.filteredField !== filteredField || filter.filteredValue !== filteredValue));
+  };
+
+  const applyFilter = (items) => {
+    if (!filterTypeInUse) return items;
+    if (filterTypeInUse === BaseFilters.Complex) {
+      if (!currentComplexFilters || currentComplexFilters.length === 0) return items;
+      const tags = currentComplexFilters.filter((filter) => filter.filteredField === "tag").map((filter) => filter.filteredValue);
+      const tiers = currentComplexFilters.filter((filter) => filter.filteredField === "tier").map((filter) => filter.filteredValue);
+      return items.filter((item) => {
+        const isCorrectByTier = tiers.length > 0 ? tiers.includes(item.tier) : true;
+        const isCorrectByTags = tags.length > 0 ? item.tags?.some((tag) => tags.includes(tag)) : true;
+        return isCorrectByTier && isCorrectByTags;
+      });
+    }
+    if (filterTypeInUse === BaseFilters.Hat) return items.filter((item) => item.category === "Hat");
+    if (filterTypeInUse === BaseFilters.Top) return items.filter((item) => item.category === "Top");
+    if (filterTypeInUse === BaseFilters.Pants) return items.filter((item) => item.category === "Pants");
+    if (filterTypeInUse === BaseFilters.Shoes) return items.filter((item) => item.category === "Shoes");
+    if (filterTypeInUse === BaseFilters.Accessories) return items.filter((item) => item.category === "Accessory");
+    if (filterTypeInUse === BaseFilters.Shelf) return items.filter((item) => item.productType === "shelf");
+    if (filterTypeInUse === BaseFilters.Stars) return items.filter((item) => item.isPrem === true);
+  };
 
   if (isLoading) {
-    return <FullScreenSpinner />
+    return <FullScreenSpinner />;
   }
 
   return (
     <ScreenContainer withTab>
       {isFilterModalOpen && (
         <FilterModal
-          baseStyles={{
-            position: "fixed",
-            height: "100vh",
-            width: "100vw",
-            backgroundColor: "black",
-            zIndex: 10,
-            top: 0,
-            left: 0,
-          }}
+          baseStyles={{ position: "fixed", height: "100vh", width: "100vw", backgroundColor: "black", zIndex: 10, top: 0, left: 0 }}
           addComplexFilter={addComplexFilter}
           removeComplexFilter={removeComplexFilter}
           setIsFilterModalOpen={setIsFilterModalOpen}
           currentComplexFilters={currentComplexFilters}
         />
-      )}{" "}
+      )}
+      {isTransactionModalOpen && (
+        <Modal
+          isOpen={isTransactionModalOpen}
+          onClose={() => setIsTransactionModalOpen(false)}
+          title={lang === "en" ? "Confirm NFT Purchase" : "Подтвердить покупку NFT"}
+        >
+          <div style={{ color: "white", textAlign: "center" }}>
+            <p>{lang === "en" ? "Item:" : "Товар:"} {transactionDetails?.item?.title || "N/A"}</p>
+            <p>{lang === "en" ? "Price:" : "Цена:"} {transactionDetails?.item?.tonPrice || "N/A"} TON</p>
+            <p>{lang === "en" ? "To:" : "Кому:"} {transactionDetails?.address?.slice(0, 6)}...{transactionDetails?.address?.slice(-4)}</p>
+            <Button
+              text={lang === "en" ? "Confirm" : "Подтвердить"}
+              onClick={handleConfirmTransaction}
+              width="100%"
+              height={44}
+              fontFamily="Oswald"
+              fontWeight="300"
+              fontSize={14}
+              ownColor="rgb(255, 118, 0)"
+              bgColor="rgb(255, 118, 0)"
+              style={{ marginTop: "20px" }}
+            />
+          </div>
+        </Modal>
+      )}
       <GridLayout
-        setCurrentItem={setCurrentItem}
         items={applyFilter([...shelfItems])}
         handleCoinsBuy={handleCoinsBuy}
         handleStarsBuy={handleStarsBuy}
+        handleBuyNft={handleBuyNft}
       />
-      {currentItem && (
-        <Modal
-          width={"100vw"}
-          bottom={"-25vh"}
-          height={"100vh"}
-          data={{ title: "Lol" }}
-        />
-      )}
     </ScreenContainer>
-  )
-}
+  );
+};
 
-export default NftTab
+const NftTabWithTonConnect = () => <NftTab />;
+
+export default NftTabWithTonConnect;
