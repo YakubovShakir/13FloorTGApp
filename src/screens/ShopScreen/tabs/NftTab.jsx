@@ -184,111 +184,130 @@ const NftTab = () => {
       const response = await instance.get(`/users/nft/transaction-details`, {
         params: { userId, productId: item.id },
       });
-      const details = {
-        ...response.data,
-        item,
-        amount: Math.floor(item.tonPrice * 1e9).toString(), // Convert tonPrice to nanotons
-      };
-      console.log("Transaction details prepared:", JSON.stringify(details, null, 2));
-      await handleConfirmTransaction(details)
+      console.log("Backend Response:", {
+        address: response.data.address,
+        amount: response.data.amount,
+        memo: response.data.memo,
+        itemId: item.id,
+        tonPrice: item.tonPrice,
+      });
+      setTransactionDetails({ ...response.data, item });
       setIsTransactionModalOpen(true);
     } catch (error) {
       console.error("Failed to fetch transaction details:", error);
-      WebApp.showAlert("Failed to fetch transaction details.");
+      WebApp.showAlert("Failed to fetch transaction details. Please try again.");
     } finally {
       setIsLoading(false);
     }
   };
-
-  const handleConfirmTransaction = async (transactionDetails) => {
+  
+  const handleConfirmTransaction = async () => {
     if (!tonConnectUI.connected) {
-      setIsTransactionModalOpen(false); // Close modal before opening wallet prompt
+      WebApp.showAlert("Please connect your TON wallet first.");
       await tonConnectUI.openModal();
-      if (!tonConnectUI.connected) {
-        console.log("Wallet connection canceled.");
-        WebApp.showAlert("Wallet connection canceled.");
-        return;
-      }
-      // Re-open modal after connection
-      setIsTransactionModalOpen(true);
-      return;
+      if (!tonConnectUI.connected) return;
     }
-
-    if (!transactionDetails) {
-      console.error("Transaction details are null or undefined");
-      WebApp.showAlert("Transaction details are missing.");
-      setIsTransactionModalOpen(false);
-      return;
-    }
-
+  
     try {
       setIsLoading(true);
-      const validUntil = Math.floor(Date.now() / 1000) + 10000000;
-      console.log("validUntil:", validUntil);
-
+      const { address, amount, memo, item } = transactionDetails;
+  
+      // Validate Address (TON mainnet, bounceable, EQ prefix)
+      if (!address || !address.match(/^EQ[0-9A-Za-z_-]{46}$/)) {
+        throw new Error(`Invalid TON address: ${address} (expected EQ + 46 base64 chars)`);
+      }
+  
+      // Validate Amount (string nanotons, matches tonPrice)
+      const expectedNanotons = String(BigInt(Math.floor(item.tonPrice * 1e9)));
+      const amountInNanotons = String(amount);
+      if (!/^\d+$/.test(amountInNanotons) || BigInt(amountInNanotons) <= 0) {
+        throw new Error(`Invalid amount: ${amountInNanotons} (must be positive integer nanotons)`);
+      }
+      if (amountInNanotons !== expectedNanotons) {
+        console.warn(`Amount mismatch: Backend=${amountInNanotons}, Expected=${expectedNanotons} for ${item.tonPrice} TON`);
+      }
+  
+      // Validate Memo and Payload (max 128 bytes raw, ~172 chars base64)
+      let trimmedMemo = memo && typeof memo === "string" ? memo : "";
+      if (trimmedMemo.length > 120) {
+        trimmedMemo = trimmedMemo.substring(0, 120);
+        console.warn("Memo trimmed to 120 chars:", trimmedMemo);
+      }
+      const rawPayload = trimmedMemo ? Buffer.from(trimmedMemo, "utf8") : null;
+      const payload = rawPayload ? rawPayload.toString("base64") : undefined;
+      if (rawPayload && rawPayload.length > 128) {
+        throw new Error(`Raw payload exceeds 128 bytes: ${rawPayload.length}`);
+      }
+  
+      // Set validUntil (5 minutes)
+      const validUntil = Math.floor(Date.now() / 1000) + 300;
+  
       const transaction = {
+        validUntil,
         messages: [
           {
-            address: transactionDetails.address,
-            amount: transactionDetails.amount,
-            payload: transactionDetails.memo
+            address,
+            amount: amountInNanotons,
+            payload,
           },
         ],
       };
-
-      console.log("Transaction payload:", JSON.stringify(transaction, null, 2));
-
+  
+      console.log("Transaction for Wallet:", {
+        validUntil,
+        address,
+        amount: amountInNanotons,
+        memo: trimmedMemo || "None",
+        payload: payload || "None",
+        tonPrice: item.tonPrice,
+      });
+  
       const result = await tonConnectUI.sendTransaction(transaction, {
         modals: "all",
         notifications: "all",
       });
-
-      console.log("Transaction result:", JSON.stringify(result, null, 2));
-
-      WebApp.showAlert("Transaction sent! Awaiting confirmation...");
-      // const verifyResponse = await instance.post(`/users/nft/verify-transaction`, {
-      //   userId,
-      //   transactionId: result.boc,
-      // });
-
-      // if (verifyResponse.data.success) {
-      //   WebApp.showAlert("Purchase confirmed successfully!");
-      //   await refreshData();
-      //   const data = await getShopItems(userId);
-      //   const updatedShelfItems = await Promise.all(
-      //     data.shelf.filter(item => item.type === 'neko').map(async (item) => {
-      //       const supplyResponse = await instance.get(`/users/nft/supply/${item.id}`);
-      //       return {
-      //         id: item.id,
-      //         productType: "shelf",
-      //         name: item.name[lang],
-      //         image: item.link,
-      //         price: item.cost.stars || item.cost.coins,
-      //         tonPrice: item.tonPrice || 0,
-      //         supply: supplyResponse.data.availableSupply,
-      //         category: "Shelf",
-      //         isPrem: item.cost.stars > 0,
-      //         available: item.cost.stars > 0 || item.cost.coins === 0 || userParameters.coins >= item.cost.coins,
-      //         description: item.description && item.description[lang],
-      //         respect: item.respect,
-      //       };
-      //     })
-      //   );
-      //   setShelfItems(updatedShelfItems);
-      // } else {
-      //   WebApp.showAlert("Transaction sent but not yet confirmed. Check your wallet.");
-      // }
+  
+      console.log("Wallet Response:", result);
+  
+      // Optional backend verification
+      const verifyResponse = await instance.post(`/users/nft/verify-transaction`, {
+        userId,
+        transactionId: result.boc,
+      });
+  
+      if (verifyResponse.data.success) {
+        WebApp.showAlert("Transaction confirmed successfully!");
+        await refreshData();
+        const data = await getShopItems(userId);
+        const updatedShelfItems = await Promise.all(
+          data.shelf.filter(item => item.type === 'neko').map(async (item) => {
+            const supplyResponse = await instance.get(`/users/nft/supply/${item.id}`);
+            return {
+              id: item.id,
+              productType: "shelf",
+              name: item.name[lang],
+              image: item.link,
+              price: item.cost.stars || item.cost.coins,
+              tonPrice: item.tonPrice || 0,
+              supply: supplyResponse.data.availableSupply,
+              category: "Shelf",
+              isPrem: item.cost.stars > 0,
+              available: item.cost.stars > 0 || item.cost.coins === 0 || userParameters.coins >= item.cost.coins,
+              description: item.description && item.description[lang],
+              respect: item.respect,
+            };
+          })
+        );
+        setShelfItems(updatedShelfItems);
+      } else {
+        WebApp.showAlert("Transaction sent but verification failed. Check your wallet.");
+      }
     } catch (error) {
-      console.error("Transaction error:", error);
-      let errorMessage = "Transaction failed.";
-      if (error.message.includes("rejected")) errorMessage = "Transaction rejected by wallet.";
-      else if (error.message.includes("timeout")) errorMessage = "Transaction timed out.";
-      else if (error.message.includes("insufficient")) errorMessage = "Insufficient funds.";
-      WebApp.showAlert(errorMessage);
+      console.error("Transaction failed:", error);
+      WebApp.showAlert(`Transaction failed: ${error.message || "Unknown error"}`);
     } finally {
       setIsTransactionModalOpen(false);
       setIsLoading(false);
-      setTransactionDetails(null);
     }
   };
 
