@@ -231,8 +231,8 @@ const NftTab = () => {
         messages: [
           {
             address: transactionDetails.address,
-            amount: transactionDetails.amount, // Already a string in nanotons
-            payload: "123"
+            amount: transactionDetails.amount,
+            payload: transactionDetails.memo
           },
         ],
       };
