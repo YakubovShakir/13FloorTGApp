@@ -132,13 +132,23 @@ const NftTab = () => {
   const { userId, refreshData } = useUser();
   const [tonConnectUI] = useTonConnectUI();
 
-  // Log TonConnectUI state for debugging
+  // Debug TonConnectUI state
   useEffect(() => {
-    console.log("TonConnectUI State:", {
+    console.log("TonConnectUI Initial State:", {
       connected: tonConnectUI.connected,
       wallet: tonConnectUI.wallet,
       availableWallets: tonConnectUI.availableWallets,
     });
+
+    // Listen for wallet connection changes
+    const unsubscribe = tonConnectUI.onStatusChange((wallet) => {
+      console.log("TonConnectUI Wallet Status Changed:", {
+        connected: tonConnectUI.connected,
+        wallet: wallet,
+      });
+    });
+
+    return () => unsubscribe();
   }, [tonConnectUI]);
 
   const BaseFilters = {
@@ -206,20 +216,26 @@ const NftTab = () => {
       console.error("Failed to fetch transaction details:", error);
       WebApp.showAlert("Failed to fetch transaction details. Please try again.");
     } finally {
-      await handleConfirmTransaction()
       setIsLoading(false);
     }
   };
 
   const handleConfirmTransaction = async () => {
-    if (!tonConnectUI.connected) {
-      WebApp.showAlert("Please connect your TON wallet first.");
-      await tonConnectUI.openModal();
-      if (!tonConnectUI.connected) return;
-    }
-
     try {
       setIsLoading(true);
+
+      // Ensure wallet is connected
+      if (!tonConnectUI.connected) {
+        console.log("Wallet not connected, opening modal...");
+        await tonConnectUI.openModal();
+        if (!tonConnectUI.connected) {
+          WebApp.showAlert("Wallet connection cancelled.");
+          return;
+        }
+      }
+
+      console.log("Connected Wallet:", tonConnectUI.wallet);
+
       const { address, amount, memo, item } = transactionDetails;
 
       // Validate transaction fields
@@ -261,6 +277,7 @@ const NftTab = () => {
         tonPrice: item.tonPrice,
       });
 
+      // Send transaction
       const result = await tonConnectUI.sendTransaction(transaction, {
         modals: "all",
         notifications: "all",
@@ -306,74 +323,6 @@ const NftTab = () => {
       WebApp.showAlert(`Transaction failed: ${error.message || "Unknown error"}`);
     } finally {
       setIsTransactionModalOpen(false);
-      setIsLoading(false);
-    }
-  };
-
-  const handleStarsBuy = async (item) => {
-    try {
-      setIsLoading(true);
-      await handleStarsPayment(userId, item.productType, item.id, lang);
-      await refreshData();
-      const data = await getShopItems(userId);
-      const loadedShelfItems = await Promise.all(
-        data.shelf.filter(item => item.type === 'neko').map(async (item) => {
-          const supplyResponse = await instance.get(`/users/nft/supply/${item.id}`);
-          return {
-            id: item.id,
-            productType: "shelf",
-            name: item.name[lang],
-            image: item.link,
-            price: item.cost.stars || item.cost.coins,
-            tonPrice: item.tonPrice || 0,
-            supply: supplyResponse.data.availableSupply,
-            category: "Shelf",
-            isPrem: item.cost.stars > 0,
-            available: item.cost.stars > 0 || item.cost.coins === 0 || userParameters.coins >= item.cost.coins,
-            description: item.description && item.description[lang],
-            respect: item.respect,
-          };
-        })
-      );
-      setShelfItems(loadedShelfItems);
-    } catch (err) {
-      console.error("Stars payment failed:", err);
-      WebApp.showAlert("Failed to process stars payment.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleCoinsBuy = async (item) => {
-    try {
-      setIsLoading(true);
-      await buyItemsForCoins(userId, item.id, item.productType);
-      await refreshData();
-      const data = await getShopItems(userId);
-      const loadedShelfItems = await Promise.all(
-        data.shelf.filter(item => item.type === 'neko').map(async (item) => {
-          const supplyResponse = await instance.get(`/users/nft/supply/${item.id}`);
-          return {
-            id: item.id,
-            productType: "shelf",
-            name: item.name[lang],
-            image: item.link,
-            price: item.cost.stars || item.cost.coins,
-            tonPrice: item.tonPrice || 0,
-            supply: supplyResponse.data.availableSupply,
-            category: "Shelf",
-            isPrem: item.cost.stars > 0,
-            available: item.cost.stars > 0 || item.cost.coins === 0 || userParameters.coins >= item.cost.coins,
-            description: item.description && item.description[lang],
-            respect: item.respect,
-          };
-        })
-      );
-      setShelfItems(loadedShelfItems);
-    } catch (err) {
-      console.error("Coins purchase failed:", err);
-      WebApp.showAlert("Failed to process coins purchase.");
-    } finally {
       setIsLoading(false);
     }
   };
@@ -429,9 +378,9 @@ const NftTab = () => {
           title={lang === "en" ? "Confirm NFT Purchase" : "Подтвердить покупку NFT"}
         >
           <div style={{ color: "white", textAlign: "center" }}>
-            <p>{lang === "en" ? "Item:" : "Товар:"} {transactionDetails?.item?.title || "N/A"}</p>
-            <p>{lang === "en" ? "Price:" : "Цена:"} {transactionDetails?.item?.tonPrice || "N/A"} TON</p>
-            <p>{lang === "en" ? "To:" : "Кому:"} {transactionDetails?.address?.slice(0, 6)}...{transactionDetails?.address?.slice(-4)}</p>
+            <p>{lang === "en" ? "Item:" : "Товар:"} {transactionDetails?.item.title}</p>
+            <p>{lang === "en" ? "Price:" : "Цена:"} {transactionDetails?.item.tonPrice} TON</p>
+            <p>{lang === "en" ? "To:" : "Кому:"} {transactionDetails?.address.slice(0, 6)}...{transactionDetails?.address.slice(-4)}</p>
             <Button
               text={lang === "en" ? "Confirm" : "Подтвердить"}
               onClick={handleConfirmTransaction}
@@ -457,6 +406,30 @@ const NftTab = () => {
   );
 };
 
-const NftTabWithTonConnect = () => <NftTab />;
+// Ensure proper TonConnectUI configuration
+const NftTabWithTonConnect = () => (
+  // <TonConnectUIProvider
+  //   manifestUrl="https://your-app-url/tonconnect-manifest.json" // Replace with your manifest URL
+  //   actionsConfiguration={{
+  //     twaReturnUrl: "https://t.me/your_bot_name" // Replace with your Telegram bot URL
+  //   }}
+  //   walletsListConfiguration={{
+  //     includeWallets: [
+  //       {
+  //         appName: "tonkeeper",
+  //         name: "Tonkeeper",
+  //         image: "https://tonkeeper.com/assets/tonkeeper-logo.png",
+  //         aboutUrl: "https://tonkeeper.com",
+  //         universalLink: "https://app.tonkeeper.com/ton-connect",
+  //         jsBridgeKey: "tonkeeper",
+  //         bridgeUrl: "https://bridge.tonapi.io/bridge",
+  //         platforms: ["ios", "android", "chrome", "firefox", "macos"]
+  //       }
+  //     ]
+  //   }}
+  // >
+    <NftTab />
+  // </TonConnectUIProvider>
+);
 
 export default NftTabWithTonConnect;
