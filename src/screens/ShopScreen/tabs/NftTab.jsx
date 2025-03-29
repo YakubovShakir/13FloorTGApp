@@ -231,10 +231,8 @@ const NftTab = () => {
         messages: [
           {
             address: transactionDetails.address,
-            amount: 100000000, // Already a string in nanotons
-            payload: transactionDetails.memo
-              ? Buffer.from(transactionDetails.memo.slice(0, 32), "utf8").toString("base64") // Truncate memo to 32 chars
-              : undefined,
+            amount: transactionDetails.amount, // Already a string in nanotons
+            payload: "123"
           },
         ],
       };
