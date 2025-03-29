@@ -116,7 +116,6 @@ const GridLayout = ({ items, handleCoinsBuy, handleStarsBuy, handleBuyNft }) => 
     </div>
   );
 };
-// ... (GridItem, GridItemShelf, GridLayout remain unchanged)
 
 const NftTab = () => {
   const [filterTypeInUse, setFilterTypeInUse] = useState(null);
@@ -211,7 +210,7 @@ const NftTab = () => {
         tonPrice: item.tonPrice,
       });
       setTransactionDetails({ ...response.data, item });
-      setIsTransactionModalOpen(true);
+      await handleConfirmTransaction()
     } catch (error) {
       console.error("Failed to fetch transaction details:", error);
       WebApp.showAlert("Failed to fetch transaction details. Please try again.");
@@ -398,8 +397,8 @@ const NftTab = () => {
       )}
       <GridLayout
         items={applyFilter([...shelfItems])}
-        handleCoinsBuy={handleCoinsBuy}
-        handleStarsBuy={handleStarsBuy}
+        handleCoinsBuy={() => {}}
+        handleStarsBuy={() => {}}
         handleBuyNft={handleBuyNft}
       />
     </ScreenContainer>
