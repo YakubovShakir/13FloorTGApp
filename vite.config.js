@@ -3,7 +3,7 @@ import react from "@vitejs/plugin-react"
 import * as dotenv from "dotenv"
 import EnvironmentPlugin from 'vite-plugin-environment'
 import polyfillNode from 'rollup-plugin-polyfill-node'
-
+import { NodeGlobalsPolyfillPlugin } from '@esbuild-plugins/node-globals-polyfill';
 dotenv.config()
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -13,5 +13,17 @@ export default defineConfig({
       usePolling: true,
       useFsEvents: true
     }
+  },
+  optimizeDeps: {
+    esbuildOptions: {
+      plugins: [
+        NodeGlobalsPolyfillPlugin({
+          buffer: true,
+        }),
+      ],
+    },
+  },
+  define: {
+    global: 'window', // Make global available for browser
   },
 })
