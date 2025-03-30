@@ -12,7 +12,7 @@ import { instance } from "../../../services/instance";
 import WebApp from "@twa-dev/sdk";
 import { useSettingsProvider } from "../../../hooks";
 import { useTonConnectUI, useTonWallet } from "@tonconnect/ui-react";
-import { beginCell } from "@ton/ton";
+
 // Removed Buffer dependency since we're using @ton/ton exclusively
 const GridItem = ({
   id,
@@ -529,34 +529,13 @@ const toNano = (tonAmount) => {
 const handleSendTransactionTonConnect = async (
   tonConnectUI,
   WebApp,
-  walletAddress,
-  amount,
-  UUID,
-  userId,
+  paymentRequest,
   instance,
   setIsTransactionModalOpen,
   setIsLoading,
   refreshData,
   fetchShopItems
 ) => {
-  // Create payload with UUID as a comment
-  const body = beginCell()
-    .storeUint(0, 32) // 32-bit 0 opcode for comment
-    .storeStringTail(UUID) // Use UUID as memo
-    .endCell();
-
-  const paymentRequest = {
-    messages: [
-      {
-        address: walletAddress,
-        amount: toNano(amount).toString(),
-        payload: body.toBoc().toString("base64"), // Proper TON cell serialization
-      },
-    ],
-    validUntil: Math.floor(Date.now() / 1000) + 3600, // 1 hour
-    network: "-239", // Mainnet
-  };
-
   try {
     setIsLoading(true);
 
@@ -579,23 +558,6 @@ const handleSendTransactionTonConnect = async (
       platform: WebApp.platform,
     });
 
-    // // Step 2: Validate address
-    // if (!walletAddress || !/^[A-Za-z0-9+/=-]{48}$/.test(walletAddress)) {
-    //   throw new Error(`Invalid TON address: ${walletAddress}`);
-    // }
-    console.log("Destination Address:", walletAddress);
-
-    // Step 3: Log transaction details
-    console.log("Amount in TON:", amount);
-    console.log("Amount in Nanotons:", toNano(amount).toString());
-    console.log("Memo (raw):", UUID);
-    console.log("Payload (base64):", body.toBoc().toString("base64"));
-    console.log("Full Transaction Object:", JSON.stringify(paymentRequest, null, 2));
-
-    // Step 4: Construct universal link as fallback
-    const universalLink = `ton://transfer/${walletAddress}?amount=${toNano(amount)}&text=${encodeURIComponent(UUID)}`;
-    const isTelegramBrowser = WebApp.platform !== "unknown" && WebApp.platform !== undefined;
-
     // Step 5: Send transaction via TonConnect
     const result = await tonConnectUI.sendTransaction(paymentRequest, {
       modals: "all",
@@ -604,22 +566,22 @@ const handleSendTransactionTonConnect = async (
     console.log("TonConnect Transaction Result:", result);
 
     // Step 6: Verify with backend (include more data for flexibility)
-    const verifyResponse = await instance.post(`/users/nft/verify-transaction`, {
-      userId,
-      transactionId: result.boc,
-      memo: UUID,
-      amount: toNano(amount).toString(),
-      destination: walletAddress,
-    });
-    console.log("Backend Verification Response:", verifyResponse.data);
+    // const verifyResponse = await instance.post(`/users/nft/verify-transaction`, {
+    //   userId,
+    //   transactionId: result.boc,
+    //   memo: UUID,
+    //   amount: toNano(amount).toString(),
+    //   destination: walletAddress,
+    // });
+    // console.log("Backend Verification Response:", verifyResponse.data);
 
-    if (verifyResponse.data.success) {
-      WebApp.showAlert("Transaction confirmed successfully!");
-      await refreshData();
-      await fetchShopItems();
-    } else {
-      throw new Error(`Verification failed: ${verifyResponse.data.message || "Unknown reason"}`);
-    }
+    // if (verifyResponse.data.success) {
+    //   WebApp.showAlert("Transaction confirmed successfully!");
+    //   await refreshData();
+    //   await fetchShopItems();
+    // } else {
+    //   throw new Error(`Verification failed: ${verifyResponse.data.message || "Unknown reason"}`);
+    // }
   } catch (error) {
     console.error("Transaction Error:", {
       message: error.message,
@@ -758,22 +720,12 @@ const NftTab = () => {
     try {
       setIsLoading(true);
 
-      const { address, item } = transactionDetails;
-
-      // if (!address || !/^[A-Za-z0-9+/=-]{48}$/.test(address)) {
-      //   throw new Error(`Invalid TON address from backend: ${address}`);
-      // }
-
-      const tonPriceString = item.tonPrice.toString();
-      const UUID = "081598dc-efb9-45d7-910f-d1dab767a3a0";
+      const { paymentRequest } = transactionDetails;
 
       await handleSendTransactionTonConnect(
         tonConnectUI,
         WebApp,
-        address,
-        tonPriceString,
-        UUID,
-        userId,
+        paymentRequest,
         instance,
         setIsTransactionModalOpen,
         setIsLoading,
