@@ -16,4 +16,7 @@ export default defineConfig({
       useFsEvents: true,
     },
   },
+  define: {
+    'process.env': process.env
+  }
 });
