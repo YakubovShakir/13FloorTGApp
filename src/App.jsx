@@ -236,7 +236,7 @@ function App() {
 
   return (
     // <TelegramPlatformCheck>
-    <TonConnectUIProvider manifestUrl="https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/tonconnect-manifest.json">
+    <TonConnectUIProvider manifestUrl="https://test.13thfloorgame.io/tonconnect-manifest.json">
       <MemoryRouter>
         <Routes>
           <Route path="/" index element={<Home />} />

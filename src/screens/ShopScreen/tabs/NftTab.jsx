@@ -8,13 +8,11 @@ import { motion } from "framer-motion"
 import UserContext, { useUser } from "../../../UserContext"
 import FullScreenSpinner from "../../Home/FullScreenSpinner"
 import FilterModal from "../../../components/complex/FilterModal/FilterModal"
-import { SquareButton } from "../../../components/simple/SquareButton/SquareButton"
 import { instance } from "../../../services/instance"
-import { buyItemsForCoins } from '../../../services/user/user'
 import WebApp from "@twa-dev/sdk"
 import { useSettingsProvider } from "../../../hooks"
-import { useNotification } from "../../../NotificationContext"
-import { handleStarsPayment } from "../../../utils/handleStarsPayment"
+import { useTonConnectUI, useTonWallet } from "@tonconnect/ui-react"
+import { Buffer } from "buffer"
 
 const GridItem = ({
   id,
@@ -27,11 +25,9 @@ const GridItem = ({
   equipped,
   isPrem = false,
   handleCoinsBuy,
-  handleStarsBuy
+  handleStarsBuy,
 }) => {
-  // Определим стиль для неактивных элементов (если цена больше 0 и кнопка неактивна)
-  const isDisabled = !available && price > 0;
-  
+  const isDisabled = !available && price > 0
   return (
     <div
       className="clothing-item-container"
@@ -40,7 +36,7 @@ const GridItem = ({
         borderBottom: "solid 1px rgba(117, 117, 117, 0.23)",
         background: "0% 0% / cover rgb(32, 32, 32)",
         padding: "10px",
-          }}
+      }}
     >
       <div
         className="clothing-item-top"
@@ -51,26 +47,22 @@ const GridItem = ({
           flexDirection: "column",
           overflow: "hidden",
           boxShadow: "rgba(0, 0, 0, 0.24) 0px 0px 8px 2px inset",
-          borderBottom: isDisabled ? "solid 1px rgba(117, 117, 117, 0.23)" : "solid 1px rgba(117, 117, 117, 0.23)", // изменено
-        background:"#00000082",
+          borderBottom: isDisabled
+            ? "solid 1px rgba(117, 117, 117, 0.23)"
+            : "solid 1px rgba(117, 117, 117, 0.23)",
+          background: "#00000082",
           borderRadius: "7px",
-          backgroundImage:
-            isDisabled
-              ? "repeating-linear-gradient(45deg, #00000036, #00000036 2px, #3939390f 2px, #3939390f 6px)"
-              : "repeating-linear-gradient(45deg, #00000036, #00000036 2px, #3939390f 2px, #3939390f 6px)", // изменено
+          backgroundImage: isDisabled
+            ? "repeating-linear-gradient(45deg, #00000036, #00000036 2px, #3939390f 2px, #3939390f 6px)"
+            : "repeating-linear-gradient(45deg, #00000036, #00000036 2px, #3939390f 2px, #3939390f 6px)",
           justifyContent: "center",
-          
         }}
       >
         <div className="clothing-item-header">
           <div></div>
           <motion.div
             className="clothing-item-icon-wrapper"
-            style={{
-              width: "100%",
-              display: "flex",
-              justifyContent: "center",
-            }}
+            style={{ width: "100%", display: "flex", justifyContent: "center" }}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
@@ -110,18 +102,17 @@ const GridItem = ({
                   width: "100%",
                   position: "relative",
                   zIndex: 2,
-                  filter: isDisabled ? "grayscale(100%)" : "none", // обесцвечиваем только если неактивно
+                  filter: isDisabled ? "grayscale(100%)" : "none",
                 }}
               />
             </div>
           </motion.div>
         </div>
       </div>
-
       <div
         className="clothing-item-bottom"
         style={{
-          color:"#ffffff",
+          color: "#ffffff",
           paddingBottom: "12px",
           display: "flex",
           flexDirection: "column",
@@ -140,7 +131,6 @@ const GridItem = ({
         >
           {title}
         </p>
-
         <div
           className="clothing-item-respect"
           style={{
@@ -150,15 +140,12 @@ const GridItem = ({
             marginTop: 5,
             marginBottom: 10,
             height: 60,
-            color: 'white'
+            color: "white",
           }}
         >
           {respect > 0 && (
             <>
-              <img
-                src={Assets.Icons.respect}
-                height={22}
-              />
+              <img src={Assets.Icons.respect} height={22} />
               <p
                 style={{
                   textAlign: "center",
@@ -178,7 +165,7 @@ const GridItem = ({
                   fontWeight: "100",
                   fontFamily: "Oswald",
                   fontSize: "20px",
-                  paddingBottom: 4
+                  paddingBottom: 4,
                 }}
               >
                 {respect}
@@ -186,8 +173,6 @@ const GridItem = ({
             </>
           )}
         </div>
-
-        {/* Кнопки действий */}
         {isPrem ? (
           <Button
             className="clothing-item-unequip-button"
@@ -205,9 +190,7 @@ const GridItem = ({
             ownColor={
               "linear-gradient(to bottom, rgb(34 199 163 / 0%), rgb(34 199 163 / 24%))"
             }
-            bgColor={
-              "rgb(255, 118, 0)"
-            }
+            bgColor={"rgb(255, 118, 0)"}
             onClick={() => handleStarsBuy({ id, productType })}
           />
         ) : (
@@ -222,23 +205,22 @@ const GridItem = ({
             fontFamily={"Oswald"}
             fontWeight={"300"}
             icon={price > 0 ? Assets.Icons.balance : undefined}
-            text={price === 0 ? 'Забрать' : price}
+            text={price === 0 ? "Забрать" : price}
             fontSize={14}
-            ownColor={
-              "rgb(255, 118, 0)"
+            ownColor={"rgb(255, 118, 0)"}
+            bgColor={"rgb(255, 118, 0)"}
+            onClick={() =>
+              available || price === 0
+                ? handleCoinsBuy({ id, productType })
+                : null
             }
-            bgColor={
-              "rgb(255, 118, 0)"
-            }
-            onClick={() => available || price === 0 ? handleCoinsBuy({ id, productType }) : null}
-            style={isDisabled ? { filter: "grayscale(100%)" } : {}} // Серая кнопка
+            style={isDisabled ? { filter: "grayscale(100%)" } : {}}
           />
         )}
       </div>
     </div>
-  );
-};
-
+  )
+}
 
 const GridItemShelf = ({
   id,
@@ -247,19 +229,17 @@ const GridItemShelf = ({
   title,
   isPrem,
   price,
+  tonPrice,
+  supply,
   available = true,
   respect = 0,
   handleCoinsBuy,
   handleStarsBuy,
+  handleBuyNft,
 }) => {
-  console.log(id)
-  const isNftItem = id >= 9 && id <= 38; // Check if ID is in NFT range
+  const isNftItem = id >= 9 && id <= 38
   const showBuyNFT = isNftItem
   const { lang } = useSettingsProvider()
-
-  const handleNftRedirect = () => {
-    window.Telegram.WebApp.openLink("https://13thfloorgame.io"); // Simple redirect
-  };
 
   return (
     <div
@@ -292,11 +272,7 @@ const GridItemShelf = ({
           <div></div>
           <motion.div
             className="clothing-item-icon-wrapper"
-            style={{
-              width: "100%",
-              display: "flex",
-              justifyContent: "center",
-            }}
+            style={{ width: "100%", display: "flex", justifyContent: "center" }}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
@@ -316,17 +292,12 @@ const GridItemShelf = ({
               <img
                 src={icon}
                 alt={title}
-                style={{
-                  width: "100%",
-                  position: "relative",
-                  zIndex: 2,
-                }}
+                style={{ width: "100%", position: "relative", zIndex: 2 }}
               />
             </div>
           </motion.div>
         </div>
       </div>
-
       <div
         className="clothing-item-bottom"
         style={{
@@ -358,15 +329,12 @@ const GridItemShelf = ({
             marginTop: 5,
             marginBottom: 10,
             height: 60,
-            color: 'white'
+            color: "white",
           }}
         >
           {respect > 0 && (
             <>
-              <img
-                src={Assets.Icons.respect}
-                height={22}
-              />
+              <img src={Assets.Icons.respect} height={22} />
               <p
                 style={{
                   textAlign: "center",
@@ -386,7 +354,7 @@ const GridItemShelf = ({
                   fontWeight: "100",
                   fontFamily: "Oswald",
                   fontSize: "20px",
-                  paddingBottom: 4
+                  paddingBottom: 4,
                 }}
               >
                 {respect}
@@ -394,8 +362,6 @@ const GridItemShelf = ({
             </>
           )}
         </div>
-
-        {/* Button logic */}
         {isPrem ? (
           <Button
             className="clothing-item-equip-button"
@@ -419,26 +385,41 @@ const GridItemShelf = ({
             onClick={() => handleStarsBuy({ id, productType })}
           />
         ) : showBuyNFT ? (
-          <Button
-            className="clothing-item-equip-button"
-            shadowColor={"#AF370F"}
-            width={"88%"}
-            marginBottom={"5"}
-            color={"rgb(255, 255, 255)"}
-            height={44}
-            fontFamily={"Oswald"}
-            fontWeight={"300"}
-            text={lang === 'en' ? "Buy NFT" : "Купить NFT"} // Hardcoded for quick fix
-            fontSize={14}
-            ownColor={
-              "rgb(255, 118, 0)"
-            }
-            bgColor={
-              "rgb(255, 118, 0)"
-            }
-            onClick={handleNftRedirect}
-            active={true}
-          />
+          <div style={{ textAlign: "center", width: "88%" }}>
+            <p
+              style={{ color: "white", fontFamily: "Oswald", fontSize: "14px" }}
+            >
+              {tonPrice} TON
+            </p>
+            <p
+              style={{
+                color: "white",
+                fontFamily: "Oswald",
+                fontSize: "12px",
+                marginBottom: "5px",
+              }}
+            >
+              Supply: {supply} available
+            </p>
+            <Button
+              className="clothing-item-equip-button"
+              shadowColor={"#AF370F"}
+              width={"100%"}
+              marginBottom={"5"}
+              color={"rgb(255, 255, 255)"}
+              height={44}
+              fontFamily={"Oswald"}
+              fontWeight={"300"}
+              text={lang === "en" ? "Buy NFT" : "Купить NFT"}
+              fontSize={14}
+              ownColor={"rgb(255, 118, 0)"}
+              bgColor={"rgb(255, 118, 0)"}
+              onClick={() =>
+                handleBuyNft({ id, productType, title, icon, tonPrice })
+              }
+              active={supply > 0}
+            />
+          </div>
         ) : (
           <Button
             className="clothing-item-equip-button"
@@ -451,23 +432,28 @@ const GridItemShelf = ({
             fontFamily={"Oswald"}
             fontWeight={"300"}
             icon={price > 0 ? Assets.Icons.balance : undefined}
-            text={price === 0 ? 'Забрать' : price}
+            text={price === 0 ? "Забрать" : price}
             fontSize={14}
-            ownColor={
-              "rgb(255, 118, 0)"
+            ownColor={"rgb(255, 118, 0)"}
+            bgColor={"rgb(255, 118, 0)"}
+            onClick={() =>
+              available || price === 0
+                ? handleCoinsBuy({ id, productType })
+                : null
             }
-            bgColor={
-              "rgb(255, 118, 0)"
-            }
-            onClick={() => available || price === 0 ? handleCoinsBuy({ id, productType }) : null}
           />
         )}
       </div>
     </div>
-  );
-};
+  )
+}
 
-const GridLayout = ({ items, handleCoinsBuy, handleStarsBuy }) => {
+const GridLayout = ({
+  items,
+  handleCoinsBuy,
+  handleStarsBuy,
+  handleBuyNft,
+}) => {
   return (
     <div
       style={{
@@ -489,22 +475,25 @@ const GridLayout = ({ items, handleCoinsBuy, handleStarsBuy }) => {
           if (item.category === "Shelf") {
             return (
               <GridItemShelf
-              key={index}
-              icon={item.image}
-              title={item.name}
-              price={item.price}
-              respect={item.respect}
-              equipped={item.equipped}
-              available={item.available}
-              handleCoinsBuy={handleCoinsBuy}
-              handleStarsBuy={handleStarsBuy}
-              clothingId={item.clothing_id}
-              type={item.category}
-              isPrem={item.isPrem}
-              description={item.description}
-              id={item.id}
-              productType={item.productType}
-            />
+                key={index}
+                icon={item.image}
+                title={item.name}
+                price={item.price}
+                tonPrice={item.tonPrice}
+                supply={item.supply}
+                respect={item.respect}
+                equipped={item.equipped}
+                available={item.available}
+                handleCoinsBuy={handleCoinsBuy}
+                handleStarsBuy={handleStarsBuy}
+                handleBuyNft={handleBuyNft}
+                clothingId={item.clothing_id}
+                type={item.category}
+                isPrem={item.isPrem}
+                description={item.description}
+                id={item.id}
+                productType={item.productType}
+              />
             )
           } else {
             return (
@@ -532,55 +521,268 @@ const GridLayout = ({ items, handleCoinsBuy, handleStarsBuy }) => {
 }
 
 const NftTab = () => {
-  const [userEatingFoods, setUserEatingFoods] = useState(null)
-  const [foods, setFoods] = useState(null)
-  const [shopItems, setShopItems] = useState(null)
   const [filterTypeInUse, setFilterTypeInUse] = useState(null)
-  const [currentItem, setCurrentItem] = useState(null)
-  const [clothesItems, setClothesItems] = useState(null)
   const [shelfItems, setShelfItems] = useState(null)
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false)
   const [currentComplexFilters, setCurrentComplexFilters] = useState([])
   const [isLoading, setIsLoading] = useState(true)
+  const [transactionDetails, setTransactionDetails] = useState(null)
+  const [isTransactionModalOpen, setIsTransactionModalOpen] = useState(false)
 
-  const { userPersonage, userParameters } = useContext(UserContext)
+  const { userParameters } = useContext(UserContext)
   const { lang } = useSettingsProvider()
+  const { userId, refreshData } = useUser()
+  const [tonConnectUI] = useTonConnectUI()
+  const wallet = useTonWallet()
+
+  // Debug TonConnectUI state
+  useEffect(() => {
+    console.log("TonConnectUI Initial State:", {
+      connected: tonConnectUI.connected,
+      wallet: tonConnectUI.wallet,
+      availableWallets: tonConnectUI.availableWallets,
+      platform: WebApp.platform,
+    })
+
+    const unsubscribe = tonConnectUI.onStatusChange((wallet) => {
+      console.log("TonConnectUI Wallet Status Changed:", {
+        connected: tonConnectUI.connected,
+        wallet: wallet,
+        platform: WebApp.platform,
+      })
+    })
+
+    return () => unsubscribe()
+  }, [tonConnectUI])
 
   const BaseFilters = {
-    // User Clothing
     Hat: "Hat",
     Top: "Top",
     Pants: "Pants",
     Shoes: "Shoes",
     Accessories: "Accessory",
-    // Uses ShelfItems
     Shelf: "Shelf",
     Complex: "Complex",
-    Stars: "Stars"
+    Stars: "Stars",
   }
-  
+
+  // Fetch shop items when the tab is active
+  const fetchShopItems = async () => {
+    try {
+      console.log("Fetching shop items for userId:", userId, "lang:", lang)
+      setIsLoading(true)
+      const data = await getShopItems(userId)
+      console.log("getShopItems Response:", data)
+
+      const loadedShelfItems = await Promise.all(
+        data.shelf
+          .filter((item) => item.type === "neko")
+          .map(async (item) => {
+            const supplyResponse = await instance.get(
+              `/users/nft/supply/${item.id}`
+            )
+            console.log(`Supply for item ${item.id}:`, supplyResponse.data)
+            return {
+              id: item.id,
+              productType: "shelf",
+              name: item.name[lang],
+              image: item.link,
+              price: item.cost.stars || item.cost.coins,
+              tonPrice: item.tonPrice || 0,
+              supply: supplyResponse.data.availableSupply,
+              category: "Shelf",
+              isPrem: item.cost.stars > 0,
+              available:
+                item.cost.stars > 0 ||
+                item.cost.coins === 0 ||
+                userParameters.coins >= item.cost.coins,
+              description: item.description && item.description[lang],
+              respect: item.respect,
+            }
+          })
+      )
+      console.log("Loaded Shelf Items:", loadedShelfItems)
+      setShelfItems(loadedShelfItems)
+    } catch (error) {
+      console.error("Error fetching shop items:", error)
+      WebApp.showAlert(`Failed to load shop items: ${error.message}`)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  // Run fetchShopItems when the tab is mounted or dependencies change
   useEffect(() => {
-    getShopItems(userId)
-      .then((data) => {
-        const loadedShelfItems = data.shelf.filter(item => item.type === 'neko').map((item) => ({
-          id: item.id,
-          productType: 'shelf',
-          name: item.name[lang],
-          image: item.link,
-          price: item.cost.stars || item.cost.coins,
-          category: "Shelf",
-          isPrem: item.cost.stars > 0,
-          available: item.cost.stars > 0 || item.cost.coins === 0 || userParameters.coins >= item.cost.coins,
-          description: item.description && item.description[lang],
-          respect: item.respect
-        }))
-        setShelfItems(loadedShelfItems)
-      })
-      .finally(() => setIsLoading(false))
-  }, [])
+    console.log("useEffect triggered for fetchShopItems")
+    fetchShopItems()
+  }, [userId, lang, userParameters.coins])
+
+  // Handle tab visibility changes (e.g., when switching tabs)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        console.log("Tab became visible, re-fetching items...")
+        fetchShopItems()
+      }
+    }
+
+    document.addEventListener("visibilitychange", handleVisibilityChange)
+    return () =>
+      document.removeEventListener("visibilitychange", handleVisibilityChange)
+  }, [userId, lang, userParameters.coins])
+
+ // Utility to convert TON (decimal string) to nanotons (BigInt)
+const toNanotons = (tonAmount) => {
+  if (typeof tonAmount !== "string" || !/^\d+(\.\d+)?$/.test(tonAmount)) {
+    throw new Error(`Invalid TON amount: ${tonAmount}`);
+  }
+  const [integerPart, decimalPart = ""] = tonAmount.split(".");
+  const paddedDecimal = decimalPart.padEnd(9, "0"); // TON has 9 decimal places
+  const fullNumber = `${integerPart}${paddedDecimal}`;
+  return BigInt(fullNumber);
+};
+
+const handleConfirmTransaction = async () => {
+  try {
+    setIsLoading(true);
+
+    // Step 1: Ensure wallet is connected
+    if (!tonConnectUI.connected) {
+      console.log("Wallet not connected, opening modal...");
+      await tonConnectUI.openModal();
+      if (!tonConnectUI.connected) {
+        WebApp.showAlert("Wallet connection cancelled.");
+        return;
+      }
+    }
+
+    console.log("Connected Wallet Details:", {
+      wallet: tonConnectUI.wallet,
+      connected: tonConnectUI.connected,
+      chain: tonConnectUI.wallet?.account?.chain,
+      address: tonConnectUI.wallet?.account?.address,
+      appName: tonConnectUI.wallet?.appName,
+      platform: WebApp.platform,
+    });
+
+    const { address, item } = transactionDetails;
+
+    // Step 2: Validate address
+    // if (!address || !/^[A-Za-z0-9+/=-]{48}$/.test(address)) {
+    //   throw new Error(`Invalid TON address from backend: ${address}`);
+    // }
+    console.log("Destination Address:", address);
+
+    // Step 3: Use 1 TON
+    const tonPriceString = item.tonPrice.toString(); // "1"
+    const amountInNanotons = toNanotons(tonPriceString);
+    console.log("TON Price (from item):", tonPriceString);
+    console.log("Amount in Nanotons:", amountInNanotons.toString());
+
+    // Step 4: Test with minimal memo "123" first, then full UUID
+    const memo = "081598dc-efb9-45d7-910f-d1dab767a3a0"; // Your UUID
+    const memoBuffer = Buffer.concat([
+      Buffer.from([0x00, 0x00, 0x00, 0x00]), // Comment opcode
+      Buffer.from(memo, "utf8"),
+    ]);
+    const payload = memoBuffer.toString("base64");
+    console.log("Memo (raw):", memo);
+    console.log("Memo Buffer (hex):", memoBuffer.toString("hex"));
+    console.log("Memo Buffer Length (bytes):", memoBuffer.length);
+    console.log("Payload (base64):", payload);
+
+    // Step 5: Set transaction validity
+    const validUntil = Math.floor(Date.now() / 1000) + 600;
+    console.log("Valid Until:", validUntil);
+
+    // Step 6: Construct transaction object
+    const transaction = {
+      validUntil,
+      messages: [
+        {
+          address,
+          amount: amountInNanotons.toString(), // "1000000000"
+          payload, // "AAAAADA4MTU5OGRjLWVmYjktNDVkNy05MTBmLWQxZGFiNzY3YTNhMA=="
+        },
+      ],
+      network: "-239", // Mainnet
+    };
+
+    console.log("Full Transaction Object:", JSON.stringify(transaction, null, 2));
+
+    // Step 7: Attempt TonConnect send
+    const isTonkeeper = tonConnectUI.wallet?.appName === "tonkeeper";
+    console.log(`Attempting TonConnect transaction with ${isTonkeeper ? "Tonkeeper" : "other wallet"}...`);
+    try {
+      const result = await tonConnectUI.sendTransaction(transaction, {
+        modals: "all",
+        skipRedirectToWallet: "never",
+      });
+      console.log("TonConnect Transaction Result:", result);
+
+      // Verify with backend
+      const verifyResponse = await instance.post(`/users/nft/verify-transaction`, {
+        userId,
+        transactionId: result.boc,
+      });
+
+      if (verifyResponse.data.success) {
+        WebApp.showAlert("Transaction confirmed successfully!");
+        await refreshData();
+        await fetchShopItems();
+      } else {
+        WebApp.showAlert("Transaction sent but verification failed. Check your wallet.");
+      }
+    } catch (tonConnectError) {
+      console.error("TonConnect Failed:", tonConnectError);
+      // Fallback: Show deeplink for manual use
+      const tonDeeplink = `ton://transfer/${address}?amount=${amountInNanotons}&text=${encodeURIComponent(memo)}`;
+      console.log("TON Deeplink (manual fallback):", tonDeeplink);
+      WebApp.showAlert(
+        `TonConnect failed. Copy this deeplink and open in Tonkeeper:\n${tonDeeplink}`
+      );
+    }
+  } catch (error) {
+    console.error("Transaction Error:", {
+      message: error.message,
+      name: error.name,
+      stack: error.stack,
+      details: error.details,
+    });
+    WebApp.showAlert(`Transaction failed: ${error.message || "Unknown error"}`);
+  } finally {
+    setIsTransactionModalOpen(false);
+    setIsLoading(false);
+  }
+};
+
+const handleBuyNft = async (item) => {
+  try {
+    setIsLoading(true);
+    const response = await instance.get(`/users/nft/transaction-details`, {
+      params: { userId, productId: item.id },
+    });
+    console.log("Backend Transaction Details:", {
+      address: response.data.address,
+      amount: response.data.amount,
+      memo: response.data.memo,
+      itemId: item.id,
+      tonPrice: item.tonPrice,
+    });
+    if (item.tonPrice !== 1 && item.tonPrice !== "1") {
+      item.tonPrice = "1"; // Force 1 TON
+    }
+    setTransactionDetails({ ...response.data, item });
+    await handleConfirmTransaction();
+  } catch (error) {
+    console.error("Failed to fetch transaction details:", error);
+    WebApp.showAlert("Failed to fetch transaction details. Please try again.");
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   const addComplexFilter = ({ filteredValue, filteredField }) => {
-    console.log("filters", currentComplexFilters)
     setCurrentComplexFilters([
       ...currentComplexFilters,
       { filteredField, filteredValue },
@@ -598,125 +800,39 @@ const NftTab = () => {
   }
 
   const applyFilter = (items) => {
-    if (!filterTypeInUse) {
-      return items
-    }
-
+    if (!filterTypeInUse) return items
     if (filterTypeInUse === BaseFilters.Complex) {
-      if (!currentComplexFilters || currentComplexFilters.length === 0) {
+      if (!currentComplexFilters || currentComplexFilters.length === 0)
         return items
-      }
-
       const tags = currentComplexFilters
         .filter((filter) => filter.filteredField === "tag")
         .map((filter) => filter.filteredValue)
       const tiers = currentComplexFilters
         .filter((filter) => filter.filteredField === "tier")
         .map((filter) => filter.filteredValue)
-
-      console.log('@', tags)
-
-      const filtered = items.filter((item) => {
-        let shouldTake = false
+      return items.filter((item) => {
         const isCorrectByTier =
           tiers.length > 0 ? tiers.includes(item.tier) : true
-
-        const isCorrectByTags = tags.length > 0 ? item.tags?.some(tag => tags.includes(tag)) : true
-      
-        if (isCorrectByTier && isCorrectByTags) {
-          shouldTake = true
-        }
-
-        return shouldTake
+        const isCorrectByTags =
+          tags.length > 0 ? item.tags?.some((tag) => tags.includes(tag)) : true
+        return isCorrectByTier && isCorrectByTags
       })
-
-      return filtered
     }
-
-    if (filterTypeInUse === BaseFilters.Hat) {
+    if (filterTypeInUse === BaseFilters.Hat)
       return items.filter((item) => item.category === "Hat")
-    }
-
-    if (filterTypeInUse === BaseFilters.Top) {
+    if (filterTypeInUse === BaseFilters.Top)
       return items.filter((item) => item.category === "Top")
-    }
-
-    if (filterTypeInUse === BaseFilters.Pants) {
+    if (filterTypeInUse === BaseFilters.Pants)
       return items.filter((item) => item.category === "Pants")
-    }
-
-    if (filterTypeInUse === BaseFilters.Shoes) {
+    if (filterTypeInUse === BaseFilters.Shoes)
       return items.filter((item) => item.category === "Shoes")
-    }
-
-    if (filterTypeInUse === BaseFilters.Accessories) {
+    if (filterTypeInUse === BaseFilters.Accessories)
       return items.filter((item) => item.category === "Accessory")
-    }
-
-    if (filterTypeInUse === BaseFilters.Shelf) {
+    if (filterTypeInUse === BaseFilters.Shelf)
       return items.filter((item) => item.productType === "shelf")
-    }
-
-    if (filterTypeInUse === BaseFilters.Stars) {
+    if (filterTypeInUse === BaseFilters.Stars)
       return items.filter((item) => item.isPrem === true)
-    }
-  }
-
-  const { refreshData, userId } = useUser()
-
-  const handleStarsBuy = async (item) => {
-    try {
-      await handleStarsPayment(userId, item.productType, item.id, lang)
-      await refreshData()
-      getShopItems(userId)
-      .then((data) => {
-        const loadedShelfItems = data.shelf.filter(item => item.type === 'neko').map((item) => ({
-          id: item.id,
-          productType: 'shelf',
-          name: item.name[lang],
-          image: item.link,
-          price: item.cost.stars || item.cost.coins,
-          category: "Shelf",
-          isPrem: item.cost.stars > 0,
-          available: item.cost.stars > 0 || item.cost.coins === 0 || userParameters.coins >= item.cost.coins,
-          description: item.description && item.description[lang],
-          respect: item.respect
-        }))
-        setShelfItems(loadedShelfItems)
-      })
-      .finally(() => setIsLoading(false))
-    } catch (err) {
-      console.error(err)
-    } finally {
-      setIsLoading(false)
-    }
-  }
-  
-  const handleCoinsBuy = async (item) => {
-    try {
-      setIsLoading(true)
-      await buyItemsForCoins(userId, item.id, item.productType)
-      await refreshData()
-      getShopItems(userId)
-      .then((data) => {
-        const loadedShelfItems = data.shelf.filter(item => item.type === 'neko').map((item) => ({
-          id: item.id,
-          productType: 'shelf',
-          name: item.name[lang],
-          image: item.link,
-          price: item.cost.stars || item.cost.coins,
-          category: "Shelf",
-          isPrem: item.cost.stars > 0,
-          available: item.cost.stars > 0 || item.cost.coins === 0 || userParameters.coins >= item.cost.coins,
-          description: item.description && item.description[lang],
-          respect: item.respect
-        }))
-        setShelfItems(loadedShelfItems)
-      })
-      .finally(() => setIsLoading(false))
-    } catch (err) {
-      console.error(err)
-    }
+    return items
   }
 
   if (isLoading) {
@@ -741,23 +857,40 @@ const NftTab = () => {
           setIsFilterModalOpen={setIsFilterModalOpen}
           currentComplexFilters={currentComplexFilters}
         />
-      )}{" "}
-      <GridLayout
-        setCurrentItem={setCurrentItem}
-        items={applyFilter([...shelfItems])}
-        handleCoinsBuy={handleCoinsBuy}
-        handleStarsBuy={handleStarsBuy}
-      />
-      {currentItem && (
-        <Modal
-          width={"100vw"}
-          bottom={"-25vh"}
-          height={"100vh"}
-          data={{ title: "Lol" }}
-        />
       )}
+      <GridLayout
+        items={applyFilter([...(shelfItems || [])])}
+        handleCoinsBuy={() => {}}
+        handleStarsBuy={() => {}}
+        handleBuyNft={handleBuyNft}
+      />
     </ScreenContainer>
   )
 }
+// Ensure proper TonConnectUI configuration
+const NftTabWithTonConnect = () => (
+  // <TonConnectUIProvider
+  //   manifestUrl="https://your-app-url/tonconnect-manifest.json" // Replace with your manifest URL
+  //   actionsConfiguration={{
+  //     twaReturnUrl: "https://t.me/your_bot_name" // Replace with your Telegram bot URL
+  //   }}
+  //   walletsListConfiguration={{
+  //     includeWallets: [
+  //       {
+  //         appName: "tonkeeper",
+  //         name: "Tonkeeper",
+  //         image: "https://tonkeeper.com/assets/tonkeeper-logo.png",
+  //         aboutUrl: "https://tonkeeper.com",
+  //         universalLink: "https://app.tonkeeper.com/ton-connect",
+  //         jsBridgeKey: "tonkeeper",
+  //         bridgeUrl: "https://bridge.tonapi.io/bridge",
+  //         platforms: ["ios", "android", "chrome", "firefox", "macos"]
+  //       }
+  //     ]
+  //   }}
+  // >
+  <NftTab />
+  // </TonConnectUIProvider>
+)
 
-export default NftTab
+export default NftTabWithTonConnect
