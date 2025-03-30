@@ -6,6 +6,8 @@ import "./index.css"
 import { NotificationProvider } from "./NotificationContext.jsx"
 import { SettingsProvider } from "./hooks.jsx"
 import { EmojiReactionProvider } from "./EmojiReactionContext.jsx"
+import { Buffer } from "buffer"
+globalThis.Buffer = Buffer
 
 // config()
 
