@@ -332,7 +332,7 @@ const SleepGame = ({
         <div style={{ width: "100%", height: "100%", background: "black" }} />
       )}
     </div>
-    <div style={{ height: '70vh', width: '100vw', zIndex: 99999, top: '25vh', bottom: '5vh', left: 0, position: 'absolute' }} onClick={handleJump}/>
+    <div style={{ height: '60vh', width: '70vw', zIndex: 99999, top: '25vh', bottom: '5vh', left: '8vh', position: 'absolute' }} onClick={handleJump}/>
     </>
   );
 };
