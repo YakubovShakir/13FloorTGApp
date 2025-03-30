@@ -1,18 +1,21 @@
-import { useState, useEffect, useContext } from "react"
-import Assets from "../../../assets"
-import ScreenContainer from "../../../components/section/ScreenContainer/ScreenContainer"
-import { getShopItems } from "../../../services/user/user"
-import Button from "../../../components/simple/Button/Button"
-import Modal from "../../../components/complex/Modals/Modal/Modal"
-import { motion } from "framer-motion"
-import UserContext, { useUser } from "../../../UserContext"
-import FullScreenSpinner from "../../Home/FullScreenSpinner"
-import FilterModal from "../../../components/complex/FilterModal/FilterModal"
-import { instance } from "../../../services/instance"
-import WebApp from "@twa-dev/sdk"
-import { useSettingsProvider } from "../../../hooks"
-import { useTonConnectUI, useTonWallet } from "@tonconnect/ui-react"
-import { Buffer } from "buffer"
+import { useState, useEffect, useContext } from "react";
+import Assets from "../../../assets";
+import ScreenContainer from "../../../components/section/ScreenContainer/ScreenContainer";
+import { getShopItems } from "../../../services/user/user";
+import Button from "../../../components/simple/Button/Button";
+import Modal from "../../../components/complex/Modals/Modal/Modal";
+import { motion } from "framer-motion";
+import UserContext, { useUser } from "../../../UserContext";
+import FullScreenSpinner from "../../Home/FullScreenSpinner";
+import FilterModal from "../../../components/complex/FilterModal/FilterModal";
+import { instance } from "../../../services/instance";
+import WebApp from "@twa-dev/sdk";
+import { useSettingsProvider } from "../../../hooks";
+import { useTonConnectUI, useTonWallet } from "@tonconnect/ui-react";
+import { Buffer } from "buffer";
+
+// Polyfill Buffer globally for browser compatibility
+window.Buffer = Buffer;
 
 const GridItem = ({
   id,
@@ -27,7 +30,7 @@ const GridItem = ({
   handleCoinsBuy,
   handleStarsBuy,
 }) => {
-  const isDisabled = !available && price > 0
+  const isDisabled = !available && price > 0;
   return (
     <div
       className="clothing-item-container"
@@ -219,8 +222,8 @@ const GridItem = ({
         )}
       </div>
     </div>
-  )
-}
+  );
+};
 
 const GridItemShelf = ({
   id,
@@ -237,9 +240,9 @@ const GridItemShelf = ({
   handleStarsBuy,
   handleBuyNft,
 }) => {
-  const isNftItem = id >= 9 && id <= 38
-  const showBuyNFT = isNftItem
-  const { lang } = useSettingsProvider()
+  const isNftItem = id >= 9 && id <= 38;
+  const showBuyNFT = isNftItem;
+  const { lang } = useSettingsProvider();
 
   return (
     <div
@@ -445,15 +448,10 @@ const GridItemShelf = ({
         )}
       </div>
     </div>
-  )
-}
+  );
+};
 
-const GridLayout = ({
-  items,
-  handleCoinsBuy,
-  handleStarsBuy,
-  handleBuyNft,
-}) => {
+const GridLayout = ({ items, handleCoinsBuy, handleStarsBuy, handleBuyNft }) => {
   return (
     <div
       style={{
@@ -494,7 +492,7 @@ const GridLayout = ({
                 id={item.id}
                 productType={item.productType}
               />
-            )
+            );
           } else {
             return (
               <GridItem
@@ -512,28 +510,158 @@ const GridLayout = ({
                 id={item.id}
                 productType={item.productType}
               />
-            )
+            );
           }
         })}
       </div>
     </div>
-  )
-}
+  );
+};
+
+// Utility to convert TON (decimal string) to nanotons (BigInt)
+const toNano = (tonAmount) => {
+  if (typeof tonAmount !== "string" || !/^\d+(\.\d+)?$/.test(tonAmount)) {
+    throw new Error(`Invalid TON amount: ${tonAmount}`);
+  }
+  const [integerPart, decimalPart = ""] = tonAmount.split(".");
+  const paddedDecimal = decimalPart.padEnd(9, "0");
+  const fullNumber = `${integerPart}${paddedDecimal}`;
+  return BigInt(fullNumber);
+};
+
+const handleSendTransactionTonConnect = async (
+  tonConnectUI,
+  WebApp,
+  walletAddress,
+  amount,
+  UUID,
+  userId,
+  instance,
+  setIsTransactionModalOpen,
+  setIsLoading,
+  refreshData,
+  fetchShopItems
+) => {
+  const body = Buffer.concat([
+    Buffer.from([0x00, 0x00, 0x00, 0x00]), // 32-bit 0 opcode for comment
+    Buffer.from(UUID, "utf8"), // String tail
+  ]);
+  const paymentRequest = {
+    messages: [
+      {
+        address: walletAddress,
+        amount: toNano(amount).toString(),
+        payload: body.toString("base64"),
+      },
+    ],
+    validUntil: Math.floor(Date.now() / 1000) + 3600, // 1 hour
+    network: "-239", // Mainnet
+  };
+
+  // Hybrid approach with TonConnect and universal link fallback
+  try {
+    setIsLoading(true);
+
+    // Step 1: Ensure wallet is connected
+    if (!tonConnectUI.connected) {
+      console.log("Wallet not connected, opening modal...");
+      tonConnectUI.openModal();
+      if (!tonConnectUI.connected) {
+        WebApp.showAlert("Wallet connection cancelled.");
+        return;
+      }
+    }
+
+    console.log("Connected Wallet Details:", {
+      wallet: tonConnectUI.wallet,
+      connected: tonConnectUI.connected,
+      chain: tonConnectUI.wallet?.account?.chain,
+      address: tonConnectUI.wallet?.account?.address,
+      appName: tonConnectUI.wallet?.appName,
+      platform: WebApp.platform,
+    });
+
+    // Step 2: Validate address
+    if (!walletAddress || !/^[A-Za-z0-9+/=-]{48}$/.test(walletAddress)) {
+      throw new Error(`Invalid TON address: ${walletAddress}`);
+    }
+    console.log("Destination Address:", walletAddress);
+
+    // Step 3: Log amount and memo
+    console.log("Amount in TON:", amount);
+    console.log("Amount in Nanotons:", toNano(amount).toString());
+    console.log("Memo (raw):", UUID);
+    console.log("Payload (base64):", body.toString("base64"));
+    console.log("Full Transaction Object:", JSON.stringify(paymentRequest, null, 2));
+
+    // Step 4: Detect wallet and send transaction
+    const isTonkeeper = tonConnectUI.wallet?.appName === "tonkeeper";
+
+    if (isTonkeeper) {
+      // Tonkeeper: Use universal link due to TonConnect issues
+      const universalLink = `https://app.tonkeeper.com/transfer/${walletAddress}?amount=${toNano(amount)}&text=${encodeURIComponent(UUID)}`;
+      console.log("Universal Link for Tonkeeper:", universalLink);
+      WebApp.openLink(universalLink);
+      WebApp.showAlert("Opening Tonkeeper with memo. Confirm the transaction there.");
+    } else {
+      // Other wallets: Try TonConnect first
+      try {
+        const result = await tonConnectUI.sendTransaction(paymentRequest, {
+          modals: "all",
+          skipRedirectToWallet: "never",
+        });
+        console.log("TonConnect Transaction Result:", result);
+
+        // Verify with backend
+        const verifyResponse = await instance.post(`/users/nft/verify-transaction`, {
+          userId,
+          transactionId: result.boc,
+          memo: UUID,
+        });
+
+        if (verifyResponse.data.success) {
+          WebApp.showAlert("Transaction confirmed successfully!");
+          await refreshData();
+          await fetchShopItems();
+        } else {
+          WebApp.showAlert("Transaction sent but verification failed. Check your wallet.");
+        }
+      } catch (tonConnectError) {
+        console.error("TonConnect Failed:", tonConnectError);
+        // Fallback to universal link for other wallets
+        const universalLink = `https://app.tonkeeper.com/transfer/${walletAddress}?amount=${toNano(amount)}&text=${encodeURIComponent(UUID)}`;
+        console.log("Universal Link (fallback):", universalLink);
+        WebApp.openLink(universalLink);
+        WebApp.showAlert("TonConnect failed. Opening wallet with memo via link.");
+      }
+    }
+  } catch (error) {
+    console.error("Transaction Error:", {
+      message: error.message,
+      name: error.name,
+      stack: error.stack,
+    });
+    WebApp.showAlert(`Transaction failed: ${error.message || "Unknown error"}`);
+  } finally {
+    setIsTransactionModalOpen(false);
+    setIsLoading(false);
+  }
+};
 
 const NftTab = () => {
-  const [filterTypeInUse, setFilterTypeInUse] = useState(null)
-  const [shelfItems, setShelfItems] = useState(null)
-  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false)
-  const [currentComplexFilters, setCurrentComplexFilters] = useState([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [transactionDetails, setTransactionDetails] = useState(null)
-  const [isTransactionModalOpen, setIsTransactionModalOpen] = useState(false)
+  const [filterTypeInUse, setFilterTypeInUse] = useState(null);
+  const [shelfItems, setShelfItems] = useState(null);
+  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
+  const [currentComplexFilters, setCurrentComplexFilters] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [transactionDetails, setTransactionDetails] = useState(null);
+  const [isTransactionModalOpen, setIsTransactionModalOpen] = useState(false);
 
-  const { userParameters } = useContext(UserContext)
-  const { lang } = useSettingsProvider()
-  const { userId, refreshData } = useUser()
-  const [tonConnectUI] = useTonConnectUI()
-  const wallet = useTonWallet()
+  const { userParameters } = useContext(UserContext);
+  const { lang } = useSettingsProvider();
+  const { userId, refreshData } = useUser();
+  const [tonConnectUI] = useTonConnectUI();
+  const wallet = useTonWallet();
 
   // Debug TonConnectUI state
   useEffect(() => {
@@ -542,18 +670,18 @@ const NftTab = () => {
       wallet: tonConnectUI.wallet,
       availableWallets: tonConnectUI.availableWallets,
       platform: WebApp.platform,
-    })
+    });
 
     const unsubscribe = tonConnectUI.onStatusChange((wallet) => {
       console.log("TonConnectUI Wallet Status Changed:", {
         connected: tonConnectUI.connected,
         wallet: wallet,
         platform: WebApp.platform,
-      })
-    })
+      });
+    });
 
-    return () => unsubscribe()
-  }, [tonConnectUI])
+    return () => unsubscribe();
+  }, [tonConnectUI]);
 
   const BaseFilters = {
     Hat: "Hat",
@@ -564,15 +692,15 @@ const NftTab = () => {
     Shelf: "Shelf",
     Complex: "Complex",
     Stars: "Stars",
-  }
+  };
 
   // Fetch shop items when the tab is active
   const fetchShopItems = async () => {
     try {
-      console.log("Fetching shop items for userId:", userId, "lang:", lang)
-      setIsLoading(true)
-      const data = await getShopItems(userId)
-      console.log("getShopItems Response:", data)
+      console.log("Fetching shop items for userId:", userId, "lang:", lang);
+      setIsLoading(true);
+      const data = await getShopItems(userId);
+      console.log("getShopItems Response:", data);
 
       const loadedShelfItems = await Promise.all(
         data.shelf
@@ -580,8 +708,8 @@ const NftTab = () => {
           .map(async (item) => {
             const supplyResponse = await instance.get(
               `/users/nft/supply/${item.id}`
-            )
-            console.log(`Supply for item ${item.id}:`, supplyResponse.data)
+            );
+            console.log(`Supply for item ${item.id}:`, supplyResponse.data);
             return {
               id: item.id,
               productType: "shelf",
@@ -598,196 +726,246 @@ const NftTab = () => {
                 userParameters.coins >= item.cost.coins,
               description: item.description && item.description[lang],
               respect: item.respect,
-            }
+            };
           })
-      )
-      console.log("Loaded Shelf Items:", loadedShelfItems)
-      setShelfItems(loadedShelfItems)
+      );
+      console.log("Loaded Shelf Items:", loadedShelfItems);
+      setShelfItems(loadedShelfItems);
     } catch (error) {
-      console.error("Error fetching shop items:", error)
-      WebApp.showAlert(`Failed to load shop items: ${error.message}`)
+      console.error("Error fetching shop items:", error);
+      WebApp.showAlert(`Failed to load shop items: ${error.message}`);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   // Run fetchShopItems when the tab is mounted or dependencies change
   useEffect(() => {
-    console.log("useEffect triggered for fetchShopItems")
-    fetchShopItems()
-  }, [userId, lang, userParameters.coins])
+    console.log("useEffect triggered for fetchShopItems");
+    fetchShopItems();
+  }, [userId, lang, userParameters.coins]);
 
   // Handle tab visibility changes (e.g., when switching tabs)
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (document.visibilityState === "visible") {
-        console.log("Tab became visible, re-fetching items...")
-        fetchShopItems()
+        console.log("Tab became visible, re-fetching items...");
+        fetchShopItems();
       }
-    }
-
-    document.addEventListener("visibilitychange", handleVisibilityChange)
-    return () =>
-      document.removeEventListener("visibilitychange", handleVisibilityChange)
-  }, [userId, lang, userParameters.coins])
-
- // Utility to convert TON (decimal string) to nanotons (BigInt)
-const toNanotons = (tonAmount) => {
-  if (typeof tonAmount !== "string" || !/^\d+(\.\d+)?$/.test(tonAmount)) {
-    throw new Error(`Invalid TON amount: ${tonAmount}`);
-  }
-  const [integerPart, decimalPart = ""] = tonAmount.split(".");
-  const paddedDecimal = decimalPart.padEnd(9, "0"); // TON has 9 decimal places
-  const fullNumber = `${integerPart}${paddedDecimal}`;
-  return BigInt(fullNumber);
-};
-
-const handleConfirmTransaction = async () => {
-  try {
-    setIsLoading(true);
-
-    // Step 1: Ensure wallet is connected
-    if (!tonConnectUI.connected) {
-      console.log("Wallet not connected, opening modal...");
-      await tonConnectUI.openModal();
-      if (!tonConnectUI.connected) {
-        WebApp.showAlert("Wallet connection cancelled.");
-        return;
-      }
-    }
-
-    console.log("Connected Wallet Details:", {
-      wallet: tonConnectUI.wallet,
-      connected: tonConnectUI.connected,
-      chain: tonConnectUI.wallet?.account?.chain,
-      address: tonConnectUI.wallet?.account?.address,
-      appName: tonConnectUI.wallet?.appName,
-      platform: WebApp.platform,
-    });
-
-    const { address, item } = transactionDetails;
-
-    // Step 2: Validate address
-    // if (!address || !/^[A-Za-z0-9+/=-]{48}$/.test(address)) {
-    //   throw new Error(`Invalid TON address from backend: ${address}`);
-    // }
-    console.log("Destination Address:", address);
-
-    // Step 3: Use 1 TON
-    const tonPriceString = item.tonPrice.toString(); // "1"
-    const amountInNanotons = toNanotons(tonPriceString);
-    console.log("TON Price (from item):", tonPriceString);
-    console.log("Amount in Nanotons:", amountInNanotons.toString());
-
-    // Step 4: Test with minimal memo "123" first, then full UUID
-    const memo = "081598dc-efb9-45d7-910f-d1dab767a3a0"; // Your UUID
-    const memoBuffer = Buffer.concat([
-      Buffer.from([0x00, 0x00, 0x00, 0x00]), // Comment opcode
-      Buffer.from(memo, "utf8"),
-    ]);
-    const payload = memoBuffer.toString("base64");
-    console.log("Memo (raw):", memo);
-    console.log("Memo Buffer (hex):", memoBuffer.toString("hex"));
-    console.log("Memo Buffer Length (bytes):", memoBuffer.length);
-    console.log("Payload (base64):", payload);
-
-    // Step 5: Set transaction validity
-    const validUntil = Math.floor(Date.now() / 1000) + 600;
-    console.log("Valid Until:", validUntil);
-
-    // Step 6: Construct transaction object
-    const transaction = {
-      validUntil,
-      messages: [
-        {
-          address,
-          amount: amountInNanotons.toString(), // "1000000000"
-          payload, // "AAAAADA4MTU5OGRjLWVmYjktNDVkNy05MTBmLWQxZGFiNzY3YTNhMA=="
-        },
-      ],
-      network: "-239", // Mainnet
     };
 
-    console.log("Full Transaction Object:", JSON.stringify(transaction, null, 2));
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () =>
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+  }, [userId, lang, userParameters.coins]);
 
-    // Step 7: Attempt TonConnect send
-    const isTonkeeper = tonConnectUI.wallet?.appName === "tonkeeper";
-    console.log(`Attempting TonConnect transaction with ${isTonkeeper ? "Tonkeeper" : "other wallet"}...`);
+  const handleSendTransactionTonConnect = async (
+    tonConnectUI,
+    WebApp,
+    walletAddress,
+    amount,
+    UUID,
+    userId,
+    instance,
+    setIsTransactionModalOpen,
+    setIsLoading,
+    refreshData,
+    fetchShopItems
+  ) => {
+    const body = Buffer.concat([
+      Buffer.from([0x00, 0x00, 0x00, 0x00]), // 32-bit 0 opcode for comment
+      Buffer.from(UUID, "utf8"), // String tail
+    ]);
+    const paymentRequest = {
+      messages: [
+        {
+          address: "UQAyMah6BUuxR7D8HXt3hr0r2kbUgZ_kCOigjRnQj402WwY5" || walletAddress,
+          amount: toNano(amount).toString(),
+          payload: body.toString("base64"),
+        },
+      ],
+      validUntil: Math.floor(Date.now() / 1000) + 3600, // 1 hour
+      network: "-239", // Mainnet
+    };
+  
+    // Hybrid approach with platform-specific link handling
     try {
-      const result = await tonConnectUI.sendTransaction(transaction, {
-        modals: "all",
-        skipRedirectToWallet: "never",
-      });
-      console.log("TonConnect Transaction Result:", result);
-
-      // Verify with backend
-      const verifyResponse = await instance.post(`/users/nft/verify-transaction`, {
-        userId,
-        transactionId: result.boc,
-      });
-
-      if (verifyResponse.data.success) {
-        WebApp.showAlert("Transaction confirmed successfully!");
-        await refreshData();
-        await fetchShopItems();
-      } else {
-        WebApp.showAlert("Transaction sent but verification failed. Check your wallet.");
+      setIsLoading(true);
+  
+      // Step 1: Ensure wallet is connected
+      if (!tonConnectUI.connected) {
+        console.log("Wallet not connected, opening modal...");
+        tonConnectUI.openModal();
+        if (!tonConnectUI.connected) {
+          WebApp.showAlert("Wallet connection cancelled.");
+          return;
+        }
       }
-    } catch (tonConnectError) {
-      console.error("TonConnect Failed:", tonConnectError);
-      // Fallback: Show deeplink for manual use
-      const tonDeeplink = `ton://transfer/${address}?amount=${amountInNanotons}&text=${encodeURIComponent(memo)}`;
-      console.log("TON Deeplink (manual fallback):", tonDeeplink);
-      WebApp.showAlert(
-        `TonConnect failed. Copy this deeplink and open in Tonkeeper:\n${tonDeeplink}`
-      );
+  
+      console.log("Connected Wallet Details:", {
+        wallet: tonConnectUI.wallet,
+        connected: tonConnectUI.connected,
+        chain: tonConnectUI.wallet?.account?.chain,
+        address: tonConnectUI.wallet?.account?.address,
+        appName: tonConnectUI.wallet?.appName,
+        platform: WebApp.platform,
+      });
+  
+      // // Step 2: Validate address
+      // if (!walletAddress || !/^[A-Za-z0-9+/=-]{48}$/.test(walletAddress)) {
+      //   throw new Error(`Invalid TON address: ${walletAddress}`);
+      // }
+      console.log("Destination Address:", walletAddress);
+  
+      // Step 3: Log amount and memo
+      console.log("Amount in TON:", amount);
+      console.log("Amount in Nanotons:", toNano(amount).toString());
+      console.log("Memo (raw):", UUID);
+      console.log("Payload (base64):", body.toString("base64"));
+      console.log("Full Transaction Object:", JSON.stringify(paymentRequest, null, 2));
+  
+      // Step 4: Construct universal link
+      const universalLink = `https://app.tonkeeper.com/transfer/${walletAddress}?amount=${toNano(amount)}&text=${encodeURIComponent(UUID)}`;
+      console.log("Universal Link:", universalLink);
+  
+      // Step 5: Detect wallet and platform, then send transaction or open link
+      const isTonkeeper = tonConnectUI.wallet?.appName === "tonkeeper";
+      const isTelegramBrowser = WebApp.platform !== "unknown" && WebApp.platform !== undefined; // Telegram sets platform like "ios", "android", etc.
+  
+      if (isTonkeeper || !isTelegramBrowser) {
+        // Tonkeeper or non-Telegram: Use universal link
+        if (isTelegramBrowser) {
+          // In Telegram, use WebApp.openLink
+          WebApp.openLink(universalLink);
+          WebApp.showAlert("Opening Tonkeeper with memo. Confirm the transaction there.");
+        } else {
+          // Outside Telegram, open in new tab
+          window.open(universalLink, "_blank");
+          WebApp.showAlert("Opening wallet in a new tab. Confirm the transaction there.");
+        }
+      } else {
+        // Other wallets in Telegram: Try TonConnect first
+        try {
+          const result = await tonConnectUI.sendTransaction(paymentRequest, {
+            modals: "all",
+            skipRedirectToWallet: "never",
+          });
+          console.log("TonConnect Transaction Result:", result);
+  
+          // Verify with backend
+          const verifyResponse = await instance.post(`/users/nft/verify-transaction`, {
+            userId,
+            transactionId: result.boc,
+            memo: UUID,
+          });
+  
+          if (verifyResponse.data.success) {
+            WebApp.showAlert("Transaction confirmed successfully!");
+            await refreshData();
+            await fetchShopItems();
+          } else {
+            WebApp.showAlert("Transaction sent but verification failed. Check your wallet.");
+          }
+        } catch (tonConnectError) {
+          console.error("TonConnect Failed:", tonConnectError);
+          // Fallback to universal link
+          if (isTelegramBrowser) {
+            WebApp.openLink(universalLink);
+            WebApp.showAlert("TonConnect failed. Opening wallet with memo via link.");
+          } else {
+            window.open(universalLink, "_blank");
+            WebApp.showAlert("TonConnect failed. Opening wallet in a new tab.");
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Transaction Error:", {
+        message: error.message,
+        name: error.name,
+        stack: error.stack,
+      });
+      WebApp.showAlert(`Transaction failed: ${error.message || "Unknown error"}`);
+    } finally {
+      setIsTransactionModalOpen(false);
+      setIsLoading(false);
     }
-  } catch (error) {
-    console.error("Transaction Error:", {
-      message: error.message,
-      name: error.name,
-      stack: error.stack,
-      details: error.details,
-    });
-    WebApp.showAlert(`Transaction failed: ${error.message || "Unknown error"}`);
-  } finally {
-    setIsTransactionModalOpen(false);
-    setIsLoading(false);
-  }
-};
+  };
 
-const handleBuyNft = async (item) => {
-  try {
-    setIsLoading(true);
-    const response = await instance.get(`/users/nft/transaction-details`, {
-      params: { userId, productId: item.id },
-    });
-    console.log("Backend Transaction Details:", {
-      address: response.data.address,
-      amount: response.data.amount,
-      memo: response.data.memo,
-      itemId: item.id,
-      tonPrice: item.tonPrice,
-    });
-    if (item.tonPrice !== 1 && item.tonPrice !== "1") {
-      item.tonPrice = "1"; // Force 1 TON
+  const handleConfirmTransaction = async (transactionDetails) => {
+    try {
+      setIsLoading(true);
+  
+      const { address, item } = transactionDetails || {};
+  
+      // // Validate address
+      // if (!address || !/^[A-Za-z0-9+/=-]{48}$/.test(address)) {
+      //   throw new Error(`Invalid TON address from backend: ${address}`);
+      // }
+  
+      const tonPriceString = item.tonPrice.toString();
+      const UUID = "081598dc-efb9-45d7-910f-d1dab767a3a0";
+  
+      // Call the updated function
+      await handleSendTransactionTonConnect(
+        tonConnectUI,
+        WebApp,
+        address,
+        tonPriceString,
+        UUID,
+        userId,
+        instance,
+        setIsTransactionModalOpen,
+        setIsLoading,
+        refreshData,
+        fetchShopItems
+      );
+    } catch (error) {
+      console.error("TonConnect Transaction Error:", {
+        message: error.message,
+        name: error.name,
+        stack: error.stack,
+        details: error.details,
+      });
+      WebApp.showAlert(`Transaction failed: ${error.message || "Unknown error"}`);
+    } finally {
+      setIsTransactionModalOpen(false);
+      setIsLoading(false);
     }
-    setTransactionDetails({ ...response.data, item });
-    await handleConfirmTransaction();
-  } catch (error) {
-    console.error("Failed to fetch transaction details:", error);
-    WebApp.showAlert("Failed to fetch transaction details. Please try again.");
-  } finally {
-    setIsLoading(false);
-  }
-};
+  };
+
+  const handleBuyNft = async (item) => {
+    try {
+      setIsLoading(true);
+      const response = await instance.get(`/users/nft/transaction-details`, {
+        params: { userId, productId: item.id },
+      });
+      console.log("Backend Transaction Details:", {
+        address: response.data.address,
+        amount: response.data.amount,
+        memo: response.data.memo,
+        itemId: item.id,
+        tonPrice: item.tonPrice,
+      });
+      if (item.tonPrice !== 1 && item.tonPrice !== "1") {
+        item.tonPrice = "1"; // Force 1 TON
+      }
+      setTransactionDetails({ ...response.data, item });
+      setIsTransactionModalOpen(true); // Open modal if needed
+      await handleConfirmTransaction(transactionDetails);
+    } catch (error) {
+      console.error("Failed to fetch transaction details:", error);
+      WebApp.showAlert("Failed to fetch transaction details. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const addComplexFilter = ({ filteredValue, filteredField }) => {
     setCurrentComplexFilters([
       ...currentComplexFilters,
       { filteredField, filteredValue },
-    ])
-  }
+    ]);
+  };
 
   const removeComplexFilter = ({ filteredValue, filteredField }) => {
     setCurrentComplexFilters(
@@ -796,47 +974,47 @@ const handleBuyNft = async (item) => {
           filter.filteredField !== filteredField ||
           filter.filteredValue !== filteredValue
       )
-    )
-  }
+    );
+  };
 
   const applyFilter = (items) => {
-    if (!filterTypeInUse) return items
+    if (!filterTypeInUse) return items;
     if (filterTypeInUse === BaseFilters.Complex) {
       if (!currentComplexFilters || currentComplexFilters.length === 0)
-        return items
+        return items;
       const tags = currentComplexFilters
         .filter((filter) => filter.filteredField === "tag")
-        .map((filter) => filter.filteredValue)
+        .map((filter) => filter.filteredValue);
       const tiers = currentComplexFilters
         .filter((filter) => filter.filteredField === "tier")
-        .map((filter) => filter.filteredValue)
+        .map((filter) => filter.filteredValue);
       return items.filter((item) => {
         const isCorrectByTier =
-          tiers.length > 0 ? tiers.includes(item.tier) : true
+          tiers.length > 0 ? tiers.includes(item.tier) : true;
         const isCorrectByTags =
-          tags.length > 0 ? item.tags?.some((tag) => tags.includes(tag)) : true
-        return isCorrectByTier && isCorrectByTags
-      })
+          tags.length > 0 ? item.tags?.some((tag) => tags.includes(tag)) : true;
+        return isCorrectByTier && isCorrectByTags;
+      });
     }
     if (filterTypeInUse === BaseFilters.Hat)
-      return items.filter((item) => item.category === "Hat")
+      return items.filter((item) => item.category === "Hat");
     if (filterTypeInUse === BaseFilters.Top)
-      return items.filter((item) => item.category === "Top")
+      return items.filter((item) => item.category === "Top");
     if (filterTypeInUse === BaseFilters.Pants)
-      return items.filter((item) => item.category === "Pants")
+      return items.filter((item) => item.category === "Pants");
     if (filterTypeInUse === BaseFilters.Shoes)
-      return items.filter((item) => item.category === "Shoes")
+      return items.filter((item) => item.category === "Shoes");
     if (filterTypeInUse === BaseFilters.Accessories)
-      return items.filter((item) => item.category === "Accessory")
+      return items.filter((item) => item.category === "Accessory");
     if (filterTypeInUse === BaseFilters.Shelf)
-      return items.filter((item) => item.productType === "shelf")
+      return items.filter((item) => item.productType === "shelf");
     if (filterTypeInUse === BaseFilters.Stars)
-      return items.filter((item) => item.isPrem === true)
-    return items
-  }
+      return items.filter((item) => item.isPrem === true);
+    return items;
+  };
 
   if (isLoading) {
-    return <FullScreenSpinner />
+    return <FullScreenSpinner />;
   }
 
   return (
@@ -864,15 +1042,30 @@ const handleBuyNft = async (item) => {
         handleStarsBuy={() => {}}
         handleBuyNft={handleBuyNft}
       />
+      {isTransactionModalOpen && (
+        <Modal
+          isOpen={isTransactionModalOpen}
+          onClose={() => setIsTransactionModalOpen(false)}
+          title={lang === "en" ? "Confirm Transaction" : "Подтвердить транзакцию"}
+        >
+          <p>{lang === "en" ? "Confirm your purchase" : "Подтвердите покупку"}</p>
+          <Button
+            text={lang === "en" ? "Confirm" : "Подтвердить"}
+            onClick={handleConfirmTransaction}
+            disabled={isLoading}
+          />
+        </Modal>
+      )}
     </ScreenContainer>
-  )
-}
-// Ensure proper TonConnectUI configuration
+  );
+};
+
+// Ensure proper TonConnectUI configuration (uncomment and configure as needed)
 const NftTabWithTonConnect = () => (
   // <TonConnectUIProvider
-  //   manifestUrl="https://your-app-url/tonconnect-manifest.json" // Replace with your manifest URL
+  //   manifestUrl="https://your-app-url/tonconnect-manifest.json"
   //   actionsConfiguration={{
-  //     twaReturnUrl: "https://t.me/your_bot_name" // Replace with your Telegram bot URL
+  //     twaReturnUrl: "https://t.me/your_bot_name"
   //   }}
   //   walletsListConfiguration={{
   //     includeWallets: [
@@ -884,13 +1077,13 @@ const NftTabWithTonConnect = () => (
   //         universalLink: "https://app.tonkeeper.com/ton-connect",
   //         jsBridgeKey: "tonkeeper",
   //         bridgeUrl: "https://bridge.tonapi.io/bridge",
-  //         platforms: ["ios", "android", "chrome", "firefox", "macos"]
-  //       }
-  //     ]
+  //         platforms: ["ios", "android", "chrome", "firefox", "macos"],
+  //       },
+  //     ],
   //   }}
   // >
-  <NftTab />
+    <NftTab />
   // </TonConnectUIProvider>
-)
+);
 
-export default NftTabWithTonConnect
+export default NftTabWithTonConnect;
