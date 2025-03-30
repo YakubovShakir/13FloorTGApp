@@ -14,6 +14,7 @@
     "@emotion/styled": "^11.13.0",
     "@esbuild-plugins/node-globals-polyfill": "^0.2.3",
     "@mui/joy": "^5.0.0-beta.48",
+    "@rollup/plugin-commonjs": "^28.0.3",
     "@rollup/plugin-inject": "^5.0.5",
     "@telegram-apps/sdk": "^2.11.3",
     "@ton/ton": "^15.2.1",

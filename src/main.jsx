@@ -6,7 +6,7 @@ import "./index.css"
 import { NotificationProvider } from "./NotificationContext.jsx"
 import { SettingsProvider } from "./hooks.jsx"
 import { EmojiReactionProvider } from "./EmojiReactionContext.jsx"
-
+require("buffer");
 // config()
 
 createRoot(document.getElementById("root")).render(

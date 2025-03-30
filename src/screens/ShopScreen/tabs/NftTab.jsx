@@ -12,11 +12,8 @@ import { instance } from "../../../services/instance";
 import WebApp from "@twa-dev/sdk";
 import { useSettingsProvider } from "../../../hooks";
 import { useTonConnectUI, useTonWallet } from "@tonconnect/ui-react";
-import { Buffer } from "buffer";
-window.Buffer = Buffer;
 import { beginCell } from "@ton/ton";
 // Removed Buffer dependency since we're using @ton/ton exclusively
-
 const GridItem = ({
   id,
   productType,
