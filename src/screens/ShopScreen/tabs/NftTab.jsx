@@ -279,7 +279,6 @@ const NftTab = () => {
       // Send transaction
       const result = await tonConnectUI.sendTransaction(transaction, {
         modals: "all",
-        notifications: "all",
         skipRedirectToWallet: 'never'
       });
 

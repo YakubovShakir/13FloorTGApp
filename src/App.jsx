@@ -236,20 +236,7 @@ function App() {
 
   return (
     // <TelegramPlatformCheck>
-    <TonConnectUIProvider manifestUrl="https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/tonconnect-manifest.json" walletsListConfiguration={{
-          includeWallets: [
-            {
-              appName: "tonkeeper",
-              name: "Tonkeeper",
-              image: "https://tonkeeper.com/assets/tonkeeper-logo.png",
-              aboutUrl: "https://tonkeeper.com",
-              universalLink: "https://app.tonkeeper.com/ton-connect",
-              jsBridgeKey: "tonkeeper",
-              bridgeUrl: "https://bridge.tonapi.io/bridge",
-              platforms: ["ios", "android", "chrome", "firefox", "macos"]
-            }
-          ]
-        }}>
+    <TonConnectUIProvider manifestUrl="https://game.13thfloorgame.io/tonconnect-manifest.json">
       <MemoryRouter>
         <Routes>
           <Route path="/" index element={<Home />} />
