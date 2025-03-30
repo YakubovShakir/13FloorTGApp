@@ -302,31 +302,58 @@ const ActionScreen = memo(() => {
       const buyStatus =
         userParameters.respect >= (work.respect_required || 0) &&
         (work.skill_id_required ? checkLearnedSkill(work.skill_id_required) : true) &&
-        userParameters.level >= (work.work_id || 0) &&
+        userParameters.level >= (work.requiredLevel || 0) && // Исправлено с work.work_id
         workId === (userParameters.work_id || 0) + 1 &&
         userParameters.coins >= (work.coins_price || 0);
       const canStart = canStartWorking(userParameters);
-
+  
+      // Функция для показа модального окна "Запрещено"
+      const showForbiddenModal = () => {
+        setModalData({
+          image: Icons.balance,
+          type: "info",
+          title: translations.unavailable[lang],
+          modalLogo: Icons.lockedIcon,
+          blocks: [{
+            text: lang === "ru" ? "Один из ваших параметров на нуле!" : "One of your parameters is at zero!",
+            icon: Icons.lockedIcon,
+            
+          }],
+          buttons: [{
+            text: "ОК",
+            onClick: () => setVisibleModal(false),
+            active: true,
+          }],
+        });
+        setVisibleModal(true);
+      };
+  
       if (currentWork?.work_id === workId) {
         return [
           {
             text: activeWork ? translations.inProgress[lang] : translations.start[lang],
-            onClick: activeWork ? handleStopWork : canStart ? handleStartWork : null,
+            onClick: activeWork
+              ? handleStopWork
+              : canStart
+                ? handleStartWork
+                : showForbiddenModal, // Модальное окно для неактивной кнопки
             active: canStart || activeWork,
           },
         ];
       }
-
+  
       return [
         {
           text: buyStatus ? (work.coins_price || 0) : translations.unlock[lang],
-          onClick: () => {
-            const modalData = setWorkModalData(work);
-            if (modalData) {
-              setModalData(modalData);
-              setVisibleModal(true);
-            }
-          },
+          onClick: buyStatus
+            ? () => {
+                const modalData = setWorkModalData(work);
+                if (modalData) {
+                  setModalData(modalData);
+                  setVisibleModal(true);
+                }
+              }
+            : showForbiddenModal, // Модальное окно для неактивной кнопки
           icon: buyStatus && Icons.balance,
           active: buyStatus,
           shadowColor: buyStatus && "rgb(243, 117, 0)",
@@ -379,14 +406,37 @@ const ActionScreen = memo(() => {
   const getItemTrainingButton = useCallback(() => {
     if (!userParameters) return [];
     const canStart = canStartTraining(userParameters);
+  
+    // Функция для показа модального окна "Запрещено"
+    const showForbiddenModal = () => {
+      setModalData({
+        image: Icons.training,
+        type: "info",
+        title: translations.unavailable[lang],
+        modalLogo: Icons.lockedIcon,
+        blocks: [{
+          text: lang === "ru" ? "Ваш персонаж счастлив! Или голоден, а возможно не хвтатет энергии" : "Your character is happy! Or hungry, or maybe he doesn't have enough energy",
+          icon: Icons.lockedIcon,
+          
+        }],
+       
+        buttons: [{
+          text: "ОК",
+          onClick: () => setVisibleModal(false),
+          active: true,
+        }],
+      });
+      setVisibleModal(true);
+    };
+  
     return [
       {
         text: activeProcess?.type === "training" ? translations.inProgress[lang] : translations.start[lang],
         active: canStart,
-        onClick: canStart ? handleStartTraining : null,
+        onClick: canStart ? handleStartTraining : showForbiddenModal, // Модальное окно для неактивной кнопки
       },
     ];
-  }, [userParameters, activeProcess, handleStartTraining, lang, translations]);
+  }, [userParameters, activeProcess, handleStartTraining, setModalData, setVisibleModal, lang, translations]);
 
   const handleStartSleep = useCallback(async () => {
     if (!userId || !userParameters || userParameters.energy >= userParameters.energy_capacity) return;
@@ -425,6 +475,28 @@ const ActionScreen = memo(() => {
   const getItemSleepButton = useCallback(() => {
     if (!userParameters) return [];
     const canStart = canStartSleeping(userParameters);
+  
+    // Функция для показа модального окна "Запрещено"
+    const showForbiddenModal = () => {
+      setModalData({
+        image: Icons.sleep,
+        type: "info",
+        title: translations.unavailable[lang],
+        modalLogo: Icons.lockedIcon,
+        blocks: [{
+          text: lang === "ru" ? "Ваш персонаж полон энергии!" : "Your character is full of energy!",
+          icon: Icons.lockedIcon,
+          
+        }],
+        buttons: [{
+          text: "ОК",
+          onClick: () => setVisibleModal(false),
+          active: true,
+        }],
+      });
+      setVisibleModal(true);
+    };
+  
     return [
       {
         text: activeProcess?.type === "sleep" ? translations.inProgress[lang] : translations.start[lang],
@@ -432,11 +504,13 @@ const ActionScreen = memo(() => {
         onClick: () => {
           if (canStart) {
             activeProcess?.type === "sleep" ? handleStopSleep() : handleStartSleep();
+          } else {
+            showForbiddenModal(); // Модальное окно для неактивной кнопки
           }
         },
       },
     ];
-  }, [userParameters, activeProcess, handleStartSleep, handleStopSleep, lang, translations]);
+  }, [userParameters, activeProcess, handleStartSleep, handleStopSleep, setModalData, setVisibleModal, lang, translations]);
 
   if (isPreloading || error || !userParameters) {
     return (
