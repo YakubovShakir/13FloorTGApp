@@ -299,13 +299,13 @@ const TaskTab = ({ userId, userParameters, setUserParameters }) => {
              alignItems: "center",
              paddingTop: 5,
                 }}>
-         <img
+         {/* <img
   src={Icons.tonIcon}
   alt="Coin"
-  style={{ width: "20px", height: "20px" }} // Установлены ширина и высота 20px
-/>
+  style={{ width: "20px", height: "20px" }} 
+/> */}
             
-            <p
+            {/* <p
             style={{
               fontSize: "18px",
               fontFamily: "Oswald",
@@ -316,7 +316,7 @@ const TaskTab = ({ userId, userParameters, setUserParameters }) => {
             }}
           >
             {translations.ton[lang]}  100
-            </p>
+            </p> */}
             </div>
           </div>
 
@@ -376,13 +376,13 @@ const TaskTab = ({ userId, userParameters, setUserParameters }) => {
              alignItems: "center",
              paddingTop: 5,
                 }}>
-         <img
+         {/* <img
   src={Icons.tonIcon}
   alt="Coin"
   style={{ width: "20px", height: "20px" }} // Установлены ширина и высота 20px
-/>
+/> */}
             
-            <p
+            {/* <p
             style={{
               fontSize: "22px",
               fontFamily: "Oswald",
@@ -393,7 +393,7 @@ const TaskTab = ({ userId, userParameters, setUserParameters }) => {
             }}
           >
             {translations.ton[lang]}  100
-            </p>
+            </p> */}
             </div>
           </div>
           </div>
