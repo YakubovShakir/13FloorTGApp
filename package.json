@@ -17,7 +17,6 @@
     "@rollup/plugin-commonjs": "^28.0.3",
     "@rollup/plugin-inject": "^5.0.5",
     "@telegram-apps/sdk": "^2.11.3",
-    "@ton/ton": "^15.2.1",
     "@tonconnect/ui-react": "^2.0.9",
     "@twa-dev/sdk": "8.0.2",
     "axios": "^1.7.7",
