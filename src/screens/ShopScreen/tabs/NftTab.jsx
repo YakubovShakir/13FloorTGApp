@@ -12,10 +12,9 @@ import { instance } from "../../../services/instance";
 import WebApp from "@twa-dev/sdk";
 import { useSettingsProvider } from "../../../hooks";
 import { useTonConnectUI, useTonWallet } from "@tonconnect/ui-react";
-import { Buffer } from "buffer";
+import { beginCell } from "@ton/ton";
 
-// Polyfill Buffer globally for browser compatibility
-window.Buffer = Buffer;
+// Removed Buffer dependency since we're using @ton/ton exclusively
 
 const GridItem = ({
   id,
@@ -542,30 +541,31 @@ const handleSendTransactionTonConnect = async (
   refreshData,
   fetchShopItems
 ) => {
-  const body = Buffer.concat([
-    Buffer.from([0x00, 0x00, 0x00, 0x00]), // 32-bit 0 opcode for comment
-    Buffer.from(UUID, "utf8"), // String tail
-  ]);
+  // Create payload with UUID as a comment
+  const body = beginCell()
+    .storeUint(0, 32) // 32-bit 0 opcode for comment
+    .storeStringTail(UUID) // Use UUID as memo
+    .endCell();
+
   const paymentRequest = {
     messages: [
       {
         address: walletAddress,
         amount: toNano(amount).toString(),
-        payload: body.toString("base64"),
+        payload: body.toBoc().toString("base64"), // Proper TON cell serialization
       },
     ],
     validUntil: Math.floor(Date.now() / 1000) + 3600, // 1 hour
     network: "-239", // Mainnet
   };
 
-  // Hybrid approach with TonConnect and universal link fallback
   try {
     setIsLoading(true);
 
     // Step 1: Ensure wallet is connected
     if (!tonConnectUI.connected) {
       console.log("Wallet not connected, opening modal...");
-      tonConnectUI.openModal();
+      await tonConnectUI.openModal();
       if (!tonConnectUI.connected) {
         WebApp.showAlert("Wallet connection cancelled.");
         return;
@@ -581,59 +581,46 @@ const handleSendTransactionTonConnect = async (
       platform: WebApp.platform,
     });
 
-    // Step 2: Validate address
-    if (!walletAddress || !/^[A-Za-z0-9+/=-]{48}$/.test(walletAddress)) {
-      throw new Error(`Invalid TON address: ${walletAddress}`);
-    }
+    // // Step 2: Validate address
+    // if (!walletAddress || !/^[A-Za-z0-9+/=-]{48}$/.test(walletAddress)) {
+    //   throw new Error(`Invalid TON address: ${walletAddress}`);
+    // }
     console.log("Destination Address:", walletAddress);
 
-    // Step 3: Log amount and memo
+    // Step 3: Log transaction details
     console.log("Amount in TON:", amount);
     console.log("Amount in Nanotons:", toNano(amount).toString());
     console.log("Memo (raw):", UUID);
-    console.log("Payload (base64):", body.toString("base64"));
+    console.log("Payload (base64):", body.toBoc().toString("base64"));
     console.log("Full Transaction Object:", JSON.stringify(paymentRequest, null, 2));
 
-    // Step 4: Detect wallet and send transaction
-    const isTonkeeper = tonConnectUI.wallet?.appName === "tonkeeper";
+    // Step 4: Construct universal link as fallback
+    const universalLink = `ton://transfer/${walletAddress}?amount=${toNano(amount)}&text=${encodeURIComponent(UUID)}`;
+    const isTelegramBrowser = WebApp.platform !== "unknown" && WebApp.platform !== undefined;
 
-    if (isTonkeeper) {
-      // Tonkeeper: Use universal link due to TonConnect issues
-      const universalLink = `https://app.tonkeeper.com/transfer/${walletAddress}?amount=${toNano(amount)}&text=${encodeURIComponent(UUID)}`;
-      console.log("Universal Link for Tonkeeper:", universalLink);
-      WebApp.openLink(universalLink);
-      WebApp.showAlert("Opening Tonkeeper with memo. Confirm the transaction there.");
+    // Step 5: Send transaction via TonConnect
+    const result = await tonConnectUI.sendTransaction(paymentRequest, {
+      modals: "all",
+      skipRedirectToWallet: "never",
+    });
+    console.log("TonConnect Transaction Result:", result);
+
+    // Step 6: Verify with backend (include more data for flexibility)
+    const verifyResponse = await instance.post(`/users/nft/verify-transaction`, {
+      userId,
+      transactionId: result.boc,
+      memo: UUID,
+      amount: toNano(amount).toString(),
+      destination: walletAddress,
+    });
+    console.log("Backend Verification Response:", verifyResponse.data);
+
+    if (verifyResponse.data.success) {
+      WebApp.showAlert("Transaction confirmed successfully!");
+      await refreshData();
+      await fetchShopItems();
     } else {
-      // Other wallets: Try TonConnect first
-      try {
-        const result = await tonConnectUI.sendTransaction(paymentRequest, {
-          modals: "all",
-          skipRedirectToWallet: "never",
-        });
-        console.log("TonConnect Transaction Result:", result);
-
-        // Verify with backend
-        const verifyResponse = await instance.post(`/users/nft/verify-transaction`, {
-          userId,
-          transactionId: result.boc,
-          memo: UUID,
-        });
-
-        if (verifyResponse.data.success) {
-          WebApp.showAlert("Transaction confirmed successfully!");
-          await refreshData();
-          await fetchShopItems();
-        } else {
-          WebApp.showAlert("Transaction sent but verification failed. Check your wallet.");
-        }
-      } catch (tonConnectError) {
-        console.error("TonConnect Failed:", tonConnectError);
-        // Fallback to universal link for other wallets
-        const universalLink = `https://app.tonkeeper.com/transfer/${walletAddress}?amount=${toNano(amount)}&text=${encodeURIComponent(UUID)}`;
-        console.log("Universal Link (fallback):", universalLink);
-        WebApp.openLink(universalLink);
-        WebApp.showAlert("TonConnect failed. Opening wallet with memo via link.");
-      }
+      throw new Error(`Verification failed: ${verifyResponse.data.message || "Unknown reason"}`);
     }
   } catch (error) {
     console.error("Transaction Error:", {
@@ -641,7 +628,17 @@ const handleSendTransactionTonConnect = async (
       name: error.name,
       stack: error.stack,
     });
-    WebApp.showAlert(`Transaction failed: ${error.message || "Unknown error"}`);
+
+    // // Fallback to universal link if TonConnect fails
+    // const universalLink = `ton://transfer/${walletAddress}?amount=${toNano(amount)}&text=${encodeURIComponent(UUID)}`;
+    // console.log("Universal Link (fallback):", universalLink);
+    // if (isTelegramBrowser) {
+    //   WebApp.openLink(universalLink);
+    //   WebApp.showAlert("TonConnect failed. Opening wallet with memo via link.");
+    // } else {
+    //   window.open(universalLink, "_blank");
+    //   WebApp.showAlert("TonConnect failed. Opening wallet in a new tab.");
+    // }
   } finally {
     setIsTransactionModalOpen(false);
     setIsLoading(false);
@@ -745,7 +742,7 @@ const NftTab = () => {
     fetchShopItems();
   }, [userId, lang, userParameters.coins]);
 
-  // Handle tab visibility changes (e.g., when switching tabs)
+  // Handle tab visibility changes
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (document.visibilityState === "visible") {
@@ -759,153 +756,19 @@ const NftTab = () => {
       document.removeEventListener("visibilitychange", handleVisibilityChange);
   }, [userId, lang, userParameters.coins]);
 
-  const handleSendTransactionTonConnect = async (
-    tonConnectUI,
-    WebApp,
-    walletAddress,
-    amount,
-    UUID,
-    userId,
-    instance,
-    setIsTransactionModalOpen,
-    setIsLoading,
-    refreshData,
-    fetchShopItems
-  ) => {
-    const body = Buffer.concat([
-      Buffer.from([0x00, 0x00, 0x00, 0x00]), // 32-bit 0 opcode for comment
-      Buffer.from(UUID, "utf8"), // String tail
-    ]);
-    const paymentRequest = {
-      messages: [
-        {
-          address: "UQAyMah6BUuxR7D8HXt3hr0r2kbUgZ_kCOigjRnQj402WwY5" || walletAddress,
-          amount: toNano(amount).toString(),
-          payload: body.toString("base64"),
-        },
-      ],
-      validUntil: Math.floor(Date.now() / 1000) + 3600, // 1 hour
-      network: "-239", // Mainnet
-    };
-  
-    // Hybrid approach with platform-specific link handling
+  const handleConfirmTransaction = async () => {
     try {
       setIsLoading(true);
-  
-      // Step 1: Ensure wallet is connected
-      if (!tonConnectUI.connected) {
-        console.log("Wallet not connected, opening modal...");
-        tonConnectUI.openModal();
-        if (!tonConnectUI.connected) {
-          WebApp.showAlert("Wallet connection cancelled.");
-          return;
-        }
-      }
-  
-      console.log("Connected Wallet Details:", {
-        wallet: tonConnectUI.wallet,
-        connected: tonConnectUI.connected,
-        chain: tonConnectUI.wallet?.account?.chain,
-        address: tonConnectUI.wallet?.account?.address,
-        appName: tonConnectUI.wallet?.appName,
-        platform: WebApp.platform,
-      });
-  
-      // // Step 2: Validate address
-      // if (!walletAddress || !/^[A-Za-z0-9+/=-]{48}$/.test(walletAddress)) {
-      //   throw new Error(`Invalid TON address: ${walletAddress}`);
-      // }
-      console.log("Destination Address:", walletAddress);
-  
-      // Step 3: Log amount and memo
-      console.log("Amount in TON:", amount);
-      console.log("Amount in Nanotons:", toNano(amount).toString());
-      console.log("Memo (raw):", UUID);
-      console.log("Payload (base64):", body.toString("base64"));
-      console.log("Full Transaction Object:", JSON.stringify(paymentRequest, null, 2));
-  
-      // Step 4: Construct universal link
-      const universalLink = `https://app.tonkeeper.com/transfer/${walletAddress}?amount=${toNano(amount)}&text=${encodeURIComponent(UUID)}`;
-      console.log("Universal Link:", universalLink);
-  
-      // Step 5: Detect wallet and platform, then send transaction or open link
-      const isTonkeeper = tonConnectUI.wallet?.appName === "tonkeeper";
-      const isTelegramBrowser = WebApp.platform !== "unknown" && WebApp.platform !== undefined; // Telegram sets platform like "ios", "android", etc.
-  
-      if (isTonkeeper || !isTelegramBrowser) {
-        // Tonkeeper or non-Telegram: Use universal link
-        if (isTelegramBrowser) {
-          // In Telegram, use WebApp.openLink
-          WebApp.openLink(universalLink);
-          WebApp.showAlert("Opening Tonkeeper with memo. Confirm the transaction there.");
-        } else {
-          // Outside Telegram, open in new tab
-          window.open(universalLink, "_blank");
-          WebApp.showAlert("Opening wallet in a new tab. Confirm the transaction there.");
-        }
-      } else {
-        // Other wallets in Telegram: Try TonConnect first
-        try {
-          const result = await tonConnectUI.sendTransaction(paymentRequest, {
-            modals: "all",
-            skipRedirectToWallet: "never",
-          });
-          console.log("TonConnect Transaction Result:", result);
-  
-          // Verify with backend
-          const verifyResponse = await instance.post(`/users/nft/verify-transaction`, {
-            userId,
-            transactionId: result.boc,
-            memo: UUID,
-          });
-  
-          if (verifyResponse.data.success) {
-            WebApp.showAlert("Transaction confirmed successfully!");
-            await refreshData();
-            await fetchShopItems();
-          } else {
-            WebApp.showAlert("Transaction sent but verification failed. Check your wallet.");
-          }
-        } catch (tonConnectError) {
-          console.error("TonConnect Failed:", tonConnectError);
-          // Fallback to universal link
-          if (isTelegramBrowser) {
-            WebApp.openLink(universalLink);
-            WebApp.showAlert("TonConnect failed. Opening wallet with memo via link.");
-          } else {
-            window.open(universalLink, "_blank");
-            WebApp.showAlert("TonConnect failed. Opening wallet in a new tab.");
-          }
-        }
-      }
-    } catch (error) {
-      console.error("Transaction Error:", {
-        message: error.message,
-        name: error.name,
-        stack: error.stack,
-      });
-      WebApp.showAlert(`Transaction failed: ${error.message || "Unknown error"}`);
-    } finally {
-      setIsTransactionModalOpen(false);
-      setIsLoading(false);
-    }
-  };
 
-  const handleConfirmTransaction = async (transactionDetails) => {
-    try {
-      setIsLoading(true);
-  
-      const { address, item } = transactionDetails || {};
-  
-      // // Validate address
+      const { address, item } = transactionDetails;
+
       // if (!address || !/^[A-Za-z0-9+/=-]{48}$/.test(address)) {
       //   throw new Error(`Invalid TON address from backend: ${address}`);
       // }
-  
+
       const tonPriceString = item.tonPrice.toString();
       const UUID = "081598dc-efb9-45d7-910f-d1dab767a3a0";
-  
-      // Call the updated function
+
       await handleSendTransactionTonConnect(
         tonConnectUI,
         WebApp,
@@ -924,7 +787,6 @@ const NftTab = () => {
         message: error.message,
         name: error.name,
         stack: error.stack,
-        details: error.details,
       });
       WebApp.showAlert(`Transaction failed: ${error.message || "Unknown error"}`);
     } finally {
@@ -950,8 +812,8 @@ const NftTab = () => {
         item.tonPrice = "1"; // Force 1 TON
       }
       setTransactionDetails({ ...response.data, item });
-      setIsTransactionModalOpen(true); // Open modal if needed
-      await handleConfirmTransaction(transactionDetails);
+      setIsTransactionModalOpen(true);
+      await handleConfirmTransaction();
     } catch (error) {
       console.error("Failed to fetch transaction details:", error);
       WebApp.showAlert("Failed to fetch transaction details. Please try again.");
@@ -1060,30 +922,6 @@ const NftTab = () => {
   );
 };
 
-// Ensure proper TonConnectUI configuration (uncomment and configure as needed)
-const NftTabWithTonConnect = () => (
-  // <TonConnectUIProvider
-  //   manifestUrl="https://your-app-url/tonconnect-manifest.json"
-  //   actionsConfiguration={{
-  //     twaReturnUrl: "https://t.me/your_bot_name"
-  //   }}
-  //   walletsListConfiguration={{
-  //     includeWallets: [
-  //       {
-  //         appName: "tonkeeper",
-  //         name: "Tonkeeper",
-  //         image: "https://tonkeeper.com/assets/tonkeeper-logo.png",
-  //         aboutUrl: "https://tonkeeper.com",
-  //         universalLink: "https://app.tonkeeper.com/ton-connect",
-  //         jsBridgeKey: "tonkeeper",
-  //         bridgeUrl: "https://bridge.tonapi.io/bridge",
-  //         platforms: ["ios", "android", "chrome", "firefox", "macos"],
-  //       },
-  //     ],
-  //   }}
-  // >
-    <NftTab />
-  // </TonConnectUIProvider>
-);
+const NftTabWithTonConnect = () => <NftTab />;
 
 export default NftTabWithTonConnect;
