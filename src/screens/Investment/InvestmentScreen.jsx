@@ -1000,6 +1000,7 @@ const useInvestmentData = (userId) => {
   const { lang } = useSettingsProvider()
 
   const handleAutoclaimPurchased = async (investment_type, duration) => {
+    console.log(investment_type, duration)
     await handleStarsPayment(userId, "autoclaim", investment_type, lang, duration)
     await fetchInvestments()
     await refreshData()
@@ -1255,9 +1256,9 @@ const InvestmentScreen = () => {
           <AutoclaimModal
             onClose={() => setIsAutoClaimModalVisible(false)}
             data={autoclaimModalData}
-            handleAutoclaimPurchased={async (type) => {
+            handleAutoclaimPurchased={async (type, duration) => {
               setIsAutoClaimModalVisible(false)
-              await handleAutoclaimPurchased(type)
+              await handleAutoclaimPurchased(type, duration)
             }}
             bottom={"0"}
             width={"100%"}
