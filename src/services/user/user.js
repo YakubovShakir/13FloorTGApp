@@ -100,6 +100,16 @@ export const getShopItems = async (id) => {
   }
 }
 
+export const getNftShopItems = async (id) => {
+  try {
+    const { data } = await instance.get(`/users/${id}/nft/shop`)
+    console.log("Shop data", data)
+    return data
+  } catch (err) {
+    console.log("Error while fetching shop items", err)
+  }
+}
+
 export const getInventoryItems = async (id) => {
   try {
     const { data } = await instance.get(`/users/${id}/inventory/get-items`)
