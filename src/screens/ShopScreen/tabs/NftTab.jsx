@@ -758,9 +758,7 @@ const NftTab = () => {
         itemId: item.id,
         tonPrice: item.tonPrice,
       });
-      if (item.tonPrice !== 1 && item.tonPrice !== "1") {
-        item.tonPrice = "1"; // Force 1 TON
-      }
+     
       setTransactionDetails({ ...response.data, item });
       setIsTransactionModalOpen(true);
       await handleConfirmTransaction();
