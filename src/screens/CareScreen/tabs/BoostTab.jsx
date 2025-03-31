@@ -117,7 +117,6 @@ const BoostTab = ({ }) => {
     getActiveProcess(userId).then((process) => setActiveProcess(process))
     getUserBoosts(userId).then((boosts) => setUserBoosts(boosts))
     getProcesses('boost', userId).then((processes) => setUserBoostProcesses(processes))
-    console.log(userBoostProcesses)
   }, [])
 
   useEffect(() => {
