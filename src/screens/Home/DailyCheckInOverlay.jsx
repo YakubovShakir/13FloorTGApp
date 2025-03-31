@@ -78,7 +78,7 @@ const DailyCheckInOverlay = () => {
               left: 0,
               width: "100vw",
               height: "100vh",
-              background: "rgba(0, 0, 0, 0.6)",
+              background: "repeating-linear-gradient(45deg, rgba(0, 0, 0, 0.21), rgba(0, 0, 0, 0.21) 2px, rgba(57, 57, 57, 0.06) 2px, rgba(57, 57, 57, 0.06) 6px) rgb(20, 20, 20)",
               opacity: 1,
               zIndex: 99999999,
               display: "flex",
