@@ -269,7 +269,7 @@ const ForeignHome = () => {
       >
         <motion.div
           style={{
-            filter: "blur(1px)",
+            filter: "blur(1.5px)",
             position: "absolute",
             height: "53%",
             width: "53%",

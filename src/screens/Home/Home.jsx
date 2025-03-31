@@ -551,7 +551,7 @@ const Home = () => {
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.5, ease: "easeInOut" }}
                 style={{
-                  filter: "blur(1px)",
+                  filter: "blur(1.5px)",
                   position: "absolute",
                   height: "53%",
                   width: "53%",
