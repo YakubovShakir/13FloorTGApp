@@ -1,14 +1,14 @@
-import React, { useState, useEffect, useRef } from "react"
-import { motion, AnimatePresence } from "framer-motion"
-import Assets from "../../assets"
-import { instance } from "../../services/instance"
-import Button from "../../components/simple/Button/Button"
-import { useUser } from "../../UserContext"
-import { useSettingsProvider } from "../../hooks"
-import globalTranslations from "../../globalTranslations"
-import { useNavigate } from "react-router-dom"
+import React, { useState, useEffect, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import Assets from "../../assets";
+import { instance } from "../../services/instance";
+import Button from "../../components/simple/Button/Button";
+import { useUser } from "../../UserContext";
+import { useSettingsProvider } from "../../hooks";
+import globalTranslations from "../../globalTranslations";
+import { useNavigate } from "react-router-dom";
 
-const translations = globalTranslations.gacha
+const translations = globalTranslations.gacha;
 
 const buttonStyle = {
   width: "100%",
@@ -16,186 +16,173 @@ const buttonStyle = {
   color: "rgb(255, 255, 255)",
   fontSize: 14,
   fontFamily: "Oswald",
-}
+};
 
 const GachaOverlay = () => {
-  const [isActive, setIsActive] = useState(true)
-  const [attempts, setAttempts] = useState(0)
-  const [spinning, setSpinning] = useState(false)
-  const [result, setResult] = useState(null) // Won item
-  const [burnedTo, setBurnedTo] = useState(null) // Prize if burned
-  const [rouletteItems, setRouletteItems] = useState([])
-  const [spinTarget, setSpinTarget] = useState(0)
-  const [lastSpinPosition, setLastSpinPosition] = useState(0)
-  const [itemPool, setItemPool] = useState([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [isBurning, setIsBurning] = useState(false) // Track burning animation
-  const rouletteRef = useRef(null)
-  const { Icons } = Assets
-  const SPIN_LENGTH = 100
-  const ITEM_WIDTH = 160
-  const ITEM_MARGIN = 6
-  const TOTAL_ITEM_SPACE = ITEM_WIDTH + 2 * ITEM_MARGIN
+  const [isActive, setIsActive] = useState(true);
+  const [attempts, setAttempts] = useState(0); // Always a number
+  const [spinning, setSpinning] = useState(false);
+  const [result, setResult] = useState(null);
+  const [burnedTo, setBurnedTo] = useState(null);
+  const [rouletteItems, setRouletteItems] = useState([]);
+  const [spinTarget, setSpinTarget] = useState(0);
+  const [lastSpinPosition, setLastSpinPosition] = useState(0);
+  const [itemPool, setItemPool] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isBurning, setIsBurning] = useState(false);
+  const rouletteRef = useRef(null);
+  const { Icons } = Assets;
+  const SPIN_LENGTH = 100;
+  const ITEM_WIDTH = 160;
+  const ITEM_MARGIN = 6;
+  const TOTAL_ITEM_SPACE = ITEM_WIDTH + 2 * ITEM_MARGIN;
 
-  const { userId, refreshData } = useUser()
-  const { lang } = useSettingsProvider()
+  const { userId, refreshData } = useUser();
+  const { lang } = useSettingsProvider();
 
   const preloadImages = (items) => {
     items.forEach((item) => {
-      const img = new Image()
-      img.src = item.image
-    })
-  }
+      const img = new Image();
+      img.src = item.image;
+    });
+  };
 
   const fetchItemPool = async () => {
     try {
-      const response = await instance.get(`/users/${userId}/gacha/items`)
-      const items = response.data.items
-      setItemPool(items)
-      preloadImages(items)
-      return items
+      const response = await instance.get(`/users/${userId}/gacha/items`);
+      const items = response.data.items || [];
+      setItemPool(items);
+      preloadImages(items);
+      return items;
     } catch (error) {
-      console.error("Error fetching item pool:", error)
-      return []
+      console.error("Error fetching item pool:", error);
+      return [];
     }
-  }
+  };
 
   const fetchGachaData = async (pool) => {
     try {
-      const response = await instance.get(`/users/${userId}/gacha/attempts`)
-      setAttempts(response.data.attempts)
-      setRouletteItems(generateItems(30, null, null, pool))
+      const response = await instance.get(`/users/${userId}/gacha/attempts`);
+      // Ensure attempts is a number, default to 0 if invalid
+      const fetchedAttempts = Number(response.data.attempts) || 0;
+      setAttempts(fetchedAttempts);
+      setRouletteItems(generateItems(30, null, null, pool));
     } catch (error) {
-      console.error("Error fetching gacha data:", error)
+      console.error("Error fetching gacha data:", error);
+      setAttempts(0); // Fallback to 0 on error
     }
-  }
+  };
 
   const buyAttempts = async () => {
     try {
-      const response = await instance.post(
-        "/users/request-stars-invoice-link",
-        {
-          productType: "spin",
-          userId,
+      const response = await instance.post("/users/request-stars-invoice-link", {
+        productType: "spin",
+        userId,
+      });
+      window.Telegram?.WebApp?.openInvoice(response.data.invoiceLink, (status) => {
+        if (status === "paid") {
+          // Ensure attempts is a number
+          const newAttempts = Number(response.data.attempts) || 0;
+          setAttempts(newAttempts);
         }
-      )
-      window.Telegram?.WebApp?.openInvoice(
-        response.data.invoiceLink,
-        (status) => {
-          if (status === "paid") {
-            setAttempts(response.data.attempts)
-          }
-        }
-      )
+      });
     } catch (err) {
-      console.error(err)
+      console.error(err);
     }
-  }
+  };
 
   const spinGacha = async () => {
     try {
-      const response = await instance.get(`/users/${userId}/gacha/spin`)
-      return response.data
+      const response = await instance.get(`/users/${userId}/gacha/spin`);
+      return response.data;
     } catch (error) {
-      console.error("Error spinning gacha:", error)
-      throw error
+      console.error("Error spinning gacha:", error);
+      throw error;
     }
-  }
+  };
 
-  const generateItems = (
-    count,
-    wonItem = null,
-    winnerIndex = null,
-    pool = itemPool
-  ) => {
-    if (!pool.length) return []
+  const generateItems = (count, wonItem = null, winnerIndex = null, pool = itemPool) => {
+    if (!pool.length) return [];
     return Array.from({ length: count }, (_, i) => {
       if (wonItem && i === winnerIndex) {
-        return { ...wonItem, uniqueId: Math.random() }
+        return { ...wonItem, uniqueId: Math.random() };
       }
-      const randomItem = pool[Math.floor(Math.random() * pool.length)]
-      return { ...randomItem, uniqueId: Math.random() }
-    })
-  }
+      const randomItem = pool[Math.floor(Math.random() * pool.length)];
+      return { ...randomItem, uniqueId: Math.random() };
+    });
+  };
 
   const loadData = async () => {
-    setIsLoading(true)
-    setRouletteItems([])
-    const pool = await fetchItemPool()
-    await fetchGachaData(pool)
-    setIsLoading(false)
-  }
+    setIsLoading(true);
+    setRouletteItems([]);
+    const pool = await fetchItemPool();
+    await fetchGachaData(pool);
+    setIsLoading(false);
+  };
 
   useEffect(() => {
     if (userId && isActive) {
-      loadData()
+      loadData();
     }
-  }, [userId, isActive])
+  }, [userId, isActive]);
 
   const handleClose = () => {
-    setSpinning(false)
-    setResult(null)
-    setBurnedTo(null)
-    setSpinTarget(0)
-    setLastSpinPosition(0)
-    setIsBurning(false)
-  }
+    setSpinning(false);
+    setResult(null);
+    setBurnedTo(null);
+    setSpinTarget(0);
+    setLastSpinPosition(0);
+    setIsBurning(false);
+  };
 
   const handleBuyAttempts = async () => {
-    if (!spinning) await buyAttempts()
-  }
+    if (!spinning) await buyAttempts();
+  };
 
   const handleSpin = async () => {
-    if (attempts <= 0 || spinning || !itemPool.length) return
+    if (attempts <= 0 || spinning || !itemPool.length) return;
 
-    setSpinning(true)
-    setAttempts((prev) => prev - 1)
-    setResult(null)
-    setBurnedTo(null)
-    setLastSpinPosition(0)
-    setSpinTarget(0)
+    setSpinning(true);
+    setAttempts((prev) => Math.max(0, prev - 1)); // Ensure it never goes below 0 or becomes NaN
+    setResult(null);
+    setBurnedTo(null);
+    setLastSpinPosition(0);
+    setSpinTarget(0);
 
     try {
-      const { wonItem, burnedTo } = await spinGacha()
+      const { wonItem, burnedTo } = await spinGacha();
 
-      const winnerIndex = Math.floor(SPIN_LENGTH * 0.8)
-      const containerWidth =
-        rouletteRef.current?.offsetWidth || window.innerWidth * 0.9
+      const winnerIndex = Math.floor(SPIN_LENGTH * 0.8);
+      const containerWidth = rouletteRef.current?.offsetWidth || window.innerWidth * 0.9;
 
       const matchedWonItem =
-        itemPool.find(
-          (item) => item.type === wonItem.type && item.id === wonItem.id
-        ) || wonItem
+        itemPool.find((item) => item.type === wonItem.type && item.id === wonItem.id) || wonItem;
 
-      const newRoulette = generateItems(
-        SPIN_LENGTH,
-        matchedWonItem,
-        winnerIndex
-      )
-      setRouletteItems(newRoulette)
+      const newRoulette = generateItems(SPIN_LENGTH, matchedWonItem, winnerIndex);
+      setRouletteItems(newRoulette);
 
-      const itemCenter = winnerIndex * TOTAL_ITEM_SPACE + ITEM_WIDTH / 2
-      const targetPosition = containerWidth / 2 - itemCenter
-      setSpinTarget(targetPosition)
+      const itemCenter = winnerIndex * TOTAL_ITEM_SPACE + ITEM_WIDTH / 2;
+      const targetPosition = containerWidth / 2 - itemCenter;
+      setSpinTarget(targetPosition);
 
       setTimeout(() => {
-        setSpinning(false)
-        setLastSpinPosition(targetPosition)
-        setResult(matchedWonItem)
+        setSpinning(false);
+        setLastSpinPosition(targetPosition);
+        setResult(matchedWonItem);
         if (burnedTo) {
-          setBurnedTo(burnedTo)
-          setIsBurning(true)
+          setBurnedTo(burnedTo);
+          setIsBurning(true);
           setTimeout(() => {
-            setIsBurning(false)
-          }, 3000) // Animation duration
+            setIsBurning(false);
+          }, 3000);
         }
-        refreshData()
-      }, 5000)
+        refreshData();
+      }, 5000);
     } catch (error) {
-      setSpinning(false)
-      setAttempts((prev) => prev + 1)
+      setSpinning(false);
+      setAttempts((prev) => Math.max(0, prev + 1)); // Restore attempts safely
     }
-  }
+  };
 
   const rouletteVariants = {
     idle: { x: lastSpinPosition },
@@ -203,24 +190,24 @@ const GachaOverlay = () => {
       x: spinTarget,
       transition: { duration: 5, ease: [0.25, 0.1, 0.25, 1] },
     },
-  }
+  };
 
   const burnAnimationVariants = {
     initial: { opacity: 1, scale: 1 },
     burn: {
-      opacity: [1, 0, 1, 0], // Loop between item and prize
+      opacity: [1, 0, 1, 0],
       scale: [1, 1.2, 1, 1.2],
       transition: {
         duration: 2,
         times: [0, 0.25, 0.5, 0.75],
-        repeat: 1, // Loop twice
+        repeat: 1,
         ease: "easeInOut",
       },
     },
     final: { opacity: 1, scale: 1 },
-  }
+  };
 
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   return (
     <>
@@ -248,7 +235,7 @@ const GachaOverlay = () => {
           >
             <div style={{ width: "100%", zIndex: -1 }}>
               <button
-                onClick={!spinning ? () => {handleClose();navigate('/')} : {}}
+                onClick={!spinning ? () => { handleClose(); navigate('/'); } : undefined}
                 style={{
                   paddingBottom: "4px",
                   position: "absolute",
@@ -408,9 +395,7 @@ const GachaOverlay = () => {
                             }}
                           >
                             {item.name?.[lang] ||
-                              `${item.amount} ${
-                                translations[item.type]?.[lang]
-                              }`}
+                              `${item.amount} ${translations[item.type]?.[lang]}`}
                           </p>
                         </div>
                       ))}
@@ -453,8 +438,7 @@ const GachaOverlay = () => {
                   }}
                 >
                   <p style={{ fontSize: "18px", marginBottom: "15px" }}>
-                    {translations.spins[lang]}
-                    {attempts}
+                    {translations.spins[lang]}: {attempts >= 0 ? attempts : 0}
                   </p>
                   <div
                     style={{
@@ -548,9 +532,7 @@ const GachaOverlay = () => {
                         {translations.youWon[lang]}
                       </h2>
                       <motion.div
-                        variants={
-                          burnedTo && isBurning ? burnAnimationVariants : {}
-                        }
+                        variants={burnedTo && isBurning ? burnAnimationVariants : {}}
                         initial="initial"
                         animate={burnedTo && isBurning ? "burn" : "final"}
                         style={{
@@ -588,21 +570,17 @@ const GachaOverlay = () => {
                           }}
                         >
                           {isBurning && burnedTo
-                            ? `${translations.burnedTo[lang]} ${
-                                burnedTo.amount
-                              } ${translations[burnedTo.type][lang]}${
-                                burnedTo.name ? ` (${burnedTo.name})` : ""
-                              }`
+                            ? `${translations.burnedTo[lang]} ${burnedTo.amount} ${
+                                translations[burnedTo.type][lang]
+                              }${burnedTo.name ? ` (${burnedTo.name})` : ""}`
                             : result.name[lang] ||
-                              `${result.amount} ${
-                                translations[result.type][lang]
-                              }`}
+                              `${result.amount} ${translations[result.type][lang]}`}
                         </p>
                       </motion.div>
                       <Button
                         onClick={() => {
-                          setResult(null)
-                          setBurnedTo(null)
+                          setResult(null);
+                          setBurnedTo(null);
                         }}
                         style={buttonStyle}
                         text={"OK"}
@@ -621,20 +599,20 @@ const GachaOverlay = () => {
         )}
       </AnimatePresence>
     </>
-  )
-}
+  );
+};
 
 const spinnerStyles = `
   @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
   }
-`
+`;
 
 if (typeof document !== "undefined") {
-  const styleSheet = document.createElement("style")
-  styleSheet.textContent = spinnerStyles
-  document.head.appendChild(styleSheet)
+  const styleSheet = document.createElement("style");
+  styleSheet.textContent = spinnerStyles;
+  document.head.appendChild(styleSheet);
 }
 
-export default GachaOverlay
+export default GachaOverlay;
