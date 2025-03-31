@@ -526,8 +526,8 @@ const AutoclaimModal = ({
           <Button
             {...buttonStyle}
             active={data.canUpgrade}
-            onClick={() => handleAutoclaimPurchased(data.type)}
-            text={1}
+            onClick={() => handleAutoclaimPurchased(data.type, 6)}
+            text={35}
             width={100}
             icon={Assets.Icons.starsIcon}
           />
@@ -553,8 +553,8 @@ const AutoclaimModal = ({
           <Button
             {...buttonStyle}
             active={data.canUpgrade}
-            onClick={() => handleAutoclaimPurchased(data.type)}
-            text={2}
+            onClick={() => handleAutoclaimPurchased(data.type, 10)}
+            text={50}
             width={100}
             icon={Assets.Icons.starsIcon}
           />
@@ -580,8 +580,8 @@ const AutoclaimModal = ({
           <Button
             {...buttonStyle}
             active={data.canUpgrade}
-            onClick={() => handleAutoclaimPurchased(data.type)}
-            text={3}
+            onClick={() => handleAutoclaimPurchased(data.type, 16)}
+            text={100}
             width={100}
             icon={Assets.Icons.starsIcon}
           />
@@ -999,8 +999,8 @@ const useInvestmentData = (userId) => {
 
   const { lang } = useSettingsProvider()
 
-  const handleAutoclaimPurchased = async (investment_type) => {
-    await handleStarsPayment(userId, "autoclaim", investment_type, lang)
+  const handleAutoclaimPurchased = async (investment_type, duration) => {
+    await handleStarsPayment(userId, "autoclaim", investment_type, lang, duration)
     await fetchInvestments()
     await refreshData()
   }
