@@ -5,7 +5,6 @@ import { useSettingsProvider } from "../../../hooks"
 import Button from "../../../components/simple/Button/Button"
 import { useNotification } from "../../../NotificationContext"
 import { copyTextToClipboard } from "../../../utils/clipboard"
-import { transform } from "lodash"
 
 const buttonStyle = {
   width: "100%",
@@ -99,213 +98,230 @@ const TaskTab = ({ userId, userParameters, setUserParameters }) => {
   }
 
   return (
-    <ScreenContainer style={{ width: "90%", margin: "auto auto 10px auto", }}>
+    <ScreenContainer style={{ width: "90%", margin: "auto auto 10px auto" }}>
       {data?.gameCenterValues ? (
         <>
-          <div style={{ display: "flex", justifyContent: "center",  width: "90%", margin: "auto auto 10px auto", }}>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              width: "90%",
+              margin: "auto auto 10px auto",
+            }}
+          >
             <img
               src={Assets.Icons.gameCenter}
               alt="Game Center"
               style={{ width: "17vmax", marginTop: 20 }}
             />
 
-
-       <div
-  style={{
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "flex-end", 
-    color: "#fff",
-    marginLeft: "20px",
-    textAlign: "right",
-    justifyContent: "center",
-    
-  }}
->
-  <h4 style={{  marginBottom: " 10px",fontSize: "14px"  , textTransform: "uppercase" }}>{translations.gameCenter[lang]}</h4>
-  <Button
-    {...buttonStyle}
-    active={true}
-    onClick={handleInviteClick}
-    text={translations.invite[lang]}
-    width={120}
-    style={{ marginTop: 20 }} 
-  />
-</div>
-
-
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "flex-end",
+                color: "#fff",
+                marginLeft: "20px",
+                textAlign: "right",
+                justifyContent: "center",
+              }}
+            >
+              <h4
+                style={{
+                  marginBottom: " 10px",
+                  fontSize: "14px",
+                  textTransform: "uppercase",
+                }}
+              >
+                {translations.gameCenter[lang]}
+              </h4>
+              <Button
+                {...buttonStyle}
+                active={true}
+                onClick={handleInviteClick}
+                text={translations.invite[lang]}
+                width={120}
+                style={{ marginTop: 20 }}
+              />
+            </div>
           </div>
-          <div style={{
-             color:"#fff", 
-             border: "1px solid rgb(57, 57, 57)",
-             background: "0% 0% / cover rgb(32, 32, 32)",
-             padding: "10px",
-             width: "90%",
-            margin: "auto",
-            borderRadius: "8px"
-            }}>
-               <p
-            style={{
-              paddingBottom: 6,
-              width: "100%",
-              textAlign: "center",
-              margin: 0,
-              fontWeight:"200",
-              fontFamily: "roboto",
-              fontSize:"14px"
-            }}
-          >
-            {translations.level[lang]} {data.current_level}
-          </p>
-         
           <div
             style={{
-              display: "flex",
-              width: "95%",
-              borderBottom: "1px solid rgba(117, 117, 117, 0.23)",
-    boxShadow:" rgba(0, 0, 0, 0.24) 0px 0px 8px 2px inset",
-    background: "rgb(18, 18, 18)",
-              borderRadius: 5,
-              alignItems: "center",
-              position: "relative",
-              margin: "auto"
+              color: "#fff",
+              border: "1px solid rgb(57, 57, 57)",
+              background: "0% 0% / cover rgb(32, 32, 32)",
+              padding: "10px",
+              width: "90%",
+              margin: "auto",
+              borderRadius: "8px",
             }}
           >
-            
-            <span
-              style={{
-                width: data.to
-                  ? Math.min(
-                      100,
-                      ((data.gameCenterValues.friends -
-                        data.gameCenterValues.thisLevelFriendsRequired) /
-                        (data.gameCenterValues.nextLevelFriendsRequired -
-                          data.gameCenterValues.thisLevelFriendsRequired)) *
-                        100
-                    ) + "%"
-                  : "100%",
-                height: 22,
-                background:
-                  "linear-gradient(90deg, rgba(233, 78, 27, 1) 0%, rgba(243, 117, 0, 1) 50%)",
-                borderRadius: 5,
-              }}
-            />
             <p
               style={{
-                position: "absolute",
+                paddingBottom: 6,
                 width: "100%",
                 textAlign: "center",
                 margin: 0,
-                fontWeight: "bold",
-                textShadow: "1px 1px 0px #000000, -1px -1px 0px #000000, 1px -1px 0px #000000, -1px 1px 0px #000000",
+                fontWeight: "200",
+                fontFamily: "roboto",
+                fontSize: "14px",
               }}
             >
-              {data.to
-                ? `${data.gameCenterValues.friends}/${data.gameCenterValues.nextLevelFriendsRequired}`
-                : data.gameCenterValues.friends}
+              {translations.level[lang]} {data.current_level}
             </p>
-            
-          </div>
-          <p
-            style={{
-              textTransform: "uppercase",
-              fontSize: "22px",
-              color: "rgb(255, 118, 0)",
-              fontWeight:"600",
-              paddingTop: 10,
-              width: "100%",
-              textAlign: "center",
-              margin: 0,
-            }}
-          >
-            {translations.referaltext[lang]} 
-          </p>
-          <p
-            style={{
-              fontSize: "12px",
-              fontFamily: "roboto",
-              fontWeight:"300",
-             
-              width: "100%",
-              textAlign: "center",
-              margin: 0,
-            }}
-          >
-            {translations.referaltext2[lang]} 
-          </p>
-         
 
-          <div style={{
-            marginTop: "20px",
-             width: "100%",
-             display: "flex",
-             justifyContent: "space-between",
-             borderBottom: "1px solid rgba(117, 117, 117, 0.23)",
-             boxShadow: "rgba(0, 0, 0, 0.24) 0px 0px 8px 2px inset",
-             background: "rgb(18, 18, 18)",
-             borderRadius: "5px",
-             marginBottom: "10px",
-            }}>
-
-
-             <div style={{
-             display: "flex",
-             flexDirection: "column",
-             padding:"14px",
-             justifyContent: "center",
-            }}>
-            <p
-            style={{
-              fontSize: "12px",
-              fontFamily: "Oswald",
-              
-              paddingTop: 5,
-              width: "100%",
-              textAlign: "center",
-              margin: 0,
-              textTransform: "uppercase",
-             
-             fontWeight: "400",
-            }}
-          >
-            {translations.cashback[lang]} 
-            </p>
-            <div style={{
-             display: "flex",
-             alignItems: "center",
-             paddingTop: 5,
-                }}>
-         <img
-  src={Icons.starsIcon}
-  alt="Coin"
-  style={{ width: "20px", height: "20px" }} 
-/>
-            
-            <p
-            style={{
-              fontSize: "18px",
-              fontFamily: "Oswald",
-              fontWeight:"500",
-              paddingLeft: 5,
-              width: "100%",
-              margin: 0,
-            }}
-          >
-            {translations.stars[lang]}  100
-            </p>
+            <div
+              style={{
+                display: "flex",
+                width: "95%",
+                borderBottom: "1px solid rgba(117, 117, 117, 0.23)",
+                boxShadow: " rgba(0, 0, 0, 0.24) 0px 0px 8px 2px inset",
+                background: "rgb(18, 18, 18)",
+                borderRadius: 5,
+                alignItems: "center",
+                position: "relative",
+                margin: "auto",
+              }}
+            >
+              <span
+                style={{
+                  width: data.to
+                    ? Math.min(
+                        100,
+                        ((data.gameCenterValues.friends -
+                          data.gameCenterValues.thisLevelFriendsRequired) /
+                          (data.gameCenterValues.nextLevelFriendsRequired -
+                            data.gameCenterValues.thisLevelFriendsRequired)) *
+                          100
+                      ) + "%"
+                    : "100%",
+                  height: 22,
+                  background:
+                    "linear-gradient(90deg, rgba(233, 78, 27, 1) 0%, rgba(243, 117, 0, 1) 50%)",
+                  borderRadius: 5,
+                }}
+              />
+              <p
+                style={{
+                  position: "absolute",
+                  width: "100%",
+                  textAlign: "center",
+                  margin: 0,
+                  fontWeight: "bold",
+                  textShadow:
+                    "1px 1px 0px #000000, -1px -1px 0px #000000, 1px -1px 0px #000000, -1px 1px 0px #000000",
+                }}
+              >
+                {data.to
+                  ? `${data.gameCenterValues.friends}/${data.gameCenterValues.nextLevelFriendsRequired}`
+                  : data.gameCenterValues.friends}
+              </p>
             </div>
-            <div style={{
-             display: "flex",
-             alignItems: "center",
-             paddingTop: 5,
-                }}>
-         {/* <img
+            <p
+              style={{
+                textTransform: "uppercase",
+                fontSize: "22px",
+                color: "rgb(255, 118, 0)",
+                fontWeight: "600",
+                paddingTop: 10,
+                width: "100%",
+                textAlign: "center",
+                margin: 0,
+              }}
+            >
+              {translations.referaltext[lang]}
+            </p>
+            <p
+              style={{
+                fontSize: "12px",
+                fontFamily: "roboto",
+                fontWeight: "300",
+
+                width: "100%",
+                textAlign: "center",
+                margin: 0,
+              }}
+            >
+              {translations.referaltext2[lang]}
+            </p>
+
+            <div
+              style={{
+                marginTop: "20px",
+                width: "100%",
+                display: "flex",
+                justifyContent: "space-between",
+                borderBottom: "1px solid rgba(117, 117, 117, 0.23)",
+                boxShadow: "rgba(0, 0, 0, 0.24) 0px 0px 8px 2px inset",
+                background: "rgb(18, 18, 18)",
+                borderRadius: "5px",
+                marginBottom: "10px",
+              }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  padding: "14px",
+                  justifyContent: "center",
+                }}
+              >
+                <p
+                  style={{
+                    fontSize: "12px",
+                    fontFamily: "Oswald",
+
+                    paddingTop: 5,
+                    width: "100%",
+                    textAlign: "center",
+                    margin: 0,
+                    textTransform: "uppercase",
+
+                    fontWeight: "400",
+                  }}
+                >
+                  {translations.cashback[lang]}
+                </p>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    paddingTop: 5,
+                  }}
+                >
+                  <img
+                    src={Icons.starsIcon}
+                    alt="Coin"
+                    style={{ width: "20px", height: "20px" }}
+                  />
+
+                  <p
+                    style={{
+                      fontSize: "18px",
+                      fontFamily: "Oswald",
+                      fontWeight: "500",
+                      paddingLeft: 5,
+                      width: "100%",
+                      margin: 0,
+                    }}
+                  >
+                    {translations.stars[lang]} 100
+                  </p>
+                </div>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    paddingTop: 5,
+                  }}
+                >
+                  {/* <img
   src={Icons.tonIcon}
   alt="Coin"
   style={{ width: "20px", height: "20px" }} 
 /> */}
-            
-            {/* <p
+
+                  {/* <p
             style={{
               fontSize: "18px",
               fontFamily: "Oswald",
@@ -317,72 +333,76 @@ const TaskTab = ({ userId, userParameters, setUserParameters }) => {
           >
             {translations.ton[lang]}  100
             </p> */}
-            </div>
-          </div>
+                </div>
+              </div>
 
-          
-        
-          <div style={{
-             display: "flex",
-             flexDirection: "column",
-             padding:"14px",
-             justifyContent: "center",
-             
-             borderRadius: "5px",
-             border: "2px solid rgb(49 187 249)"
-            }}>
-            <p
-            style={{
-              fontSize: "16px",
-              fontFamily: "Oswald",
-            
-              paddingTop: 5,
-              width: "100%",
-              textAlign: "center",
-              margin: 0,
-              textTransform: "uppercase",
-             
-             fontWeight: "400",
-            }}
-          >
-            {translations.withdraw[lang]} 
-            </p>
-            <div style={{
-             display: "flex",
-             alignItems: "center",
-             paddingTop: 5,
-                }}>
-         <img
-  src={Icons.starsIcon}
-  alt="Coin"
-  style={{ width: "20px", height: "20px" }} // Установлены ширина и высота 20px
-/>
-            
-            <p
-            style={{
-              fontSize: "22px",
-              fontFamily: "Oswald",
-              fontWeight:"500",
-              paddingLeft: 5,
-              width: "100%",
-              margin: 0,
-            }}
-          >
-            {translations.stars[lang]}  100
-            </p>
-            </div>
-            <div style={{
-             display: "flex",
-             alignItems: "center",
-             paddingTop: 5,
-                }}>
-         {/* <img
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  padding: "14px",
+                  justifyContent: "center",
+
+                  borderRadius: "5px",
+                  border: "2px solid rgb(49 187 249)",
+                }}
+              >
+                <p
+                  style={{
+                    fontSize: "16px",
+                    fontFamily: "Oswald",
+
+                    paddingTop: 5,
+                    width: "100%",
+                    textAlign: "center",
+                    margin: 0,
+                    textTransform: "uppercase",
+
+                    fontWeight: "400",
+                  }}
+                >
+                  {translations.withdraw[lang]}
+                </p>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    paddingTop: 5,
+                  }}
+                >
+                  <img
+                    src={Icons.starsIcon}
+                    alt="Coin"
+                    style={{ width: "20px", height: "20px" }} // Установлены ширина и высота 20px
+                  />
+
+                  <p
+                    style={{
+                      fontSize: "22px",
+                      fontFamily: "Oswald",
+                      fontWeight: "500",
+                      paddingLeft: 5,
+                      width: "100%",
+                      margin: 0,
+                    }}
+                  >
+                    {translations.stars[lang]} 100
+                  </p>
+                </div>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    paddingTop: 5,
+                  }}
+                >
+                  {/* <img
   src={Icons.tonIcon}
   alt="Coin"
   style={{ width: "20px", height: "20px" }} // Установлены ширина и высота 20px
 /> */}
-            
-            {/* <p
+
+                  {/* <p
             style={{
               fontSize: "22px",
               fontFamily: "Oswald",
@@ -394,50 +414,53 @@ const TaskTab = ({ userId, userParameters, setUserParameters }) => {
           >
             {translations.ton[lang]}  100
             </p> */}
+                </div>
+              </div>
             </div>
-          </div>
-          </div>
-<div style={{ 
-  justifyContent: "center",
-   display: "flex",
-   marginBottom: "20px"
-  }}>    
-     <Button
-    {...buttonStyle}
-    active={true}
-    onClick={handleInviteClick}
-    text={translations.invite[lang]}
-    width={120}
-    style={{ marginTop: 20 }} 
-  /></div>
-   
-          <p
-            style={{
-              fontSize: "13px",
-              fontFamily: "roboto",
-              fontWeight:"100",
-              paddingTop: 5,
-              width: "100%",
-              textAlign: "center",
-              margin: 0,
-            }}
-          >
-          {translations.rule[lang]} 
-          </p>
-          <p
-            style={{
-              fontSize: "12px",
-              fontStyle: "italic",
-              fontFamily: "roboto",
-              fontWeight:"100",
-              paddingTop: 5,
-              width: "100%",
-              textAlign: "center",
-              margin: 0,
-            }}
-          >
-            {translations.exclusive[lang]} 
-          </p>
+            <div
+              style={{
+                justifyContent: "center",
+                display: "flex",
+                marginBottom: "20px",
+              }}
+            >
+              <Button
+                {...buttonStyle}
+                active={true}
+                onClick={handleInviteClick}
+                text={translations.invite[lang]}
+                width={120}
+                style={{ marginTop: 20 }}
+              />
+            </div>
+
+            <p
+              style={{
+                fontSize: "13px",
+                fontFamily: "roboto",
+                fontWeight: "100",
+                paddingTop: 5,
+                width: "100%",
+                textAlign: "center",
+                margin: 0,
+              }}
+            >
+              {translations.rule[lang]}
+            </p>
+            <p
+              style={{
+                fontSize: "12px",
+                fontStyle: "italic",
+                fontFamily: "roboto",
+                fontWeight: "100",
+                paddingTop: 5,
+                width: "100%",
+                textAlign: "center",
+                margin: 0,
+              }}
+            >
+              {translations.exclusive[lang]}
+            </p>
           </div>
         </>
       ) : (
@@ -485,10 +508,7 @@ const TaskTab = ({ userId, userParameters, setUserParameters }) => {
               </>
             )}
           </p>
-         
         </div>
-
-        
       )}
     </ScreenContainer>
   )
