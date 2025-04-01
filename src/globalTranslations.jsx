@@ -119,6 +119,10 @@ export default {
     withdrawButton: {
       ru: 'Вывести',
       en: 'Withdraw:',
+    },
+    cantWithdraw: {
+      ru: 'Вывод доступен от 5 TON',
+      en: 'Withdrawal is available from 5 TON'
     }
   },
   errors: {

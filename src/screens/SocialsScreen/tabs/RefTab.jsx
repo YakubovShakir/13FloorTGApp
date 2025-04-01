@@ -9,6 +9,7 @@ import { getAffiliateData } from "../../../services/user/user";
 import { useUser } from "../../../UserContext";
 import globalTranslations from "../../../globalTranslations";
 import FullScreenSpinner from "../../Home/FullScreenSpinner";
+import { COLORS } from "../../../utils/paramBlockUtils";
 
 const buttonStyle = {
   width: "100%",
@@ -29,6 +30,7 @@ const RefTab = () => {
   const { showNotification } = useNotification();
   const { userId } = useUser();
   const [data, setData] = useState();
+  const [canWithdraw, setCanWithdraw] = useState(false)
 
   const { Icons } = Assets;
 
@@ -50,6 +52,14 @@ const RefTab = () => {
       .catch(() => showNotification(globalTranslations.errors[500]))
       .finally(() => setIsLoading(false));
   }, [userId, lang]);
+
+  useEffect(() => {
+    if(data) {
+      if(data.totalStarsPendingInTON + data.totalTONPendingWithdrawal > 5) {
+        setCanWithdraw(true)
+      }
+    }
+  }, [data])
 
   return (
     <ScreenContainer style={{ width: "90%", margin: "auto auto 10px auto" }}>
@@ -348,7 +358,8 @@ const RefTab = () => {
                       justifyContent: "center",
                     }}
                   >
-                    <div style={{ display: "flex", alignItems: "center" }}>
+                    <div style={{ display: "flex", alignItems: "center", flexDirection: 'column' }}>
+                      <div style={{ display: 'flex', alignItems: 'center' }}>
                       <img
                         src={Icons.tonIcon}
                         alt="Coin"
@@ -359,11 +370,26 @@ const RefTab = () => {
                           fontSize: "22px",
                           fontFamily: "Oswald",
                           fontWeight: "500",
-                          paddingLeft: "5px",
+                          paddingLeft: 5,
                           margin: 0,
                         }}
                       >
-                        {data.totalStarsPendingInTON.toFixed(2)}
+                        {(data.totalStarsPendingInTON + data.totalTONPendingWithdrawal).toFixed(2)}
+                      </p>
+                      </div>
+                      <p
+                        style={{
+                          fontSize: "12px",
+                          fontFamily: "Oswald",
+                          fontWeight: "500",
+                          marginTop: 10,
+                          color: COLORS.RED,
+                          opacity: 0.85
+                        }}
+                      >
+                        {
+                          !canWithdraw && translations.cantWithdraw[lang]
+                        }
                       </p>
                     </div>
                   </div>
@@ -379,7 +405,7 @@ const RefTab = () => {
             >
               <Button
                 {...buttonStyle}
-                active={true}
+                active={canWithdraw}
                 onClick={handleInviteClick}
                 text={translations.withdrawButton[lang]}
                 width={120}
