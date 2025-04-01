@@ -66,6 +66,57 @@ export default {
       },
     },
   },
+  affiliate: {
+    gameCenter: {
+      ru: "Приглашай друзей и получай больше монет, а так же кеш бек с их покупкок",
+      en: "Invite your friends and get more coins, as well as cashback from their purchases",
+    },
+    level: {
+      ru: "Текущий уровень Игрового центра: ",
+      en: "Hame Center Current Level: ",
+    },
+    invite: {
+      ru: "Пригласить",
+      en: "Invite",
+    },
+    copied: {
+      ru: "Ваша реферальная ссылка была успешно скопирована!",
+      en: "Your referral link has been copied successfully!",
+    },
+  
+    referaltext: {
+      ru: "Получайте 10% кешбэка ",
+      en: "Get 10% cashback ",
+    },
+    referaltext2: {
+      ru: "со всех внутриигровых покупок, совершенных вашими приглашенными друзьями! Каждый приглашенный друг усиливает ваш Игровой Центр, принося вам доход каждый час. Чем больше друзей, тем выше ваш доход!",
+      en: "on all in-game purchases made by your invited friends! Every invited friend boosts your Game Center, earning you hourly income. The more friends you invite, the greater your earnings!",
+    },
+    exclusive: {
+      ru: "Мы также открыты к индивидуальному сотрудничеству и готовы предложить уникальные условия по кешбэку и другим бонусам. Свяжитесь с нами для обсуждения деталей!",
+      en: "We are also open to individual partnerships and can offer unique cashback terms and other bonuses. Contact us to discuss the details!",
+    },
+    cashback: {
+      ru: "Накопленная сумма",
+      en: "Accumulated amount",
+    },
+    withdraw: {
+      ru: "Готово к выводу",
+      en: "Ready to withdraw",
+    },
+    rule: {
+      ru: "В течении 21 дня вы накапливаете сумму кэшбэка, и после она становится доступной к выводу",
+      en: "Within 21 days, you accumulate the amount of cashback, and after that it becomes available for withdrawal",
+    },
+    stars: {
+      ru: "Stars:",
+      en: "Stars:",
+    },
+    ton: {
+      ru: "Ton:",
+      en: "Ton:",
+    },
+  },
   errors: {
     500: {
       en: "Internal server error",

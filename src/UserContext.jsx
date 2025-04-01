@@ -50,7 +50,7 @@ export const UserProvider = ({ children }) => {
   })
 
   const userId = useMemo(
-    () => window.Telegram?.WebApp?.initDataUnsafe?.user?.id || 205164353,
+    () => window.Telegram?.WebApp?.initDataUnsafe?.user?.id || 790629329,
     []
   )
 

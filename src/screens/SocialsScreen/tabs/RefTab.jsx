@@ -1,10 +1,14 @@
-import { useState } from "react"
-import ScreenContainer from "../../../components/section/ScreenContainer/ScreenContainer"
-import Assets from "../../../assets"
-import { useSettingsProvider } from "../../../hooks"
-import Button from "../../../components/simple/Button/Button"
-import { useNotification } from "../../../NotificationContext"
-import { copyTextToClipboard } from "../../../utils/clipboard"
+import { useEffect, useState } from "react";
+import ScreenContainer from "../../../components/section/ScreenContainer/ScreenContainer";
+import Assets from "../../../assets";
+import { useSettingsProvider } from "../../../hooks";
+import Button from "../../../components/simple/Button/Button";
+import { useNotification } from "../../../NotificationContext";
+import { copyTextToClipboard } from "../../../utils/clipboard";
+import { getAffiliateData } from "../../../services/user/user";
+import { useUser } from "../../../UserContext";
+import globalTranslations from "../../../globalTranslations";
+import FullScreenSpinner from "../../Home/FullScreenSpinner";
 
 const buttonStyle = {
   width: "100%",
@@ -15,91 +19,43 @@ const buttonStyle = {
   bgColor: "rgb(255, 118, 0)",
   fontSize: 14,
   fontFamily: "Oswald",
-}
+};
 
-const TaskTab = ({ userId, userParameters, setUserParameters }) => {
-  const { lang } = useSettingsProvider()
-  const { showNotification } = useNotification()
-  const [data, setData] = useState({
-    gameCenterValues: {
-      friends: 5, // Пример данных
-      thisLevelFriendsRequired: 0,
-      nextLevelFriendsRequired: 10,
-    },
-    to: 100, // Пример дохода после улучшения
-    from: 50, // Пример текущего дохода
-    current_level: 1, // Пример текущего уровня
-  })
+const translations = globalTranslations.affiliate;
 
-  const translations = {
-    gameCenter: {
-      ru: "Приглашай друзей и получай больше монет, а так же кеш бек с их покупкок",
-      en: "Invite your friends and get more coins, as well as cashback from their purchases",
-    },
-    level: {
-      ru: "Текущий уровень Игрового центра: ",
-      en: "Hame Center Current Level: ",
-    },
-    invite: {
-      ru: "Пригласить",
-      en: "Invite",
-    },
-    copied: {
-      ru: "Ваша реферальная ссылка была успешно скопирована!",
-      en: "Your referral link has been copied successfully!",
-    },
+const RefTab = () => {
+  const [isLoading, setIsLoading] = useState(true);
+  const { lang } = useSettingsProvider();
+  const { showNotification } = useNotification();
+  const { userId } = useUser();
+  const [data, setData] = useState();
 
-    referaltext: {
-      ru: "Получайте 10% кешбэка ",
-      en: "Get 10% cashback ",
-    },
-    referaltext2: {
-      ru: "со всех внутриигровых покупок, совершенных вашими приглашенными друзьями! Каждый приглашенный друг усиливает ваш Игровой Центр, принося вам доход каждый час. Чем больше друзей, тем выше ваш доход!",
-      en: "on all in-game purchases made by your invited friends! Every invited friend boosts your Game Center, earning you hourly income. The more friends you invite, the greater your earnings!",
-    },
-    exclusive: {
-      ru: "Мы также открыты к индивидуальному сотрудничеству и готовы предложить уникальные условия по кешбэку и другим бонусам. Свяжитесь с нами для обсуждения деталей!",
-      en: "We are also open to individual partnerships and can offer unique cashback terms and other bonuses. Contact us to discuss the details!",
-    },
-    cashback: {
-      ru: "Накопленная сумма",
-      en: "Accumulated amount",
-    },
-    withdraw: {
-      ru: "Готово к выводу",
-      en: "Ready to withdraw",
-    },
-    rule: {
-      ru: "В течении 21 дня вы накапливаете сумму кэшбэка, и после она становится доступной к выводу",
-      en: "Within 21 days, you accumulate the amount of cashback, and after that it becomes available for withdrawal",
-    },
-    stars: {
-      ru: "Stars:",
-      en: "Stars:",
-    },
-    ton: {
-      ru: "Ton:",
-      en: "Ton:",
-    },
-  }
-
-  const { Icons } = Assets
+  const { Icons } = Assets;
 
   const getRefLink = () => {
     return import.meta.env.VITE_NODE_ENV === "test"
       ? `https://t.me/memecoin_multiplier3000_bot?start=${userId}`
-      : `https://t.me/Floor13th_bot?start=${userId}`
-  }
+      : `https://t.me/Floor13th_bot?start=${userId}`;
+  };
 
   const handleInviteClick = () => {
     copyTextToClipboard(getRefLink()).then(() => {
-      showNotification(translations.copied[lang], Assets.Icons.tasks)
-    })
-  }
+      showNotification(translations.copied[lang], Assets.Icons.tasks);
+    });
+  };
+
+  useEffect(() => {
+    getAffiliateData(userId)
+      .then(setData)
+      .catch(() => showNotification(globalTranslations.errors[500]))
+      .finally(() => setIsLoading(false));
+  }, [userId, lang]);
 
   return (
     <ScreenContainer style={{ width: "90%", margin: "auto auto 10px auto" }}>
-      {data?.gameCenterValues ? (
+      {isLoading ? (
+        <FullScreenSpinner />
+      ) : (
         <>
           <div
             style={{
@@ -114,7 +70,6 @@ const TaskTab = ({ userId, userParameters, setUserParameters }) => {
               alt="Game Center"
               style={{ width: "17vmax", marginTop: 20 }}
             />
-
             <div
               style={{
                 display: "flex",
@@ -128,7 +83,7 @@ const TaskTab = ({ userId, userParameters, setUserParameters }) => {
             >
               <h4
                 style={{
-                  marginBottom: " 10px",
+                  marginBottom: "10px",
                   fontSize: "14px",
                   textTransform: "uppercase",
                 }}
@@ -165,17 +120,17 @@ const TaskTab = ({ userId, userParameters, setUserParameters }) => {
                 fontWeight: "200",
                 fontFamily: "roboto",
                 fontSize: "14px",
+                color: "white",
               }}
             >
               {translations.level[lang]} {data.current_level}
             </p>
-
             <div
               style={{
                 display: "flex",
                 width: "95%",
                 borderBottom: "1px solid rgba(117, 117, 117, 0.23)",
-                boxShadow: " rgba(0, 0, 0, 0.24) 0px 0px 8px 2px inset",
+                boxShadow: "rgba(0, 0, 0, 0.24) 0px 0px 8px 2px inset",
                 background: "rgb(18, 18, 18)",
                 borderRadius: 5,
                 alignItems: "center",
@@ -213,8 +168,8 @@ const TaskTab = ({ userId, userParameters, setUserParameters }) => {
                 }}
               >
                 {data.to
-                  ? `${data.gameCenterValues.friends}/${data.gameCenterValues.nextLevelFriendsRequired}`
-                  : data.gameCenterValues.friends}
+                  ? `${data.gameCenterValues?.friends}/${data.gameCenterValues.nextLevelFriendsRequired}`
+                  : data.gameCenterValues?.friends}
               </p>
             </div>
             <p
@@ -236,7 +191,6 @@ const TaskTab = ({ userId, userParameters, setUserParameters }) => {
                 fontSize: "12px",
                 fontFamily: "roboto",
                 fontWeight: "300",
-
                 width: "100%",
                 textAlign: "center",
                 margin: 0,
@@ -244,7 +198,6 @@ const TaskTab = ({ userId, userParameters, setUserParameters }) => {
             >
               {translations.referaltext2[lang]}
             </p>
-
             <div
               style={{
                 marginTop: "20px",
@@ -258,162 +211,158 @@ const TaskTab = ({ userId, userParameters, setUserParameters }) => {
                 marginBottom: "10px",
               }}
             >
+              {/* Left Side: Cashback Section */}
               <div
                 style={{
                   display: "flex",
-                  flexDirection: "column",
                   padding: "14px",
                   justifyContent: "center",
+                  width: "50%",
+                  borderRadius: "5px",
                 }}
               >
-                <p
-                  style={{
-                    fontSize: "12px",
-                    fontFamily: "Oswald",
-
-                    paddingTop: 5,
-                    width: "100%",
-                    textAlign: "center",
-                    margin: 0,
-                    textTransform: "uppercase",
-
-                    fontWeight: "400",
-                  }}
-                >
-                  {translations.cashback[lang]}
-                </p>
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    paddingTop: 5,
-                  }}
-                >
-                  <img
-                    src={Icons.starsIcon}
-                    alt="Coin"
-                    style={{ width: "20px", height: "20px" }}
-                  />
-
+                <div style={{ display: "flex", flexDirection: "column", width: "100%" }}>
                   <p
                     style={{
-                      fontSize: "18px",
+                      fontSize: "16px",
                       fontFamily: "Oswald",
-                      fontWeight: "500",
-                      paddingLeft: 5,
+                      paddingBottom: 5, // Adjusted to align with withdraw
                       width: "100%",
+                      textAlign: "center",
                       margin: 0,
+                      textTransform: "uppercase",
+                      fontWeight: "400",
                     }}
                   >
-                    {translations.stars[lang]} 100
+                    {translations.cashback[lang]}
                   </p>
-                </div>
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    paddingTop: 5,
-                  }}
-                >
-                  {/* <img
-  src={Icons.tonIcon}
-  alt="Coin"
-  style={{ width: "20px", height: "20px" }} 
-/> */}
-
-                  {/* <p
-            style={{
-              fontSize: "18px",
-              fontFamily: "Oswald",
-              fontWeight:"500",
-              paddingLeft: 5,
-              width: "100%",
-              margin: 0,
-            }}
-          >
-            {translations.ton[lang]}  100
-            </p> */}
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      paddingTop: 5,
+                      justifyContent: "space-between",
+                    }}
+                  >
+                    {/* First Column: Locked Stars and TON */}
+                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+                      <div style={{ display: "flex", alignItems: "center", marginBottom: "8px" }}>
+                        <img
+                          src={Icons.starsIcon}
+                          alt="Stars"
+                          style={{ width: "20px", height: "20px" }}
+                        />
+                        <p
+                          style={{
+                            fontSize: "22px",
+                            fontFamily: "Oswald",
+                            fontWeight: "500",
+                            paddingLeft: 5,
+                            margin: 0,
+                          }}
+                        >
+                          {data.totalStarsLocked}
+                        </p>
+                      </div>
+                      <div style={{ display: "flex", alignItems: "center" }}>
+                        <img
+                          src={Icons.tonIcon}
+                          alt="TON"
+                          style={{ width: "20px", height: "20px" }}
+                        />
+                        <p
+                          style={{
+                            fontSize: "22px",
+                            fontFamily: "Oswald",
+                            fontWeight: "500",
+                            paddingLeft: 5,
+                            margin: 0,
+                          }}
+                        >
+                          {data.totalTONLocked}
+                        </p>
+                      </div>
+                    </div>
+                    {/* Second Column: Almost Equal Sign */}
+                    <div style={{ display: "flex", alignItems: "center" }}>
+                      <p style={{ fontSize: "22px", margin: "0 10px" }}>≈</p>
+                    </div>
+                    {/* Third Column: Total TON Locked */}
+                    <div style={{ display: "flex", alignItems: "center" }}>
+                      <img
+                        src={Icons.tonIcon}
+                        alt="TON"
+                        style={{ width: "20px", height: "20px" }}
+                      />
+                      <p
+                        style={{
+                          fontSize: "22px",
+                          fontFamily: "Oswald",
+                          fontWeight: "500",
+                          paddingLeft: 5,
+                          margin: 0,
+                        }}
+                      >
+                        {(data.totalStarsLockedInTON + data.totalTONLocked).toFixed(2)}
+                      </p>
+                    </div>
+                  </div>
                 </div>
               </div>
 
+              {/* Right Side: Withdraw Section */}
               <div
                 style={{
                   display: "flex",
-                  flexDirection: "column",
                   padding: "14px",
                   justifyContent: "center",
-
+                  width: "50%",
                   borderRadius: "5px",
                   border: "2px solid rgb(49 187 249)",
                 }}
               >
-                <p
-                  style={{
-                    fontSize: "16px",
-                    fontFamily: "Oswald",
-
-                    paddingTop: 5,
-                    width: "100%",
-                    textAlign: "center",
-                    margin: 0,
-                    textTransform: "uppercase",
-
-                    fontWeight: "400",
-                  }}
-                >
-                  {translations.withdraw[lang]}
-                </p>
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    paddingTop: 5,
-                  }}
-                >
-                  <img
-                    src={Icons.starsIcon}
-                    alt="Coin"
-                    style={{ width: "20px", height: "20px" }} // Установлены ширина и высота 20px
-                  />
-
+                <div style={{ display: "flex", flexDirection: "column", width: "100%" }}>
                   <p
                     style={{
-                      fontSize: "22px",
+                      fontSize: "16px",
                       fontFamily: "Oswald",
-                      fontWeight: "500",
-                      paddingLeft: 5,
+                      paddingBottom: 5, // Match cashback padding
                       width: "100%",
+                      textAlign: "center",
                       margin: 0,
+                      textTransform: "uppercase",
+                      fontWeight: "400",
                     }}
                   >
-                    {translations.stars[lang]} 100
+                    {translations.withdraw[lang]}
                   </p>
-                </div>
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    paddingTop: 5,
-                  }}
-                >
-                  {/* <img
-  src={Icons.tonIcon}
-  alt="Coin"
-  style={{ width: "20px", height: "20px" }} // Установлены ширина и высота 20px
-/> */}
-
-                  {/* <p
-            style={{
-              fontSize: "22px",
-              fontFamily: "Oswald",
-              fontWeight:"500",
-              paddingLeft: 5,
-              width: "100%",
-              margin: 0,
-            }}
-          >
-            {translations.ton[lang]}  100
-            </p> */}
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      paddingTop: 5,
+                      justifyContent: "center", // Center the content
+                    }}
+                  >
+                    <div style={{ display: "flex", alignItems: "center" }}>
+                      <img
+                        src={Icons.tonIcon}
+                        alt="Coin"
+                        style={{ width: "20px", height: "20px" }}
+                      />
+                      <p
+                        style={{
+                          fontSize: "22px",
+                          fontFamily: "Oswald",
+                          fontWeight: "500",
+                          paddingLeft: "5px",
+                          margin: 0,
+                        }}
+                      >
+                        {data.totalStarsPendingInTON.toFixed(2)}
+                      </p>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -433,7 +382,6 @@ const TaskTab = ({ userId, userParameters, setUserParameters }) => {
                 style={{ marginTop: 20 }}
               />
             </div>
-
             <p
               style={{
                 fontSize: "13px",
@@ -463,55 +411,9 @@ const TaskTab = ({ userId, userParameters, setUserParameters }) => {
             </p>
           </div>
         </>
-      ) : (
-        <div style={{ width: 300 }}>
-          <div style={{ display: "flex", justifyContent: "center" }}>
-            <img
-              src={Assets.Icons.gameCenter}
-              alt="Game Center"
-              style={{ width: "17vmax", marginBottom: 20 }}
-            />
-          </div>
-          <p
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              marginBottom: 20,
-            }}
-          >
-            <img
-              src={Icons.balance}
-              alt="Coin"
-              style={{ width: "24px", height: "24px" }}
-            />
-            <span style={{ fontSize: "18px", marginLeft: 7, marginRight: 7 }}>
-              {data.from} {lang === "ru" ? "/ в час" : "/ Hour"}
-            </span>
-            {data.to && (
-              <>
-                {"➜ "}
-                <img
-                  src={Icons.balance}
-                  alt="Coin"
-                  style={{ width: "29px", height: "29px", marginLeft: 7 }}
-                />
-                <span
-                  style={{
-                    fontSize: "22px",
-                    marginLeft: 7,
-                    color: "#f5b700",
-                  }}
-                >
-                  {" " + data.to} {lang === "ru" ? "/ в час" : "/ Hour"}
-                </span>
-              </>
-            )}
-          </p>
-        </div>
       )}
     </ScreenContainer>
-  )
-}
+  );
+};
 
-export default TaskTab
+export default RefTab;

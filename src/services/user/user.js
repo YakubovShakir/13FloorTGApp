@@ -316,3 +316,9 @@ export const interactWithNeko = async (userId, targetUserId) => {
 
   return response.data
 }
+
+export const getAffiliateData = async (userId) => {
+  const response = await instance.get(`/users/${userId}/affiliate-data/`)
+  
+  return response.data
+}
