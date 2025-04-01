@@ -354,7 +354,7 @@ const NftTab = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isTransactionModalOpen, setIsTransactionModalOpen] = useState(false);
   const [isWalletConnected, setIsWalletConnected] = useState(false); // Local state to track connection
-
+  const blackList = [37,38]
   const { userParameters } = useContext(UserContext);
   const { lang } = useSettingsProvider();
   const { userId, refreshData } = useUser();
@@ -389,7 +389,9 @@ const NftTab = () => {
         available: item.available || userParameters.coins >= item.price,
         description: item.description && item.description[lang],
         respect: item.respect,
-      }));
+      }))
+      .filter((item) => !blackList.includes(item.id));
+      
 
       console.log("Loaded Shelf Items:", loadedShelfItems);
       setShelfItems(loadedShelfItems);
