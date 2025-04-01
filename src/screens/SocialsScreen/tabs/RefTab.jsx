@@ -5,7 +5,7 @@ import { useSettingsProvider } from "../../../hooks";
 import Button from "../../../components/simple/Button/Button";
 import { useNotification } from "../../../NotificationContext";
 import { copyTextToClipboard } from "../../../utils/clipboard";
-import { getAffiliateData } from "../../../services/user/user";
+import { getAffiliateData, queueAffiliateWithdrawal } from "../../../services/user/user";
 import { useUser } from "../../../UserContext";
 import globalTranslations from "../../../globalTranslations";
 import FullScreenSpinner from "../../Home/FullScreenSpinner";
@@ -60,6 +60,19 @@ const RefTab = () => {
       }
     }
   }, [data])
+
+  const handleAffiliateWithdrawal = async () => {
+    try {
+      setIsLoading(true);
+      await queueAffiliateWithdrawal(userId);
+      showNotification('Successfully queued', Assets.Icons.tonIcon);
+    } catch (error) {
+      console.error("Error during affiliate withdrawal:", error);
+      showNotification(globalTranslations.errors[500], Assets.Icons.error);
+    } finally {
+      setIsLoading(false);
+    }
+  }
 
   return (
     <ScreenContainer style={{ width: "90%", margin: "auto auto 10px auto" }}>
@@ -406,7 +419,7 @@ const RefTab = () => {
               <Button
                 {...buttonStyle}
                 active={canWithdraw}
-                onClick={handleInviteClick}
+                onClick={handleAffiliateWithdrawal}
                 text={translations.withdrawButton[lang]}
                 width={120}
                 style={{ marginTop: 20 }}

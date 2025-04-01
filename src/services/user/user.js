@@ -322,3 +322,9 @@ export const getAffiliateData = async (userId) => {
   
   return response.data
 }
+
+export const queueAffiliateWithdrawal = async (userId) => {
+  const response = await instance.get(`/users/${userId}/affiliate-withdraw/`)
+  
+  return response.data
+}
