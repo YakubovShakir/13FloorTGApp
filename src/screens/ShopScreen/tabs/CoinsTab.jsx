@@ -539,7 +539,7 @@ const CoinsTab = () => {
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [currentComplexFilters, setCurrentComplexFilters] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-
+  const blackList = [48,49,50,51]
   const { userPersonage, userParameters } = useContext(UserContext);
   const { lang } = useSettingsProvider();
   const { refreshData, userId } = useUser();
@@ -573,7 +573,7 @@ const CoinsTab = () => {
           category: item.type,
           available: userParameters.coins >= item.price && userParameters.level >= item.requiredLevel,
           effects: item.effects,
-        }));
+        })).filter((item) => !blackList.includes(item.id));
       const loadedShelfItems = data.shelf
         .filter(item => !(item.type === 'neko' && item.id !== 8)) // Existing neko filter
         .map((item) => ({
