@@ -123,6 +123,10 @@ export default {
     cantWithdraw: {
       ru: 'Вывод доступен от 5 TON',
       en: 'Withdrawal is available from 5 TON'
+    },
+    wQueued: {
+      ru: 'Ваша транзация успешно добавлена в очередь!',
+      en: 'Your transaction has been successfully queued!'
     }
   },
   errors: {

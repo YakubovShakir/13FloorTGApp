@@ -1,15 +1,18 @@
-import { useEffect, useState } from "react";
-import ScreenContainer from "../../../components/section/ScreenContainer/ScreenContainer";
-import Assets from "../../../assets";
-import { useSettingsProvider } from "../../../hooks";
-import Button from "../../../components/simple/Button/Button";
-import { useNotification } from "../../../NotificationContext";
-import { copyTextToClipboard } from "../../../utils/clipboard";
-import { getAffiliateData, queueAffiliateWithdrawal } from "../../../services/user/user";
-import { useUser } from "../../../UserContext";
-import globalTranslations from "../../../globalTranslations";
-import FullScreenSpinner from "../../Home/FullScreenSpinner";
-import { COLORS } from "../../../utils/paramBlockUtils";
+import { useEffect, useState } from "react"
+import ScreenContainer from "../../../components/section/ScreenContainer/ScreenContainer"
+import Assets from "../../../assets"
+import { useSettingsProvider } from "../../../hooks"
+import Button from "../../../components/simple/Button/Button"
+import { useNotification } from "../../../NotificationContext"
+import { copyTextToClipboard } from "../../../utils/clipboard"
+import {
+  getAffiliateData,
+  queueAffiliateWithdrawal,
+} from "../../../services/user/user"
+import { useUser } from "../../../UserContext"
+import globalTranslations from "../../../globalTranslations"
+import FullScreenSpinner from "../../Home/FullScreenSpinner"
+import { COLORS } from "../../../utils/paramBlockUtils"
 
 const buttonStyle = {
   width: "100%",
@@ -20,42 +23,44 @@ const buttonStyle = {
   bgColor: "rgb(255, 118, 0)",
   fontSize: 14,
   fontFamily: "Oswald",
-};
+}
 
-const translations = globalTranslations.affiliate;
+const translations = globalTranslations.affiliate
 
 const RefTab = () => {
-  const [isLoading, setIsLoading] = useState(true);
-  const { lang } = useSettingsProvider();
-  const { showNotification } = useNotification();
-  const { userId } = useUser();
-  const [data, setData] = useState();
+  const [isLoading, setIsLoading] = useState(true)
+  const { lang } = useSettingsProvider()
+  const { showNotification } = useNotification()
+  const { userId } = useUser()
+  const [data, setData] = useState()
   const [canWithdraw, setCanWithdraw] = useState(false)
 
-  const { Icons } = Assets;
+  const { Icons } = Assets
 
   const getRefLink = () => {
     return import.meta.env.VITE_NODE_ENV === "test"
       ? `https://t.me/memecoin_multiplier3000_bot?start=${userId}`
-      : `https://t.me/Floor13th_bot?start=${userId}`;
-  };
+      : `https://t.me/Floor13th_bot?start=${userId}`
+  }
 
   const handleInviteClick = () => {
     copyTextToClipboard(getRefLink()).then(() => {
-      showNotification(translations.copied[lang], Assets.Icons.tasks);
-    });
-  };
+      showNotification(translations.copied[lang], Assets.Icons.tasks)
+    })
+  }
 
   useEffect(() => {
     getAffiliateData(userId)
       .then(setData)
       .catch(() => showNotification(globalTranslations.errors[500]))
-      .finally(() => setIsLoading(false));
-  }, [userId, lang]);
+      .finally(() => setIsLoading(false))
+  }, [userId, lang])
+
+  const { userParameters } = useUser()
 
   useEffect(() => {
-    if(data) {
-      if(data.totalStarsPendingInTON + data.totalTONPendingWithdrawal > 5) {
+    if (data) {
+      if (data.totalStarsPendingInTON + data.totalTONPendingWithdrawal > 5 && userParameters.is_withdrawing !== true) {
         setCanWithdraw(true)
       }
     }
@@ -63,14 +68,16 @@ const RefTab = () => {
 
   const handleAffiliateWithdrawal = async () => {
     try {
-      setIsLoading(true);
-      await queueAffiliateWithdrawal(userId);
-      showNotification('Successfully queued', Assets.Icons.tonIcon);
+      setIsLoading(true)
+      await queueAffiliateWithdrawal(userId)
+      const afData = await getAffiliateData(userId)
+      setData(afData)
+      showNotification(translations.wQueued[lang], Assets.Icons.tonIcon)
     } catch (error) {
-      console.error("Error during affiliate withdrawal:", error);
-      showNotification(globalTranslations.errors[500], Assets.Icons.error);
+      console.error("Error during affiliate withdrawal:", error)
+      showNotification(globalTranslations.errors[500], Assets.Icons.error)
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
   }
 
@@ -146,7 +153,7 @@ const RefTab = () => {
                 color: "white",
               }}
             >
-              {translations.level[lang]} {data.current_level}
+              {translations.level[lang]} {data.gameCenterLevel || 0}
             </p>
             <div
               style={{
@@ -164,14 +171,15 @@ const RefTab = () => {
               <span
                 style={{
                   width: data.to
-                    ? Math.min(
-                        100,
-                        ((data.gameCenterValues.friends -
-                          data.gameCenterValues.thisLevelFriendsRequired) /
-                          (data.gameCenterValues.nextLevelFriendsRequired -
-                            data.gameCenterValues.thisLevelFriendsRequired)) *
-                          100
-                      ) + "%"
+                    ? data.refsCount - data.currentLevelRefsRequired <= 0
+                      ? "0%"
+                      : Math.min(
+                          100,
+                          ((data.refsCount - data.currentLevelRefsRequired) /
+                            (data.nextLevelRefsRequired -
+                              data.currentLevelRefsRequired)) *
+                            100
+                        ) + "%"
                     : "100%",
                   height: 22,
                   background:
@@ -190,9 +198,15 @@ const RefTab = () => {
                     "1px 1px 0px #000000, -1px -1px 0px #000000, 1px -1px 0px #000000, -1px 1px 0px #000000",
                 }}
               >
-                {data.to
-                  ? `${data.gameCenterValues?.friends}/${data.gameCenterValues.nextLevelFriendsRequired}`
-                  : data.gameCenterValues?.friends}
+                {data.refsCount - data.currentLevelRefsRequired <= 0 ||
+                isNaN(data.refsCount - data.currentLevelRefsRequired) ||
+                isNaN(
+                  data.nextLevelRefsRequired - data.currentLevelRefsRequired
+                )
+                  ? `${data.refsCount || 0}`
+                  : `${data.refsCount - data.currentLevelRefsRequired}/${
+                      data.nextLevelRefsRequired - data.currentLevelRefsRequired
+                    }`}
               </p>
             </div>
             <p
@@ -244,7 +258,13 @@ const RefTab = () => {
                   borderRadius: "5px 5px 0 0", // Rounded top corners
                 }}
               >
-                <div style={{ display: "flex", flexDirection: "column", width: "100%" }}>
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    width: "100%",
+                  }}
+                >
                   <p
                     style={{
                       fontSize: "16px",
@@ -268,8 +288,20 @@ const RefTab = () => {
                     }}
                   >
                     {/* First Column: Locked Stars and TON */}
-                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-                      <div style={{ display: "flex", alignItems: "center", marginBottom: "8px" }}>
+                    <div
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                      }}
+                    >
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          marginBottom: "8px",
+                        }}
+                      >
                         <img
                           src={Icons.starsIcon}
                           alt="Stars"
@@ -326,7 +358,9 @@ const RefTab = () => {
                           margin: 0,
                         }}
                       >
-                        {(data.totalStarsLockedInTON + data.totalTONLocked).toFixed(2)}
+                        {(
+                          data.totalStarsLockedInTON + data.totalTONLocked
+                        ).toFixed(2)}
                       </p>
                     </div>
                   </div>
@@ -348,7 +382,13 @@ const RefTab = () => {
                   borderBottom: "none", // Remove bottom border to match container
                 }}
               >
-                <div style={{ display: "flex", flexDirection: "column", width: "100%" }}>
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    width: "100%",
+                  }}
+                >
                   <p
                     style={{
                       fontSize: "16px",
@@ -371,24 +411,33 @@ const RefTab = () => {
                       justifyContent: "center",
                     }}
                   >
-                    <div style={{ display: "flex", alignItems: "center", flexDirection: 'column' }}>
-                      <div style={{ display: 'flex', alignItems: 'center' }}>
-                      <img
-                        src={Icons.tonIcon}
-                        alt="Coin"
-                        style={{ width: "20px", height: "20px" }}
-                      />
-                      <p
-                        style={{
-                          fontSize: "22px",
-                          fontFamily: "Oswald",
-                          fontWeight: "500",
-                          paddingLeft: 5,
-                          margin: 0,
-                        }}
-                      >
-                        {(data.totalStarsPendingInTON + data.totalTONPendingWithdrawal).toFixed(2)}
-                      </p>
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        flexDirection: "column",
+                      }}
+                    >
+                      <div style={{ display: "flex", alignItems: "center" }}>
+                        <img
+                          src={Icons.tonIcon}
+                          alt="Coin"
+                          style={{ width: "20px", height: "20px" }}
+                        />
+                        <p
+                          style={{
+                            fontSize: "22px",
+                            fontFamily: "Oswald",
+                            fontWeight: "500",
+                            paddingLeft: 5,
+                            margin: 0,
+                          }}
+                        >
+                          {(
+                            data.totalStarsPendingInTON +
+                            data.totalTONPendingWithdrawal
+                          ).toFixed(2)}
+                        </p>
                       </div>
                       <p
                         style={{
@@ -397,12 +446,10 @@ const RefTab = () => {
                           fontWeight: "500",
                           marginTop: 10,
                           color: COLORS.RED,
-                          opacity: 0.85
+                          opacity: 0.85,
                         }}
                       >
-                        {
-                          !canWithdraw && translations.cantWithdraw[lang]
-                        }
+                        {!canWithdraw && translations.cantWithdraw[lang]}
                       </p>
                     </div>
                   </div>
@@ -419,7 +466,7 @@ const RefTab = () => {
               <Button
                 {...buttonStyle}
                 active={canWithdraw}
-                onClick={handleAffiliateWithdrawal}
+                onClick={canWithdraw && handleAffiliateWithdrawal}
                 text={translations.withdrawButton[lang]}
                 width={120}
                 style={{ marginTop: 20 }}
@@ -456,7 +503,7 @@ const RefTab = () => {
         </>
       )}
     </ScreenContainer>
-  );
-};
+  )
+}
 
-export default RefTab;
+export default RefTab
