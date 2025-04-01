@@ -116,6 +116,10 @@ export default {
       ru: "Ton:",
       en: "Ton:",
     },
+    withdrawButton: {
+      ru: 'Вывести',
+      en: 'Withdraw:',
+    }
   },
   errors: {
     500: {

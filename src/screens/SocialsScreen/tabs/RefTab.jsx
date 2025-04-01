@@ -203,7 +203,7 @@ const RefTab = () => {
                 marginTop: "20px",
                 width: "100%",
                 display: "flex",
-                justifyContent: "space-between",
+                flexDirection: "column", // Changed to column for two rows
                 borderBottom: "1px solid rgba(117, 117, 117, 0.23)",
                 boxShadow: "rgba(0, 0, 0, 0.24) 0px 0px 8px 2px inset",
                 background: "rgb(18, 18, 18)",
@@ -211,14 +211,14 @@ const RefTab = () => {
                 marginBottom: "10px",
               }}
             >
-              {/* Left Side: Cashback Section */}
+              {/* Top Row: Cashback Section */}
               <div
                 style={{
                   display: "flex",
                   padding: "14px",
                   justifyContent: "center",
-                  width: "50%",
-                  borderRadius: "5px",
+                  width: "100%", // Full width for row
+                  borderRadius: "5px 5px 0 0", // Rounded top corners
                 }}
               >
                 <div style={{ display: "flex", flexDirection: "column", width: "100%" }}>
@@ -226,7 +226,7 @@ const RefTab = () => {
                     style={{
                       fontSize: "16px",
                       fontFamily: "Oswald",
-                      paddingBottom: 5, // Adjusted to align with withdraw
+                      paddingBottom: 5,
                       width: "100%",
                       textAlign: "center",
                       margin: 0,
@@ -310,15 +310,19 @@ const RefTab = () => {
                 </div>
               </div>
 
-              {/* Right Side: Withdraw Section */}
+              {/* Bottom Row: Withdraw Section */}
               <div
                 style={{
                   display: "flex",
                   padding: "14px",
                   justifyContent: "center",
-                  width: "50%",
-                  borderRadius: "5px",
-                  border: "2px solid rgb(49 187 249)",
+                  width: "100%", // Full width for row
+                  borderRadius: "0 0 5px 5px", // Rounded bottom corners
+                  borderTop: "1px solid rgba(117, 117, 117, 0.23)", // Separator between rows
+                  border: "2px solid rgb(49 187 249)", // Keep the border style
+                  borderLeft: "none", // Remove left border for seamless look
+                  borderRight: "none", // Remove right border for seamless look
+                  borderBottom: "none", // Remove bottom border to match container
                 }}
               >
                 <div style={{ display: "flex", flexDirection: "column", width: "100%" }}>
@@ -326,7 +330,7 @@ const RefTab = () => {
                     style={{
                       fontSize: "16px",
                       fontFamily: "Oswald",
-                      paddingBottom: 5, // Match cashback padding
+                      paddingBottom: 5,
                       width: "100%",
                       textAlign: "center",
                       margin: 0,
@@ -341,7 +345,7 @@ const RefTab = () => {
                       display: "flex",
                       alignItems: "center",
                       paddingTop: 5,
-                      justifyContent: "center", // Center the content
+                      justifyContent: "center",
                     }}
                   >
                     <div style={{ display: "flex", alignItems: "center" }}>
@@ -377,7 +381,7 @@ const RefTab = () => {
                 {...buttonStyle}
                 active={true}
                 onClick={handleInviteClick}
-                text={translations.invite[lang]}
+                text={translations.withdrawButton[lang]}
                 width={120}
                 style={{ marginTop: 20 }}
               />
