@@ -4,55 +4,55 @@ import React, {
   useContext,
   useRef,
   useCallback,
-} from "react"
-import "./Home.css"
-import HomeHeader from "../../components/complex/HomeHeader/HomeHeader"
-import Player from "../../components/complex/Player/Player"
-import Menu from "../../components/complex/Menu/Menu"
-import Window from "../../components/complex/Windows/Window/Window"
-import Assets from "../../assets/index"
-import ProcessProgressBar from "../../components/simple/ProcessProgressBar/ProcessProgressBar"
+} from "react";
+import "./Home.css";
+import HomeHeader from "../../components/complex/HomeHeader/HomeHeader";
+import Player from "../../components/complex/Player/Player";
+import Menu from "../../components/complex/Menu/Menu";
+import Window from "../../components/complex/Windows/Window/Window";
+import Assets from "../../assets/index";
+import ProcessProgressBar from "../../components/simple/ProcessProgressBar/ProcessProgressBar";
 import {
   getOwnNekoState,
   getTrainingParameters,
   getUserActiveProcess,
-} from "../../services/user/user"
-import UserContext, { useUser } from "../../UserContext"
-import countPercentage from "../../utils/countPercentage"
-import { getLevels } from "../../services/levels/levels"
-import { motion, AnimatePresence } from "framer-motion"
-import { useNavigate } from "react-router-dom"
-import FullScreenSpinner from "./FullScreenSpinner"
-import getBgByCurrentProcess from "./getBgByCurrentProcess"
-import moment from "moment-timezone"
-import { useVisibilityChange, useWindowFocus } from "../../hooks/userActivities"
-import formatTime from "../../utils/formatTime"
-import { checkCanStop, stopProcess } from "../../services/process/process"
+} from "../../services/user/user";
+import UserContext, { useUser } from "../../UserContext";
+import countPercentage from "../../utils/countPercentage";
+import { getLevels } from "../../services/levels/levels";
+import { motion, AnimatePresence } from "framer-motion";
+import { useNavigate } from "react-router-dom";
+import FullScreenSpinner from "./FullScreenSpinner";
+import getBgByCurrentProcess from "./getBgByCurrentProcess";
+import moment from "moment-timezone";
+import { useVisibilityChange, useWindowFocus } from "../../hooks/userActivities";
+import formatTime from "../../utils/formatTime";
+import { checkCanStop, stopProcess } from "../../services/process/process";
 import {
   canStartSleeping,
   canStartTraining,
   canStartWorking,
-} from "../../utils/paramDep"
-import GachaOverlay from "./Gacha"
-import DailyCheckInOverlay from "./DailyCheckInOverlay"
-import SleepGame from "./SleepGame"
-import globalTranslations from "../../globalTranslations"
-import { useSettingsProvider } from "../../hooks"
+} from "../../utils/paramDep";
+import GachaOverlay from "./Gacha";
+import DailyCheckInOverlay from "./DailyCheckInOverlay";
+import SleepGame from "./SleepGame";
+import globalTranslations from "../../globalTranslations";
+import { useSettingsProvider } from "../../hooks";
 
 const COIN_SOUND = new Audio(
   "https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/coin.mp3"
-)
+);
 const ALARM_SOUND = new Audio(
   "https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/alarm.mp3"
-)
+);
 
-COIN_SOUND.load()
-ALARM_SOUND.load()
+COIN_SOUND.load();
+ALARM_SOUND.load();
 
 const Home = () => {
-  const { refreshData } = useUser()
-  const navigate = useNavigate()
-  const mountedRef = useRef(false)
+  const { refreshData } = useUser();
+  const navigate = useNavigate();
+  const mountedRef = useRef(false);
   const [state, setState] = useState({
     currentWindow: null,
     currentProcess: null,
@@ -64,13 +64,13 @@ const Home = () => {
     imagesLoaded: false,
     hasIconAnimated: true,
     nekoState: { canClick: false, cooldownUntil: null },
-  })
-  const [isLoading, setIsLoading] = useState(true)
-  const [loadingProgress, setLoadingProgress] = useState(0)
-  const [timer, setTimer] = useState(null)
-  const [remainingSeconds, setRemainingSeconds] = useState(null)
-  const hasCompletedRef = useRef(false)
-  const [isInitializedFully, setIsInitializedFully] = useState(false)
+  });
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadingProgress, setLoadingProgress] = useState(0);
+  const [timer, setTimer] = useState(null);
+  const [remainingSeconds, setRemainingSeconds] = useState(null);
+  const hasCompletedRef = useRef(false);
+  const [isInitializedFully, setIsInitializedFully] = useState(false);
 
   const {
     userId,
@@ -79,20 +79,21 @@ const Home = () => {
     userPersonage,
     userClothing,
     userShelf,
-  } = useContext(UserContext)
+  } = useContext(UserContext);
 
   const getUserSleepDuration = useCallback(() => {
     return state.levels?.find((level) => level?.level === userParameters?.level)
-      ?.sleep_duration
-  }, [state.levels, userParameters?.level])
+      ?.sleep_duration;
+  }, [state.levels, userParameters?.level]);
 
   useEffect(() => {
-    mountedRef.current = true
+    mountedRef.current = true;
     return () => {
-      mountedRef.current = false
-    }
-  }, [])
+      mountedRef.current = false;
+    };
+  }, []);
 
+  // Sequential image loading
   const preloadImages = useCallback(async () => {
     const imageUrls = [
       Assets.Layers.cover,
@@ -104,55 +105,50 @@ const Home = () => {
       Assets.HOME.couch,
       Assets.BG.backgroundSun,
       Assets.BG.winter,
-    ]
-    const imagePromises = imageUrls.map(
-      (url) =>
-        new Promise((resolve) => {
-          const img = new Image()
-          img.onload = () => {
-            setLoadingProgress((prev) =>
-              Math.min(prev + 100 / imageUrls.length, 100)
-            )
-            resolve()
-          }
-          img.onerror = () => {
-            console.warn(`Failed to load image: ${url}`)
-            setLoadingProgress((prev) =>
-              Math.min(prev + 100 / imageUrls.length, 100)
-            )
-            resolve() // Resolve even on error to avoid hanging
-          }
-          img.src = url
-        })
-    )
-    await Promise.all(imagePromises)
-  }, [])
+    ];
+
+    for (let i = 0; i < imageUrls.length; i++) {
+      await new Promise((resolve) => {
+        const img = new Image();
+        img.onload = () => {
+          setLoadingProgress(((i + 1) / imageUrls.length) * 100);
+          resolve();
+        };
+        img.onerror = () => {
+          console.warn(`Failed to load image: ${imageUrls[i]}`);
+          setLoadingProgress(((i + 1) / imageUrls.length) * 100);
+          resolve();
+        };
+        img.src = imageUrls[i];
+      });
+    }
+  }, []);
 
   const calculateInitialRemaining = useCallback((process) => {
-    if (!process?.createdAt) return null
-    const moscowNow = moment().tz("Europe/Moscow")
-    const processStart = moment(process.createdAt).tz("Europe/Moscow")
-    const elapsedSeconds = moscowNow.diff(processStart, "seconds")
+    if (!process?.createdAt) return null;
+    const moscowNow = moment().tz("Europe/Moscow");
+    const processStart = moment(process.createdAt).tz("Europe/Moscow");
+    const elapsedSeconds = moscowNow.diff(processStart, "seconds");
     const totalSeconds =
-      process.target_duration_in_seconds || process.base_duration_in_seconds
-    return Math.max(0, totalSeconds - elapsedSeconds)
-  }, [])
+      process.target_duration_in_seconds || process.base_duration_in_seconds;
+    return Math.max(0, totalSeconds - elapsedSeconds);
+  }, []);
 
   const initializeProcess = useCallback(async () => {
     try {
-      const process = await getUserActiveProcess(userId)
+      const process = await getUserActiveProcess(userId);
       if (!process) {
-        setState((prev) => ({ ...prev, currentProcess: null }))
-        setRemainingSeconds(null)
-        return
+        setState((prev) => ({ ...prev, currentProcess: null }));
+        setRemainingSeconds(null);
+        return;
       }
       const [trainingParams, levelsData] = await Promise.all([
         getTrainingParameters(userId),
         getLevels(),
-      ])
-      if (!mountedRef.current) return
+      ]);
+      if (!mountedRef.current) return;
 
-      const initialRemaining = calculateInitialRemaining(process)
+      const initialRemaining = calculateInitialRemaining(process);
       setState((prev) => ({
         ...prev,
         currentProcess: {
@@ -165,79 +161,77 @@ const Home = () => {
         },
         trainingParameters: trainingParams,
         levels: levelsData,
-      }))
-      setRemainingSeconds(initialRemaining)
+      }));
+      setRemainingSeconds(initialRemaining);
     } catch (error) {
-      console.error("Error initializing process:", error)
+      console.error("Error initializing process:", error);
       if (mountedRef.current) {
-        setState((prev) => ({ ...prev, currentProcess: null }))
-        setRemainingSeconds(null)
+        setState((prev) => ({ ...prev, currentProcess: null }));
+        setRemainingSeconds(null);
       }
     }
-  }, [userId, calculateInitialRemaining])
+  }, [userId, calculateInitialRemaining]);
 
   const fetchNekoState = useCallback(async () => {
     try {
-      const nekoData = await getOwnNekoState(userId)
+      const nekoData = await getOwnNekoState(userId);
       if (mountedRef.current) {
-        setState((prev) => ({ ...prev, nekoState: nekoData }))
+        setState((prev) => ({ ...prev, nekoState: nekoData }));
       }
     } catch (error) {
-      console.error("Error fetching neko state:", error)
+      console.error("Error fetching neko state:", error);
     }
-  }, [userId])
+  }, [userId]);
 
   useEffect(() => {
-    if (!state.nekoState.cooldownUntil || state.nekoState.canClick) return
+    if (!state.nekoState.cooldownUntil || state.nekoState.canClick) return;
 
     const updateTimer = () => {
-      if (!mountedRef.current) return
-      const now = moment().tz("Europe/Moscow")
-      const end = moment(state.nekoState.cooldownUntil).tz("Europe/Moscow")
-      const diff = end.diff(now)
+      if (!mountedRef.current) return;
+      const now = moment().tz("Europe/Moscow");
+      const end = moment(state.nekoState.cooldownUntil).tz("Europe/Moscow");
+      const diff = end.diff(now);
       if (diff <= 0) {
         setState((prev) => ({
           ...prev,
           nekoState: { ...prev.nekoState, canClick: true, cooldownUntil: null },
-        }))
-        setTimer(null)
-        return
+        }));
+        setTimer(null);
+        return;
       }
-      const duration = moment.duration(diff)
-      const hours = Math.floor(duration.asHours())
-      const minutes = duration.minutes()
+      const duration = moment.duration(diff);
+      const hours = Math.floor(duration.asHours());
+      const minutes = duration.minutes();
       setTimer(
         `${hours.toString().padStart(2, "0")}:${minutes
           .toString()
           .padStart(2, "0")}`
-      )
-    }
+      );
+    };
 
-    updateTimer()
-    const interval = setInterval(updateTimer, 1000)
-    return () => clearInterval(interval)
-  }, [state.nekoState])
+    updateTimer();
+    const interval = setInterval(updateTimer, 1000);
+    return () => clearInterval(interval);
+  }, [state.nekoState]);
 
   useEffect(() => {
     if (!isInitialized) return;
-  
+
     const initialize = async () => {
       if (!userPersonage?.gender) {
         navigate("/personage-create");
         return;
       }
-  
+
       setIsLoading(true);
       try {
         await initializeProcess(); // Critical data first
         setIsInitializedFully(true);
-  
-        // Load images and neko state in the background
-        Promise.all([preloadImages(), fetchNekoState()]).then(() => {
-          if (mountedRef.current) {
-            setState((prev) => ({ ...prev, imagesLoaded: true }));
-          }
-        });
+        await preloadImages(); // Sequential image loading
+        await fetchNekoState(); // Load neko state after images
+        if (mountedRef.current) {
+          setState((prev) => ({ ...prev, imagesLoaded: true }));
+        }
       } catch (err) {
         console.error("Initialization error:", err);
         if (mountedRef.current) setIsInitializedFully(true);
@@ -245,117 +239,117 @@ const Home = () => {
         if (mountedRef.current) setIsLoading(false);
       }
     };
-  
+
     initialize();
   }, [isInitialized, navigate, userPersonage, initializeProcess, preloadImages, fetchNekoState]);
 
   const canContinue = useCallback(
     (processType) => {
       if (processType === "training")
-        return canStartTraining(userParameters) && userParameters?.mood < 100
-      if (processType === "work") return canStartWorking(userParameters)
-      if (processType === "sleep") return canStartSleeping(userParameters)
-      return false
+        return canStartTraining(userParameters) && userParameters?.mood < 100;
+      if (processType === "work") return canStartWorking(userParameters);
+      if (processType === "sleep") return canStartSleeping(userParameters);
+      return false;
     },
     [userParameters]
-  )
+  );
 
   const handleConfirmClose = useCallback(async () => {
-    setIsLoading(true)
+    setIsLoading(true);
     try {
-      await stopProcess(userId)
-      setState((prev) => ({ ...prev, currentProcess: null }))
-      setRemainingSeconds(null)
+      await stopProcess(userId);
+      setState((prev) => ({ ...prev, currentProcess: null }));
+      setRemainingSeconds(null);
     } catch (error) {
-      console.error("Error stopping process:", error)
+      console.error("Error stopping process:", error);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }, [userId])
+  }, [userId]);
 
   const handleProcessCompletion = useCallback(async () => {
-    if (hasCompletedRef.current) return
-    hasCompletedRef.current = true
+    if (hasCompletedRef.current) return;
+    hasCompletedRef.current = true;
 
-    setIsLoading(true)
+    setIsLoading(true);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-      await checkCanStop(userId, null, null, state.currentProcess.type)
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      await checkCanStop(userId, null, null, state.currentProcess.type);
       if (mountedRef.current) {
-        setState((prev) => ({ ...prev, currentProcess: null }))
-        setRemainingSeconds(null)
-        refreshData()
+        setState((prev) => ({ ...prev, currentProcess: null }));
+        setRemainingSeconds(null);
+        refreshData();
       }
     } catch (err) {
-      console.error("Error in handleProcessCompletion:", err)
+      console.error("Error in handleProcessCompletion:", err);
       if (err.status !== 404) {
-        await new Promise((resolve) => setTimeout(resolve, 2000))
+        await new Promise((resolve) => setTimeout(resolve, 2000));
         if (state.currentProcess) {
-          await checkCanStop(userId, null, null, state.currentProcess?.type)
+          await checkCanStop(userId, null, null, state.currentProcess?.type);
         }
         if (mountedRef.current) {
-          setState((prev) => ({ ...prev, currentProcess: null }))
-          setRemainingSeconds(null)
-          refreshData()
+          setState((prev) => ({ ...prev, currentProcess: null }));
+          setRemainingSeconds(null);
+          refreshData();
         }
       }
     } finally {
-      await initializeProcess()
-      setIsLoading(false)
-      hasCompletedRef.current = false
+      await initializeProcess();
+      setIsLoading(false);
+      hasCompletedRef.current = false;
     }
-  }, [userId, refreshData])
+  }, [userId, refreshData, state.currentProcess]);
 
   useVisibilityChange(() => {
     if (mountedRef.current && document.visibilityState === "visible") {
-      refreshData()
-      initializeProcess()
-      fetchNekoState()
+      refreshData();
+      initializeProcess();
+      fetchNekoState();
     }
-  })
+  });
 
   useWindowFocus(() => {
     if (mountedRef.current) {
-      refreshData()
-      initializeProcess()
-      fetchNekoState()
+      refreshData();
+      initializeProcess();
+      fetchNekoState();
     }
-  })
+  });
 
   useEffect(() => {
-    if (!state.currentProcess || remainingSeconds === null) return
+    if (!state.currentProcess || remainingSeconds === null) return;
 
     const interval = setInterval(() => {
       if (!mountedRef.current || !state.currentProcess) {
-        clearInterval(interval)
-        return
+        clearInterval(interval);
+        return;
       }
 
-      const processType = state.currentProcess.type
+      const processType = state.currentProcess.type;
       if (!canContinue(processType)) {
-        setIsLoading(true)
+        setIsLoading(true);
         checkCanStop(userId, null, null, state.currentProcess.type).finally(
           () => {
             if (mountedRef.current) {
-              setState((prev) => ({ ...prev, currentProcess: null }))
-              setRemainingSeconds(null)
-              refreshData()
-              setIsLoading(false)
+              setState((prev) => ({ ...prev, currentProcess: null }));
+              setRemainingSeconds(null);
+              refreshData();
+              setIsLoading(false);
             }
           }
-        )
-        return
+        );
+        return;
       }
 
-      const now = moment().tz("Europe/Moscow")
-      const start = moment(state.currentProcess.createdAt).tz("Europe/Moscow")
-      const elapsedSeconds = now.diff(start, "seconds")
+      const now = moment().tz("Europe/Moscow");
+      const start = moment(state.currentProcess.createdAt).tz("Europe/Moscow");
+      const elapsedSeconds = now.diff(start, "seconds");
       const totalSeconds =
         state.currentProcess.target_duration_in_seconds ||
-        state.currentProcess.base_duration_in_seconds
-      const newRemaining = Math.max(0, totalSeconds - elapsedSeconds)
+        state.currentProcess.base_duration_in_seconds;
+      const newRemaining = Math.max(0, totalSeconds - elapsedSeconds);
 
-      setRemainingSeconds(newRemaining)
+      setRemainingSeconds(newRemaining);
       setState((prev) => ({
         ...prev,
         currentProcess: {
@@ -366,14 +360,14 @@ const Home = () => {
             newRemaining % 60
           ),
         },
-      }))
+      }));
 
       if (newRemaining <= 0 && !hasCompletedRef.current) {
-        handleProcessCompletion()
+        handleProcessCompletion();
       }
-    }, 1000)
+    }, 1000);
 
-    return () => clearInterval(interval)
+    return () => clearInterval(interval);
   }, [
     state.currentProcess,
     remainingSeconds,
@@ -381,7 +375,7 @@ const Home = () => {
     handleProcessCompletion,
     userId,
     refreshData,
-  ])
+  ]);
 
   const onDurationUpdate = useCallback(
     (newRemaining) => {
@@ -390,9 +384,9 @@ const Home = () => {
         .diff(
           moment(state.currentProcess.createdAt).tz("Europe/Moscow"),
           "seconds"
-        )
-      const new_target_duration = newRemaining + current_elapsedSeconds
-      setRemainingSeconds(newRemaining)
+        );
+      const new_target_duration = newRemaining + current_elapsedSeconds;
+      setRemainingSeconds(newRemaining);
       setState((prev) =>
         prev.currentProcess
           ? {
@@ -407,10 +401,10 @@ const Home = () => {
               },
             }
           : prev
-      )
+      );
     },
     [state.currentProcess]
-  )
+  );
 
   const shineVariants = {
     shine: {
@@ -421,7 +415,7 @@ const Home = () => {
       ],
       transition: { duration: 2, repeat: Infinity, ease: "easeInOut" },
     },
-  }
+  };
 
   const renderProcessProgressBar = useCallback(
     (process, percentage, rate, reverse = false) => (
@@ -435,9 +429,9 @@ const Home = () => {
       />
     ),
     [handleConfirmClose]
-  )
+  );
 
-  const { lang } = useSettingsProvider()
+  const { lang } = useSettingsProvider();
 
   const renderScene = useCallback(
     (content) => (
@@ -445,20 +439,15 @@ const Home = () => {
         <motion.div
           className="Home"
           key={state.currentProcess?.type || "default"}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.5, ease: "easeInOut" }}
+          // Removed initial/animate/exit opacity for no flash
           style={{
             position: "absolute",
             height: "100%",
             width: "100%",
             overflow: "hidden",
-            backgroundColor: isLoading ? "#f0f0f0" : "transparent",
+            backgroundColor: "transparent", // No gray flash
           }}
         >
-          {/* <GachaOverlay userId={userId} />
-          <DailyCheckInOverlay /> */}
           <div
             onClick={() => navigate("/gacha")}
             style={{
@@ -522,11 +511,7 @@ const Home = () => {
           </div>
           {state.imagesLoaded && (
             <>
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.5, ease: "easeInOut" }}
+              <div
                 style={{
                   filter: "blur(1.5px)",
                   position: "absolute",
@@ -538,11 +523,7 @@ const Home = () => {
                   zIndex: 0,
                 }}
               />
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.5, ease: "easeInOut" }}
+              <div
                 style={{
                   position: "absolute",
                   height: "100%",
@@ -567,16 +548,12 @@ const Home = () => {
         </motion.div>
       </AnimatePresence>
     ),
-    [
-      state.currentProcess?.type,
-      state.currentProcess?.active,
-      state.currentProcess?.type_id,
-      state.imagesLoaded,
-    ]
-  )
+    [state.currentProcess?.type, state.currentProcess?.active, state.currentProcess?.type_id, state.imagesLoaded, lang, navigate]
+  );
 
-  if (!isInitializedFully || isLoading) {
-    return <FullScreenSpinner progress={loadingProgress} />
+  // Show spinner until everything (including images) is loaded
+  if (!isInitializedFully || isLoading || !state.imagesLoaded) {
+    return <FullScreenSpinner progress={loadingProgress} />;
   }
 
   const homeContent = (
@@ -604,69 +581,49 @@ const Home = () => {
         />
       </div>
       <Menu hasBg={false} />
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3, delay: 0.2, ease: "easeOut" }}
-        className="HomeInventory"
-      >
+      <div className="HomeInventory">
         {userShelf && (
           <>
             <div className="shelf-container1">
               {userShelf.star?.shelf_link && (
-                <motion.img
-                  layout
+                <img
                   className="shelf-flower"
                   src={userShelf.star.shelf_link}
                   alt="flower"
-                  transition={{ duration: 0.5, ease: "easeOut" }}
                 />
               )}
               {userShelf.award?.shelf_link && (
-                <motion.img
-                  layout
+                <img
                   className="shelf-award"
                   src={userShelf.award.shelf_link}
                   alt="award"
-                  transition={{ duration: 0.5, ease: "easeOut" }}
                 />
               )}
               {userShelf.flower?.shelf_link && (
-                <motion.img
-                  layout
+                <img
                   className="shelf-flower"
                   src={userShelf.flower.shelf_link}
                   alt="flower"
-                  transition={{ duration: 0.5, ease: "easeOut" }}
                 />
               )}
               {userShelf.event?.shelf_link && (
-                <motion.img
-                  layout
+                <img
                   className="shelf-event"
                   src={userShelf.event.shelf_link}
                   alt="event"
-                  transition={{ duration: 0.5, ease: "easeOut" }}
                 />
               )}
             </div>
             <div className="shelf-container2">
               {userShelf.neko?.shelf_link && (
-                <motion.div
-                  className="shelf-neko-container"
-                  style={{ position: "relative" }}
-                >
-                  <motion.img
-                    layout
+                <div className="shelf-neko-container" style={{ position: "relative" }}>
+                  <img
                     className="shelf-neko"
                     src={userShelf.neko.shelf_link}
                     alt="neko"
                     style={{
-                      filter: state.nekoState.canClick
-                        ? "none"
-                        : "grayscale(100%)",
+                      filter: state.nekoState.canClick ? "none" : "grayscale(100%)",
                     }}
-                    transition={{ duration: 0.5, ease: "easeOut" }}
                   />
                   {state.nekoState.canClick && (
                     <motion.div
@@ -702,7 +659,7 @@ const Home = () => {
                     </motion.div>
                   )}
                   {!state.nekoState.canClick && timer && (
-                    <motion.div
+                    <div
                       className="timer-overlay"
                       style={{
                         position: "absolute",
@@ -719,23 +676,21 @@ const Home = () => {
                       }}
                     >
                       {timer}
-                    </motion.div>
+                    </div>
                   )}
-                </motion.div>
+                </div>
               )}
               {userShelf.flag?.shelf_link && (
-                <motion.img
-                  layout
+                <img
                   className="shelf-flag"
                   src={userShelf.flag.shelf_link}
                   alt="flag"
-                  transition={{ duration: 0.5, ease: "easeOut" }}
                 />
               )}
             </div>
           </>
         )}
-      </motion.div>
+      </div>
       {state.visibleWindow && (
         <Window
           title={state.currentWindow.title}
@@ -747,7 +702,7 @@ const Home = () => {
         />
       )}
     </>
-  )
+  );
 
   const workContent = (
     <>
@@ -796,7 +751,7 @@ const Home = () => {
         />
       )}
     </>
-  )
+  );
 
   const trainingContent = (
     <>
@@ -844,7 +799,7 @@ const Home = () => {
         />
       )}
     </>
-  )
+  );
 
   const sleepContent = (
     <>
@@ -870,11 +825,8 @@ const Home = () => {
         clothing={userClothing}
         sleep
       />
-      <motion.img
+      <img
         src={Assets.Layers.cover}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.5, ease: "easeInOut" }}
         style={{
           position: "absolute",
           width: "100%",
@@ -907,21 +859,21 @@ const Home = () => {
         />
       )}
     </>
-  )
+  );
 
-  const currentProcessType = state.currentProcess?.type
+  const currentProcessType = state.currentProcess?.type;
   if (
     !currentProcessType ||
     currentProcessType === "skill" ||
     currentProcessType === "food"
   ) {
-    return renderScene(homeContent)
+    return renderScene(homeContent);
   }
-  if (currentProcessType === "work") return renderScene(workContent)
-  if (currentProcessType === "training") return renderScene(trainingContent)
-  if (currentProcessType === "sleep") return renderScene(sleepContent)
+  if (currentProcessType === "work") return renderScene(workContent);
+  if (currentProcessType === "training") return renderScene(trainingContent);
+  if (currentProcessType === "sleep") return renderScene(sleepContent);
 
-  return renderScene(homeContent)
-}
+  return renderScene(homeContent);
+};
 
-export default Home
+export default Home;
