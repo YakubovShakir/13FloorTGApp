@@ -104,14 +104,10 @@ const TelegramPlatformCheck = ({ children }) => {
 function App() {
   useEffect(() => {
     const hash = window.location.hash;
-
-    // Check if the hash parameter already exists
-      const newHash = hash
-        ? `${hash}&tgWebAppVersion=7.6`
-        : '#tgWebAppVersion=7.6';
-
+    if (!hash.includes("tgWebAppVersion=7.6")) {
+      const newHash = hash ? `${hash}&tgWebAppVersion=7.6` : '#tgWebAppVersion=7.6';
       window.history.replaceState(null, '', newHash);
-    
+    }
   }, []);
 
 

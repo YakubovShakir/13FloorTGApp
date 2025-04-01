@@ -219,58 +219,35 @@ const Home = () => {
   }, [state.nekoState])
 
   useEffect(() => {
-    if (!isInitialized) return
-
+    if (!isInitialized) return;
+  
     const initialize = async () => {
       if (!userPersonage?.gender) {
-        navigate("/personage-create")
-        return
+        navigate("/personage-create");
+        return;
       }
-      setIsLoading(true)
-      setLoadingProgress(0)
-
-      // Add a timeout to prevent infinite hanging
-      const timeout = setTimeout(() => {
-        console.warn("Initialization timed out")
-        if (mountedRef.current) {
-          setIsLoading(false)
-          setIsInitializedFully(true)
-        }
-      }, 30000) // 30 seconds timeout
-
+  
+      setIsLoading(true);
       try {
-        await Promise.all([
-          preloadImages(),
-          fetchNekoState(),
-          initializeProcess(),
-        ])
-        if (mountedRef.current) {
-          setState((prev) => ({ ...prev, imagesLoaded: true }))
-          setIsInitializedFully(true)
-        }
+        await initializeProcess(); // Critical data first
+        setIsInitializedFully(true);
+  
+        // Load images and neko state in the background
+        Promise.all([preloadImages(), fetchNekoState()]).then(() => {
+          if (mountedRef.current) {
+            setState((prev) => ({ ...prev, imagesLoaded: true }));
+          }
+        });
       } catch (err) {
-        console.error("Initialization error:", err)
-        // Always resolve even on error
-        if (mountedRef.current) {
-          setIsInitializedFully(true)
-        }
+        console.error("Initialization error:", err);
+        if (mountedRef.current) setIsInitializedFully(true);
       } finally {
-        clearTimeout(timeout)
-        if (mountedRef.current) {
-          setIsLoading(false)
-        }
+        if (mountedRef.current) setIsLoading(false);
       }
-    }
-
-    initialize()
-  }, [
-    isInitialized,
-    navigate,
-    userPersonage,
-    preloadImages,
-    fetchNekoState,
-    initializeProcess,
-  ])
+    };
+  
+    initialize();
+  }, [isInitialized, navigate, userPersonage, initializeProcess, preloadImages, fetchNekoState]);
 
   const canContinue = useCallback(
     (processType) => {
@@ -595,7 +572,6 @@ const Home = () => {
       state.currentProcess?.active,
       state.currentProcess?.type_id,
       state.imagesLoaded,
-      userId,
     ]
   )
 
