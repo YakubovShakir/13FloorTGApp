@@ -716,7 +716,7 @@ const Home = () => {
       />
       <Player
         bottom="calc(-1vh + 141px)"
-        width="39vw"
+        width="42vw"
         left={"9vw"}
         top={"35vh"}
         personage={userPersonage}
@@ -765,7 +765,7 @@ const Home = () => {
       />
       <Player
         bottom="calc(-1vh + 141px)"
-        width="39vw"
+        width="40vw"
         left={"9vw"}
         top={"35vh"}
         personage={userPersonage}
