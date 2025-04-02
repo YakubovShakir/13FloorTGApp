@@ -200,7 +200,7 @@ export const UserProvider = ({ children }) => {
     // Regular polling (set to a reasonable interval, e.g., 30 seconds)
     const pollingIntervalId = setInterval(() => {
       debouncedFetchData(false, controller.signal)
-    }, 30000)
+    }, 3000)
 
     // Retry logic when there's an error
     const retryIntervalId = setInterval(() => {
@@ -253,7 +253,7 @@ export const UserProvider = ({ children }) => {
 
   const { lang } = useSettingsProvider()
 
-  if (state.parameters.parametersError && state.personage.personageError) {
+  if (state.parameters.parametersError || state.personage.personageError) {
     return (
       <div
         style={{
