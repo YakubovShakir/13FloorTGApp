@@ -393,7 +393,7 @@ const Modal = ({ bottom, left, width, height, data, onClose, logoWidth }) => {
                 skillDetails.link || Icons.lockedIcon,
                 `${translations.requiredSkill[lang]}:`,
                 skillDetails.name[lang],
-                data.userSkills.includes(data.skill_id_required)
+                data.userSkills?.includes(data.skill_id_required)
               )}
             {data.respect_required &&
               renderRequirementBar(

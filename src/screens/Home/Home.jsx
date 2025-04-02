@@ -133,31 +133,27 @@ const Home = () => {
       process.target_duration_in_seconds || process.base_duration_in_seconds;
     return Math.max(0, totalSeconds - elapsedSeconds);
   }, []);
-
   const initializeProcess = useCallback(async () => {
     try {
-      const process = await getUserActiveProcess(userId);
+      const process = await timeoutPromise(getUserActiveProcess(userId), 10000);
       if (!process) {
         setState((prev) => ({ ...prev, currentProcess: null }));
         setRemainingSeconds(null);
         return;
       }
       const [trainingParams, levelsData] = await Promise.all([
-        getTrainingParameters(userId),
-        getLevels(),
+        timeoutPromise(getTrainingParameters(userId), 5000),
+        timeoutPromise(getLevels(), 5000),
       ]);
       if (!mountedRef.current) return;
-
+  
       const initialRemaining = calculateInitialRemaining(process);
       setState((prev) => ({
         ...prev,
         currentProcess: {
           ...process,
           remainingSeconds: initialRemaining,
-          formattedTime: formatTime(
-            Math.floor(initialRemaining / 60),
-            initialRemaining % 60
-          ),
+          formattedTime: formatTime(Math.floor(initialRemaining / 60), initialRemaining % 60),
         },
         trainingParameters: trainingParams,
         levels: levelsData,
@@ -171,6 +167,13 @@ const Home = () => {
       }
     }
   }, [userId, calculateInitialRemaining]);
+  
+  // Add timeout utility
+  const timeoutPromise = (promise, ms) =>
+    Promise.race([
+      promise,
+      new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout")), ms)),
+    ]);
 
   const fetchNekoState = useCallback(async () => {
     try {
