@@ -169,8 +169,8 @@ export default {
       ru: "Поздравляем!",
     },
     spins: {
-      en: "Spins: ",
-      ru: "Спинов: ",
+      en: "Spins ",
+      ru: "Спинов ",
     },
     wheel: {
       en: "Prizes",
