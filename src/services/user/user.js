@@ -328,3 +328,9 @@ export const queueAffiliateWithdrawal = async (userId) => {
   
   return response.data
 }
+
+export const getAutoclaimData = async () => {
+  const response = await instance.get(`/users/autoclaim-data`)
+  
+  return response.data
+}

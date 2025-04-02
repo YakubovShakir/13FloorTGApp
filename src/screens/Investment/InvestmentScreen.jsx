@@ -18,6 +18,7 @@ import "../../components/complex/Modals/Modal/Modal.css"
 import {
   buyInvestmentLevel,
   claimInvestment,
+  getAutoclaimData,
   getUserInvestments,
   startInvestment,
 } from "../../services/user/user"
@@ -242,33 +243,34 @@ const Modal = ({ bottom, left, width, height, data, onClose, logoWidth }) => {
       >
         {data?.gameCenterValues ? (
           <>
-            <div   style={{
-                textAlign:"center",
-                fontSize:"15px",
-              }}>
+            <div
+              style={{
+                textAlign: "center",
+                fontSize: "15px",
+              }}
+            >
               {translations.gameCenter[lang]}
-                
-              
             </div>
-            <p style={{
-                textAlign:"center",
-                fontSize:"22px",
-              }}>
-            {translations.level[lang]} {data.current_level}
+            <p
+              style={{
+                textAlign: "center",
+                fontSize: "22px",
+              }}
+            >
+              {translations.level[lang]} {data.current_level}
             </p>
-          
-           
+
             <div
               style={{
                 display: "flex",
                 width: "250px",
-               
+
                 borderRadius: 12,
                 alignItems: "center",
                 position: "relative",
                 borderBottom: "1px solid rgba(117, 117, 117, 0.23)",
-    boxShadow: "rgba(0, 0, 0, 0.24) 0px 0px 8px 2px inset",
-    background: "rgb(18, 18, 18)",
+                boxShadow: "rgba(0, 0, 0, 0.24) 0px 0px 8px 2px inset",
+                background: "rgb(18, 18, 18)",
               }}
             >
               <span
@@ -617,9 +619,13 @@ const ThreeSectionCard = ({
   handleStart,
   isGameCenter = false,
   handleAutoclaimPurchased,
+  is_active,
+  active_until,
 }) => {
   const isTest = import.meta.env.VITE_NODE_ENV === "test"
   const { lang } = useSettingsProvider()
+  const { userId } = useUser()
+  const { fetchInvestments } = useInvestmentData(userId)
 
   const translations = {
     autoclaim: {
@@ -725,6 +731,20 @@ const ThreeSectionCard = ({
     border: 0,
   })
 
+  const [timeLeft, setTimeLeft] = useState(null)
+
+  useEffect(() => {
+    const updateTimer = () => {
+      const now = moment().tz("Europe/Moscow")
+      const end = moment(active_until).tz("Europe/Moscow")
+      setTimeLeft(end.diff(now, "seconds"))
+    }
+
+    updateTimer()
+    const interval = setInterval(updateTimer, 1000)
+    return () => clearInterval(interval)
+  }, [active_until])
+
   return (
     <motion.div
       layout
@@ -793,20 +813,47 @@ const ThreeSectionCard = ({
             border: getBorderStyle(),
             ...getEmptyBackgroundStyle(),
           }}
-          onClick={has_autoclaim ? () => {} : openAutoclaimModal}
+          onClick={is_active ? () => {} : openAutoclaimModal}
         >
           <motion.img
             layout
             src={
-              has_autoclaim
+              is_active
                 ? Assets.Icons.investManagerActive
                 : Assets.Icons.investManager
             }
             alt="Manager Status"
             style={styles.image}
           />
-          {has_autoclaim && (
-            <motion.p layout style={{ color: "white", paddingTop: 8 }}>
+
+          <motion.p
+            layout
+            style={{ color: "white", paddingTop: 8, textAlign: "center" }}
+          >
+            {is_active === true && (timeLeft === null
+              ? "Loading..."
+              : timeLeft <= 0
+              ? (() => {
+                  fetchInvestments()
+                })()
+              : (() => {
+                  const hours = Math.floor(timeLeft / 3600)
+                  const minutes = Math.floor((timeLeft % 3600) / 60)
+                  return `${hours.toString().padStart(2, "0")}:${minutes
+                    .toString()
+                    .padStart(2, "0")}`
+                })())}
+          </motion.p>
+
+          {has_autoclaim && is_active && (
+            <motion.p
+              layout
+              style={{
+                color: "white",
+                paddingTop: 4,
+                fontSize: "0.9em",
+              }}
+            >
               {translations.autoclaim[lang]}
             </motion.p>
           )}
@@ -917,6 +964,7 @@ const useInvestmentData = (userId) => {
   const [investments, setInvestments] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [autoclaims, setAutoclaims] = useState(null)
   const pollingRef = useRef(null)
 
   const { refreshData } = useUser()
@@ -924,7 +972,14 @@ const useInvestmentData = (userId) => {
   const fetchInvestments = useCallback(async () => {
     try {
       const res = await getUserInvestments(userId)
-      setInvestments(res)
+      const autoclaims = await getAutoclaimData()
+      setAutoclaims(autoclaims)
+      setInvestments({
+        game_center: { ...res.game_center, ...autoclaims.GameCenter },
+        coffee_shop: { ...res.coffee_shop, ...autoclaims.CoffeeShop },
+        zoo_shop: { ...res.zoo_shop, ...autoclaims.ZooShop },
+      })
+      console.log(investments)
       setError(null)
     } catch (err) {
       setError(err)
@@ -961,7 +1016,6 @@ const useInvestmentData = (userId) => {
 
     // Optimistically update the UI
     try {
-
       setIsLoading(true)
       await claimInvestment(userId, investment_type)
       await fetchInvestments()
@@ -1001,7 +1055,13 @@ const useInvestmentData = (userId) => {
 
   const handleAutoclaimPurchased = async (investment_type, duration) => {
     console.log(investment_type, duration)
-    await handleStarsPayment(userId, "autoclaim", investment_type, lang, duration)
+    await handleStarsPayment(
+      userId,
+      "autoclaim",
+      investment_type,
+      lang,
+      duration
+    )
     await fetchInvestments()
     await refreshData()
   }
