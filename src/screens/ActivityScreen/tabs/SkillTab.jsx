@@ -288,10 +288,11 @@ const SkillTab = ({
         try {
             if (isInitializingRef.current) return;
             isInitializingRef.current = true;
-
+    
             const skillId = sub_type ? skill.next?.id : skill.skill_id;
-            await startProcess("skill", userId, skillId, sub_type);
-            
+            const response = await startProcess("skill", userId, skillId, sub_type);
+            console.log("Buy skill response:", response);
+    
             await initializeData();
             await refreshData();
             lastSkillsRef.current = state.userLearningSkills;
@@ -572,25 +573,26 @@ const SkillTab = ({
         
         try {
             if (modalData?.type === "skill") {
+                let updatedModalData;
                 if (modalData?.sub_type === 'constant_effects') {
                     const effectEntry = Object.entries(state.effects || {}).find(([_, effect]) => 
                         effect?.next?.id === modalData.id || effect?.current?.id === modalData.id
                     );
-                    
                     if (effectEntry) {
-                        const updatedModalData = createEffectModalData(effectEntry[1]);
-                        if (updatedModalData && updatedModalData.id === modalData.id) {
-                            setModalData(updatedModalData);
-                        }
+                        updatedModalData = createEffectModalData(effectEntry[1]);
                     }
                 } else {
                     const currentSkill = state.skills?.find(skill => skill?.skill_id === modalData?.id);
                     if (currentSkill) {
-                        const updatedModalData = createSkillModalData(currentSkill);
-                        if (updatedModalData && updatedModalData.id === modalData.id) {
-                            setModalData(updatedModalData);
-                        }
+                        updatedModalData = createSkillModalData(currentSkill);
                     }
+                }
+                
+                // Only update if the new data differs significantly
+                if (updatedModalData && 
+                    updatedModalData.id === modalData.id && 
+                    JSON.stringify(updatedModalData) !== JSON.stringify(modalData)) {
+                    setModalData(updatedModalData);
                 }
             }
         } finally {
