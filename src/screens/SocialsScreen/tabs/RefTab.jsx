@@ -13,6 +13,7 @@ import { useUser } from "../../../UserContext"
 import globalTranslations from "../../../globalTranslations"
 import FullScreenSpinner from "../../Home/FullScreenSpinner"
 import { COLORS } from "../../../utils/paramBlockUtils"
+import { useTonWallet } from "@tonconnect/ui-react"
 
 const buttonStyle = {
   width: "100%",
@@ -25,7 +26,10 @@ const buttonStyle = {
   fontFamily: "Oswald",
 }
 
-const translations = globalTranslations.affiliate
+const translations = {...globalTranslations.affiliate,  missingWallet: {
+  ru: 'Подключите кошелёк в настройках!',
+  en: 'Connect your wallet in setting!'
+}}
 
 const RefTab = () => {
   const [isLoading, setIsLoading] = useState(true)
@@ -58,10 +62,16 @@ const RefTab = () => {
 
   const { userParameters } = useUser()
 
+  const wallet = useTonWallet()
+
   useEffect(() => {
     if (data) {
-      if (data.totalStarsPendingInTON + data.totalTONPendingWithdrawal > 5 && userParameters.is_withdrawing !== true) {
+      if (data.totalStarsPendingInTON + data.totalTONPendingWithdrawal > 5 && userParameters.is_withdrawing !== true && wallet) {
         setCanWithdraw(true)
+      }
+
+      if(!wallet && lang) {
+        showNotification(translations.missingWallet[lang])
       }
     }
   }, [data])
