@@ -580,7 +580,7 @@ const AutoclaimModal = ({
           <Button
             {...buttonStyle}
             active={data.canUpgrade}
-            onClick={() => handleAutoclaimPurchased(data.type, 16)}
+            onClick={() => handleAutoclaimPurchased(data.type, 18)}
             text={100}
             width={100}
             icon={Assets.Icons.starsIcon}
