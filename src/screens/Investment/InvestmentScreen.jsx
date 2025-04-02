@@ -393,7 +393,7 @@ const Modal = ({ bottom, left, width, height, data, onClose, logoWidth }) => {
                 skillDetails.link || Icons.lockedIcon,
                 `${translations.requiredSkill[lang]}:`,
                 skillDetails.name[lang],
-                data.userSkills?.includes(data.skill_id_required)
+                data.userSkills.includes(data.skill_id_required)
               )}
             {data.respect_required &&
               renderRequirementBar(
@@ -978,6 +978,7 @@ const useInvestmentData = (userId) => {
         game_center: { ...res.game_center, ...autoclaims.GameCenter },
         coffee_shop: { ...res.coffee_shop, ...autoclaims.CoffeeShop },
         zoo_shop: { ...res.zoo_shop, ...autoclaims.ZooShop },
+        ...res
       })
       console.log(investments)
       setError(null)
