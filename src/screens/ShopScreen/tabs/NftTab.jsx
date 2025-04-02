@@ -13,54 +13,6 @@ import WebApp from "@twa-dev/sdk";
 import { useSettingsProvider } from "../../../hooks";
 import { useTonConnectUI, useTonWallet } from "@tonconnect/ui-react";
 
-const GridLayout = ({ items, handleCoinsBuy, handleStarsBuy, handleBuyNft, isWalletConnected }) => {
-  return (
-    <div
-      style={{
-        width: "100vw",
-        display: "flex",
-        justifyContent: "center",
-        paddingBottom: 55,
-      }}
-    >
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(2, 1fr)",
-          gap: "1rem",
-          width: "90vw",
-        }}
-      >
-        {items.map((item, index) => {
-          if (item.category === "Shelf") {
-            return (
-              <GridItemShelf
-                key={index}
-                icon={item.image}
-                title={item.name}
-                price={item.price}
-                tonPrice={item.tonPrice}
-                supply={item.supply}
-                respect={item.respect}
-                equipped={item.equipped}
-                isWalletConnected={isWalletConnected}
-                handleCoinsBuy={handleCoinsBuy}
-                handleStarsBuy={handleStarsBuy}
-                handleBuyNft={handleBuyNft}
-                clothingId={item.clothing_id}
-                type={item.category}
-                isPrem={item.isPrem}
-                description={item.description}
-                id={item.id}
-                productType={item.productType}
-              />
-            );
-          }
-        })}
-      </div>
-    </div>
-  );
-};
 const GridItemShelf = ({
   id,
   productType,
@@ -75,7 +27,8 @@ const GridItemShelf = ({
   handleCoinsBuy,
   handleStarsBuy,
   handleBuyNft,
-  isWalletConnected, // Reflects wallet connection status
+  isWalletConnected,
+  setCurrentItem
 }) => {
   const isNftItem = id >= 9 && id <= 38;
   const showBuyNFT = isNftItem;
@@ -108,7 +61,10 @@ const GridItemShelf = ({
           justifyContent: "center",
         }}
       >
-        <div className="clothing-item-header">
+        <div 
+          className="clothing-item-header"
+          onClick={() => setCurrentItem({ id, productType, icon, title, tonPrice, supply, respect })}
+        >
           <div></div>
           <motion.div
             className="clothing-item-icon-wrapper"
@@ -183,7 +139,7 @@ const GridItemShelf = ({
                   paddingLeft: 8,
                   fontSize: "20px",
                   paddingBottom: 4,
-                  paddingRight: 2,
+                  paddingRight: 2, // Исправлено: убрано лишнее "Ascendantly 2px solid rgba(117, 117, 117, 0.23)"
                 }}
               >
                 +
@@ -203,40 +159,86 @@ const GridItemShelf = ({
           )}
         </div>
         <div style={{ textAlign: "center", width: "88%" }}>
-            <p
-              style={{ color: "white", fontFamily: "Oswald", fontSize: "14px" }}
-            >
-              {tonPrice} TON
-            </p>
-            <p
-              style={{
-                color: "white",
-                fontFamily: "Oswald",
-                fontSize: "12px",
-                marginBottom: "5px",
-              }}
-            >
-              Supply: {supply} available
-            </p>
-            <Button
-              className="clothing-item-equip-button"
-              shadowColor={"#AF370F"}
-              width={"100%"}
-              marginBottom={"5"}
-              color={"rgb(255, 255, 255)"}
-              height={44}
-              fontFamily={"Oswald"}
-              fontWeight={"300"}
-              text={lang === "en" ? "Buy NFT" : "Купить NFT"}
-              fontSize={14}
-              ownColor={"rgb(255, 118, 0)"}
-              bgColor={"rgb(255, 118, 0)"}
-              onClick={() =>
-                handleBuyNft({ id, productType, title, icon, tonPrice })
-              }
-              active={supply > 0 && isWalletConnected}
-            />
-          </div>
+          <p style={{ color: "white", fontFamily: "Oswald", fontSize: "14px" }}>
+            {tonPrice} TON
+          </p>
+          <p
+            style={{
+              color: "white",
+              fontFamily: "Oswald",
+              fontSize: "12px",
+              marginBottom: "5px",
+            }}
+          >
+            Supply: {supply} available
+          </p>
+          <Button
+            className="clothing-item-equip-button"
+            shadowColor={"#AF370F"}
+            width={"100%"}
+            marginBottom={"5"}
+            color={"rgb(255, 255, 255)"}
+            height={44}
+            fontFamily={"Oswald"}
+            fontWeight={"300"}
+            text={lang === "en" ? "Buy NFT" : "Купить NFT"}
+            fontSize={14}
+            ownColor={"rgb(255, 118, 0)"}
+            bgColor={"rgb(255, 118, 0)"}
+            onClick={() => handleBuyNft({ id, productType, title, icon, tonPrice })}
+            active={supply > 0 && isWalletConnected}
+          />
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const GridLayout = ({ items, handleCoinsBuy, handleStarsBuy, handleBuyNft, isWalletConnected, setCurrentItem }) => {
+  return (
+    <div
+      style={{
+        width: "100vw",
+        display: "flex",
+        justifyContent: "center",
+        paddingBottom: 55,
+      }}
+    >
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(2, 1fr)",
+          gap: "1rem",
+          width: "90vw",
+        }}
+      >
+        {items.map((item, index) => {
+          if (item.category === "Shelf") {
+            return (
+              <GridItemShelf
+                key={index}
+                icon={item.image}
+                title={item.name}
+                price={item.price}
+                tonPrice={item.tonPrice}
+                supply={item.supply}
+                respect={item.respect}
+                equipped={item.equipped}
+                isWalletConnected={isWalletConnected}
+                handleCoinsBuy={handleCoinsBuy}
+                handleStarsBuy={handleStarsBuy}
+                handleBuyNft={handleBuyNft}
+                clothingId={item.clothing_id}
+                type={item.category}
+                isPrem={item.isPrem}
+                description={item.description}
+                id={item.id}
+                productType={item.productType}
+                setCurrentItem={setCurrentItem}
+              />
+            );
+          }
+        })}
       </div>
     </div>
   );
@@ -245,17 +247,15 @@ const GridItemShelf = ({
 const mockVerifyTxSent = async (userId, transactionId, itemId) => {
   console.log("Mocking backend call to /users/nft/verify-transaction with:", {
     userId,
-    transactionId, // This is the boc (transaction hash)
+    transactionId,
     itemId,
   });
-  // Simulate a delay to mimic network latency
   await new Promise((resolve) => setTimeout(resolve, 500));
-  // Mock successful response
   return {
     data: {
       success: true,
       message: "Transaction verified successfully",
-      transactionId, // Echo back the transaction hash for confirmation
+      transactionId,
     },
   };
 };
@@ -312,20 +312,17 @@ const handleSendTransactionTonConnect = async (
       platform: WebApp.platform,
     });
 
-    // Send the transaction and get the result
     const result = await tonConnectUI.sendTransaction(paymentRequest, {
       modals: "all",
       skipRedirectToWallet: "never",
     });
     console.log("TonConnect Transaction Result:", result);
 
-    // Extract the transaction hash (boc) from the result
-    const transactionHash = result.boc; // boc is the Base64-encoded transaction hash
+    const transactionHash = result.boc;
     if (!transactionHash) {
       throw new Error("Transaction hash (boc) not found in response");
     }
 
-    // Send the transaction hash to the backend (mock for now)
     const verifyResponse = await mockVerifyTxSent(userId, transactionHash, itemId);
     console.log("Mock Backend Verification Response:", verifyResponse.data);
 
@@ -353,19 +350,24 @@ const NftTab = () => {
   const [shelfItems, setShelfItems] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isTransactionModalOpen, setIsTransactionModalOpen] = useState(false);
-  const [isWalletConnected, setIsWalletConnected] = useState(false); // Local state to track connection
-  const blackList = [37,38]
+  const [isWalletConnected, setIsWalletConnected] = useState(false);
+  const [currentItem, setCurrentItem] = useState(null);
+  const blackList = [37, 38];
   const { userParameters } = useContext(UserContext);
   const { lang } = useSettingsProvider();
   const { userId, refreshData } = useUser();
   const [tonConnectUI] = useTonConnectUI();
   const wallet = useTonWallet();
 
-  // Sync local state with tonConnectUI.connected
+  const descriptions = {
+    en: "Every hour you can get an income bonus if another player clicks on yours",
+    ru: "Каждый час вы можете получить бонус к доходу, если на вашего нажмет другой игрок",
+  };
+
   useEffect(() => {
-    if(wallet) {
-      console.log('YES')
-      setIsWalletConnected(true)
+    if (wallet) {
+      console.log("YES");
+      setIsWalletConnected(true);
     }
   }, [wallet]);
 
@@ -391,7 +393,6 @@ const NftTab = () => {
         respect: item.respect,
       }))
       .filter((item) => !blackList.includes(item.id));
-      
 
       console.log("Loaded Shelf Items:", loadedShelfItems);
       setShelfItems(loadedShelfItems);
@@ -407,9 +408,42 @@ const NftTab = () => {
     fetchShopItems();
   }, []);
 
+  const createModalData = (item) => {
+    if (!item) return null;
+    return {
+      title: item.title,
+      image: item.icon,
+      blocks: [
+        {
+          icon: Assets.Icons.respect,
+          text: lang === "en" ? "Respect" : "Уважение",
+          value: item.respect || 0,
+          fillPercent: "100%",
+          fillBackground: "#FFFFFF",
+        },
+        {
+          icon: Assets.Icons.balance,
+          value: descriptions[lang],
+          text: lang === "en" ? "Bonus" : "Бонус",
+          fillBackground: "#FFFFFF",
+        },
+       
+      ],
+      buttons: [
+        {
+          text: lang === "en" ? "Buy NFT" : "Купить NFT",
+          active: item.supply > 0 && isWalletConnected,
+          onClick: () => {
+            handleBuyNft(item).then(() => setCurrentItem(null));
+          },
+        },
+      ],
+    };
+  };
+
   const handleConfirmTransaction = async (transactionDetails) => {
     try {
-      setIsLoading(true)
+      setIsLoading(true);
       const { paymentRequest, item } = transactionDetails;
 
       await handleSendTransactionTonConnect(
@@ -424,7 +458,6 @@ const NftTab = () => {
         userId,
         item.id
       );
-      mockVerifyTxSent()
     } catch (error) {
       console.error("TonConnect Transaction Error:", {
         message: error.message,
@@ -446,7 +479,7 @@ const NftTab = () => {
       });
       console.log("Backend Transaction Details:", response.data);
 
-      await handleConfirmTransaction({ ...response.data, item })
+      await handleConfirmTransaction({ ...response.data, item });
     } catch (error) {
       console.error("Failed to fetch transaction details:", error);
       WebApp.showAlert("Failed to fetch transaction details. Please try again.");
@@ -466,8 +499,18 @@ const NftTab = () => {
         handleCoinsBuy={() => {}}
         handleStarsBuy={() => {}}
         handleBuyNft={handleBuyNft}
-        isWalletConnected={isWalletConnected} // Use local state
+        isWalletConnected={isWalletConnected}
+        setCurrentItem={setCurrentItem}
       />
+      {currentItem && (
+        <Modal
+          onClose={() => setCurrentItem(null)}
+          data={createModalData(currentItem)}
+          bottom={"0"}
+          width={"100vw"}
+          height={"80vh"}
+        />
+      )}
     </ScreenContainer>
   );
 };
