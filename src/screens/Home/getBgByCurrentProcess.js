@@ -1,9 +1,9 @@
 import Assets from "../../assets/index"
 
 const workToBGMap = {
-  1: Assets.BG.workOne,
+  1: Assets.BG.workCleaner,
   2: Assets.BG.workOne,
-  3: Assets.BG.workTwo,
+  3: Assets.BG.workKithen,
   4: Assets.BG.workTwo,
   5: Assets.BG.workTwo,
   6: Assets.BG.workThree,

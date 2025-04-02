@@ -253,6 +253,8 @@ import workOne from './IMG/workOneBG.webp'
 import workTwo from './IMG/workTwoBG.webp'
 import workThree from './IMG/workThreeBG.webp'
 import workFour from './IMG/workFourBG.webp'
+import workCleaner from './IMG/workCleanerBG.webp'
+import workKithen from './IMG/workKithenBG.webp'
 
 import womanAva from './IMG/womanAva.png'
 import manAva from './IMG/Man-ava.png'
@@ -480,7 +482,9 @@ const Assets = {
     workOne,
     workTwo,
     workThree,
-    workFour
+    workFour,
+    workCleaner,
+    workKithen,
   },
   nameUnderline,
   HOME: {
