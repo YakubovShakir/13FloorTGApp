@@ -55,7 +55,12 @@ const Modal = ({ bottom, left, width, height, data, onClose, logoWidth, descript
         ))}
         {description && (
         <div style={{paddingTop: 16, width: '85%', textAlign: 'center' }}>
-          <h4>{description}</h4>
+          <h4 style={{
+            margin: "10px",
+            fontWeight: "400",
+            fontFamily: "Roboto",
+            fontSize: "3.2cqw",
+        }}>{description}</h4>
         </div>
       )}
       </div>
