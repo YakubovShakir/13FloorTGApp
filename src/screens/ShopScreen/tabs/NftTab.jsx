@@ -360,8 +360,8 @@ const NftTab = () => {
   const wallet = useTonWallet();
 
   const descriptions = {
-    en: "Every hour you can get an income bonus if another player clicks on yours",
-    ru: "Каждый час вы можете получить бонус к доходу, если на вашего нажмет другой игрок",
+    en: "Every hour you can get an income bonus if another player clicks on your cat. Rarer cats give more bonuses and respect. The in-game value of the current collection will increase when the new one starts selling",
+    ru: "Каждый час вы можете получить бонус к доходу, если на вашего кота нажмет другой игрок. Более редкие коты дают больше бонусов и респекта. Внутриигровая ценность текущей коллекции будет расти , при старте продажи новой.",
   };
 
   useEffect(() => {
