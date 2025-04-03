@@ -1,7 +1,5 @@
 import { motion } from "framer-motion";
 import ItemCard from "../../../components/simple/ItemCard/ItemCardLeaderBoard";
-import coins30000 from "../icons/coins30000.png";
-import tg300000 from "../icons/tg30000.png";
 import ScreenContainer from "../../../components/section/ScreenContainer/ScreenContainer";
 import { useEffect, useState, useRef, useCallback, useContext } from "react";
 import Assets from "../../../assets";
@@ -15,7 +13,7 @@ import { useNavigate } from "react-router-dom";
 import "./LeaderboardTab.css";
 
 const LeaderboardTab = () => {
-  const [isLoading, setIsLoading] = useState(false); // Start as false, set true only when fetching
+  const [isLoading, setIsLoading] = useState(false);
   const [leaders, setLeaders] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
   const [page, setPage] = useState(1);
@@ -24,12 +22,12 @@ const LeaderboardTab = () => {
 
   const { userId, userParameters } = useContext(UserContext);
   const { lang } = useSettingsProvider();
+  const navigate = useNavigate();
 
   const ITEMS_PER_PAGE = 20;
 
-  const navigate = useNavigate();
-
   const fetchLeaderboard = useCallback(async (pageNum) => {
+    if (isLoading) return; // Prevent overlapping fetches
     setIsLoading(true);
     try {
       const response = await getLeaderboard(pageNum, ITEMS_PER_PAGE, userId);
@@ -43,14 +41,22 @@ const LeaderboardTab = () => {
         photo_url: userParameters.photo_url || null,
         rank: "N/A",
       };
-      console.log("Fetched data:", JSON.stringify(response, null, 2));
-      setLeaders((prev) => [...prev, ...newLeaders]);
+
+      // Deduplicate leaders by user_id
+      setLeaders((prev) => {
+        const existingIds = new Set(prev.map((leader) => leader.user_id));
+        const filteredNewLeaders = newLeaders.filter((leader) => !existingIds.has(leader.user_id));
+        return [...prev, ...filteredNewLeaders];
+      });
+
       setCurrentUser(userData);
-      // Only set hasMore to true if we get a full page and total users exceed current count
-      setHasMore(newLeaders.length === ITEMS_PER_PAGE && (skip + newLeaders.length) < rankedUsers.length);
+
+      // Assume response includes total count or infer from data length
+      const totalUsers = response.totalUsers || Infinity; // Backend should provide this
+      setHasMore(newLeaders.length === ITEMS_PER_PAGE && (pageNum * ITEMS_PER_PAGE) < totalUsers);
     } catch (error) {
       console.error("Error fetching leaderboard:", error);
-      setHasMore(false); // Stop infinite loop on error
+      setHasMore(false);
     } finally {
       setIsLoading(false);
     }
@@ -67,7 +73,7 @@ const LeaderboardTab = () => {
           setPage((prev) => prev + 1);
         }
       },
-      { threshold: 0.1 } // Trigger earlier to avoid flicker
+      { threshold: 0.1 }
     );
 
     if (observerRef.current) {
@@ -80,10 +86,6 @@ const LeaderboardTab = () => {
       }
     };
   }, [hasMore, isLoading]);
-
-  console.log("Current userId:", userId);
-  console.log("Current leaders:", JSON.stringify(leaders, null, 2));
-  console.log("Current user data:", JSON.stringify(currentUser, null, 2));
 
   const userScore = currentUser ? currentUser.total_earned + currentUser.respect : 0;
   const userName = currentUser ? formUsername(currentUser, lang) : "You";
