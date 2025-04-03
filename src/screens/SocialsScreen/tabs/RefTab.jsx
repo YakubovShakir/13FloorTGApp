@@ -58,7 +58,7 @@ const RefTab = () => {
       .then(setData)
       .catch(() => showNotification(globalTranslations.errors[500]))
       .finally(() => setIsLoading(false))
-  }, [userId, lang])
+  }, [])
 
   const { userParameters } = useUser()
 
@@ -180,17 +180,7 @@ const RefTab = () => {
             >
               <span
                 style={{
-                  width: data.to
-                    ? data.refsCount - data.currentLevelRefsRequired <= 0
-                      ? "0%"
-                      : Math.min(
-                          100,
-                          ((data.refsCount - data.currentLevelRefsRequired) /
-                            (data.nextLevelRefsRequired -
-                              data.currentLevelRefsRequired)) *
-                            100
-                        ) + "%"
-                    : "100%",
+                  width: (data.refsCount / data.nextLevelRefsRequired) * 100 + '%',
                   height: 22,
                   background:
                     "linear-gradient(90deg, rgba(233, 78, 27, 1) 0%, rgba(243, 117, 0, 1) 50%)",
@@ -208,15 +198,7 @@ const RefTab = () => {
                     "1px 1px 0px #000000, -1px -1px 0px #000000, 1px -1px 0px #000000, -1px 1px 0px #000000",
                 }}
               >
-                {data.refsCount - data.currentLevelRefsRequired <= 0 ||
-                isNaN(data.refsCount - data.currentLevelRefsRequired) ||
-                isNaN(
-                  data.nextLevelRefsRequired - data.currentLevelRefsRequired
-                )
-                  ? `${data.refsCount || 0}`
-                  : `${data.refsCount - data.currentLevelRefsRequired}/${
-                      data.nextLevelRefsRequired - data.currentLevelRefsRequired
-                    }`}
+                {data.refsCount}
               </p>
             </div>
             <p

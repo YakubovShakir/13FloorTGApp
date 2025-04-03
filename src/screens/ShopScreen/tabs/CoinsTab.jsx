@@ -774,6 +774,7 @@ const CoinsTab = () => {
       />
       {currentItem && (
         <Modal
+          description={currentItem.description}
           onClose={() => setCurrentItem(null)}
           data={{
             ...createShopItemModalData(currentItem),
