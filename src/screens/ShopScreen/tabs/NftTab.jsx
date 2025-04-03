@@ -334,7 +334,6 @@ const handleSendTransactionTonConnect = async (
     console.log("Mock Backend Verification Response:", verifyResponse.data);
 
     if (verifyResponse.data.success) {
-      WebApp.showAlert("Transaction confirmed successfully!");
       await refreshData();
       await fetchShopItems();
     } else {
@@ -346,7 +345,6 @@ const handleSendTransactionTonConnect = async (
       name: error.name,
       stack: error.stack,
     });
-    WebApp.showAlert(`Transaction failed: ${error.message || "Unknown error"}`);
   } finally {
     setIsTransactionModalOpen(false);
     setIsLoading(false);
@@ -472,7 +470,6 @@ const NftTab = () => {
         name: error.name,
         stack: error.stack,
       });
-      WebApp.showAlert(`Transaction failed: ${error.message || "Unknown error"}`);
     } finally {
       setIsTransactionModalOpen(false);
       setIsLoading(false);
