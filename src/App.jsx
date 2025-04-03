@@ -87,7 +87,7 @@ const TelegramPlatformCheck = ({ children }) => {
 
   useEffect(() => {
     const checkPlatform = () => {
-      const tg = WebApp
+      const tg = window.Telegram.WebApp
 
       if (!tg) {
         setShouldBlock(true)
@@ -114,7 +114,7 @@ const TelegramPlatformCheck = ({ children }) => {
 function App() {
   useEffect(() => {
     const hash = window.location.hash
-    if (!hash.includes("tgWebAppVersion=7.6")) {
+    if (!hash.includes("tgWebAppVersion=8.2")) {
       const newHash = hash
         ? `${hash}&tgWebAppVersion=8.2`
         : "#tgWebAppVersion=8.2"
@@ -244,8 +244,6 @@ function App() {
 
   const { userId } = useContext(UserContext)
   useEffect(() => {
-    window.Telegram.WebApp.lockOrientation("portrait")
-    window.Telegram.WebApp.ready()
       const submitUserData = async () => {
         try {
           await submitProfileData(userId, WebApp)
