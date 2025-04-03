@@ -385,7 +385,7 @@ const Modal = ({ bottom, left, width, height, data, onClose, logoWidth }) => {
                 Icons.levelIcon,
                 translations.requiredLevel[lang],
                 data.level_required,
-                data.userLevel >= data.level_required
+                userParameters.level >= data.level_required
               )}
             {data.skill_id_required &&
               skillDetails &&
@@ -393,7 +393,7 @@ const Modal = ({ bottom, left, width, height, data, onClose, logoWidth }) => {
                 skillDetails.link || Icons.lockedIcon,
                 `${translations.requiredSkill[lang]}:`,
                 skillDetails.name[lang],
-                data.userSkills.includes(data.skill_id_required)
+                data.userSkills?.includes(data.skill_id_required)
               )}
             {data.respect_required &&
               renderRequirementBar(

@@ -81,13 +81,11 @@ const GachaOverlay = () => {
       });
       window.Telegram?.WebApp?.openInvoice(response.data.invoiceLink, (status) => {
         if (status === "paid") {
-          // Ensure attempts is a number
-          const newAttempts = Number(response.data.attempts) || 0;
-          setAttempts(newAttempts);
+          setAttempts((prev) => prev + 1); // Increment attempts by 1
         }
       });
     } catch (err) {
-      console.error(err);
+      console.error("Error buying attempts:", err);
     }
   };
 
