@@ -84,7 +84,7 @@ const BlockerMessage = () => (
 )
 
 const TelegramPlatformCheck = ({ children }) => {
-  const [shouldBlock, setShouldBlock] = useState(true)
+  const [shouldBlock, setShouldBlock] = useState(false)
 
   useEffect(() => {
     const checkPlatform = () => {
