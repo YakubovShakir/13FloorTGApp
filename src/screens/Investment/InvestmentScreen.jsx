@@ -974,11 +974,11 @@ const useInvestmentData = (userId) => {
       const res = await getUserInvestments(userId)
       const autoclaims = await getAutoclaimData()
       setAutoclaims(autoclaims)
+      console.log(autoclaims)
       setInvestments({
         game_center: { ...res.game_center, ...autoclaims.GameCenter },
         coffee_shop: { ...res.coffee_shop, ...autoclaims.CoffeeShop },
         zoo_shop: { ...res.zoo_shop, ...autoclaims.ZooShop },
-        ...res
       })
       console.log(investments)
       setError(null)
@@ -1283,6 +1283,7 @@ const InvestmentScreen = () => {
             handleClaim={() => handleClaim("game_center")}
             hideUpgrade={true}
             {...investments?.game_center}
+            
             openAutoclaimModal={() => {
               setAutoclaimModalData({
                 ...autoclaimModalDataFixed,

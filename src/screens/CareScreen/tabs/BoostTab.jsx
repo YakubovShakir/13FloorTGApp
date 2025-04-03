@@ -139,7 +139,10 @@ const BoostTab = ({ }) => {
       }).then(res => res.data.invoiceLink)
       window.Telegram?.WebApp?.openInvoice(response, (status) => {
         if (status === "paid") {
-          return
+          getBoosts().then((r) => setBoosts(r))
+          getActiveProcess(userId).then((process) => setActiveProcess(process))
+          getUserBoosts(userId).then((boosts) => setUserBoosts(boosts))
+          getProcesses('boost', userId).then((processes) => setUserBoostProcesses(processes))
         }
       })
     } catch (err) {
