@@ -22,9 +22,6 @@ import HomeHeader from "../../../components/complex/HomeHeader/HomeHeader"
 import ScreenBody from "../../../components/section/ScreenBody/ScreenBodyFood"
 import UserContext from "../../../UserContext"
 import moment from "moment-timezone"
-import { handleStarsPayment } from "../../../utils/handleStarsPayment"
-
-
 
 const BoostTab = ({ }) => {
   const { userId, userParameters } = useContext(UserContext)
@@ -65,12 +62,35 @@ const BoostTab = ({ }) => {
 
   const { refreshData } = useContext(UserContext)
 
-  const handleBuyBoost = async (boostId) => {
-    await handleStarsPayment(userId, 'boost', boostId, lang)
-    const userBoosts = await getUserBoosts(userId)
-    setUserBoosts(userBoosts)
-    await refreshData()
+
+const handleStarsPayment = async (userId, productType, itemId, lang, onSuccess) => {
+  try {
+    const response = await instance.post('/users/request-stars-invoice-link', {
+      productType,
+      id: itemId,
+      userId,
+    });
+    const invoiceLink = response.data.invoiceLink;
+
+    window.Telegram?.WebApp?.openInvoice(invoiceLink, async (status) => {
+      if (status === "paid") {
+        if (onSuccess) await onSuccess(); // Execute callback after payment
+      }
+    });
+  } catch (err) {
+    console.error(`Error in handleStarsPayment for ${productType}:`, err);
   }
+};
+
+  const handleBuyBoost = async (boostId) => {
+    await handleStarsPayment(userId, 'boost', boostId, lang, () => {
+      setUserBoosts((prev) => {
+        const newBoost = { boost_id: boostId }; // Mock boost object
+        return prev ? [...prev, newBoost] : [newBoost]; // Add new boost to list
+      });
+      refreshData();
+    });
+  };
 
   const handleUseBoost = async (boostId) => {
     await useBoost(userId, boostId)
