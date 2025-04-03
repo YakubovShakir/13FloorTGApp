@@ -88,31 +88,26 @@ const TelegramPlatformCheck = ({ children }) => {
 
   useEffect(() => {
     const checkPlatform = () => {
-      const tg = window.Telegram?.WebApp
-
-      if (!tg) {
-        setShouldBlock(true)
-        return
+      // Wait for Telegram to be available
+      if (!window.Telegram?.WebApp) {
+        setShouldBlock(false); // Don't block yet
+        return;
       }
-
-      const platform = (tg.platform || "").toLowerCase()
-      // Only allow ios and android explicitly
-      const isMobileApp = /^(android|ios)$/.test(platform)
-
-      setShouldBlock(!isMobileApp)
-    }
-
-    if(window.Telegram.WebApp.ready) {
-      checkPlatform()
-    }
-  }, [window.Telegram.WebApp.ready])
-
-  if (shouldBlock) {
-    return <BlockerMessage />
-  }
-
-  return children
-}
+  
+      const platform = (window.Telegram.WebApp.platform || "").toLowerCase();
+      const isMobileApp = /^(android|ios)$/.test(platform);
+      setShouldBlock(!isMobileApp);
+    };
+  
+    // Initial check
+    checkPlatform();
+  
+    // Set up an interval to keep checking until Telegram initializes
+    const interval = setInterval(checkPlatform, 100);
+  
+    // Cleanup
+    return () => clearInterval(interval);
+  }, []);
 
 function App() {
   useEffect(() => {
