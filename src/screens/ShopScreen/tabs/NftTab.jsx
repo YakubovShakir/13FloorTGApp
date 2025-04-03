@@ -428,6 +428,13 @@ const NftTab = () => {
           value: item.respect || 0,
           fillPercent: "100%",
           fillBackground: "#FFFFFF",
+        },
+        {
+          icon: Assets.Icons.balance,
+          text: lang === "en" ? "Income bonus" : "Бонус к доходу",
+          value: '+10%',
+          fillPercent: "100%",
+          fillBackground: "#FFFFFF",
         }
       ],
       buttons: [
