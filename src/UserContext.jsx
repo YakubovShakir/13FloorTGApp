@@ -152,7 +152,8 @@ export const UserProvider = ({ children }) => {
         }
 
         if (isInitial) {
-          useTelegram.setReady()
+          window.Telegram.WebApp.lockOrientation("portrait")
+          window.Telegram.WebApp.ready()
           setState((prev) => ({ ...prev, isInitialized: true }))
         }
 
