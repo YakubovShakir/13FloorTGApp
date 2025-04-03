@@ -23,6 +23,7 @@ import WebApp from "@twa-dev/sdk"
 import { submitProfileData } from "./services/user/user"
 import GachaOverlay from "./screens/Home/Gacha"
 import DailyCheckInOverlay from "./screens/Home/DailyCheckInOverlay"
+import{ isTMA, postEvent } from '@telegram-apps/sdk';
 
 const BlockerMessage = () => (
   <div
@@ -87,13 +88,13 @@ const TelegramPlatformCheck = ({ children }) => {
 
   useEffect(() => {
     const checkPlatform = () => {
-      const tg = window.Telegram.WebApp
+      const tg = isTMA
 
       if (!tg) {
         setShouldBlock(true)
         return
       }
-
+      window.Telegram.WebApp.full
       const platform = (tg.platform || "").toLowerCase()
       // Only allow ios and android explicitly
       const isMobileApp = /^(android|ios)$/.test(platform)
@@ -120,6 +121,12 @@ function App() {
         : "#tgWebAppVersion=8.2"
       window.history.replaceState(null, "", newHash)
     }
+  }, [])
+
+  useEffect(() => {
+    postEvent('web_app_expand')
+    postEvent('web_app_request_fullscreen')
+    postEvent('web_app_ready')
   }, [])
 
   const { userParameters } = useContext(UserContext)
