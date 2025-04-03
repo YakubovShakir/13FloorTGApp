@@ -13,6 +13,13 @@ import WebApp from "@twa-dev/sdk";
 import { useSettingsProvider } from "../../../hooks";
 import { useTonConnectUI, useTonWallet } from "@tonconnect/ui-react";
 
+const translations = {
+  supply: {
+    en: 'Supply: ',
+    ru: 'Доступно: '
+  }
+}
+
 const GridItemShelf = ({
   id,
   productType,
@@ -28,7 +35,7 @@ const GridItemShelf = ({
   handleStarsBuy,
   handleBuyNft,
   isWalletConnected,
-  setCurrentItem
+  setCurrentItem,
 }) => {
   const isNftItem = id >= 9 && id <= 38;
   const showBuyNFT = isNftItem;
@@ -170,7 +177,7 @@ const GridItemShelf = ({
               marginBottom: "5px",
             }}
           >
-            Supply: {supply} available
+            {translations.supply[lang]}: {supply}
           </p>
           <Button
             className="clothing-item-equip-button"
@@ -413,6 +420,7 @@ const NftTab = () => {
     return {
       title: item.title,
       image: item.icon,
+      descriptions: descriptions,
       blocks: [
         {
           icon: Assets.Icons.respect,
@@ -420,14 +428,7 @@ const NftTab = () => {
           value: item.respect || 0,
           fillPercent: "100%",
           fillBackground: "#FFFFFF",
-        },
-        {
-          icon: Assets.Icons.balance,
-          value: descriptions[lang],
-          text: lang === "en" ? "Bonus" : "Бонус",
-          fillBackground: "#FFFFFF",
-        },
-       
+        }
       ],
       buttons: [
         {
@@ -509,6 +510,7 @@ const NftTab = () => {
           bottom={"0"}
           width={"100vw"}
           height={"80vh"}
+          description={descriptions[lang]}
         />
       )}
     </ScreenContainer>

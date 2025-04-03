@@ -684,7 +684,7 @@ const StatsModal = memo(({ baseStyles, setIsStatsShown, clothing }) => {
   const TabContent = () => (
     <AnimatePresence mode="wait">
       {activeTab === "stats" ? (
-        <motion.div
+        <div
           key="stats"
           variants={tabVariants}
           initial="hidden"
@@ -712,7 +712,7 @@ const StatsModal = memo(({ baseStyles, setIsStatsShown, clothing }) => {
             title={translations.energy[lang]}
             value={energy_capacity ?? 0} // Fallback for energy_capacity
           />
-        </motion.div>
+        </div>
       ) : (
         <motion.div
           key="effects"

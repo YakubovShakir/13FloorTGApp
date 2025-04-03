@@ -3,7 +3,7 @@ import Button from "../../../simple/Button/Button"
 import { motion } from "framer-motion"
 import Assets from "../../../../assets"
 import { createPortal } from "react-dom"
-const Modal = ({ bottom, left, width, height, data, onClose, logoWidth }) => {
+const Modal = ({ bottom, left, width, height, data, onClose, logoWidth, description = true }) => {
   const { Icons } = Assets;
   const modalContent = (
     <motion.div
@@ -53,6 +53,11 @@ const Modal = ({ bottom, left, width, height, data, onClose, logoWidth }) => {
             <span style={{ color: block?.fillBackground }}>{block?.value}</span>
           </div>
         ))}
+        {description && (
+        <div style={{paddingTop: 16, width: '85%', textAlign: 'center' }}>
+          <h4>{description}</h4>
+        </div>
+      )}
       </div>
       <div className="ModalFooter" style={{ marginTop: 10 }}>
         {data?.buttons?.map((button, index) => (

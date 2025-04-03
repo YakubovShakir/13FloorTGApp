@@ -89,8 +89,7 @@ const BoostTab = ({ }) => {
 
   const getUserBoostAmount = (boostId) => userBoosts?.filter((boost) => boost?.boost_id === boostId)?.length
   const getItemBoostButton = (boost) => {
-    const starsPrice = boost.stars_price
-    const buyBoostStatus = userParameters?.coins >= starsPrice
+    const buyBoostStatus = true
     const useBoostStatus = checkUserHaveBoost(boost?.boost_id)
     const buttons = [
       {
@@ -102,7 +101,7 @@ const BoostTab = ({ }) => {
     ];
   
     if (![7, 8].includes(boost.boost_id)) {
-      buttons.push({ // Push the button object only if the condition is met
+      buttons.push({
         text: translations.take[lang],
         active: useBoostStatus,
         onClick: useBoostStatus && (() => handleUseBoost(boost?.boost_id)),

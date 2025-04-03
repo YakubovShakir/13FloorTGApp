@@ -978,6 +978,7 @@ const useInvestmentData = (userId) => {
         game_center: { ...res.game_center, ...autoclaims.GameCenter },
         coffee_shop: { ...res.coffee_shop, ...autoclaims.CoffeeShop },
         zoo_shop: { ...res.zoo_shop, ...autoclaims.ZooShop },
+        ...res
       })
       console.log(investments)
       setError(null)
