@@ -130,7 +130,7 @@ function App() {
   }, [])
 
   useEffect(() => {
-    if(import.meta.env.VITE_NODE_ENV !== 'test') {
+    if(import.meta.env.VITE_NODE_ENV === 'test') {
       try {
         postEvent('web_app_expand')
         postEvent('web_app_request_fullscreen')
