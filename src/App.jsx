@@ -116,8 +116,8 @@ function App() {
     const hash = window.location.hash
     if (!hash.includes("tgWebAppVersion=7.6")) {
       const newHash = hash
-        ? `${hash}&tgWebAppVersion=7.6`
-        : "#tgWebAppVersion=7.6"
+        ? `${hash}&tgWebAppVersion=8.2`
+        : "#tgWebAppVersion=8.2"
       window.history.replaceState(null, "", newHash)
     }
   }, [])
@@ -244,17 +244,19 @@ function App() {
 
   const { userId } = useContext(UserContext)
   useEffect(() => {
-    WebApp.lockOrientation()
-    const submitUserData = async () => {
-      try {
-        await submitProfileData(userId, WebApp)
-      } catch (err) {
-        console.error("Error submitting user data:", err)
+    if (window.Telegram.WebApp) {
+      window.Telegram.WebApp.lockOrientation("portrait")
+      const submitUserData = async () => {
+        try {
+          await submitProfileData(userId, WebApp)
+        } catch (err) {
+          console.error("Error submitting user data:", err)
+        }
       }
-    }
 
-    submitUserData()
-  }, [])
+      submitUserData()
+    }
+  }, [window.Telegram.WebApp])
 
   return (
     <TelegramPlatformCheck>
