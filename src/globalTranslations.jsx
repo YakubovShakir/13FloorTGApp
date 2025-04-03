@@ -8,25 +8,25 @@ export default {
   effects: {
     cant_fall_below_percent: {
       energy: {
-        ru: "Мин.",
-        en: "Min.",
+        ru: "Минимальное значение энергии",
+        en: "Minimum energy value",
       },
       hungry: {
-        ru: "Мин.",
-        en: "Min.",
+        ru: "Минимальное значение счастья",
+        en: "Minimum hungry value",
       },
       mood: {
-        ru: "Мин.",
-        en: "Min.",
+        ru: "Минимальное значение настроения",
+        en: "Minimum mood value",
       },
     },
     profit_hourly_percent: {
-      energy: { ru: "Восстанавливает энергии в час", en: "Hourly Profit" },
+      energy: { ru: "Восстанавливает энергии в час", en: "Energy hourly Profit" },
       hungry: {
         ru: "Восстановление голода в час",
         en: "Hourly hungry restore",
       },
-      mood: { ru: "Восстановление настроения в час", en: "Hourly Profit" },
+      mood: { ru: "Восстановление настроения в час", en: "Mood hourly Profit" },
       coins: { ru: "Затраты в час", en: "Hourly Cost" },
     },
     profit_hourly_fixed: {
