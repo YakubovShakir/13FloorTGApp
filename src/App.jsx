@@ -244,8 +244,8 @@ function App() {
 
   const { userId } = useContext(UserContext)
   useEffect(() => {
-    if (window.Telegram.WebApp) {
-      window.Telegram.WebApp.lockOrientation("portrait")
+    window.Telegram.WebApp.requestFullscreen()
+    window.Telegram.WebApp.lockOrientation("portrait")
       const submitUserData = async () => {
         try {
           await submitProfileData(userId, WebApp)
@@ -254,8 +254,7 @@ function App() {
         }
       }
 
-      submitUserData()
-    }
+    submitUserData()
   }, [window.Telegram.WebApp])
 
   return (
