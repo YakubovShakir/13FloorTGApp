@@ -88,7 +88,7 @@ const TelegramPlatformCheck = ({ children }) => {
 
   useEffect(() => {
     const checkPlatform = () => {
-      const tg = window.Telegram.WebApp
+      const tg = window.Telegram?.WebApp
 
       if (!tg) {
         setShouldBlock(true)
@@ -102,8 +102,10 @@ const TelegramPlatformCheck = ({ children }) => {
       setShouldBlock(!isMobileApp)
     }
 
-    checkPlatform()
-  }, [])
+    if(window.Telegram.WebApp.ready) {
+      checkPlatform()
+    }
+  }, [window.Telegram.WebApp.ready])
 
   if (shouldBlock) {
     return <BlockerMessage />
