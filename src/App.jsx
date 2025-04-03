@@ -87,26 +87,28 @@ const TelegramPlatformCheck = ({ children }) => {
   const [shouldBlock, setShouldBlock] = useState(false)
 
   useEffect(() => {
-    const checkPlatform = () => {
-      // Wait for Telegram to be available
-      if (!window.Telegram?.WebApp) {
-        setShouldBlock(false); // Don't block yet
-        return;
-      }
-  
-      const platform = (window.Telegram.WebApp.platform || "").toLowerCase();
-      const isMobileApp = /^(android|ios)$/.test(platform);
-      setShouldBlock(!isMobileApp);
-    };
-  
-    // Initial check
-    checkPlatform();
-  
-    // Set up an interval to keep checking until Telegram initializes
-    const interval = setInterval(checkPlatform, 100);
-  
-    // Cleanup
-    return () => clearInterval(interval);
+    if(import.meta.VITE_NODE_ENV !== 'test') {
+      const checkPlatform = () => {
+        // Wait for Telegram to be available
+        if (!window.Telegram?.WebApp) {
+          setShouldBlock(false); // Don't block yet
+          return;
+        }
+    
+        const platform = (window.Telegram.WebApp.platform || "").toLowerCase();
+        const isMobileApp = /^(android|ios)$/.test(platform);
+        setShouldBlock(!isMobileApp);
+      };
+    
+      // Initial check
+      checkPlatform();
+    
+      // Set up an interval to keep checking until Telegram initializes
+      const interval = setInterval(checkPlatform, 100);
+    
+      // Cleanup
+      return () => clearInterval(interval);
+    }
   }, []); // Empty dependency array since we handle checking manually
 
   if (shouldBlock) {
@@ -128,6 +130,16 @@ function App() {
   }, [])
 
   useEffect(() => {
+    if(import.meta.VITE_NODE_ENV !== 'test') {
+      try {
+        postEvent('web_app_expand')
+        postEvent('web_app_request_fullscreen')
+        postEvent('web_app_ready')
+      }catch(err) {}
+
+      return
+    }
+
     postEvent('web_app_expand')
     postEvent('web_app_request_fullscreen')
     postEvent('web_app_ready')
@@ -268,7 +280,7 @@ function App() {
 
   return (
     <TelegramPlatformCheck>
-      <TonConnectUIProvider manifestUrl="https://test.13thfloorgame.io/tonconnect-manifest.json">
+      <TonConnectUIProvider manifestUrl={import.meta.VITE_NODE_ENV === 'test' ? "https://test.13thfloorgame.io/tonconnect-manifest.json" : "https://test.13thfloorgame.io/tonconnect-manifest.json"} >
         <MemoryRouter>
           <Routes>
             <Route path="/" index element={<Home />} />
