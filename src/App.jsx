@@ -107,7 +107,14 @@ const TelegramPlatformCheck = ({ children }) => {
   
     // Cleanup
     return () => clearInterval(interval);
-  }, []);
+  }, []); // Empty dependency array since we handle checking manually
+
+  if (shouldBlock) {
+    return <BlockerMessage />
+  }
+
+  return children
+}
 
 function App() {
   useEffect(() => {
