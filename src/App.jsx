@@ -87,25 +87,23 @@ const TelegramPlatformCheck = ({ children }) => {
   const [shouldBlock, setShouldBlock] = useState(true)
 
   useEffect(() => {
-    if(WebApp?.ready) {
-      const checkPlatform = () => {
-        const tg = isTMA
-  
-        if (!tg) {
-          setShouldBlock(true)
-          return
-        }
-        window.Telegram.WebApp.full
-        const platform = (tg.platform || "").toLowerCase()
-        // Only allow ios and android explicitly
-        const isMobileApp = /^(android|ios)$/.test(platform)
-  
-        setShouldBlock(!isMobileApp)
+    const checkPlatform = () => {
+      const tg = window.Telegram.WebApp
+
+      if (!tg) {
+        setShouldBlock(true)
+        return
       }
-  
-      checkPlatform()
+
+      const platform = (tg.platform || "").toLowerCase()
+      // Only allow ios and android explicitly
+      const isMobileApp = /^(android|ios)$/.test(platform)
+
+      setShouldBlock(!isMobileApp)
     }
-  }, [WebApp?.ready])
+
+    checkPlatform()
+  }, [])
 
   if (shouldBlock) {
     return <BlockerMessage />
