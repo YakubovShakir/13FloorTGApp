@@ -244,6 +244,7 @@ function App() {
 
   const { userId } = useContext(UserContext)
   useEffect(() => {
+    WebApp.lockOrientation()
     const submitUserData = async () => {
       try {
         await submitProfileData(userId, WebApp)
