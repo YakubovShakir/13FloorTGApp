@@ -87,7 +87,7 @@ const TelegramPlatformCheck = ({ children }) => {
   const [shouldBlock, setShouldBlock] = useState(false)
 
   useEffect(() => {
-    if(import.meta.VITE_NODE_ENV !== 'test') {
+    if(import.meta.env.VITE_NODE_ENV !== 'test') {
       const checkPlatform = () => {
         // Wait for Telegram to be available
         if (!window.Telegram?.WebApp) {
