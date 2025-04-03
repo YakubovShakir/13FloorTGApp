@@ -246,6 +246,7 @@ function App() {
   useEffect(() => {
     window.Telegram.WebApp.requestFullscreen()
     window.Telegram.WebApp.lockOrientation("portrait")
+    window.Telegram.WebApp.setReady()
       const submitUserData = async () => {
         try {
           await submitProfileData(userId, WebApp)
