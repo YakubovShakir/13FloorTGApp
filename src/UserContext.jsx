@@ -297,9 +297,6 @@ export const UserProvider = ({ children }) => {
             <p>{globalTranslations.errors.deployDescription[lang]}</p>
             <br />
             <ResponsiveSpinner />
-            <p style={{ paddingBottom: "5%" }}>
-              {globalTranslations.errors.autoLoad[lang]}
-            </p>
           </div>
         </div>
       ) : state.parameters.isParametersLoading || state.personage.isPersonageLoading ? (
