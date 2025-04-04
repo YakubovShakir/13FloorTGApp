@@ -47,6 +47,7 @@ const ALARM_SOUND = new Audio(
 COIN_SOUND.load();
 ALARM_SOUND.load();
 
+const { Icons } = Assets
 const Home = () => {
   const { refreshData } = useUser();
   const navigate = useNavigate();
@@ -663,6 +664,9 @@ const Home = () => {
                     <div
                       className="timer-overlay"
                       style={{
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
                         position: "absolute",
                         top: "75%",
                         left: "23%",
@@ -671,12 +675,18 @@ const Home = () => {
                         background: "rgba(0,0,0,0.7)",
                         padding: "4px 8px",
                         borderRadius: "4px",
-                        fontSize: "14px",
+                        fontSize: "16px",
                         pointerEvents: "none",
                         zIndex: 999999,
                       }}
                     >
-                      {timer}
+                        <img
+                  src={Icons.clock}
+                  alt="Coin"
+                  style={{ width: "20px", marginRight: "5px" }}
+                />
+                      {timer} <p style={{
+                        paddingLeft: "2px",}}>M</p>
                     </div>
                   )}
                 </div>
