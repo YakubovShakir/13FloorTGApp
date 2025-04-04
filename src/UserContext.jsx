@@ -119,13 +119,13 @@ export const UserProvider = ({ children }) => {
 
   const fetchData = useCallback(
     async (isInitial = false, signal) => {
-      if (isFetchingRef.current) return
-      isFetchingRef.current = true
-
+      if (isFetchingRef.current) return;
+      isFetchingRef.current = true;
+  
       try {
-        const data = await getParameters(userId, { signal })
-        if (!mountedRef.current) return
-
+        const data = await getParameters(userId, { signal });
+        if (!mountedRef.current) return;
+  
         if (hasParametersChanged(latestDataRef.current, data)) {
           updateParametersState({
             userParameters: {
@@ -138,9 +138,9 @@ export const UserProvider = ({ children }) => {
             },
             isParametersLoading: false,
             parametersError: null,
-          })
+          });
         }
-
+  
         if (hasPersonageChanged(latestDataRef.current, data)) {
           updatePersonageState({
             userPersonage: data.personage || {},
@@ -148,29 +148,29 @@ export const UserProvider = ({ children }) => {
             userShelf: data.shelf,
             isPersonageLoading: false,
             personageError: null,
-          })
+          });
         }
-
-        if (isInitial) {
-          window.Telegram.WebApp.lockOrientation("portrait")
-          window.Telegram.WebApp.ready()
-          setState((prev) => ({ ...prev, isInitialized: true }))
+  
+        if (isInitial || !state.isInitialized) {
+          window.Telegram.WebApp.lockOrientation("portrait");
+          window.Telegram.WebApp.ready();
+          setState((prev) => ({ ...prev, isInitialized: true }));
         }
-
-        latestDataRef.current = data
+  
+        latestDataRef.current = data;
       } catch (error) {
-        if (error.name === "AbortError") return
-
+        if (error.name === "AbortError") return;
+  
         if (error.message.includes("parameters")) {
-          handleParametersError(error)
+          handleParametersError(error);
         } else if (error.message.includes("personage")) {
-          handlePersonageError(error)
+          handlePersonageError(error);
         } else {
-          handleParametersError(error)
-          handlePersonageError(error)
+          handleParametersError(error);
+          handlePersonageError(error);
         }
       } finally {
-        isFetchingRef.current = false
+        isFetchingRef.current = false;
       }
     },
     [
@@ -179,8 +179,9 @@ export const UserProvider = ({ children }) => {
       updatePersonageState,
       handleParametersError,
       handlePersonageError,
+      state.isInitialized,
     ]
-  )
+  );
 
   const debouncedFetchData = useMemo(
     () =>
@@ -200,14 +201,13 @@ export const UserProvider = ({ children }) => {
     // Regular polling (set to a reasonable interval, e.g., 30 seconds)
     const pollingIntervalId = setInterval(() => {
       fetchData(false, controller.signal)
-    }, 5000)
+    }, 10000)
 
     // Retry logic when there's an error
     const retryIntervalId = setInterval(() => {
       if (
-        state.parameters.parametersError &&
-        state.personage.personageError &&
-        mountedRef.current
+        state.parameters.parametersError ||
+        state.personage.personageError
       ) {
         fetchData(false, controller.signal)
       }
@@ -253,61 +253,56 @@ export const UserProvider = ({ children }) => {
 
   const { lang } = useSettingsProvider()
 
-  if (state.parameters.parametersError && state.personage.personageError) {
-    return (
-      <div
-        style={{
-          width: "100vw",
-          height: "100vh",
-          position: "fixed",
-          zIndex: 999999,
-          backgroundImage: `url('https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/load2.png')`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          backgroundRepeat: "no-repeat",
-        }}
-      >
-        <div
-          style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            width: "100%",
-            height: "100%",
-            backgroundColor: "rgba(0, 0, 0, 0.5)",
-          }}
-        ></div>
-        <div
-          className="error-container"
-          style={{
-            position: "relative",
-            width: "100vw",
-            height: "100vh",
-            color: "white",
-            textAlign: "center",
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "center",
-            alignItems: "center",
-            paddingTop: "20%",
-          }}
-        >
-          <h2>{globalTranslations.errors.deployTitle[lang]}</h2>
-          <p>{globalTranslations.errors.deployDescription[lang]}</p>
-          <br />
-          <ResponsiveSpinner />
-          <p style={{ paddingBottom: "5%" }}>
-            {globalTranslations.errors.autoLoad[lang]}
-          </p>
-        </div>
-      </div>
-    )
-  }
-
   return (
     <UserContext.Provider value={contextValue}>
-      {state.parameters.isParametersLoading ||
-      state.personage.isPersonageLoading ? (
+      {!state.isInitialized ? (
+        <div
+          style={{
+            width: "100vw",
+            height: "100vh",
+            position: "fixed",
+            zIndex: 999999,
+            backgroundImage: `url('https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/load2.png')`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            backgroundRepeat: "no-repeat",
+          }}
+        >
+          <div
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              width: "100%",
+              height: "100%",
+              backgroundColor: "rgba(0, 0, 0, 0.5)",
+            }}
+          ></div>
+          <div
+            className="error-container"
+            style={{
+              position: "relative",
+              width: "100vw",
+              height: "100vh",
+              color: "white",
+              textAlign: "center",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              alignItems: "center",
+              paddingTop: "20%",
+            }}
+          >
+            <h2>{globalTranslations.errors.deployTitle[lang]}</h2>
+            <p>{globalTranslations.errors.deployDescription[lang]}</p>
+            <br />
+            <ResponsiveSpinner />
+            <p style={{ paddingBottom: "5%" }}>
+              {globalTranslations.errors.autoLoad[lang]}
+            </p>
+          </div>
+        </div>
+      ) : state.parameters.isParametersLoading || state.personage.isPersonageLoading ? (
         <div
           className="error-container"
           style={{
@@ -329,7 +324,7 @@ export const UserProvider = ({ children }) => {
         children
       )}
     </UserContext.Provider>
-  )
+  );
 }
 
 export const useForeignUser = (userId) => {
@@ -471,22 +466,6 @@ export const useForeignUser = (userId) => {
       handlePersonageError,
     ]
   )
-
-  const debouncedFetchData = useMemo(
-    () =>
-      debounce((signal) => fetchData(signal), 100, {
-        leading: true,
-        trailing: false,
-      }),
-    [fetchData]
-  )
-
-  // Clear debounce on unmount
-  React.useEffect(() => {
-    return () => {
-      debouncedFetchData.cancel()
-    }
-  }, [debouncedFetchData])
 
   return {
     // Parameters related values

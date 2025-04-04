@@ -23,7 +23,8 @@ import WebApp from "@twa-dev/sdk"
 import { submitProfileData } from "./services/user/user"
 import GachaOverlay from "./screens/Home/Gacha"
 import DailyCheckInOverlay from "./screens/Home/DailyCheckInOverlay"
-import{ isTMA, postEvent } from '@telegram-apps/sdk';
+import { isTMA, postEvent } from "@telegram-apps/sdk"
+import { EmojiReactionProvider } from "./EmojiReactionContext"
 
 // BlockerMessage component
 const BlockerMessage = () => (
@@ -81,78 +82,71 @@ const BlockerMessage = () => (
       </p>
     </div>
   </div>
-);
+)
 
 function App() {
-  const [shouldBlock, setShouldBlock] = useState(false);
+  const [shouldBlock, setShouldBlock] = useState(false)
 
   // Hash manipulation useEffect (unchanged)
   useEffect(() => {
-    const hash = window.location.hash;
+    const hash = window.location.hash
     if (!hash.includes("tgWebAppVersion=8.2")) {
       const newHash = hash
         ? `${hash}&tgWebAppVersion=8.2`
-        : "#tgWebAppVersion=8.2";
-      window.history.replaceState(null, "", newHash);
+        : "#tgWebAppVersion=8.2"
+      window.history.replaceState(null, "", newHash)
     }
-  }, []);
+  }, [])
 
   // Telegram SDK initialization and platform check useEffect
   useEffect(() => {
     if (import.meta.env.VITE_NODE_ENV === "test") {
-      try {
-        postEvent("web_app_expand");
-        postEvent("web_app_request_fullscreen");
-        postEvent("web_app_ready");
-      } catch (err) {
-        console.error("Error in test mode events:", err);
-      }
-      return;
+      return
     }
 
     const initTelegramApp = () => {
       if (!window.Telegram?.WebApp) {
-        console.warn("Telegram WebApp not available yet");
-        return false;
+        console.warn("Telegram WebApp not available yet")
+        return false
       }
 
-      const platform = (window.Telegram.WebApp.platform || "").toLowerCase();
-      const isMobileApp = /^(android|ios)$/.test(platform);
+      const platform = (window.Telegram.WebApp.platform || "").toLowerCase()
+      const isMobileApp = /^(android|ios)$/.test(platform)
 
       if (!isMobileApp) {
-        setShouldBlock(true); // Show block screen for non-iOS/Android
-        return true; // Stop further initialization
+        setShouldBlock(true) // Show block screen for non-iOS/Android
+        return true // Stop further initialization
       }
 
       try {
-        window.Telegram.WebApp.ready(); // Signal readiness
-        postEvent("web_app_expand");
-        setTimeout(() => postEvent("web_app_request_fullscreen"), 100); // Delay fullscreen
-        console.log("Telegram WebApp initialized successfully");
+        window.Telegram.WebApp.ready() // Signal readiness
+        postEvent("web_app_expand")
+        setTimeout(() => postEvent("web_app_request_fullscreen"), 100) // Delay fullscreen
+        console.log("Telegram WebApp initialized successfully")
       } catch (err) {
-        console.error("Error initializing Telegram events:", err);
+        console.error("Error initializing Telegram events:", err)
       }
-      return true;
-    };
+      return true
+    }
 
     if (!initTelegramApp()) {
       const interval = setInterval(() => {
         if (initTelegramApp()) {
-          clearInterval(interval);
+          clearInterval(interval)
         }
-      }, 50); // Check every 50ms
-      return () => clearInterval(interval);
+      }, 50) // Check every 50ms
+      return () => clearInterval(interval)
     }
-  }, []);
+  }, [])
 
-  const { userParameters } = useContext(UserContext);
+  const { userParameters } = useContext(UserContext)
   const [notificationsSent, setNotificationsSent] = useState({
     moodBelow49: false,
     hungryBelow49: false,
     moodBelow9: false,
     hungryBelow9: false,
     allZero: false,
-  });
+  })
 
   const resetNotifications = useCallback(() => {
     setNotificationsSent({
@@ -161,11 +155,11 @@ function App() {
       moodBelow9: false,
       hungryBelow9: false,
       allZero: false,
-    });
-  }, []);
+    })
+  }, [])
 
-  const { showNotification } = useNotification();
-  const { lang } = useSettingsProvider();
+  const { showNotification } = useNotification()
+  const { lang } = useSettingsProvider()
 
   const checkAndSendNotifications = useCallback(() => {
     const translations = {
@@ -189,83 +183,91 @@ function App() {
         ru: "Уровень голода ниже 49%. Теперь вы получаете небольшой штраф к настроению",
         en: "The hunger rate is below 49%! Now you get a small mood penalty",
       },
-    };
+    }
 
-    if (!userParameters) return;
+    if (!userParameters) return
 
-    const { mood, hungry } = userParameters;
-    const updatedNotificationsSent = { ...notificationsSent };
-    let hasChanged = false;
+    const { mood, hungry } = userParameters
+    const updatedNotificationsSent = { ...notificationsSent }
+    let hasChanged = false
 
     const handleNotification = (key) => {
-      const message = translations[key][lang] || translations[key].en;
+      const message = translations[key][lang] || translations[key].en
       if (!message) {
-        console.warn(`Translation not found for key "${key}" and language "${lang}"`);
-        return;
+        console.warn(
+          `Translation not found for key "${key}" and language "${lang}"`
+        )
+        return
       }
-      console.log("Sending notification for", key);
-      showNotification(message);
-      updatedNotificationsSent[key] = true;
-      hasChanged = true;
-    };
+      console.log("Sending notification for", key)
+      showNotification(message)
+      updatedNotificationsSent[key] = true
+      hasChanged = true
+    }
 
     if (mood === 0 && hungry === 0) {
       if (!notificationsSent.allZero) {
-        handleNotification("allCritical");
-        updatedNotificationsSent.moodBelow9 = false;
-        updatedNotificationsSent.moodBelow49 = false;
-        updatedNotificationsSent.hungryBelow9 = false;
-        updatedNotificationsSent.hungryBelow49 = false;
+        handleNotification("allCritical")
+        updatedNotificationsSent.moodBelow9 = false
+        updatedNotificationsSent.moodBelow49 = false
+        updatedNotificationsSent.hungryBelow9 = false
+        updatedNotificationsSent.hungryBelow49 = false
       }
     } else {
       if (mood <= 9 && !notificationsSent.moodBelow9) {
-        handleNotification("moodBelow9");
+        handleNotification("moodBelow9")
       } else if (mood <= 49 && !notificationsSent.moodBelow49 && mood > 9) {
-        handleNotification("moodBelow49");
+        handleNotification("moodBelow49")
       } else if (mood > 49) {
-        updatedNotificationsSent.moodBelow9 = false;
-        updatedNotificationsSent.moodBelow49 = false;
+        updatedNotificationsSent.moodBelow9 = false
+        updatedNotificationsSent.moodBelow49 = false
         if (notificationsSent.moodBelow9 || notificationsSent.moodBelow49)
-          hasChanged = true;
+          hasChanged = true
       }
 
       if (hungry <= 9 && !notificationsSent.hungryBelow9) {
-        handleNotification("hungryBelow9");
+        handleNotification("hungryBelow9")
       } else if (
         hungry <= 49 &&
         !notificationsSent.hungryBelow49 &&
         hungry > 9
       ) {
-        handleNotification("hungryBelow49");
+        handleNotification("hungryBelow49")
       } else if (hungry > 49) {
-        updatedNotificationsSent.hungryBelow9 = false;
-        updatedNotificationsSent.hungryBelow49 = false;
+        updatedNotificationsSent.hungryBelow9 = false
+        updatedNotificationsSent.hungryBelow49 = false
         if (notificationsSent.hungryBelow9 || notificationsSent.hungryBelow49)
-          hasChanged = true;
+          hasChanged = true
       }
     }
 
     if (hasChanged) {
-      setNotificationsSent(updatedNotificationsSent);
+      setNotificationsSent(updatedNotificationsSent)
     }
-  }, [userParameters, notificationsSent, resetNotifications, showNotification, lang]);
+  }, [
+    userParameters,
+    notificationsSent,
+    resetNotifications,
+    showNotification,
+    lang,
+  ])
 
-  useEffect(() => checkAndSendNotifications(), [userParameters]);
+  useEffect(() => checkAndSendNotifications(), [userParameters])
 
-  const { userId } = useContext(UserContext);
+  const { userId } = useContext(UserContext)
   useEffect(() => {
     const submitUserData = async () => {
       try {
-        await submitProfileData(userId, WebApp);
+        await submitProfileData(userId, WebApp)
       } catch (err) {
-        console.error("Error submitting user data:", err);
+        console.error("Error submitting user data:", err)
       }
-    };
-    submitUserData();
-  }, [userId]);
+    }
+    submitUserData()
+  }, [userId])
 
   if (shouldBlock) {
-    return <BlockerMessage />;
+    return <BlockerMessage />
   }
 
   return (
@@ -276,25 +278,42 @@ function App() {
           : "https://game.13thfloorgame.io/tonconnect-manifest.json"
       }
     >
-      <MemoryRouter>
-        <Routes>
-          <Route path="/" index element={<Home />} />
-          <Route path="/learning/:slideIndex?" element={<Learning />} />
-          <Route path="/personage-create" element={<PersonageCreationScreen />} />
-          <Route path="/care" element={<CareScreen />} />
-          <Route path="/shop" element={<ShopScreen />} />
-          <Route path="/activity/:type" element={<ActivityScreen />} />
-          <Route path="/tasks/:tab?" element={<TaskScreen />} />
-          <Route path="/action" element={<ActionScreen />} />
-          <Route path="/investment" element={<InvestmentScreen />} />
-          <Route path="/boost" element={<BoostTab />} />
-          <Route path="/foreign-user/:userId" element={<ForeignHome />} />
-          <Route path="/gacha" element={<GachaOverlay />} />
-          <Route path="/daily-rewards" element={<DailyCheckInOverlay />} />
-        </Routes>
-      </MemoryRouter>
+      <SettingsProvider>
+        <UserProvider>
+          <EmojiReactionProvider>
+            <NotificationProvider>
+              <MemoryRouter>
+                <Routes>
+                  <Route path="/" index element={<Home />} />
+                  <Route path="/learning/:slideIndex?" element={<Learning />} />
+                  <Route
+                    path="/personage-create"
+                    element={<PersonageCreationScreen />}
+                  />
+                  <Route path="/care" element={<CareScreen />} />
+                  <Route path="/shop" element={<ShopScreen />} />
+                  <Route path="/activity/:type" element={<ActivityScreen />} />
+                  <Route path="/tasks/:tab?" element={<TaskScreen />} />
+                  <Route path="/action" element={<ActionScreen />} />
+                  <Route path="/investment" element={<InvestmentScreen />} />
+                  <Route path="/boost" element={<BoostTab />} />
+                  <Route
+                    path="/foreign-user/:userId"
+                    element={<ForeignHome />}
+                  />
+                  <Route path="/gacha" element={<GachaOverlay />} />
+                  <Route
+                    path="/daily-rewards"
+                    element={<DailyCheckInOverlay />}
+                  />
+                </Routes>
+              </MemoryRouter>
+            </NotificationProvider>
+          </EmojiReactionProvider>
+        </UserProvider>
+      </SettingsProvider>
     </TonConnectUIProvider>
-  );
+  )
 }
 
-export default App;
+export default App
