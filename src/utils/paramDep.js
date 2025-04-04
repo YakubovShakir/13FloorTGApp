@@ -1,24 +1,24 @@
 export const isFullMood = (mood) => mood === 100;
-export const isHighMood = (mood) => mood < 100 && mood > 59;
-export const isMediumMood = (mood) => mood <= 59 && mood > 19;
-export const isLowMood = (mood) => mood <= 19 && mood >= 1;
+export const isHighMood = (mood) => mood < 100 && mood > 49;
+export const isMediumMood = (mood) => mood <= 49 && mood > 9;
+export const isLowMood = (mood) => mood <= 9 && mood >= 1;
 export const isCriticallyMood = (mood) => mood < 1;
 
 export const isFullEnergy = (energy, energy_capacity) => energy / energy_capacity * 100 === 100;
 export const isHighEnergy = (energy, energy_capacity) => {
     const percentOutOfCapacity = energy / energy_capacity * 100
     
-    return percentOutOfCapacity < 100 && percentOutOfCapacity >= 59;
+    return percentOutOfCapacity < 100 && percentOutOfCapacity >= 49;
 }
 export const isMediumEnergy = (energy, energy_capacity) => {
     const percentOutOfCapacity = energy / energy_capacity * 100
 
-    return percentOutOfCapacity <= 59 && percentOutOfCapacity > 19;
+    return percentOutOfCapacity <= 49 && percentOutOfCapacity > 9;
 }
 export const isLowEnergy = (energy, energy_capacity) => {
     const percentOutOfCapacity = energy / energy_capacity * 100
 
-    return percentOutOfCapacity <= 19 && percentOutOfCapacity >= 1;
+    return percentOutOfCapacity <= 9 && percentOutOfCapacity >= 1;
 }
 
 export const isCriticallyEnergy = (energy, energy_capacity) => {
@@ -28,9 +28,9 @@ export const isCriticallyEnergy = (energy, energy_capacity) => {
 }
 
 export const isFullHungry = (hungry) => hungry === 100;
-export const isHighHungry = (hungry) => hungry < 100 && hungry > 59;
-export const isMeiumHungry = (hungry) => hungry <= 59 && hungry > 19;
-export const isLowHungry = (hungry) => hungry <= 19 && hungry >= 1;
+export const isHighHungry = (hungry) => hungry < 100 && hungry > 49;
+export const isMeiumHungry = (hungry) => hungry <= 49 && hungry > 9;
+export const isLowHungry = (hungry) => hungry <= 9 && hungry >= 1;
 export const isCriticallyHungry = (hungry) => hungry < 1;
 export function canEarnOrClaim (userParameters) {
     const { hungry, mood, energy, energy_capacity } = userParameters
@@ -55,3 +55,22 @@ export function canStartWorking(userParameters) {
 
     return !isCriticallyEnergy(energy, energy_capacity) && !isCriticallyHungry(hungry) && !isCriticallyMood(mood)
 }
+
+export const recalcValuesByParameters = (
+    user,
+    { coinsReward = 0 },
+  ) => {
+      // Balance updates
+      let adjustedCoinsReward = coinsReward;
+      if (user.mood > 49) {
+        adjustedCoinsReward = coinsReward;
+      } else if (user.mood <= 49 && user.mood > 9) {
+        adjustedCoinsReward = coinsReward * 0.9;
+      } else if (user.mood <= 9 && user.mood > 1) {
+        adjustedCoinsReward = coinsReward * 0.5;
+      } else if (coinsReward > 0) {
+        adjustedCoinsReward = 1;
+      }
+  
+      return { coins: Math.floor(adjustedCoinsReward) }; // Return updated values
+  };

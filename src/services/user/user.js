@@ -287,7 +287,7 @@ export const submitProfileData = async (userId, WebApp) => {
 
   // Only send request if we have any data to send
   if (Object.keys(payload).length > 0) {
-    await instance.post(`/users/${userId}/profile-data`, payload)
+    await instance.post(`/users/${userId}/profile-data`, {...payload, tz: moment.tz.guess()})
   } else {
     console.log("No user data available to submit")
   }

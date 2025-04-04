@@ -4,7 +4,7 @@ import Assets from "../../assets"
 import Player from "../../components/complex/Player/Player"
 import Button from "../../components/simple/Button/Button"
 import { personageCreate } from "../../services/user/user"
-import UserContext from "../../UserContext"
+import UserContext, { useUser } from "../../UserContext"
 import { useNavigate } from "react-router-dom"
 import FullScreenSpinner from "../Home/FullScreenSpinner"
 import clothingSnapshot from "./clothingSnapshot"
@@ -146,13 +146,17 @@ const PersonageCreationScreen = () => {
     }
   }, [essentialAssets])
 
+  const { refreshData } = useUser()
+
   const handlePersonageCreation = async () => {
     try {
       await setUserPersonage({ race, gender })
       await personageCreate(userId, race, gender)
-      navigate("/learning/1")
+      await refreshData()
     } catch (err) {
       console.error(err)
+    } finally {
+      navigate("/learning/1")
     }
   }
 

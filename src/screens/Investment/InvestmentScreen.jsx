@@ -165,6 +165,12 @@ const Modal = ({ bottom, left, width, height, data, onClose, logoWidth }) => {
   }
 
   const { userParameters } = useUser()
+  const canBuyInvestmentLevel =  
+    (userParameters.level >= data.level_required || 0) && 
+    (data.skill_id_required ? data.userSkills?.includes(data.skill_id_required) : true) &&
+    userParameters.respect >= data.respect_required &&
+    data.price <= userParameters.coins
+
 
   // Fetch skill details if skill_id_required exists
   useEffect(() => {
@@ -175,7 +181,7 @@ const Modal = ({ bottom, left, width, height, data, onClose, logoWidth }) => {
           setSkillDetails(response.data)
         })
         .catch((err) => {
-          console.error("Failed to fetch skill details:", err)
+          console.error("Failed to fetch skill details:", aerr)
         })
     }
   }, [data?.skill_id_required])
@@ -410,7 +416,7 @@ const Modal = ({ bottom, left, width, height, data, onClose, logoWidth }) => {
         {data?.gameCenterValues ? (
           <Button
             {...buttonStyle}
-            active={data.canUpgrade}
+            active={true}
             onClick={() => {
               copyTextToClipboard(getRefLink()).then(() => {
                 showNotification(translations.copied[lang], Assets.Icons.tasks)
@@ -422,14 +428,7 @@ const Modal = ({ bottom, left, width, height, data, onClose, logoWidth }) => {
         ) : (
           <Button
             {...buttonStyle}
-            active={
-              data.canUpgrade &&
-              (!data.level_required || data.userLevel >= data.level_required) &&
-              (!data.skill_id_required ||
-                data.userSkills.includes(data.skill_id_required)) &&
-              (!data.respect_required ||
-                userParameters.respect >= data.respect_required)
-            }
+            active={canBuyInvestmentLevel}
             onClick={data.canUpgrade ? data.handleUpgrade : () => {}}
             text={data.price}
             width={100}
@@ -976,9 +975,9 @@ const useInvestmentData = (userId) => {
       setAutoclaims(autoclaims)
       console.log(autoclaims)
       setInvestments({
-        game_center: { ...res.game_center, ...autoclaims.GameCenter },
-        coffee_shop: { ...res.coffee_shop, ...autoclaims.CoffeeShop },
-        zoo_shop: { ...res.zoo_shop, ...autoclaims.ZooShop },
+        game_center: { ...res.game_center, ...autoclaims.GameCenter, userSkills: res.user_skills },
+        coffee_shop: { ...res.coffee_shop, ...autoclaims.CoffeeShopm, userSkills: res.user_skills },
+        zoo_shop: { ...res.zoo_shop, ...autoclaims.ZooShop, userSkills: res.user_skills },
       })
       console.log(investments)
       setError(null)
@@ -1176,6 +1175,7 @@ const InvestmentScreen = () => {
       },
       respect_required:
         investmentData.upgrade_info.respect_required || undefined,
+      userSkills: investments?.game_center?.userSkills
     })
     setIsModalVisible(true)
   }

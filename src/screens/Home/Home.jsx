@@ -33,8 +33,6 @@ import {
   canStartTraining,
   canStartWorking,
 } from "../../utils/paramDep";
-import GachaOverlay from "./Gacha";
-import DailyCheckInOverlay from "./DailyCheckInOverlay";
 import SleepGame from "./SleepGame";
 import globalTranslations from "../../globalTranslations";
 import { useSettingsProvider } from "../../hooks";

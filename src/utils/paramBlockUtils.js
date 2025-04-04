@@ -1,4 +1,5 @@
 import formatTime from "./formatTime"
+import { recalcValuesByParameters } from "./paramDep"
 
 // Effects applied to expected rewards and durations in actions
 export const COLORS = {
@@ -12,7 +13,7 @@ export const getDurationAndColor = (
   durationInSeconds,
   parameters
 ) => {
-  console.log('@', parameters)
+  console.log("@", parameters)
   let targetDuration = durationInSeconds
   let color = COLORS.WHITE
 
@@ -37,7 +38,7 @@ export const getDurationAndColor = (
 
   const minutes = Math.floor(targetDuration / 60)
   const seconds = Math.ceil(targetDuration % 60)
-  
+
   console.log(targetDuration, durationInSeconds)
   return {
     value: formatTime(minutes, seconds),
@@ -45,30 +46,42 @@ export const getDurationAndColor = (
   }
 }
 
-export const getCoinRewardAndColor = (workDuration, workRewardHourly, parameters) => {
-  let color;
-  
+export const getCoinRewardAndColor = (
+  workDuration,
+  workRewardHourly,
+  parameters
+) => {
+  let color = COLORS.RED
+
   // Base hourly rate plus any increase
-  const baseHourlyRate = workRewardHourly + (parameters.work_hourly_income_increase || 0);
-  
+  const baseHourlyRate =
+    workRewardHourly + (parameters.work_hourly_income_increase || 0)
+
   // Neko boost multiplier (converting percentage to multiplier)
-  const nekoBoostMultiplier = parameters.neko_boost_percentage 
-  
+  const nekoBoostMultiplier = parameters.neko_boost_percentage
+
   // Calculate final reward:
   // (hourly rate * boost) / 3600 * duration, rounded to 2 decimal places
-  const targetReward = Math.round(
-    (((baseHourlyRate * nekoBoostMultiplier) / 3600) * workDuration) * 100
-  ) / 100;
+  const targetReward =
+    Math.round(
+      ((baseHourlyRate * nekoBoostMultiplier) / 3600) * workDuration * 100
+    ) / 100
+
+  const endValue = recalcValuesByParameters(parameters, {
+    coinsReward: targetReward,
+  }).coins
 
   // Set color based on whether there's any increase or boost
-  if ((parameters.work_hourly_income_increase || 0) > 0 || (parameters.neko_boost_percentage || 0) > 1) {
-    color = COLORS.GREEN;
+  if (endValue < (baseHourlyRate / 3600 * workDuration)) {
+    color = COLORS.RED
+  } else if (endValue > targetReward){
+    color = COLORS.GREEN
   } else {
-    color = COLORS.WHITE;
+    color = COLORS.WHITE
   }
 
   return {
-    value: targetReward,
+    value: endValue,
     color,
-  };
-};
+  }
+}

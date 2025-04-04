@@ -9,6 +9,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import FullScreenSpinner from "../../../screens/Home/FullScreenSpinner"
 import { useSettingsProvider } from "../../../hooks"
 import { getCoinRewardAndColor } from "../../../utils/paramBlockUtils"
+import { recalcValuesByParameters } from "../../../utils/paramDep"
 
 
 const WorkIcon = ({ hasIconAnimated = true, onAnimationComplete }) => {
@@ -74,7 +75,8 @@ const ProcessProgressBar = ({
     percentage,
     hasIconAnimated,
     setHasIconAnimated,
-    handleConfirmClose
+    handleConfirmClose,
+    nekoBoostRate
 }) => {
     const navigate = useNavigate()
     const [labels, setLabels] = useState({ left: "", right: "" })
@@ -132,7 +134,7 @@ const ProcessProgressBar = ({
                 const labelMap = {
                     work: [
                         work?.name[lang] || "",
-                        `${rate} +${activeProcess?.reward_at_the_end || ""}`,
+                        `${rate} +${recalcValuesByParameters(userParameters, { coinsReward: activeProcess?.reward_at_the_end }).coins || ""}`,
                     ],
                     training: [translations.training[lang], rate],
                     sleep: [translations.longSleep[lang], rate],

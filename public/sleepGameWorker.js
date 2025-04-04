@@ -1,7 +1,7 @@
 self.onmessage = async (event) => {
   const { type, userId, collections } = event.data;
 
-  const apiBase = "http://localhost:4000/api";
+  const apiBase = import.meta.env === 'test' ? 'http://localhost:4000/api' : "https://game.13thfloorgame.io/api";
 
   if (type === "syncRequest") {
     try {
