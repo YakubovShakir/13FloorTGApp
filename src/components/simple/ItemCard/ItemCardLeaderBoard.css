@@ -19,7 +19,7 @@
 }
 
 .ItemTitleLeader {
-  padding: 0px 5px 0px 5px;
+ 
 
   font-size: 15px;
   position: relative; 
@@ -124,7 +124,7 @@
 }
 
 .ItemNuberLeader{
-  width: 30px;
+  width: 8vh;
   margin-left: 3px;
   margin-right: 8px;
   font-size: 5.4cqw;
@@ -214,13 +214,13 @@
   box-shadow: rgba(0, 0, 0, 0.24) 0px 0px 8px 2px inset;
    
     border-radius: 7px;
-  width: 25%; /* Задаем ширину для иконки */
+  width: 100%; /* Задаем ширину для иконки */
   height: 100%;
   position: relative; /* Для корректной работы псевдоэлемента */
   z-index: 0; /* Сетка будет под изображением */
+  max-height: 10vh;
+  max-width: 10vh;
   
-  /* Сетка из пересекающихся оранжевых линий */
-  background: repeating-linear-gradient(45deg, #00000036, #00000036 2px, #3939390f 2px, #3939390f 6px);
 }
 
 /* Псевдоэлемент для градиента */
