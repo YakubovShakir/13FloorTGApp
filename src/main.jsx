@@ -9,14 +9,4 @@ import { EmojiReactionProvider } from "./EmojiReactionContext.jsx"
 
 // config()
 
-createRoot(document.getElementById("root")).render(
-  <SettingsProvider>
-    <UserProvider>
-      <EmojiReactionProvider>
-        <NotificationProvider>
-          <App />
-        </NotificationProvider>
-      </EmojiReactionProvider>
-    </UserProvider>
-  </SettingsProvider>
-)
+createRoot(document.getElementById("root")).render(<App />)
