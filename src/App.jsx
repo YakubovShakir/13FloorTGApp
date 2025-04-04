@@ -278,8 +278,6 @@ function App() {
           : "https://game.13thfloorgame.io/tonconnect-manifest.json"
       }
     >
-      <SettingsProvider>
-        <UserProvider>
           <EmojiReactionProvider>
             <NotificationProvider>
               <MemoryRouter>
@@ -310,8 +308,6 @@ function App() {
               </MemoryRouter>
             </NotificationProvider>
           </EmojiReactionProvider>
-        </UserProvider>
-      </SettingsProvider>
     </TonConnectUIProvider>
   )
 }
