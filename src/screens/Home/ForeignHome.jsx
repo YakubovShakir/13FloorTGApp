@@ -22,6 +22,7 @@ import { useSettingsProvider } from "../../hooks"
 import Button from "../../components/simple/Button/Button"
 import { useEmojiReaction } from "../../EmojiReactionContext"
 
+const { Icons } = Assets
 const translations = {
   neko: {
     ru: "Вы заклеймили",
@@ -181,7 +182,7 @@ const ForeignHome = () => {
       const hours = Math.floor(duration.asHours())
       const minutes = duration.minutes()
       setTimer(
-        `${hours.toString().padStart(2, "0")}:${minutes
+        `${minutes
           .toString()
           .padStart(2, "0")}`
       )
@@ -438,10 +439,14 @@ const ForeignHome = () => {
                       />
                     </motion.div>
                   )}
+                 
                   {!state.nekoState.canClick && timer && (
                     <motion.div
                       className="timer-overlay"
-                      style={{
+                        style={{
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
                         position: "absolute",
                         top: "75%",
                         left: "23%",
@@ -450,12 +455,19 @@ const ForeignHome = () => {
                         background: "rgba(0,0,0,0.7)",
                         padding: "4px 8px",
                         borderRadius: "4px",
-                        fontSize: "14px",
+                        fontSize: "16px",
                         pointerEvents: "none",
                         zIndex: 999999,
                       }}
                     >
-                      {timer}
+                      <img
+                  src={Icons.clock}
+                  alt="Coin"
+                  style={{ width: "20px", marginRight: "5px" }}
+                /> 
+                
+                 {timer} <p style={{
+                        paddingLeft: "2px",}}>M</p>
                     </motion.div>
                   )}
                 </motion.div>
