@@ -87,29 +87,47 @@ const TelegramPlatformCheck = ({ children }) => {
   const [shouldBlock, setShouldBlock] = useState(false)
 
   useEffect(() => {
-    if(import.meta.env.VITE_NODE_ENV !== 'test') {
-      const checkPlatform = () => {
-        // Wait for Telegram to be available
-        if (!window.Telegram?.WebApp) {
-          setShouldBlock(false); // Don't block yet
-          return;
+    if (import.meta.env.VITE_NODE_ENV === 'test') {
+      try {
+        postEvent('web_app_expand');
+        postEvent('web_app_request_fullscreen');
+        postEvent('web_app_ready');
+      } catch (err) {
+        console.error('Error in test mode events:', err);
+      }
+      return;
+    }
+  
+    // Function to initialize the app once Telegram SDK is ready
+    const initTelegramApp = () => {
+      if (!window.Telegram?.WebApp) {
+        return false; // Not ready yet
+      }
+  
+      try {
+        postEvent('web_app_expand');
+        postEvent('web_app_request_fullscreen');
+        postEvent('web_app_ready');
+        console.log('Telegram WebApp initialized successfully');
+      } catch (err) {
+        console.error('Error initializing Telegram events:', err);
+      }
+      return true;
+    };
+  
+    // Initial check
+    if (!initTelegramApp()) {
+      // If not ready, poll until it is
+      const interval = setInterval(() => {
+        if (initTelegramApp()) {
+          clearInterval(interval); // Stop polling once initialized
         }
-    
-        const platform = (window.Telegram.WebApp.platform || "").toLowerCase();
-        const isMobileApp = /^(android|ios)$/.test(platform);
-        setShouldBlock(!isMobileApp);
-      };
-    
-      // Initial check
-      checkPlatform();
-    
-      // Set up an interval to keep checking until Telegram initializes
-      const interval = setInterval(checkPlatform, 100);
-    
-      // Cleanup
+      }, 50); // Check every 50ms
+  
+      // Cleanup interval on unmount
       return () => clearInterval(interval);
     }
-  }, []); // Empty dependency array since we handle checking manually
+  }, []);
 
   if (shouldBlock) {
     return <BlockerMessage />
