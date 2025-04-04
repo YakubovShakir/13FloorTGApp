@@ -195,13 +195,12 @@ export const UserProvider = ({ children }) => {
     const controller = new AbortController()
     retryControllerRef.current = new AbortController()
 
-    // Initial fetch
-    debouncedFetchData(true, controller.signal)
+    fetchData(true, controller.signal)
 
     // Regular polling (set to a reasonable interval, e.g., 30 seconds)
     const pollingIntervalId = setInterval(() => {
-      debouncedFetchData(false, controller.signal)
-    }, 30000)
+      fetchData(false, controller.signal)
+    }, 5000)
 
     // Retry logic when there's an error
     const retryIntervalId = setInterval(() => {
@@ -210,7 +209,7 @@ export const UserProvider = ({ children }) => {
         state.personage.personageError &&
         mountedRef.current
       ) {
-        debouncedFetchData(false, retryControllerRef.current.signal)
+        fetchData(false, controller.signal)
       }
     }, 3000) // Retry every 3 seconds
 
