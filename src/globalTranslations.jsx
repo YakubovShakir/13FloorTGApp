@@ -135,16 +135,16 @@ export default {
       ru: "Внутренняя ошибка сервера",
     },
     deployTitle: {
-      en: "Sorry",
-      ru: "Простите",
+      en: "Reconnecting",
+      ru: "Соединение",
     },
     deployDescription: {
-      en: "We're deploying an upgrade",
-      ru: "Мы обновляем приложение",
+      en: 'To server',
+      ru: 'С сервером'
     },
     autoLoad: {
-      en: 'Reconnecting to server',
-      ru: 'Соединение с сервером'
+      en: 'To server',
+      ru: 'С сервером'
     }
   },
   gacha: {

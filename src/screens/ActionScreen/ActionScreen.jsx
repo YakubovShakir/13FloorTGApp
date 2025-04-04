@@ -63,8 +63,8 @@ const ActionScreen = memo(() => {
     training: { ru: "Тренировка", en: "Training" },
     inProgress: { ru: "В процессе", en: "In progress" },
     workDesc: {
-      ru: "Отправляйся на работу, чтобы заработать немного монет!",
-      en: "Go to work to earn some coins!",
+      ru: "Отправляйся на работу, чтобы заработать немного монет и повысить уровень!",
+      en: "Go to work to earn some coins and level up!",
     },
     trainingDesc: {
       ru: "Хорошая тренировка поднимает настроение!",
@@ -72,6 +72,9 @@ const ActionScreen = memo(() => {
     },
     sleep: { ru: "Сон", en: "Sleep" },
     sleepDesc: { ru: "Сон поможет восстановить энергию!", en: "Sleep will help restore energy!" },
+    descriptionWork: { ru: "Сон", en: "Sleep" },
+    descriptionTrain: { ru: "Сон", en: "Sleep" },
+    descriptionSleep: { ru: "Сон", en: "Sleep" },
   };
 
   const preloadData = useCallback(async () => {
@@ -314,11 +317,8 @@ const ActionScreen = memo(() => {
           type: "info",
           title: translations.unavailable[lang],
           modalLogo: Icons.lockedIcon,
-          blocks: [{
-            text: lang === "ru" ? "Один из ваших параметров на нуле!" : "One of your parameters is at zero!",
-            icon: Icons.lockedIcon,
-            
-          }],
+          description:lang === "ru" ? "Один из ваших параметров на нуле!" : "One of your parameters is at zero!",
+          
           buttons: [{
             text: "ОК",
             onClick: () => setVisibleModal(false),
@@ -414,12 +414,8 @@ const ActionScreen = memo(() => {
         type: "info",
         title: translations.unavailable[lang],
         modalLogo: Icons.lockedIcon,
-        blocks: [{
-          text: lang === "ru" ? "Ваш персонаж счастлив! Или голоден, а возможно не хвтатет энергии" : "Your character is happy! Or hungry, or maybe he doesn't have enough energy",
-          icon: Icons.lockedIcon,
-          
-        }],
        
+        description: lang === "ru" ? "Ваш персонаж счастлив! Или голоден, а возможно не хвтатет энергии" : "Your character is happy! Or hungry, or maybe he doesn't have enough energy",
         buttons: [{
           text: "ОК",
           onClick: () => setVisibleModal(false),
@@ -483,11 +479,8 @@ const ActionScreen = memo(() => {
         type: "info",
         title: translations.unavailable[lang],
         modalLogo: Icons.lockedIcon,
-        blocks: [{
-          text: lang === "ru" ? "Ваш персонаж полон энергии!" : "Your character is full of energy!",
-          icon: Icons.lockedIcon,
-          
-        }],
+        description: lang === "ru" ? "Ваш персонаж полон энергии!" : "Your character is full of energy!",
+       
         buttons: [{
           text: "ОК",
           onClick: () => setVisibleModal(false),
@@ -538,6 +531,7 @@ const ActionScreen = memo(() => {
             bottom={"0"}
             width={"100%"}
             height={"80%"}
+            description={modalData.description}
           />
         )}
         <ScreenContainer>
