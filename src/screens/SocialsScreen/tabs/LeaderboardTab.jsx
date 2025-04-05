@@ -146,7 +146,7 @@ const LeaderboardTab = () => {
             ItemTitle={userName}
             ItemDescription={true}
             ItemRespect={currentUser.respect || 0}
-            ItemTotalEarned={formatCoins(userScore)}
+            ItemTotalEarned={formatCoins(currentUser.total_earned)}
             ItemNumberLeader={currentUser.rank}
             ItemGender={currentUser.gender || "unknown"}
             ItemIndex={1}
