@@ -402,7 +402,7 @@ const ForeignHome = () => {
                     style={{
                       filter: state.nekoState.canClick
                         ? "none"
-                        : "grayscale(100%)",
+                        : "none",
                     }}
                     transition={{ duration: 0.5, ease: "easeOut" }}
                   />
@@ -448,7 +448,7 @@ const ForeignHome = () => {
                         justifyContent: "center",
                         alignItems: "center",
                         position: "absolute",
-                        top: "75%",
+                        top: "100%",
                         left: "23%",
                         transform: "translate(-50%, -50%)",
                         color: "white",
