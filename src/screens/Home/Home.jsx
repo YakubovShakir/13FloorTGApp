@@ -205,7 +205,7 @@ const Home = () => {
       const hours = Math.floor(duration.asHours());
       const minutes = duration.minutes();
       setTimer(
-        `${hours.toString().padStart(2, "0")}:${minutes
+        `${minutes
           .toString()
           .padStart(2, "0")}`
       );
@@ -624,7 +624,7 @@ const Home = () => {
                     src={userShelf.neko.shelf_link}
                     alt="neko"
                     style={{
-                      filter: state.nekoState.canClick ? "none" : "grayscale(100%)",
+                      filter: state.nekoState.canClick ? "none" : "none",
                     }}
                   />
                   {state.nekoState.canClick && (
@@ -668,7 +668,7 @@ const Home = () => {
                         justifyContent: "center",
                         alignItems: "center",
                         position: "absolute",
-                        top: "75%",
+                        top: "100%",
                         left: "23%",
                         transform: "translate(-50%, -50%)",
                         color: "white",
