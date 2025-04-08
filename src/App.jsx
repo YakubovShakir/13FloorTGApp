@@ -1,32 +1,50 @@
-import { useCallback, useContext, useEffect, useState } from "react"
-import { Route, Routes, MemoryRouter, useNavigate } from "react-router-dom"
-import { isMobile } from "react-device-detect"
+import React, { useCallback, useContext, useEffect, useState, lazy, Suspense } from "react"
+import { Route, Routes, MemoryRouter } from "react-router-dom"
 import "./App.css"
-import Home from "./screens/Home/Home"
-import useTelegram from "./hooks/useTelegram"
-import CareScreen from "./screens/CareScreen/CareScreen"
-import ActivityScreen from "./screens/ActivityScreen/ActivityScreen"
-import PersonageCreationScreen from "./screens/PersonageCreation/PersonageCreation"
-import UserContext, { UserProvider } from "./UserContext"
-import ShopScreen from "./screens/ShopScreen/ShopScreen"
-import TaskScreen from "./screens/SocialsScreen/SocialsScreen"
-import ActionScreen from "./screens/ActionScreen/ActionScreen"
-import InvestmentScreen from "./screens/Investment/InvestmentScreen"
-import { SettingsProvider, useSettingsProvider } from "./hooks"
-import Learning from "./screens/Learning/Learning"
-import BoostTab from "./screens/CareScreen/tabs/BoostTab"
+import UserContext from "./UserContext"
+import { useSettingsProvider } from "./hooks"
 import { TonConnectUIProvider } from "@tonconnect/ui-react"
-import ForeignHome from "./screens/Home/ForeignHome"
-import { config } from "dotenv"
-import { NotificationProvider, useNotification } from "./NotificationContext"
+import { useNotification } from "./NotificationContext"
 import WebApp from "@twa-dev/sdk"
 import { submitProfileData } from "./services/user/user"
-import GachaOverlay from "./screens/Home/Gacha"
-import DailyCheckInOverlay from "./screens/Home/DailyCheckInOverlay"
-import { isTMA, postEvent } from "@telegram-apps/sdk"
-import { EmojiReactionProvider } from "./EmojiReactionContext"
+import { postEvent } from "@telegram-apps/sdk"
+import FullScreenSpinner from "./screens/Home/FullScreenSpinner"
 
-// BlockerMessage component
+// Lazy-loaded components
+const Home = lazy(() => import("./screens/Home/Home"))
+const CareScreen = lazy(() => import("./screens/CareScreen/CareScreen"))
+const ActivityScreen = lazy(() => import("./screens/ActivityScreen/ActivityScreen"))
+const PersonageCreationScreen = lazy(() => import("./screens/PersonageCreation/PersonageCreation"))
+const ShopScreen = lazy(() => import("./screens/ShopScreen/ShopScreen"))
+const TaskScreen = lazy(() => import("./screens/SocialsScreen/SocialsScreen"))
+const ActionScreen = lazy(() => import("./screens/ActionScreen/ActionScreen"))
+const InvestmentScreen = lazy(() => import("./screens/Investment/InvestmentScreen"))
+const Learning = lazy(() => import("./screens/Learning/Learning"))
+const BoostTab = lazy(() => import("./screens/CareScreen/tabs/BoostTab"))
+const ForeignHome = lazy(() => import("./screens/Home/ForeignHome"))
+const GachaOverlay = lazy(() => import("./screens/Home/Gacha"))
+const DailyCheckInOverlay = lazy(() => import("./screens/Home/DailyCheckInOverlay"))
+
+// Error Boundary Component
+class ErrorBoundary extends React.Component {
+  state = { hasError: false }
+  static getDerivedStateFromError() {
+    return { hasError: true }
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div style={{ color: "white", textAlign: "center", padding: "20px" }}>
+          <h1>Something went wrong</h1>
+          <p>Please refresh the app or contact support.</p>
+        </div>
+      )
+    }
+    return this.props.children
+  }
+}
+
+// BlockerMessage Component
 const BlockerMessage = () => (
   <div
     style={{
@@ -71,75 +89,90 @@ const BlockerMessage = () => (
           This dApp is only available on Telegram mobile app.
         </p>
       </div>
-      <p
-        style={{
-          margin: "16px 0",
-          color: "#4b5563",
-          fontSize: "14px",
-        }}
-      >
+      <p style={{ margin: "16px 0", color: "#4b5563", fontSize: "14px" }}>
         Please open this dApp using Telegram mobile app on iOS or Android.
       </p>
     </div>
   </div>
 )
 
+// Debounce utility
+const debounce = (func, wait) => {
+  let timeout
+  return (...args) => {
+    clearTimeout(timeout)
+    timeout = setTimeout(() => func(...args), wait)
+  }
+}
+
 function App() {
   const [shouldBlock, setShouldBlock] = useState(false)
+  const [isInitialized, setIsInitialized] = useState(false)
 
-  // Hash manipulation useEffect (unchanged)
+  // Hash manipulation
   useEffect(() => {
     const hash = window.location.hash
     if (!hash.includes("tgWebAppVersion=8.2")) {
-      const newHash = hash
-        ? `${hash}&tgWebAppVersion=8.2`
-        : "#tgWebAppVersion=8.2"
+      const newHash = hash ? `${hash}&tgWebAppVersion=8.2` : "#tgWebAppVersion=8.2"
       window.history.replaceState(null, "", newHash)
     }
   }, [])
 
-  // Telegram SDK initialization and platform check useEffect
+  // Telegram SDK initialization with timeout
   useEffect(() => {
     if (import.meta.env.VITE_NODE_ENV === "test") {
+      setIsInitialized(true)
       return
     }
 
+    let attempts = 0
+    const maxAttempts = 100 // 5 seconds at 50ms intervals
+
     const initTelegramApp = () => {
       if (!window.Telegram?.WebApp) {
-        console.warn("Telegram WebApp not available yet")
+        console.warn(`Telegram WebApp not available yet, attempt ${attempts}/${maxAttempts}`)
         return false
       }
 
       const platform = (window.Telegram.WebApp.platform || "").toLowerCase()
+      console.log("Detected platform:", platform)
       const isMobileApp = /^(android|ios)$/.test(platform)
 
       if (!isMobileApp) {
-        setShouldBlock(true) // Show block screen for non-iOS/Android
-        return true // Stop further initialization
+        console.log("Non-mobile platform detected, blocking access")
+        setShouldBlock(true)
+        return true
       }
 
       try {
-        window.Telegram.WebApp.ready() // Signal readiness
+        window.Telegram.WebApp.ready()
         postEvent("web_app_expand")
-        setTimeout(() => postEvent("web_app_request_fullscreen"), 100) // Delay fullscreen
+        setTimeout(() => postEvent("web_app_request_fullscreen"), 100)
         console.log("Telegram WebApp initialized successfully")
+        setIsInitialized(true)
+        return true
       } catch (err) {
         console.error("Error initializing Telegram events:", err)
+        return false
       }
-      return true
     }
 
     if (!initTelegramApp()) {
       const interval = setInterval(() => {
-        if (initTelegramApp()) {
+        attempts++
+        if (initTelegramApp() || attempts >= maxAttempts) {
           clearInterval(interval)
+          if (attempts >= maxAttempts) {
+            console.error("Failed to initialize Telegram WebApp after max attempts")
+            setShouldBlock(true) // Fallback to block screen
+          }
         }
-      }, 50) // Check every 50ms
+      }, 50)
       return () => clearInterval(interval)
     }
   }, [])
 
-  const { userParameters } = useContext(UserContext)
+  const { userParameters, userId } = useContext(UserContext)
   const [notificationsSent, setNotificationsSent] = useState({
     moodBelow49: false,
     hungryBelow49: false,
@@ -194,12 +227,10 @@ function App() {
     const handleNotification = (key) => {
       const message = translations[key][lang] || translations[key].en
       if (!message) {
-        console.warn(
-          `Translation not found for key "${key}" and language "${lang}"`
-        )
+        console.warn(`Translation not found for key "${key}" and language "${lang}"`)
         return
       }
-      console.log("Sending notification for", key)
+      console.log("Sending notification:", key, message)
       showNotification(message)
       updatedNotificationsSent[key] = true
       hasChanged = true
@@ -221,50 +252,46 @@ function App() {
       } else if (mood > 49) {
         updatedNotificationsSent.moodBelow9 = false
         updatedNotificationsSent.moodBelow49 = false
-        if (notificationsSent.moodBelow9 || notificationsSent.moodBelow49)
-          hasChanged = true
+        if (notificationsSent.moodBelow9 || notificationsSent.moodBelow49) hasChanged = true
       }
 
       if (hungry <= 9 && !notificationsSent.hungryBelow9) {
         handleNotification("hungryBelow9")
-      } else if (
-        hungry <= 49 &&
-        !notificationsSent.hungryBelow49 &&
-        hungry > 9
-      ) {
+      } else if (hungry <= 49 && !notificationsSent.hungryBelow49 && hungry > 9) {
         handleNotification("hungryBelow49")
       } else if (hungry > 49) {
         updatedNotificationsSent.hungryBelow9 = false
         updatedNotificationsSent.hungryBelow49 = false
-        if (notificationsSent.hungryBelow9 || notificationsSent.hungryBelow49)
-          hasChanged = true
+        if (notificationsSent.hungryBelow9 || notificationsSent.hungryBelow49) hasChanged = true
       }
     }
 
     if (hasChanged) {
       setNotificationsSent(updatedNotificationsSent)
     }
-  }, [
-    userParameters,
-    notificationsSent,
-    resetNotifications,
-    showNotification,
-    lang,
+  }, [userParameters, notificationsSent, resetNotifications, showNotification, lang])
+
+  const debouncedCheckNotifications = useCallback(debounce(checkAndSendNotifications, 500), [
+    checkAndSendNotifications,
   ])
 
-  useEffect(() => checkAndSendNotifications(), [userParameters])
-
-  const { userId } = useContext(UserContext)
   useEffect(() => {
+    if (isInitialized) debouncedCheckNotifications()
+  }, [userParameters, isInitialized])
+
+  useEffect(() => {
+    if (!isInitialized || !userId) return
+
     const submitUserData = async () => {
       try {
         await submitProfileData(userId, WebApp)
+        console.log("User data submitted successfully")
       } catch (err) {
         console.error("Error submitting user data:", err)
       }
     }
     submitUserData()
-  }, [userId])
+  }, [userId, isInitialized])
 
   if (shouldBlock) {
     return <BlockerMessage />
@@ -278,33 +305,27 @@ function App() {
           : "https://game.13thfloorgame.io/tonconnect-manifest.json"
       }
     >
-         
-              <MemoryRouter>
-                <Routes>
-                  <Route path="/" index element={<Home />} />
-                  <Route path="/learning/:slideIndex?" element={<Learning />} />
-                  <Route
-                    path="/personage-create"
-                    element={<PersonageCreationScreen />}
-                  />
-                  <Route path="/care" element={<CareScreen />} />
-                  <Route path="/shop" element={<ShopScreen />} />
-                  <Route path="/activity/:type" element={<ActivityScreen />} />
-                  <Route path="/tasks/:tab?" element={<TaskScreen />} />
-                  <Route path="/action" element={<ActionScreen />} />
-                  <Route path="/investment" element={<InvestmentScreen />} />
-                  <Route path="/boost" element={<BoostTab />} />
-                  <Route
-                    path="/foreign-user/:userId"
-                    element={<ForeignHome />}
-                  />
-                  <Route path="/gacha" element={<GachaOverlay />} />
-                  <Route
-                    path="/daily-rewards"
-                    element={<DailyCheckInOverlay />}
-                  />
-                </Routes>
-              </MemoryRouter>
+      <MemoryRouter>
+        <ErrorBoundary>
+          <Suspense fallback={<div style={{ color: "white", textAlign: "center" }}><FullScreenSpinner/></div>}>
+            <Routes>
+              <Route path="/" index element={<Home />} />
+              <Route path="/learning/:slideIndex?" element={<Learning />} />
+              <Route path="/personage-create" element={<PersonageCreationScreen />} />
+              <Route path="/care" element={<CareScreen />} />
+              <Route path="/shop" element={<ShopScreen />} />
+              <Route path="/activity/:type" element={<ActivityScreen />} />
+              <Route path="/tasks/:tab?" element={<TaskScreen />} />
+              <Route path="/action" element={<ActionScreen />} />
+              <Route path="/investment" element={<InvestmentScreen />} />
+              <Route path="/boost" element={<BoostTab />} />
+              <Route path="/foreign-user/:userId" element={<ForeignHome />} />
+              <Route path="/gacha" element={<GachaOverlay />} />
+              <Route path="/daily-rewards" element={<DailyCheckInOverlay />} />
+            </Routes>
+          </Suspense>
+        </ErrorBoundary>
+      </MemoryRouter>
     </TonConnectUIProvider>
   )
 }
