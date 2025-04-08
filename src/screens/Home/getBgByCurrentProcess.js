@@ -21,6 +21,7 @@ const workToBGMap = {
   18: Assets.BG.workFour,
   19: Assets.BG.workFour,
   20: Assets.BG.workFour,
+  21: Assets.BG.SecurityBG,
 }
 
 const getBgByCurrentProcess = (processType, workId) => {
