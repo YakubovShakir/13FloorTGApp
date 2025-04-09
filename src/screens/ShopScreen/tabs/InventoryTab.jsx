@@ -102,7 +102,7 @@ const GridItem = ({
                 alignItems: "center",
                 justifyContent: "center",
 
-                marginTop: -5.5,
+                
                 position: "relative",
               }}
             >
