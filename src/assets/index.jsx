@@ -257,6 +257,7 @@ import workCleaner from './IMG/workCleanerBG.webp'
 import workKithen from './IMG/workKithenBG.webp'
 import workOffice from './IMG/workOfficeBG.webp'
 import workBigof from './IMG/workBigofBG.webp'
+import SecurityBG from './IMG/SecurityBG.webp'
 
 import womanAva from './IMG/womanAva.png'
 import manAva from './IMG/Man-ava.png'
@@ -489,6 +490,7 @@ const Assets = {
     workKithen,
     workOffice,
     workBigof,
+    SecurityBG,
   },
   nameUnderline,
   HOME: {
