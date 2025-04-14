@@ -538,10 +538,10 @@ const ActionScreen = memo(() => {
           {/* Work Section */}
           {userParameters.work_id !== 0 && (
             <ItemCard
-              ItemIcon={getWorkById(userParameters.work_id)?.link || Icons.default}
+              ItemIcon={getWorkById(userParameters.current_work_id || userParameters.work_id)?.link || Icons.default}
               ItemDescription={translations.workDesc[lang]}
-              ItemTitle={getWorkById(userParameters.work_id)?.name?.[lang] || "Unknown Work"}
-              ItemParamsBlocks={getItemWorkParams(userParameters.work_id)}
+              ItemTitle={getWorkById(userParameters.current_work_id || userParameters.work_id)?.name?.[lang] || "Unknown Work"}
+              ItemParamsBlocks={getItemWorkParams(userParameters.current_work_id || userParameters.work_id)}
               ItemButtons={getItemWorkButton(userParameters.work_id)}
               ItemIndex={0}
             />
