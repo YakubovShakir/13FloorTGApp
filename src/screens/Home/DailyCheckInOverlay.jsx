@@ -26,12 +26,11 @@ const DailyCheckInOverlay = () => {
   const [isActive, setIsActive] = useState(true)
   const [streak, setStreak] = useState(0)
   const [canClaim, setCanClaim] = useState(false)
-  const [hasCheckedInToday, setHasCheckedInToday] = useState(false)
   const [reward, setReward] = useState(null)
   const [rewards, setRewards] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const { userId } = useUser()
-  const { lang } = useSettingsProvider() // Language setting
+  const { lang } = useSettingsProvider()
 
   const fetchStatus = async () => {
     setIsLoading(true)
@@ -39,7 +38,6 @@ const DailyCheckInOverlay = () => {
       const { data } = await instance.get(`/users/${userId}/daily/status`)
       setStreak(data.streak)
       setCanClaim(data.canClaim)
-      setHasCheckedInToday(data.hasCheckedInToday)
       setRewards(data.rewards)
     } catch (error) {
       console.error("Error fetching daily status:", error)
@@ -172,7 +170,6 @@ const DailyCheckInOverlay = () => {
                       }}
                     />
                     {/* Контейнер со скроллом */}
-
                     <div
                       style={{
                         position: "relative",
@@ -192,7 +189,7 @@ const DailyCheckInOverlay = () => {
                       className="custom-scroll"
                     >
                       {rewards.map((item) => {
-                        const isPast = item.day <= streak
+                        const isPast = item.collected
                         const isCurrent = item.day === streak + 1 && canClaim
                         const isFuture = item.day > streak + (canClaim ? 1 : 0)
 
@@ -213,7 +210,7 @@ const DailyCheckInOverlay = () => {
                                 ? "2px solid #ff9d00"
                                 : "1px solid rgba(255, 255, 255, 0.1)",
                               transition:
-                                "background 0.2s ease, border 0.2s ease", // Limit transition scope
+                                "background 0.2s ease, border 0.2s ease",
                               textAlign: "center",
                               minWidth: "100px",
                               maxWidth: "110px",
@@ -232,8 +229,8 @@ const DailyCheckInOverlay = () => {
                                 whiteSpace: "normal",
                                 maxWidth: "100%",
                                 textTransform: "uppercase",
-                                textRendering: "optimizeLegibility", // Improve text clarity
-                                WebkitFontSmoothing: "antialiased", // Sharper text on Webkit
+                                textRendering: "optimizeLegibility",
+                                WebkitFontSmoothing: "antialiased",
                               }}
                             >
                               {translations.day[lang] || translations.day.en}{" "}
@@ -241,11 +238,11 @@ const DailyCheckInOverlay = () => {
                             </p>
                             <div
                               style={{
-                                background: "rgb(26, 26, 26)", // Simplified background for clarity
+                                background: "rgb(26, 26, 26)",
                                 borderBottom:
                                   "1px solid rgba(117, 117, 117, 0.23)",
                                 boxShadow:
-                                  "rgba(0, 0, 0, 0.15) 0px 0px 4px inset", // Reduced shadow radius
+                                  "rgba(0, 0, 0, 0.15) 0px 0px 4px inset",
                                 borderRadius: "6px",
                                 padding: "5px",
                                 display: "flex",
@@ -265,13 +262,13 @@ const DailyCheckInOverlay = () => {
                                   filter: isFuture
                                     ? "grayscale(80%) opacity(0.6)"
                                     : "none",
-                                  imageRendering: "auto", // Default rendering, adjust if needed
+                                  imageRendering: "auto",
                                 }}
                               />
                             </div>
                             <p
                               style={{
-                                fontSize: "12px", // Slightly larger for readability
+                                fontSize: "12px",
                                 marginTop: "0",
                                 fontFamily: "Oswald",
                                 opacity: isPast || isCurrent ? 1 : 0.7,
@@ -287,8 +284,8 @@ const DailyCheckInOverlay = () => {
                                 minHeight: "40px",
                                 fontWeight: "600",
                                 textTransform: "uppercase",
-                                textRendering: "optimizeLegibility", // Improve text clarity
-                                WebkitFontSmoothing: "antialiased", // Sharper text on Webkit
+                                textRendering: "optimizeLegibility",
+                                WebkitFontSmoothing: "antialiased",
                               }}
                             >
                               {item.name[lang] || item.name.en}
@@ -342,7 +339,7 @@ const DailyCheckInOverlay = () => {
                             translations.claimReward.en
                           }
                           width={180}
-                          active={false} // Disabled state
+                          active={false}
                           color={"white"}
                           fontSize={14}
                           fontWeight={400}

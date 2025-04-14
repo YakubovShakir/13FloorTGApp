@@ -25,3 +25,14 @@ export const buyWork = async (userId, workId) => {
     console.log("Error while fetch works ", e)
   }
 }
+
+export const switchWork = async (userId, workId) => {
+  try {
+    let response = await instance.post(`/work/switch`, null, {
+      params: {id: userId, workId: workId}
+    })
+    return response.status
+  } catch (e) {
+    console.log("Error while fetch works ", e)
+  }
+}

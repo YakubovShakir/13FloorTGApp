@@ -165,12 +165,13 @@ const Modal = ({ bottom, left, width, height, data, onClose, logoWidth }) => {
   }
 
   const { userParameters } = useUser()
-  const canBuyInvestmentLevel =  
-    (userParameters.level >= data.level_required || 0) && 
-    (data.skill_id_required ? data.userSkills?.includes(data.skill_id_required) : true) &&
+  const canBuyInvestmentLevel =
+    (userParameters.level >= data.level_required || 0) &&
+    (data.skill_id_required
+      ? data.userSkills?.includes(data.skill_id_required)
+      : true) &&
     userParameters.respect >= data.respect_required &&
     data.price <= userParameters.coins
-
 
   // Fetch skill details if skill_id_required exists
   useEffect(() => {
@@ -829,19 +830,20 @@ const ThreeSectionCard = ({
             layout
             style={{ color: "white", paddingTop: 8, textAlign: "center" }}
           >
-            {is_active === true && (timeLeft === null
-              ? "Loading..."
-              : timeLeft <= 0
-              ? (() => {
-                  fetchInvestments()
-                })()
-              : (() => {
-                  const hours = Math.floor(timeLeft / 3600)
-                  const minutes = Math.floor((timeLeft % 3600) / 60)
-                  return `${hours.toString().padStart(2, "0")}:${minutes
-                    .toString()
-                    .padStart(2, "0")}`
-                })())}
+            {is_active === true &&
+              (timeLeft === null
+                ? "Loading..."
+                : timeLeft <= 0
+                ? (() => {
+                    fetchInvestments()
+                  })()
+                : (() => {
+                    const hours = Math.floor(timeLeft / 3600)
+                    const minutes = Math.floor((timeLeft % 3600) / 60)
+                    return `${hours.toString().padStart(2, "0")}:${minutes
+                      .toString()
+                      .padStart(2, "0")}`
+                  })())}
           </motion.p>
 
           {has_autoclaim && is_active && (
@@ -941,7 +943,7 @@ const ThreeSectionCard = ({
         ) : isGameCenter ? (
           <Button
             {...buttonStyle}
-            active={userParameters.coins >= upgrade_info.price}
+            active={true} // Always active for inviting friends
             text={translations.invite[lang]}
             onClick={onClick}
           />
@@ -975,9 +977,21 @@ const useInvestmentData = (userId) => {
       setAutoclaims(autoclaims)
       console.log(autoclaims)
       setInvestments({
-        game_center: { ...res.game_center, ...autoclaims.GameCenter, userSkills: res.user_skills },
-        coffee_shop: { ...res.coffee_shop, ...autoclaims.CoffeeShopm, userSkills: res.user_skills },
-        zoo_shop: { ...res.zoo_shop, ...autoclaims.ZooShop, userSkills: res.user_skills },
+        game_center: {
+          ...res.game_center,
+          ...autoclaims.GameCenter,
+          userSkills: res.user_skills,
+        },
+        coffee_shop: {
+          ...res.coffee_shop,
+          ...autoclaims.CoffeeShop,
+          userSkills: res.user_skills,
+        },
+        zoo_shop: {
+          ...res.zoo_shop,
+          ...autoclaims.ZooShop,
+          userSkills: res.user_skills,
+        },
       })
       console.log(investments)
       setError(null)
@@ -1150,6 +1164,18 @@ const InvestmentScreen = () => {
       game_center: Assets.Icons.gameCenter,
     }
 
+    const canBuyInvestmentLevel =
+      userParameters.level >=
+        (investmentData.upgrade_info.level_required || 0) &&
+      (investmentData.upgrade_info.skill_id_required
+        ? investmentData.userSkills?.includes(
+            investmentData.upgrade_info.skill_id_required
+          )
+        : true) &&
+      userParameters.respect >=
+        (investmentData.upgrade_info.respect_required || 0) &&
+      userParameters.coins >= investmentData.upgrade_info.price
+
     setModalData({
       image: iconMap[investment_type],
       from: investmentData.upgrade_info.from,
@@ -1161,7 +1187,7 @@ const InvestmentScreen = () => {
       },
       current_level: investmentData.current_level,
       title: titlesMap[investment_type][lang],
-      canUpgrade: userParameters.coins >= investmentData.upgrade_info.price,
+      canUpgrade: canBuyInvestmentLevel && !!investmentData.upgrade_info.to, // Check if next level exists
       level_required: investmentData.upgrade_info.level_required || 0,
       skill_id_required: investmentData.upgrade_info.skill_id_required || null,
       userLevel: investments.user_level,
@@ -1175,7 +1201,6 @@ const InvestmentScreen = () => {
       },
       respect_required:
         investmentData.upgrade_info.respect_required || undefined,
-      userSkills: investments?.game_center?.userSkills
     })
     setIsModalVisible(true)
   }
@@ -1242,6 +1267,21 @@ const InvestmentScreen = () => {
               })
               setIsAutoClaimModalVisible(true)
             }}
+            canUpgrade={
+              investments?.coffee_shop?.upgrade_info?.to &&
+              userParameters.level >=
+                (investments?.coffee_shop?.upgrade_info?.level_required || 0) &&
+              (investments?.coffee_shop?.upgrade_info?.skill_id_required
+                ? investments?.coffee_shop?.userSkills?.includes(
+                    investments?.coffee_shop?.upgrade_info?.skill_id_required
+                  )
+                : true) &&
+              userParameters.respect >=
+                (investments?.coffee_shop?.upgrade_info?.respect_required ||
+                  0) &&
+              userParameters.coins >=
+                investments?.coffee_shop?.upgrade_info?.price
+            }
             {...investments?.coffee_shop}
             userParameters={userParameters}
             handleStart={() => handleStart("coffee_shop")}
@@ -1258,6 +1298,19 @@ const InvestmentScreen = () => {
             handleClaim={() => handleClaim("zoo_shop")}
             tz={investments?.tz}
             started_at={investments?.zoo_shop?.started_at}
+            canUpgrade={
+              investments?.zoo_shop?.upgrade_info?.to &&
+              userParameters.level >=
+                (investments?.zoo_shop?.upgrade_info?.level_required || 0) &&
+              (investments?.zoo_shop?.upgrade_info?.skill_id_required
+                ? investments?.zoo_shop?.userSkills?.includes(
+                    investments?.zoo_shop?.upgrade_info?.skill_id_required
+                  )
+                : true) &&
+              userParameters.respect >=
+                (investments?.zoo_shop?.upgrade_info?.respect_required || 0) &&
+              userParameters.coins >= investments?.zoo_shop?.upgrade_info?.price
+            }
             {...investments?.zoo_shop}
             openAutoclaimModal={() => {
               setAutoclaimModalData({
@@ -1282,8 +1335,8 @@ const InvestmentScreen = () => {
             started_at={investments?.game_center?.started_at}
             handleClaim={() => handleClaim("game_center")}
             hideUpgrade={true}
+            canUpgrade={false} // Game center doesn't use standard upgrade button
             {...investments?.game_center}
-            
             openAutoclaimModal={() => {
               setAutoclaimModalData({
                 ...autoclaimModalDataFixed,

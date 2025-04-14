@@ -134,15 +134,15 @@ function App() {
         return false
       }
 
-      const platform = (window.Telegram.WebApp.platform || "").toLowerCase()
-      console.log("Detected platform:", platform)
-      const isMobileApp = /^(android|ios)$/.test(platform)
+      // const platform = (window.Telegram.WebApp.platform || "").toLowerCase()
+      // console.log("Detected platform:", platform)
+      // const isMobileApp = /^(android|ios)$/.test(platform)
 
-      if (!isMobileApp) {
-        console.log("Non-mobile platform detected, blocking access")
-        setShouldBlock(true)
-        return true
-      }
+      // if (!isMobileApp) {
+      //   console.log("Non-mobile platform detected, blocking access")
+      //   setShouldBlock(true)
+      //   return true
+      // }
 
       try {
         window.Telegram.WebApp.ready()
@@ -293,9 +293,9 @@ function App() {
     submitUserData()
   }, [userId, isInitialized])
 
-  if (shouldBlock) {
-    return <BlockerMessage />
-  }
+  // if (shouldBlock) {
+  //   return <BlockerMessage />
+  // }
 
   return (
     <TonConnectUIProvider
