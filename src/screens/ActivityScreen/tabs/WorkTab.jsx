@@ -421,6 +421,7 @@ export const WorkTab = ({
           ItemParamsBlocks={getItemWorkParams(work?.work_id)}
           ItemButtons={getItemWorkButton(work?.work_id)}
           ItemIndex={index}
+          ItemDescription={work?.description[lang]}
         />
       ))}
       {works?.sort((a, b) => a.work_id - b.work_id).filter(work => work.work_id >= userParameters.work_id).map((work, index) => (
@@ -431,6 +432,7 @@ export const WorkTab = ({
           ItemParamsBlocks={getItemWorkParams(work?.work_id)}
           ItemButtons={getItemWorkButton(work?.work_id)}
           ItemIndex={index}
+          ItemDescription={work?.description[lang]}
         />
       ))}
 

@@ -795,14 +795,14 @@ const ThreeSectionCard = ({
           style={styles.image}
         />
 
-        {current_level > 0 && (
-          <Button
-            {...buttonStyle}
-            active={true}
-            onClick={onClick}
-            text={translations.upgrade[lang]}
-          />
-        )}
+{current_level > 0 && canUpgrade && !isGameCenter && (
+  <Button
+    {...buttonStyle}
+    active={true}
+    onClick={onClick}
+    text={translations.upgrade[lang]}
+  />
+)}
       </motion.div>
 
       {current_level > 0 && (
@@ -882,47 +882,49 @@ const ThreeSectionCard = ({
         </motion.p>
 
         <motion.div
-          layout
-          className="ClaimPrise"
-          style={{
-            margin: "0px 0px 0px 5px",
-            background: "rgb(18, 18, 18)",
-            borderRadius: "5px",
-            borderBottom: "1px solid rgba(117, 117, 117, 0.23)",
-            boxShadow: "rgba(0, 0, 0, 0.24) 0px 0px 8px 2px inset",
-            fontSize: 16,
-            color: "white",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            width: "95%",
-          }}
-        >
-          <motion.img
-            layout
-            src={Assets.Icons.balance}
-            alt="Balance Icon"
-            style={{
-              position: "relative",
-              left: "-6%",
-              width: 24,
-              height: 24,
-            }}
-          />
-          <motion.p
-            layout
-            style={{
-              paddingRight: "14px",
-              textAlign: "center",
-              fontSize: 16,
-              color: "white",
-              width: "100%",
-            }}
-          >
-            {from}
-            {translations.hour[lang]}
-          </motion.p>
-        </motion.div>
+  layout
+  className="ClaimPrise"
+  style={{
+    margin: "0px 0px 0px 5px",
+    background: "rgb(18, 18, 18)",
+    borderRadius: "5px",
+    borderBottom: "1px solid rgba(117, 117, 117, 0.23)",
+    boxShadow: "rgba(0, 0, 0, 0.24) 0px 0px 8px 2px inset",
+    fontSize: 16,
+    color: "white",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    width: "95%",
+  }}
+>
+  <motion.img
+    layout
+    src={Assets.Icons.balance}
+    alt="Balance Icon"
+    style={{
+      position: "relative",
+      left: "-6%",
+      width: 24,
+      height: 24,
+    }}
+  />
+  <motion.p
+    layout
+    style={{
+      paddingRight: "14px",
+      textAlign: "center",
+      fontSize: 16,
+      color: "white",
+      width: "100%",
+    }}
+  >
+    {current_level === 0
+      ? (upgrade_info?.to ?? 0)
+      : from}
+    {translations.hour[lang]}
+  </motion.p>
+</motion.div>
 
         {current_level > 0 ? (
           started_at ? (
@@ -975,25 +977,16 @@ const useInvestmentData = (userId) => {
       const res = await getUserInvestments(userId)
       const autoclaims = await getAutoclaimData()
       setAutoclaims(autoclaims)
-      console.log(autoclaims)
       setInvestments({
-        game_center: {
-          ...res.game_center,
-          ...autoclaims.GameCenter,
-          userSkills: res.user_skills,
-        },
-        coffee_shop: {
-          ...res.coffee_shop,
-          ...autoclaims.CoffeeShop,
-          userSkills: res.user_skills,
-        },
-        zoo_shop: {
-          ...res.zoo_shop,
-          ...autoclaims.ZooShop,
-          userSkills: res.user_skills,
-        },
+        game_center: { ...res.game_center, ...autoclaims.GameCenter, userSkills: res.user_skills },
+        coffee_shop: { ...res.coffee_shop, ...autoclaims.CoffeeShop, userSkills: res.user_skills },
+        zoo_shop: { ...res.zoo_shop, ...autoclaims.ZooShop, userSkills: res.user_skills },
       })
-      console.log(investments)
+      console.log("Investments:", {
+        coffee_shop: investments?.coffee_shop?.upgrade_info,
+        zoo_shop: investments?.zoo_shop?.upgrade_info,
+        game_center: investments?.game_center?.upgrade_info,
+      }); // Debug log
       setError(null)
     } catch (err) {
       setError(err)
@@ -1249,79 +1242,73 @@ const InvestmentScreen = () => {
           animate={{ opacity: 1 }}
           transition={{ duration: 0.3 }}
         >
-          <ThreeSectionCard
-            index={0}
-            from={investments?.coffee_shop?.upgrade_info?.from}
-            data={modalData}
-            title={titlesMap.coffee_shop[lang]}
-            leftImage={Assets.Icons.investmentCoffeeShopIcon}
-            rightImage={Assets.Icons.investManager}
-            onClick={() => handleModalOpen("coffee_shop")}
-            tz={investments?.tz}
-            started_at={investments?.coffee_shop?.started_at}
-            handleClaim={() => handleClaim("coffee_shop")}
-            openAutoclaimModal={() => {
-              setAutoclaimModalData({
-                ...autoclaimModalDataFixed,
-                type: "coffee_shop",
-              })
-              setIsAutoClaimModalVisible(true)
-            }}
-            canUpgrade={
-              investments?.coffee_shop?.upgrade_info?.to &&
-              userParameters.level >=
-                (investments?.coffee_shop?.upgrade_info?.level_required || 0) &&
-              (investments?.coffee_shop?.upgrade_info?.skill_id_required
-                ? investments?.coffee_shop?.userSkills?.includes(
-                    investments?.coffee_shop?.upgrade_info?.skill_id_required
-                  )
-                : true) &&
-              userParameters.respect >=
-                (investments?.coffee_shop?.upgrade_info?.respect_required ||
-                  0) &&
-              userParameters.coins >=
-                investments?.coffee_shop?.upgrade_info?.price
-            }
-            {...investments?.coffee_shop}
-            userParameters={userParameters}
-            handleStart={() => handleStart("coffee_shop")}
-          />
+         <ThreeSectionCard
+  index={0}
+  from={investments?.coffee_shop?.upgrade_info?.from}
+  data={modalData}
+  title={titlesMap.coffee_shop[lang]}
+  leftImage={Assets.Icons.investmentCoffeeShopIcon}
+  rightImage={Assets.Icons.investManager}
+  onClick={() => handleModalOpen("coffee_shop")}
+  tz={investments?.tz}
+  started_at={investments?.coffee_shop?.started_at}
+  handleClaim={() => handleClaim("coffee_shop")}
+  openAutoclaimModal={() => {
+    setAutoclaimModalData({
+      ...autoclaimModalDataFixed,
+      type: "coffee_shop",
+    })
+    setIsAutoClaimModalVisible(true)
+  }}
+  canUpgrade={
+    !!investments?.coffee_shop?.upgrade_info?.to && // Ensure next level exists
+    userParameters.level >= (investments?.coffee_shop?.upgrade_info?.level_required || 0) &&
+    (investments?.coffee_shop?.upgrade_info?.skill_id_required
+      ? investments?.coffee_shop?.userSkills?.includes(
+          investments?.coffee_shop?.upgrade_info?.skill_id_required
+        )
+      : true) &&
+    userParameters.respect >= (investments?.coffee_shop?.upgrade_info?.respect_required || 0) &&
+    userParameters.coins >= (investments?.coffee_shop?.upgrade_info?.price || 0)
+  }
+  {...investments?.coffee_shop}
+  userParameters={userParameters}
+  handleStart={() => handleStart("coffee_shop")}
+/>
 
-          <ThreeSectionCard
-            index={1}
-            from={investments?.zoo_shop?.upgrade_info?.from}
-            data={modalData}
-            title={titlesMap.zoo_shop[lang]}
-            leftImage={Assets.Icons.investmentZooShopIcon}
-            rightImage={Assets.Icons.investManager}
-            onClick={() => handleModalOpen("zoo_shop")}
-            handleClaim={() => handleClaim("zoo_shop")}
-            tz={investments?.tz}
-            started_at={investments?.zoo_shop?.started_at}
-            canUpgrade={
-              investments?.zoo_shop?.upgrade_info?.to &&
-              userParameters.level >=
-                (investments?.zoo_shop?.upgrade_info?.level_required || 0) &&
-              (investments?.zoo_shop?.upgrade_info?.skill_id_required
-                ? investments?.zoo_shop?.userSkills?.includes(
-                    investments?.zoo_shop?.upgrade_info?.skill_id_required
-                  )
-                : true) &&
-              userParameters.respect >=
-                (investments?.zoo_shop?.upgrade_info?.respect_required || 0) &&
-              userParameters.coins >= investments?.zoo_shop?.upgrade_info?.price
-            }
-            {...investments?.zoo_shop}
-            openAutoclaimModal={() => {
-              setAutoclaimModalData({
-                ...autoclaimModalDataFixed,
-                type: "zoo_shop",
-              })
-              setIsAutoClaimModalVisible(true)
-            }}
-            userParameters={userParameters}
-            handleStart={() => handleStart("zoo_shop")}
-          />
+<ThreeSectionCard
+  index={1}
+  from={investments?.zoo_shop?.upgrade_info?.from}
+  data={modalData}
+  title={titlesMap.zoo_shop[lang]}
+  leftImage={Assets.Icons.investmentZooShopIcon}
+  rightImage={Assets.Icons.investManager}
+  onClick={() => handleModalOpen("zoo_shop")}
+  handleClaim={() => handleClaim("zoo_shop")}
+  tz={investments?.tz}
+  started_at={investments?.zoo_shop?.started_at}
+  canUpgrade={
+    !!investments?.zoo_shop?.upgrade_info?.to && // Ensure next level exists
+    userParameters.level >= (investments?.zoo_shop?.upgrade_info?.level_required || 0) &&
+    (investments?.zoo_shop?.upgrade_info?.skill_id_required
+      ? investments?.zoo_shop?.userSkills?.includes(
+          investments?.zoo_shop?.upgrade_info?.skill_id_required
+        )
+      : true) &&
+    userParameters.respect >= (investments?.zoo_shop?.upgrade_info?.respect_required || 0) &&
+    userParameters.coins >= (investments?.zoo_shop?.upgrade_info?.price || 0)
+  }
+  {...investments?.zoo_shop}
+  openAutoclaimModal={() => {
+    setAutoclaimModalData({
+      ...autoclaimModalDataFixed,
+      type: "zoo_shop",
+    })
+    setIsAutoClaimModalVisible(true)
+  }}
+  userParameters={userParameters}
+  handleStart={() => handleStart("zoo_shop")}
+/>
 
           <ThreeSectionCard
             index={2}
