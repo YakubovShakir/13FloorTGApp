@@ -56,8 +56,8 @@ export default {
       ru: "Требуемый уровень",
     },
     respect: {
-      en: "Grants respect",
-      ru: "Даёт респекта",
+      en: "Adds respect",
+      ru: "Прибавляет респект",
     },
     neko_boost_percentage: {
       neko_boost: {

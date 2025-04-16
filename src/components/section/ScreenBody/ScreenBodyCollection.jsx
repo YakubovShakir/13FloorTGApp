@@ -30,15 +30,17 @@ const ScreenBody = ({ children, activity }) => {
                   minHeight: '55px',
                   display: 'flex',
                   alignItems: 'center',
-                  justifyContent:' center',
+                  justifyContent:' right',
                   width: '100%',
                   color: 'white',
                   fontFamily: 'Oswald',
-                  fontSize: '20px',
+                  fontSize: '4vw',
                   fontWeight: '400',
                   position: 'relative',
                   backgroundColor:' #141414',
-                
+                  textAlign: "right",
+                  paddingLeft: "80px",
+                  paddingRight: "20px",
             }}>
                 <div>
                     <p>{activity}</p>

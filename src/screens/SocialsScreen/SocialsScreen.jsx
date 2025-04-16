@@ -22,8 +22,8 @@ const translations = {
     en: "Leaderboard",
   },
   social: {
-    ru: "Сеть",
-    en: "Social",
+    ru: "Ищи владельцев Нэко котов, нажимай на кота и забирай свою награду",
+    en: "Look for the owners of the Maneki-neko cats, tap the cat and collect your reward",
   },
   referal: {
     ru: "Рефералы",
