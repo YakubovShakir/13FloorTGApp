@@ -323,8 +323,8 @@ export const WorkTab = ({
     const currentWork = getWorkById(userParameters?.current_work_id || userParameters?.work_id);
     const requiredRespect = userParameters?.respect >= work?.respect_required;
     const requiredSkill = work?.skill_id_required ? checkLearnedSkill(work?.skill_id_required) : true;
-    const requiredLevel = userParameters?.level >= work?.work_id;
-    const isNextLevelWork = workId === userParameters?.work_id + 1;
+    const requiredLevel = userParameters?.level >= work?.requiredLevel;
+    const isNextLevelWork = workId === 21 || userParameters?.work_id + 1;
     const enoughBalance = userParameters?.coins >= work?.coins_price;
     
     const buyStatus =
