@@ -25,77 +25,74 @@ export const WorkTab = ({
   userId,
   borderColor,
 }) => {
-
   const { lang } = useSettingsProvider()
   const { userParameters } = useUser()
   const translations = {
     start: {
-      ru: 'Начать',
-      en: 'Start'
+      ru: "Начать",
+      en: "Start",
     },
     stop: {
-      ru: 'Стоп',
-      en: 'Stop'
+      ru: "Стоп",
+      en: "Stop",
     },
     available: {
-      ru: 'Доступно',
-      en: 'Available'
+      ru: "Доступно",
+      en: "Available",
     },
     unavailable: {
-      ru: 'Недоступно',
-      en: 'Unavailable'
+      ru: "Недоступно",
+      en: "Unavailable",
     },
     cost: {
-      ru: 'Стоимость',
-      en: 'Cost'
+      ru: "Стоимость",
+      en: "Cost",
     },
     hour: {
-      ru: 'ЧАС',
-      en: 'HOUR'
+      ru: "ЧАС",
+      en: "HOUR",
     },
     minute: {
-      ru: 'м',
-      en: 'm'
+      ru: "м",
+      en: "m",
     },
     currentWork: {
-      ru: 'Текущая работа',
-      en: 'Current work'
+      ru: "Текущая работа",
+      en: "Current work",
     },
     unlock: {
-      ru: 'Открыть',
-      en: 'Unlock'
+      ru: "Открыть",
+      en: "Unlock",
     },
-    noBoosts: 
-    { ru: "Открыто", 
-      en: "Done" },
+    noBoosts: { ru: "Открыто", en: "Done" },
     hungryDecrease: {
-      ru: 'Расход голода',
-      en: 'Satiety consumption '
+      ru: "Расход голода",
+      en: "Satiety consumption ",
     },
     moodDecrease: {
-      ru: 'Расход настроения',
-      en: 'Mood consumption'
+      ru: "Расход настроения",
+      en: "Mood consumption",
     },
     energyDecrease: {
-      ru: 'Расход энергии',
-      en: 'Consumes energy'
+      ru: "Расход энергии",
+      en: "Consumes energy",
     },
     respectRequired: {
-      ru: 'Минимальный Респект',
-      en: 'Minimum respect'
+      ru: "Минимальный Респект",
+      en: "Minimum respect",
     },
     requiredLevel: {
-      ru: 'Необходимый уровень',
-      en: 'Required level'
+      ru: "Необходимый уровень",
+      en: "Required level",
     },
     unlocked: {
-      ru: 'Завершённая',
-      en: 'Completed'
+      ru: "Завершённая",
+      en: "Completed",
     },
     choose: {
-      ru: 'Выбрать',
-      en: 'Choose'
-    }
+      ru: "Выбрать",
+      en: "Choose",
+    },
   }
 
   const [skills, setSkills] = useState(null) // List of skills
@@ -134,22 +131,26 @@ export const WorkTab = ({
   }
 
   const setWorkModalData = (work) => {
-    const currentWork = getWorkById(userParameters?.current_work_id || userParameters?.work_id);
-    const isFinished = work?.work_id <= userParameters?.work_id;
-    const isCurrentWork = work?.work_id === currentWork?.work_id;
-    const requiredRespect = userParameters?.respect >= work?.respect_required;
-    const requiredSkill = work?.skill_id_required ? checkLearnedSkill(work?.skill_id_required) : true;
-    const requiredLevel = userParameters?.level >= work?.requiredLevel;
-    const isNextLevelWork = work?.work_id === userParameters?.work_id + 1;
-    const enoughBalance = userParameters?.coins >= work?.coins_price;
-  
+    const currentWork = getWorkById(
+      userParameters?.current_work_id || userParameters?.work_id
+    )
+    const isFinished = work?.work_id <= userParameters?.work_id
+    const isCurrentWork = work?.work_id === currentWork?.work_id
+    const requiredRespect = userParameters?.respect >= work?.respect_required
+    const requiredSkill = work?.skill_id_required
+      ? checkLearnedSkill(work?.skill_id_required)
+      : true
+    const requiredLevel = userParameters?.level >= work?.requiredLevel
+    const isNextLevelWork = work?.work_id === userParameters?.work_id + 1
+    const enoughBalance = userParameters?.coins >= work?.coins_price
+
     const buyStatus =
       requiredRespect &&
       requiredSkill &&
       requiredLevel &&
       isNextLevelWork &&
-      enoughBalance;
-  
+      enoughBalance
+
     const buttonStyle = {
       width: "100%",
       height: 44,
@@ -163,8 +164,8 @@ export const WorkTab = ({
       borderColor: "rgb(255, 141, 0)",
       background: "rgb(255, 118, 0)",
       border: "1px solid rgb(255, 141, 0)",
-    };
-  
+    }
+
     const currentWorkButtonStyle = {
       width: "100%",
       height: 44,
@@ -178,12 +179,12 @@ export const WorkTab = ({
       borderColor: "rgb(73, 73, 73)",
       background: "rgb(18, 18, 18)",
       border: "1px solid rgb(32, 32, 32)",
-    };
-  
+    }
+
     const handleChooseClick = () => {
-      handleSwitchWork(work?.work_id);
-    };
-  
+      handleSwitchWork(work?.work_id)
+    }
+
     const data = {
       type: "work",
       id: work?.work_id,
@@ -225,17 +226,26 @@ export const WorkTab = ({
         {
           icon: Icons.hungryDecrease,
           text: translations.hungryDecrease[lang],
-          value: Math.floor(work?.hungry_cost_per_minute * 60) + "/" + translations.hour[lang],
+          value:
+            Math.floor(work?.hungry_cost_per_minute * 60) +
+            "/" +
+            translations.hour[lang],
         },
         {
           icon: Icons.moodDecrease,
           text: translations.moodDecrease[lang],
-          value: Math.floor(work?.mood_cost_per_minute * 60) + "/" + translations.hour[lang],
+          value:
+            Math.floor(work?.mood_cost_per_minute * 60) +
+            "/" +
+            translations.hour[lang],
         },
         {
           icon: Icons.energyDecrease,
           text: translations.energyDecrease[lang],
-          value: Math.floor(work?.energy_cost_per_minute * 60) + "/" + translations.hour[lang],
+          value:
+            Math.floor(work?.energy_cost_per_minute * 60) +
+            "/" +
+            translations.hour[lang],
         },
       ].filter(Boolean),
       buttons: [
@@ -266,10 +276,10 @@ export const WorkTab = ({
             : undefined, // Fallback for Button component
         },
       ],
-    };
-  
-    return data;
-  };
+    }
+
+    return data
+  }
 
   const getItemWorkParams = (workId) => {
     const work = getWorkById(workId)
@@ -311,7 +321,9 @@ export const WorkTab = ({
       ],
       [
         {
-          value: buyStatus ? translations.available[lang] : translations.unavailable[lang],
+          value: buyStatus
+            ? translations.available[lang]
+            : translations.unavailable[lang],
           icon: buyStatus ? Icons.unlockedIcon : Icons.lockedIcon,
         },
       ],
@@ -319,21 +331,25 @@ export const WorkTab = ({
   }
 
   const getItemWorkButton = (workId) => {
-    const work = getWorkById(workId);
-    const currentWork = getWorkById(userParameters?.current_work_id || userParameters?.work_id);
-    const requiredRespect = userParameters?.respect >= work?.respect_required;
-    const requiredSkill = work?.skill_id_required ? checkLearnedSkill(work?.skill_id_required) : true;
-    const requiredLevel = userParameters?.level >= work?.requiredLevel;
-    const isNextLevelWork = workId === 21 || userParameters?.work_id + 1;
-    const enoughBalance = userParameters?.coins >= work?.coins_price;
-    
+    const work = getWorkById(workId)
+    const currentWork = getWorkById(
+      userParameters?.current_work_id || userParameters?.work_id
+    )
+    const requiredRespect = userParameters?.respect >= work?.respect_required
+    const requiredSkill = work?.skill_id_required
+      ? checkLearnedSkill(work?.skill_id_required)
+      : true
+    const requiredLevel = userParameters?.level >= work?.requiredLevel
+    const isNextLevelWork = workId === 21 || userParameters?.work_id + 1
+    const enoughBalance = userParameters?.coins >= work?.coins_price
+
     const buyStatus =
       requiredRespect &&
       requiredSkill &&
       requiredLevel &&
       isNextLevelWork &&
-      enoughBalance;
-  
+      enoughBalance
+
     const baseButtonStyle = {
       width: "100%",
       height: 44,
@@ -347,8 +363,8 @@ export const WorkTab = ({
       borderColor: "rgb(255, 141, 0)",
       background: "rgb(255, 118, 0)",
       border: "1px solid rgb(255, 141, 0)",
-    };
-  
+    }
+
     const currentWorkStyle = {
       width: "100%",
       height: 44,
@@ -362,28 +378,33 @@ export const WorkTab = ({
       borderColor: "rgb(73, 73, 73)",
       background: "rgb(18, 18, 18)",
       border: "1px solid rgb(32, 32, 32)",
-    };
-  
+    }
+
     if (workId <= userParameters?.work_id) {
       return [
         {
-          ...(currentWork?.work_id === workId ? currentWorkStyle : baseButtonStyle),
-          text: currentWork?.work_id === workId ? translations.currentWork[lang] : translations.choose[lang],
+          ...(currentWork?.work_id === workId
+            ? currentWorkStyle
+            : baseButtonStyle),
+          text:
+            currentWork?.work_id === workId
+              ? translations.currentWork[lang]
+              : translations.choose[lang],
           onClick: () => {
-            setModalData(setWorkModalData(work));
-            setVisibleModal(true);
+            setModalData(setWorkModalData(work))
+            setVisibleModal(true)
           },
           active: true,
         },
-      ];
+      ]
     }
-  
+
     return [
       {
         text: buyStatus ? work?.coins_price : translations.unlock[lang],
         onClick: () => {
-          setModalData(setWorkModalData(work));
-          setVisibleModal(true);
+          setModalData(setWorkModalData(work))
+          setVisibleModal(true)
         },
         icon: buyStatus && Icons.balance,
         active: buyStatus,
@@ -398,10 +419,10 @@ export const WorkTab = ({
         fontFamily: "Oswald",
         fontWeight: "normal",
       },
-    ];
-  };
+    ]
+  }
 
-  useEffect(() => {  
+  useEffect(() => {
     refreshData().catch()
     getWorks().then((r) => setWorks(r))
     getSkills().then((r) => setSkills(r)) // Get list of skills
@@ -413,29 +434,67 @@ export const WorkTab = ({
   return (
     <ScreenContainer withTab>
       {/* User main work card*/}
-      {works?.sort((a, b) => a.work_id - b.work_id).filter(work => work.work_id < userParameters.work_id).map((work, index) => (
-        <ItemCard
-          key={index}
-          ItemIcon={work?.link}
-          ItemTitle={work?.name[lang]}
-          ItemParamsBlocks={getItemWorkParams(work?.work_id)}
-          ItemButtons={getItemWorkButton(work?.work_id)}
-          ItemIndex={index}
-          ItemDescription={work?.description[lang]}
-        />
-      ))}
-      {works?.sort((a, b) => a.work_id - b.work_id).filter(work => work.work_id >= userParameters.work_id).map((work, index) => (
-        <ItemCard
-          key={index}
-          ItemIcon={work?.link}
-          ItemTitle={work?.name[lang]}
-          ItemParamsBlocks={getItemWorkParams(work?.work_id)}
-          ItemButtons={getItemWorkButton(work?.work_id)}
-          ItemIndex={index}
-          ItemDescription={work?.description[lang]}
-        />
-      ))}
+      {(() => {
+        // First list: Works with work_id <= userParameters.work_id or work_id === 21 (if level requirement is met)
+        const firstListWorks = works
+          ?.slice() // Create a copy to avoid mutating the original array
+          .sort((a, b) => {
+            // Primary sorting by requiredLevel (ascending)
+            if (a.requiredLevel !== b.requiredLevel) {
+              return a.requiredLevel - b.requiredLevel
+            }
+            // When requiredLevel is equal:
+            // - Place work_id = 21 after non-21
+            // - Otherwise, sort by work_id for consistency
+            if (a.work_id === 21 && b.work_id !== 21) {
+              console.log(
+                `Placing work_id 21 after work_id ${b.work_id} (same level: ${a.requiredLevel})`
+              )
+              return 1
+            }
+            if (b.work_id === 21 && a.work_id !== 21) {
+              console.log(
+                `Placing work_id ${a.work_id} before work_id 21 (same level: ${a.requiredLevel})`
+              )
+              return -1
+            }
+            // Fallback: sort by work_id for other cases
+            return a.work_id - b.work_id
+          })
 
+        // Log the sorted and filtered first list
+        console.log(
+          "First list works:",
+          firstListWorks?.map((w) => ({
+            work_id: w.work_id,
+            requiredLevel: w.requiredLevel,
+            name: w.name?.[lang],
+          }))
+        )
+
+        // Check if work_id 21 is in the first list
+        const hasWork21InFirstList = firstListWorks?.some(
+          (work) => work.work_id === 21
+        )
+        console.log(`Work_id 21 in first list: ${hasWork21InFirstList}`)
+
+        return (
+          <>
+            {/* First List */}
+            {firstListWorks?.map((work, index) => (
+              <ItemCard
+                key={index}
+                ItemIcon={work?.link}
+                ItemTitle={work?.name[lang]}
+                ItemParamsBlocks={getItemWorkParams(work?.work_id)}
+                ItemButtons={getItemWorkButton(work?.work_id)}
+                ItemIndex={index}
+                ItemDescription={work?.description[lang]}
+              />
+            ))}
+          </>
+        )
+      })()}
     </ScreenContainer>
   )
 }
