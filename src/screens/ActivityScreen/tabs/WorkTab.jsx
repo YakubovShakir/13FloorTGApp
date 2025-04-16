@@ -46,8 +46,8 @@ export const WorkTab = ({
       en: 'Unavailable'
     },
     cost: {
-      ru: 'Стоимость',
-      en: 'Cost'
+      ru: 'Стоимость открытия',
+      en: 'Unlock cost'
     },
     hour: {
       ru: 'ЧАС',

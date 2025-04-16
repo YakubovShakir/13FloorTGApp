@@ -17,8 +17,8 @@ import { useSettingsProvider } from "../../hooks"
 
 const translations = {
   food: {
-    ru: 'Еда',
-    en: 'Food'
+    ru: 'У голодного персонажа быстрее снижается настроение',
+    en: 'A hungry characters mood drops faster'
   }
 }
 

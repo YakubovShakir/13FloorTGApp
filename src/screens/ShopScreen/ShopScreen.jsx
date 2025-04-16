@@ -13,8 +13,8 @@ import { useSettingsProvider } from "../../hooks"
 
 const translations = {
   clothes: {
-    ru: 'Коллекция',
-    en: 'Collection'
+    ru: 'Покупай И используй НОВЫЕ ВЕЩИ, ЭТО ПРИБАВИТ ТЕБЕ РЕСПЕКТ!',
+    en: 'Buy AND use NEW CLOTHES, IT WILL ADD RESPECT TO YOU!'
   },
   collection: {
     ru: 'Коллекция',

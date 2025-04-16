@@ -41,8 +41,8 @@ const ActivityScreen = () => {
       en: 'Perks'
     },
     development: {
-      ru: 'Развитие',
-      en: 'Progress'
+      ru: 'Изучи навыки и получи новую работу',
+      en: 'Learn your skills and get a new job'
     }
   }
 

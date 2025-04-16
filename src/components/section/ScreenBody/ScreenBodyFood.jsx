@@ -24,20 +24,23 @@ const ScreenBody = ({ children, activity }) => {
             {/* Fixed Header */}
             <div className="HomeHeaderBottomName" style={{ 
                  textTransform: "uppercase",
-                boxShadow:' rgb(0, 0, 0) 2px 5px 12px 0px',
-               
-                height: '55px',
-                minHeight: '55px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent:' center',
-                width: '100%',
-                color: 'white',
-                fontFamily: 'Oswald',
-                fontSize: '20px',
-                fontWeight: '400',
-                position: 'relative',
-                backgroundColor:' #141414',
+                 boxShadow:' rgb(0, 0, 0) 2px 5px 12px 0px',
+                
+                 height: '55px',
+                 minHeight: '55px',
+                 display: 'flex',
+                 alignItems: 'center',
+                 justifyContent:' right',
+                 width: '100%',
+                 color: 'white',
+                 fontFamily: 'Oswald',
+                 fontSize: '4vw',
+                 fontWeight: '400',
+                 position: 'relative',
+                 backgroundColor:' #141414',
+                 textAlign: "right",
+                 paddingLeft: "70px",
+                 paddingRight: "20px",
                 
             }}>
                 <div>

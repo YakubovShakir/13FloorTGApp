@@ -1119,10 +1119,11 @@ const InvestmentScreen = () => {
       ru: "Автоматический сбор инвестиций - лучший способ сэкономить время!",
       en: "Automated investment claims - the best way to save time!",
     },
-    investments: { ru: "Инвестиции", en: "Investments" },
+    investments: {     ru: "Инвестируй немного денег в бизнес, и забирай доход каждый час",
+      en: "Invest some money in the business, and collect income every hour", },
     investmentsDescription: {
-      ru: "Инвестируй немного денег в бизнес, и забирай доход каждый час",
-      en: "Invest a little - collect interest hourly",
+      ru: " ",
+      en: " ",
     },
     sixh: {
       ru: "6 Часов",
