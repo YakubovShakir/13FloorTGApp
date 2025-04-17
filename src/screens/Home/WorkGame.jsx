@@ -252,6 +252,7 @@ const WorkGame = ({
   }, [showResult, cooldown, initSuccessZone]);
 
   return (
+   
     <div
       style={{
         position: "absolute",
@@ -271,7 +272,10 @@ const WorkGame = ({
     >
       {cooldown > 0 ? (
         <div
-          style={{
+          style={{   
+            borderRadius: "5px",
+            backgroundColor: "#212121d9",
+            width: "100px",
             color: "white",
             fontSize: "32px",
             fontFamily: "Oswald",
@@ -283,17 +287,22 @@ const WorkGame = ({
       ) : isLoading ? (
         <Spinner />
       ) : (
+        
         <svg
           width="150"
           height="150"
           viewBox="0 0 100 100"
           style={{
+            padding: "6px",
+            borderRadius: "97px",
+            background: "#020202b3",
             animation: cooldown === 0 && !isLoading ? "pulseGlow 1.5s ease-in-out infinite" : "none",
             cursor: "pointer",
             pointerEvents: "auto",
           }}
           onClick={handleSkillCheck}
         >
+          
           {/* Definitions for gradient */}
           <defs>
             <linearGradient id="successZoneGradient" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -307,7 +316,7 @@ const WorkGame = ({
             cy="50"
             r="45"
             fill="none"
-            stroke="#333"
+            stroke="#fff"
             strokeWidth="8"
             style={{ pointerEvents: "none" }}
           />
@@ -345,6 +354,7 @@ const WorkGame = ({
             style={{ pointerEvents: "none" }}
           />
         </svg>
+        
       )}
       {showResult === "success" && (
         <div

@@ -33,11 +33,11 @@ const ActivityScreen = () => {
       en: 'Career'
     },
     learning: {
-      ru: 'Обучение',
+      ru: 'Навыки',
       en: 'Skills'
     },
     perks: {
-      ru: 'Навыки',
+      ru: 'Усиления',
       en: 'Perks'
     },
     development: {
