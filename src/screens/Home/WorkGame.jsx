@@ -51,19 +51,48 @@ const WorkGame = ({
 }) => {
   const { userId, refreshData } = useUser();
   const { lang } = useSettingsProvider();
-  const [isLoading, setIsLoading] = useState(false);
-  const [cooldown, setCooldown] = useState(0); // Cooldown in milliseconds
-  const [showResult, setShowResult] = useState(null); // null, 'success', 'miss'
-  const [needleAngle, setNeedleAngle] = useState(0); // Needle rotation in degrees
-  const needleRef = useRef(0); // Track needle angle without state
-  const successZoneRef = useRef({ start: 0, end: 0 }); // Success zone angles
+  const [isLoading, setIsLoading] = useState(true);
+  const [cooldown, setCooldown] = useState(0);
+  const [showResult, setShowResult] = useState(null);
+  const [needleAngle, setNeedleAngle] = useState(0);
+  const [isVisible, setIsVisible] = useState(true);
+  const needleRef = useRef(0);
+  const successZoneRef = useRef({ start: 0, end: 0 });
   const remainingSecondsRef = useRef(initialWorkDuration);
   const lastReportedSecondsRef = useRef(initialWorkDuration);
   const timerRef = useRef(null);
   const animationFrameRef = useRef(null);
-  const debugInfoRef = useRef({ needle: 0, zoneStart: 0, zoneEnd: 0 }); // Debug info
+  const hasPassedZoneRef = useRef(false);
 
-  // Debounce function to prevent multiple simultaneous fetches
+  // Fetch last click with silent retries
+  const fetchLastClick = useCallback(async (retryCount = 10) => {
+    console.log("fetchLastClick called, retryCount:", retryCount);
+    try {
+      const response = await instance.get(`/users/work/last-click/${userId}`);
+      const { lastClickedAt, remainingCooldown } = response.data;
+      console.log("fetchLastClick response:", { lastClickedAt, remainingCooldown });
+      if (Number.isFinite(remainingCooldown) && remainingCooldown >= 0) {
+        setCooldown(remainingCooldown);
+        setShowResult(null);
+        setIsLoading(false);
+      } else {
+        console.log("Invalid cooldown, retrying...");
+        throw new Error("Invalid remainingCooldown");
+      }
+    } catch (error) {
+      console.error("Error fetching last click:", error.message, error.response?.data);
+      if (retryCount > 0) {
+        console.log(`Retrying fetchLastClick, ${retryCount} attempts left...`);
+        setTimeout(() => fetchLastClick(retryCount - 1), 1500);
+      } else {
+        console.log("Max retries reached, starting new skill check");
+        setCooldown(0);
+        setIsLoading(false);
+      }
+    }
+  }, [userId]);
+
+  // Debounce function for fetch
   const debounce = (func, wait) => {
     let timeout;
     return (...args) => {
@@ -71,25 +100,6 @@ const WorkGame = ({
       timeout = setTimeout(() => func(...args), wait);
     };
   };
-
-  // Fetch last click
-  const fetchLastClick = useCallback(async () => {
-    console.log("fetchLastClick called");
-    try {
-      const response = await instance.get(`/users/work/last-click/${userId}`);
-      const { lastClickedAt, remainingCooldown } = response.data;
-      console.log("fetchLastClick response:", { lastClickedAt, remainingCooldown });
-      if (lastClickedAt && remainingCooldown > 0 && Number.isFinite(remainingCooldown)) {
-        setCooldown(remainingCooldown);
-      } else {
-        setCooldown(0);
-        console.log("No valid cooldown, set to 0");
-      }
-    } catch (error) {
-      console.error("Error fetching last click:", error);
-      console.log("Fetch failed, keeping current cooldown:", cooldown);
-    }
-  }, [userId]);
 
   // Debounced fetchLastClick
   const debouncedFetchLastClick = useCallback(debounce(fetchLastClick, 300), [fetchLastClick]);
@@ -100,6 +110,7 @@ const WorkGame = ({
     const handleVisibilityChange = () => {
       if (document.visibilityState === "visible") {
         console.log("Tab refocused, fetching last click");
+        setIsLoading(true);
         debouncedFetchLastClick();
       }
     };
@@ -107,102 +118,97 @@ const WorkGame = ({
     return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
   }, [fetchLastClick, debouncedFetchLastClick]);
 
-  // Format cooldown to ss:ms (e.g., 30:00)
+  // Format cooldown to ss:ms
   const formatCooldown = (ms) => {
     const seconds = Math.floor(ms / 1000);
     const milliseconds = Math.floor((ms % 1000) / 10);
-    return `${seconds.toString().padStart(2, "0")}:${milliseconds
-      .toString()
-      .padStart(2, "0")}`;
+    return `${seconds.toString().padStart(2, "0")}:${milliseconds.toString().padStart(2, "0")}`;
   };
 
   // Initialize success zone
   const initSuccessZone = useCallback(() => {
-    const zoneSize = 35; // Success zone size in degrees
-    const start = Math.floor(Math.random() * 360); // Random angle in [0, 359]
-    const end = start + zoneSize; // Unnormalized end for wrapping zones
-    const newSuccessZone = { start, end };
-    successZoneRef.current = newSuccessZone;
-    console.log("initSuccessZone:", newSuccessZone);
+    const zoneSize = 35;
+    const currentEnd = successZoneRef.current.end || 0;
+    const newStart = normalizeAngle(currentEnd + 180);
+    const newEnd = normalizeAngle(newStart + zoneSize);
+    successZoneRef.current = { start: newStart, end: newEnd };
+    hasPassedZoneRef.current = false;
+    console.log("initSuccessZone:", { start: newStart, end: newEnd });
   }, []);
-
-  // Animate needle
-  useEffect(() => {
-    if (cooldown > 0 || isLoading) return;
-
-    initSuccessZone();
-    let lastTime = performance.now();
-    const animate = (time) => {
-      const deltaTime = (time - lastTime) / 1000; // Convert to seconds
-      lastTime = time;
-      needleRef.current = (needleRef.current + (deltaTime * 180)) % 360; // 180°/s, clockwise
-      setNeedleAngle(needleRef.current);
-      animationFrameRef.current = requestAnimationFrame(animate);
-    };
-    animationFrameRef.current = requestAnimationFrame(animate);
-    return () => cancelAnimationFrame(animationFrameRef.current);
-  }, [cooldown, isLoading, initSuccessZone]);
 
   // Normalize angle to [0, 360)
   const normalizeAngle = (angle) => {
     return angle >= 0 ? angle % 360 : (angle % 360) + 360;
   };
 
-  // Check if angle is within start and end (handles wrapping)
+  // Check if angle is within zone
   const isAngleInZone = (angle, start, end) => {
     const normAngle = normalizeAngle(angle);
     const normStart = normalizeAngle(start);
     const normEnd = normalizeAngle(end);
-    
-    if (normStart <= normEnd) {
-      // Non-wrapping zone (e.g., 30° to 150°)
-      return normAngle >= normStart && normAngle <= normEnd;
-    } else {
-      // Wrapping zone (e.g., 300° to 420°)
-      return normAngle >= normStart || normAngle <= normEnd;
-    }
+    return normAngle >= normStart && normAngle <= normEnd;
   };
+
+  // Animate needle and check zone pass
+  useEffect(() => {
+    if (cooldown > 0 || isLoading || !isVisible) return;
+
+    if (!successZoneRef.current.start && !successZoneRef.current.end) {
+      initSuccessZone();
+    }
+
+    let lastTime = performance.now();
+    const animate = (time) => {
+      const deltaTime = (time - lastTime) / 1000;
+      lastTime = time;
+      const prevAngle = needleRef.current;
+      needleRef.current = (needleRef.current + deltaTime * 180) % 360;
+      setNeedleAngle(needleRef.current);
+
+      const normPrev = normalizeAngle(prevAngle);
+      const normCurrent = normalizeAngle(needleRef.current);
+      const zoneStart = successZoneRef.current.start;
+      const zoneEnd = successZoneRef.current.end;
+
+      // Check if needle passed the zone end
+      if (!hasPassedZoneRef.current && !showResult) {
+        const passedZone = normPrev <= zoneEnd && normCurrent > zoneEnd;
+        if (passedZone) {
+          console.log("Needle passed success zone:", { normPrev, normCurrent, zoneStart, zoneEnd });
+          initSuccessZone();
+        }
+      }
+
+      // Reset hasPassedZoneRef after a full rotation
+      if (normPrev > normCurrent) {
+        hasPassedZoneRef.current = false;
+      }
+
+      animationFrameRef.current = requestAnimationFrame(animate);
+    };
+    animationFrameRef.current = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(animationFrameRef.current);
+  }, [cooldown, isLoading, isVisible, initSuccessZone, showResult]);
 
   // Handle skill check
   const handleSkillCheck = useCallback(async (event) => {
     console.log("Click detected:", { x: event.clientX, y: event.clientY });
-    if (cooldown > 0 || isLoading) return;
+    if (cooldown > 0 || isLoading || !isVisible) return;
     setIsLoading(true);
-    cancelAnimationFrame(animationFrameRef.current); // Stop needle immediately
+    cancelAnimationFrame(animationFrameRef.current);
 
-    // Capture current needle angle and adjust for SVG (0° at 12 o'clock)
     const capturedAngle = needleRef.current;
-    const adjustedAngle = normalizeAngle(capturedAngle - 90); // Shift 0° to top
-    const zoneStart = successZoneRef.current.start;
-    const zoneEnd = successZoneRef.current.end;
+    const normAngle = normalizeAngle(capturedAngle);
+    const isSuccess = isAngleInZone(capturedAngle, successZoneRef.current.start, successZoneRef.current.end);
+    setShowResult(isSuccess ? "success" : "miss");
 
-    // Determine if needle is in the success zone
-    const isSuccess = isAngleInZone(adjustedAngle, zoneStart, zoneEnd);
-
-    // Store debug info
-    debugInfoRef.current = {
-      needle: adjustedAngle,
-      zoneStart: normalizeAngle(zoneStart),
-      zoneEnd: normalizeAngle(zoneEnd),
-      isSuccess,
-    };
-
-    // Debugging log
     console.log({
       capturedAngle,
-      adjustedAngle,
-      zoneStart,
-      zoneEnd,
-      isSuccess,
-      successZone: successZoneRef.current,
-      svgPath: `M ${50 + 45 * Math.cos(((zoneStart - 90) * Math.PI) / 180)} 
-                ${50 + 45 * Math.sin(((zoneStart - 90) * Math.PI) / 180)}
-                A 45 45 0 ${zoneEnd - zoneStart > 180 ? 1 : 0} 1 
-                ${50 + 45 * Math.cos(((zoneEnd - 90) * Math.PI) / 180)} 
-                ${50 + 45 * Math.sin(((zoneEnd - 90) * Math.PI) / 180)}`
+      normAngle,
+      zoneStart: successZoneRef.current.start,
+      zoneEnd: successZoneRef.current.end,
+      isSuccess
     });
-
-    setShowResult(isSuccess ? "success" : "miss");
 
     try {
       if (isSuccess) {
@@ -213,16 +219,19 @@ const WorkGame = ({
           onDurationUpdate(newRemainingSeconds);
           lastReportedSecondsRef.current = newRemainingSeconds;
         }
-        if (newRemainingSeconds <= 0) onComplete();
+        if (newRemainingSeconds <= 0) {
+          setIsVisible(false);
+          onComplete();
+        }
         refreshData();
       }
-      setCooldown(30000); // 30-second cooldown for success or miss
+      setCooldown(30000);
     } catch (err) {
-      console.error("Error boosting work time:", err);
+      console.error("Error boosting work time:", err.message, err.response?.data);
     } finally {
       setIsLoading(false);
     }
-  }, [cooldown, isLoading, userId, refreshData, onDurationUpdate, onComplete]);
+  }, [cooldown, isLoading, isVisible, userId, refreshData, onDurationUpdate, onComplete]);
 
   // Manage cooldown timer
   useEffect(() => {
@@ -245,14 +254,19 @@ const WorkGame = ({
     if (showResult) {
       const timeout = setTimeout(() => {
         setShowResult(null);
-        if (!cooldown) initSuccessZone(); // Reset success zone
-      }, 2000); // Match floatUp animation duration
+        if (!cooldown && isVisible) initSuccessZone();
+      }, 2000);
       return () => clearTimeout(timeout);
     }
-  }, [showResult, cooldown, initSuccessZone]);
+  }, [showResult, cooldown, isVisible, initSuccessZone]);
+
+  // Sync initial work duration
+  useEffect(() => {
+    remainingSecondsRef.current = initialWorkDuration;
+    lastReportedSecondsRef.current = initialWorkDuration;
+  }, [initialWorkDuration]);
 
   return (
-   
     <div
       style={{
         position: "absolute",
@@ -263,16 +277,17 @@ const WorkGame = ({
         zIndex: 99,
         overflow: "hidden",
         animation: "fadeIn 0.5s ease-in",
-        opacity: 1,
-        display: "flex",
+        opacity: isVisible ? 1 : 0,
+        display: isVisible ? "flex" : "none",
         alignItems: "center",
         justifyContent: "center",
+        transition: "opacity 0.5s ease-out",
       }}
       onClick={handleSkillCheck}
     >
       {cooldown > 0 ? (
         <div
-          style={{   
+          style={{
             borderRadius: "5px",
             backgroundColor: "#212121d9",
             width: "100px",
@@ -287,7 +302,6 @@ const WorkGame = ({
       ) : isLoading ? (
         <Spinner />
       ) : (
-        
         <svg
           width="150"
           height="150"
@@ -302,15 +316,12 @@ const WorkGame = ({
           }}
           onClick={handleSkillCheck}
         >
-          
-          {/* Definitions for gradient */}
           <defs>
             <linearGradient id="successZoneGradient" x1="0%" y1="0%" x2="100%" y2="0%">
               <stop offset="0%" style={{ stopColor: "rgba(233, 78, 27, 1)" }} />
               <stop offset="50%" style={{ stopColor: "rgba(243, 117, 0, 1)" }} />
             </linearGradient>
           </defs>
-          {/* Background circle */}
           <circle
             cx="50"
             cy="50"
@@ -320,21 +331,19 @@ const WorkGame = ({
             strokeWidth="8"
             style={{ pointerEvents: "none" }}
           />
-          {/* Success zone with gradient */}
           <path
             d={`
-              M ${50 + 45 * Math.cos(((successZoneRef.current.start - 90) * Math.PI) / 180)} 
-                ${50 + 45 * Math.sin(((successZoneRef.current.start - 90) * Math.PI) / 180)}
+              M ${50 + 45 * Math.cos(((successZoneRef.current.start + 270) % 360 * Math.PI) / 180)} 
+                ${50 + 45 * Math.sin(((successZoneRef.current.start + 270) % 360 * Math.PI) / 180)}
               A 45 45 0 ${successZoneRef.current.end - successZoneRef.current.start > 180 ? 1 : 0} 1 
-                ${50 + 45 * Math.cos(((successZoneRef.current.end - 90) * Math.PI) / 180)} 
-                ${50 + 45 * Math.sin(((successZoneRef.current.end - 90) * Math.PI) / 180)}
+                ${50 + 45 * Math.cos(((successZoneRef.current.end + 270) % 360 * Math.PI) / 180)} 
+                ${50 + 45 * Math.sin(((successZoneRef.current.end + 270) % 360 * Math.PI) / 180)}
             `}
             fill="none"
             stroke="url(#successZoneGradient)"
             strokeWidth="8"
             style={{ pointerEvents: "none" }}
           />
-          {/* Needle */}
           <line
             x1="50"
             y1="50"
@@ -342,10 +351,9 @@ const WorkGame = ({
             y2="5"
             stroke="red"
             strokeWidth="4"
-            transform={`rotate(${needleAngle - 90} 50 50)`} // Adjust for 0° at top
+            transform={`rotate(${needleAngle} 50 50)`}
             style={{ pointerEvents: "none" }}
           />
-          {/* Center dot */}
           <circle
             cx="50"
             cy="50"
@@ -354,7 +362,6 @@ const WorkGame = ({
             style={{ pointerEvents: "none" }}
           />
         </svg>
-        
       )}
       {showResult === "success" && (
         <div
