@@ -277,7 +277,7 @@ function App() {
 
   useEffect(() => {
     if (isInitialized) debouncedCheckNotifications()
-  }, [userParameters, isInitialized])
+  }, [isInitialized])
 
   useEffect(() => {
     if (!isInitialized || !userId) return

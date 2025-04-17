@@ -36,6 +36,7 @@ import {
 import SleepGame from "./SleepGame";
 import globalTranslations from "../../globalTranslations";
 import { useSettingsProvider } from "../../hooks";
+import WorkGame from "./WorkGame";
 
 const COIN_SOUND = new Audio(
   "https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/coin.mp3"
@@ -724,6 +725,11 @@ const Home = () => {
             visibleSettingsModal: !prev.visibleSettingsModal,
           }))
         }
+      />
+      <WorkGame
+        workDuration={remainingSeconds}
+        onComplete={handleProcessCompletion}
+        onDurationUpdate={onDurationUpdate}
       />
       <Player
         bottom="calc(-1vh + 141px)"
