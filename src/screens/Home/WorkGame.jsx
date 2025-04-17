@@ -279,7 +279,8 @@ const WorkGame = ({
             color: "white",
             fontSize: "32px",
             fontFamily: "Oswald",
-            textAlign: "center",
+            textAlign: "left",
+            paddingLeft:"15px"
           }}
         >
           {formatCooldown(cooldown)}
