@@ -55,6 +55,25 @@ const WorkGame = ({
   const timerRef = useRef(null);
   const { lang } = useSettingsProvider()
 
+  // Fetch last click and initialize cooldown
+  useEffect(() => {
+    const fetchLastClick = async () => {
+      try {
+        const response = await instance.get(`/users/work/last-click/${userId}`);
+        const { lastClickedAt, remainingCooldown } = response.data;
+
+        if (lastClickedAt && remainingCooldown > 0) {
+          setCooldown(remainingCooldown);
+        }
+      } catch (error) {
+        console.error("Error fetching last click:", error);
+        // Silent fail, start with no cooldown
+      }
+    };
+
+    fetchLastClick();
+  }, [lastReportedSecondsRef]);
+
   // Format cooldown to ss:ms (e.g., 30:00)
   const formatCooldown = (ms) => {
     const seconds = Math.floor(ms / 1000);
