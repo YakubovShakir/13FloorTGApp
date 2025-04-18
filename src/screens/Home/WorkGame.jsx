@@ -328,22 +328,28 @@ const WorkGame = ({
     style={{
       position: "fixed",
       height: "auto",
-      top: "22vh",
+      top: "33vh",
       zIndex: 100,
-      width: "80vw",
-      left: "10vw",
+      width: "54vw",
+      left: "44vw",
       display: "flex",
       alignItems: "center",
+      backgroundColor: " #212121d9", 
+      borderRadius: "5px",
+      borderTop: "solid 1px #b1b1b173",
+     padding: "4px"
     }}
   >
     <h3
       style={{
-        background: "linear-gradient(90deg, rgba(233, 78, 27, 1), rgba(255, 204, 0, 1))", // Gradient from orange to yellow
-        WebkitBackgroundClip: "text", // Clips the gradient to the text
-        WebkitTextFillColor: "transparent", // Makes the text transparent to show the gradient
+       
+        WebkitBackgroundClip: "text", 
+        color: "#fff",
         textAlign: "center",
-        padding: "0 10px", // Optional: adds some spacing
-        animation: "pulseGlow 1.5s ease-in-out infinite", // Applies the pulsing animation
+        padding: "0 10px", 
+        textShadow: "1px 1px 0px #000000, -1px -1px 0px #000000, 1px -1px 0px #000000, -1px 1px 0px #000000",
+        fontSize: "14px",
+        fontWeight: "400"
       }}
     >
       {translations.clickOnTheOrangeZone[lang].toUpperCase()}
