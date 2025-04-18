@@ -164,27 +164,26 @@ const WorkGame = ({
     return normAngle >= normStart && normAngle <= normEnd
   }
 
-  // Animate needle and check zone pass
   useEffect(() => {
     if (cooldown > 0 || isLoading || !isVisible) return
-
+  
     if (!successZoneRef.current.start && !successZoneRef.current.end) {
       initSuccessZone()
     }
-
+  
     let lastTime = performance.now()
     const animate = (time) => {
       const deltaTime = (time - lastTime) / 1000
       lastTime = time
       const prevAngle = needleRef.current
-      needleRef.current = (needleRef.current + deltaTime * 180) % 360
+      needleRef.current = (needleRef.current + deltaTime * 120) % 360 // Changed from 180 to 120
       setNeedleAngle(needleRef.current)
-
+  
       const normPrev = normalizeAngle(prevAngle)
       const normCurrent = normalizeAngle(needleRef.current)
       const zoneStart = successZoneRef.current.start
       const zoneEnd = successZoneRef.current.end
-
+  
       // Check if needle passed the zone end
       if (!hasPassedZoneRef.current && !showResult) {
         const passedZone = normPrev <= zoneEnd && normCurrent > zoneEnd
@@ -198,12 +197,12 @@ const WorkGame = ({
           initSuccessZone()
         }
       }
-
+  
       // Reset hasPassedZoneRef after a full rotation
       if (normPrev > normCurrent) {
         hasPassedZoneRef.current = false
       }
-
+  
       animationFrameRef.current = requestAnimationFrame(animate)
     }
     animationFrameRef.current = requestAnimationFrame(animate)
