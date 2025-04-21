@@ -135,6 +135,7 @@ export const UserProvider = ({ children }) => {
               sleeping_duration_decrease: data.sleeping_duration_decrease,
               training_duration_decrease: data.training_duration_decrease,
               neko_boost_percentage: data.neko_boost_percentage,
+              works: data.works
             },
             isParametersLoading: false,
             parametersError: null,

@@ -379,7 +379,7 @@ export const WorkTab = ({
       border: "1px solid rgb(32, 32, 32)",
     }
 
-    if (workId <= userParameters?.work_id) {
+    if (userParameters?.works.includes(workId)) {
       return [
         {
           ...(currentWork?.work_id === workId
