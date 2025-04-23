@@ -199,8 +199,8 @@ export default {
       ru: "Ежедневные награды",
     },
     currentStreak: {
-      en: "Come back every day to collect as many rewards as you can in a week",
-      ru: "Заходите каждый день, чтобы собрать как можно больше наград за неделю",
+      en: "Come back every day to collect as many rewards as you can",
+      ru: "Заходите каждый день, чтобы собрать как можно больше наград",
     },
     checkIn: {
       en: "Check In",
