@@ -313,7 +313,7 @@ const DailyCheckInOverlay = () => {
                     >
                       {translations.currentStreak[lang] ||
                         translations.currentStreak.en}{" "}
-                      {streak} / 7
+                      {streak} / 30
                     </p>
                     <div style={{ display: "flex", gap: "10px" }}>
                       {canClaim ? (
