@@ -272,7 +272,7 @@ const PerksTab = ({
                 return;
             }
 
-            await handleStarsPayment(userId, "skill", effect.next.id, lang);
+            await handleStarsPayment(userId, "skill", effect.next.id, lang, null, 'constant_effects');
             await refreshData();
             await initializeData();
             if (!timerRef.current) {
