@@ -45,8 +45,8 @@ export const WorkTab = ({
       en: "Unavailable",
     },
     cost: {
-      ru: 'Стоимость открытия',
-      en: 'Unlock cost'
+      ru: "Стоимость открытия",
+      en: "Unlock cost",
     },
     hour: {
       ru: "ЧАС",
@@ -133,19 +133,20 @@ export const WorkTab = ({
   const setWorkModalData = (work) => {
     const currentWork = getWorkById(
       userParameters?.current_work_id || userParameters?.work_id
-    );
-    const isFinished = work?.work_id <= userParameters?.work_id;
-    const isCurrentWork = work?.work_id === currentWork?.work_id;
-    const requiredRespect = userParameters?.respect >= work?.respect_required;
+    )
+    const isFinished = work?.work_id <= userParameters?.work_id
+    const isCurrentWork = work?.work_id === currentWork?.work_id
+    const requiredRespect = userParameters?.respect >= work?.respect_required
     const requiredSkill = work?.skill_id_required
       ? checkLearnedSkill(work?.skill_id_required)
-      : true;
-    const requiredLevel = userParameters?.level >= work?.requiredLevel;
-    const enoughBalance = userParameters?.coins >= work?.coins_price;
-  
+      : true
+    const requiredLevel = userParameters?.level >= work?.requiredLevel
+    const enoughBalance = userParameters?.coins >= work?.coins_price
+
     // Allow buying if all requirements are met (remove isNextLevelWork restriction)
-    const canBuy = requiredRespect && requiredSkill && requiredLevel && enoughBalance;
-  
+    const canBuy =
+      requiredRespect && requiredSkill && requiredLevel && enoughBalance
+
     const buttonStyle = {
       width: "100%",
       height: 44,
@@ -159,8 +160,8 @@ export const WorkTab = ({
       borderColor: "rgb(255, 141, 0)",
       background: "rgb(255, 118, 0)",
       border: "1px solid rgb(255, 141, 0)",
-    };
-  
+    }
+
     const currentWorkButtonStyle = {
       width: "100%",
       height: 44,
@@ -174,16 +175,16 @@ export const WorkTab = ({
       borderColor: "rgb(73, 73, 73)",
       background: "rgb(18, 18, 18)",
       border: "1px solid rgb(32, 32, 32)",
-    };
-  
+    }
+
     const handleChooseClick = () => {
-      handleSwitchWork(work?.work_id);
-    };
-  
+      handleSwitchWork(work?.work_id)
+    }
+
     const handleBuyClick = () => {
-      handleBuyWork(work?.work_id);
-    };
-  
+      handleBuyWork(work?.work_id)
+    }
+
     const data = {
       type: "work",
       id: work?.work_id,
@@ -275,10 +276,10 @@ export const WorkTab = ({
             : undefined, // Fallback for Button component
         },
       ],
-    };
-  
-    return data;
-  };
+    }
+
+    return data
+  }
 
   const getItemWorkParams = (workId) => {
     const work = getWorkById(workId)
@@ -320,7 +321,7 @@ export const WorkTab = ({
       ],
       [
         {
-          value: buyStatus
+          value: userParameters?.works.includes(workId)
             ? translations.available[lang]
             : translations.unavailable[lang],
           icon: buyStatus ? Icons.unlockedIcon : Icons.lockedIcon,

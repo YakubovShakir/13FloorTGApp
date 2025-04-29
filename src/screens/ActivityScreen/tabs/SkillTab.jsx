@@ -349,10 +349,10 @@ const SkillTab = ({
     const createSkillModalData = useMemo(() => {
         return (skill) => {
             if (!skill) return null;
-            
+    
             const learned = checkLearnedSkill(skill?.skill_id);
             const learning = checkLearningSkill(skill?.skill_id);
-            
+    
             return {
                 type: "skill",
                 id: skill?.skill_id,
@@ -380,7 +380,7 @@ const SkillTab = ({
                         value: state.skills?.find(sk => sk?.skill_id === skill?.skill_id_required)?.name[lang],
                         fillPercent: "100%",
                         fillBackground: !checkLearnedSkill(skill?.skill_id_required) ? "#ff0000" : "#00ff00",
-                      },
+                    },
                     {
                         icon: Icons.clock,
                         text: translations.duration[lang],
@@ -392,7 +392,8 @@ const SkillTab = ({
                     },
                 ].filter(Boolean),
                 buttons: [
-                    {
+                    // Only include the primary button if the skill is not being learned or already learned
+                    ...(learning && !learned ? [] : [{
                         text: learned ? translations.learned[lang] : 
                               learning ? translations.learning[lang] : 
                               skill?.coins_price,
@@ -402,19 +403,19 @@ const SkillTab = ({
                             (skill?.skill_id_required ? checkLearnedSkill(skill?.skill_id_required) : true) && 
                             userParameters?.level >= skill?.requiredLevel && 
                             userParameters.coins >= skill.coins_price,
-                    },
+                    }]),
                     ...(learning && !learned ? [
                         {
                             icon: "https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/Boost%2FBoost3.webp",
                             text: translations.boost[lang] + ' x25%',
-                            active: state.userBoosts?.find(boost => boost.boost_id === 7),
+                            active: !!state.userBoosts?.find(boost => boost.boost_id === 7),
                             onClick: state.userBoosts?.find(boost => boost.boost_id === 7) ? 
                                 () => handleBoost(7, skill.skill_id, null) : null,
                         },
                         {
                             icon: "https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/Boost%2FBoost2.webp",
                             text: translations.boost[lang] + ' x50%',
-                            active: state.userBoosts?.find(boost => boost.boost_id === 8),
+                            active: !!state.userBoosts?.find(boost => boost.boost_id === 8),
                             onClick: state.userBoosts?.find(boost => boost.boost_id === 8) ? 
                                 () => handleBoost(8, skill.skill_id, null) : null,
                         },

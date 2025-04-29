@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from "react"
-import { motion, AnimatePresence } from "framer-motion"
-import { instance } from "../../services/instance"
-import { useUser } from "../../UserContext"
-import Button from "../../components/simple/Button/Button"
-import { useSettingsProvider } from "../../hooks"
-import Assets from "../../assets"
-import globalTranslations from "../../globalTranslations"
-import { useNavigate } from "react-router-dom"
+import React, { useState, useEffect, useCallback } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { instance } from "../../services/instance";
+import { useUser } from "../../UserContext";
+import Button from "../../components/simple/Button/Button";
+import { useSettingsProvider } from "../../hooks";
+import Assets from "../../assets";
+import globalTranslations from "../../globalTranslations";
+import { useNavigate } from "react-router-dom";
 
 const buttonStyle = {
   width: "100%",
@@ -18,52 +18,64 @@ const buttonStyle = {
   fontSize: 14,
   fontFamily: "Oswald",
   fontWeight: "normal",
-}
+};
 
-const translations = globalTranslations.daily
+const translations = globalTranslations.daily;
 
 const DailyCheckInOverlay = () => {
-  const [isActive, setIsActive] = useState(true)
-  const [streak, setStreak] = useState(0)
-  const [canClaim, setCanClaim] = useState(false)
-  const [reward, setReward] = useState(null)
-  const [rewards, setRewards] = useState([])
-  const [isLoading, setIsLoading] = useState(true)
-  const { userId } = useUser()
-  const { lang } = useSettingsProvider()
+  const [isActive, setIsActive] = useState(true);
+  const [streak, setStreak] = useState(0);
+  const [canClaim, setCanClaim] = useState(false);
+  const [reward, setReward] = useState(null);
+  const [rewards, setRewards] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const { userId } = useUser();
+  const { lang } = useSettingsProvider();
+  const navigate = useNavigate();
 
-  const fetchStatus = async () => {
-    setIsLoading(true)
+  // Memoized fetchStatus to prevent unnecessary re-renders
+  const fetchStatus = useCallback(async () => {
+    if (!userId) return;
+
+    setIsLoading(true);
     try {
-      const { data } = await instance.get(`/users/${userId}/daily/status`)
-      setStreak(data.streak)
-      setCanClaim(data.canClaim)
-      setRewards(data.rewards)
+      const { data } = await instance.get(`/users/${userId}/daily/status`);
+      console.log("Fetched daily status:", data); // Debug log
+      setStreak(data.streak || 0);
+      setCanClaim(data.canClaim || false);
+      setRewards(data.rewards || []);
     } catch (error) {
-      console.error("Ошибка при получении статуса:", error)
+      console.error("Ошибка при получении статуса:", error);
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false)
-  }
+  }, [userId]);
 
   useEffect(() => {
     if (userId && isActive) {
-      fetchStatus()
+      fetchStatus();
     }
-  }, [userId, isActive])
+  }, [userId, isActive, fetchStatus]);
 
   const handleClaim = async () => {
     try {
-      setIsLoading(true)
-      const { data } = await instance.get(`/users/${userId}/daily/claim`)
-      setReward(data.wonItem)
-      setCanClaim(false)
-      fetchStatus().finally(() => setIsLoading(false))
+      setIsLoading(true);
+      const { data } = await instance.get(`/users/${userId}/daily/claim`);
+      console.log("Claimed reward:", data); // Debug log
+      setReward(data.wonItem);
+      setCanClaim(false);
+      await fetchStatus(); // Ensure the status is refreshed after claiming
     } catch (error) {
-      console.error("Ошибка при получении награды:", error)
+      console.error("Ошибка при получении награды:", error);
+    } finally {
+      setIsLoading(false);
     }
-  }
+  };
 
-  const navigate = useNavigate()
+  // Debug log to check rewards state
+  useEffect(() => {
+    console.log("Current rewards state:", rewards);
+  }, [rewards]);
 
   return (
     <>
@@ -86,15 +98,12 @@ const DailyCheckInOverlay = () => {
                 <div
                   style={{
                     background: "rgb(32, 32, 32)",
-                    
                     padding: "85px 15px 15px 15px",
-                    
                     boxShadow: "0 8px 30px rgba(0, 0, 0, 0.6)",
-                   height:"100%",
+                    height: "100%",
                     width: "100%",
                     color: "white",
                     textAlign: "center",
-                   
                   }}
                 >
                   {/* Фиксированный блок с текстом */}
@@ -172,9 +181,14 @@ const DailyCheckInOverlay = () => {
                       }}
                     >
                       {rewards.map((item) => {
-                        const isPast = item.collected
-                        const isCurrent = item.day === streak + 1 && canClaim
-                        const isFuture = item.day > streak + (canClaim ? 1 : 0)
+                        const isPast = item.collected;
+                        const isCurrent = item.day === streak + 1 && canClaim;
+                        const isFuture = item.day > streak + (canClaim ? 1 : 0);
+
+                        // Debug log for each reward item
+                        console.log(
+                          `Day ${item.day}: collected=${item.collected}, isPast=${isPast}, isCurrent=${isCurrent}, isFuture=${isFuture}`
+                        );
 
                         return (
                           <div
@@ -185,7 +199,7 @@ const DailyCheckInOverlay = () => {
                               alignItems: "center",
                               padding: "5px",
                               color: isPast ? "#000" : "#CCCCCC",
-                              background: isPast
+                              background: item.collected
                                 ? "linear-gradient(45deg, #ff7600, #ff9d00)"
                                 : "rgb(39, 39, 39)",
                               borderRadius: "8px",
@@ -270,7 +284,7 @@ const DailyCheckInOverlay = () => {
                               {item.name[lang] || item.name.en}
                             </p>
                           </div>
-                        )
+                        );
                       })}
                     </div>
                   </div>
@@ -408,8 +422,8 @@ const DailyCheckInOverlay = () => {
         )}
       </AnimatePresence>
     </>
-  )
-}
+  );
+};
 
 // Custom CSS for scrollbar
 const styles = `
@@ -418,21 +432,21 @@ const styles = `
   }
   .custom-scroll::-webkit-scrollbar-track {
     background: #2a2a2a;
-    border-radius: 10px;
+    borderRadius: 10px;
   }
   .custom-scroll::-webkit-scrollbar-thumb {
     background: #ff7600;
-    border-radius: 10px;
+    borderRadius: 10px;
   }
   .custom-scroll::-webkit-scrollbar-thumb:hover {
     background: #ff9d00;
   }
-`
+`;
 
 // Inject styles into the document
-const styleSheet = document.createElement("style")
-styleSheet.type = "text/css"
-styleSheet.innerText = styles
-document.head.appendChild(styleSheet)
+const styleSheet = document.createElement("style");
+styleSheet.type = "text/css";
+styleSheet.innerText = styles;
+document.head.appendChild(styleSheet);
 
-export default DailyCheckInOverlay
+export default DailyCheckInOverlay;

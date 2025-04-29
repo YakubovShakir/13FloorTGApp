@@ -22,6 +22,8 @@ import { useSettingsProvider } from "../../../hooks";
 import FullScreenSpinner from "../../Home/FullScreenSpinner.jsx";
 import { useUser } from "../../../UserContext.jsx";
 import { useNavigate } from "react-router-dom";
+import { handleStarsPayment } from "../../../utils/handleStarsPayment";
+import { COLORS } from "../../../utils/paramBlockUtils";
 
 const TICK_INTERVAL = 1000;
 
@@ -39,8 +41,8 @@ const PerksTab = ({
     const isInitializingRef = useRef(false);
     const modalUpdateRef = useRef(false);
     const lastUpdateRef = useRef(0);
-    const lastTickRef = useRef(0); // To debounce ticks
-    const timerLockRef = useRef(false); // To prevent multiple timers
+    const lastTickRef = useRef(0);
+    const timerLockRef = useRef(false);
 
     const [state, setState] = useState({
         effects: null,
@@ -61,11 +63,9 @@ const PerksTab = ({
         minute: { ru: 'м.', en: 'm.' },
         currentWork: { ru: 'Текущая работа', en: 'Current work' },
         unlock: { ru: 'Открыть', en: 'Unlock' },
-        noBoosts: 
-    { ru: "Открыто", 
-      en: "Done" },
+        noBoosts: { ru: "Открыто", en: "Done" },
         learned: { ru: 'Изучено', en: 'Learned' },
-        learning: { ru: 'Ускорить', en: 'Boost' },
+        learning: { ru: 'Изучение', en: 'Learning' }, // Updated to "Изучение" in Russian
         boost: { ru: 'Ускорить', en: 'Boost' },
         training: { ru: 'Тренировка', en: 'Training' },
         inProgress: { ru: 'В процессе', en: 'In progress' },
@@ -74,7 +74,7 @@ const PerksTab = ({
             en: "A good workout lifts your mood!"
         },
         duration: { ru: 'Длительность', en: 'Duration' },
-        requiredLevel: { ru: 'Необходимый уровень', en: 'Required level' }
+        requiredLevel: { ru: 'Необходимый уровень', en: 'Required level' },
     };
 
     const calculateTime = useCallback((effects) => {
@@ -85,7 +85,6 @@ const PerksTab = ({
                 remainingSeconds % 60
             );
             const justCompleted = remainingSeconds === 0 && effect.remainingSeconds > 0;
-            console.log(`Effect ${effect.type_id}: ${effect.remainingSeconds} -> ${remainingSeconds}, justCompleted: ${justCompleted}`);
             return {
                 ...effect,
                 remainingSeconds,
@@ -135,8 +134,6 @@ const PerksTab = ({
                         };
                     });
 
-                console.log("constantEffects:", constantEffects);
-                console.log("userLearningEffects:", userLearningEffects);
                 setState(prev => ({
                     ...prev,
                     effects: constantEffects,
@@ -155,50 +152,32 @@ const PerksTab = ({
     }, [userId]);
 
     const startTimer = useCallback(() => {
-        if (timerLockRef.current) {
-            console.log("Timer already running, skipping start");
-            return;
-        }
+        if (timerLockRef.current) return;
         if (timerRef.current) {
-            console.log("Clearing existing timer");
             clearInterval(timerRef.current);
             timerRef.current = null;
         }
 
-        if (!state.isInitialized || !state.userLearningEffects.length) {
-            console.log("Timer not started:", {
-                isInitialized: state.isInitialized,
-                hasEffects: state.userLearningEffects.length,
-            });
-            return;
-        }
+        if (!state.isInitialized || !state.userLearningEffects.length) return;
 
         timerLockRef.current = true;
-        console.log("Starting timer for effects:", state.userLearningEffects);
         const tick = () => {
             const now = Date.now();
-            if (now - lastTickRef.current < TICK_INTERVAL - 100) {
-                return; // Skip if less than ~900ms since last tick
-            }
+            if (now - lastTickRef.current < TICK_INTERVAL - 100) return;
             lastTickRef.current = now;
 
             if (!mountedRef.current) return;
 
             setState(prev => {
                 const updatedEffects = calculateTime(prev.userLearningEffects);
-                console.log(`Tick at ${new Date().toISOString()}:`, updatedEffects);
-
                 const completedEffects = updatedEffects.filter(effect => effect.justCompleted);
                 if (completedEffects.length > 0) {
-                    console.log("Completing effects:", completedEffects);
                     Promise.all(
-                        completedEffects.map(effect => {
-                            console.log(`Calling checkCanStop for ${effect.type_id}`);
-                            return checkCanStop(userId, effect.type_id, 'constant_effects', 'skill');
-                        })
+                        completedEffects.map(effect =>
+                            checkCanStop(userId, effect.type_id, 'constant_effects', 'skill')
+                        )
                     )
                     .then(() => {
-                        console.log("checkCanStop completed, refreshing data");
                         if (mountedRef.current) {
                             setTimeout(() => initializeData(), 1000);
                         }
@@ -213,7 +192,6 @@ const PerksTab = ({
 
                 const activeEffects = updatedEffects.filter(effect => effect.remainingSeconds > 0);
                 if (!activeEffects.length && timerRef.current) {
-                    console.log("All effects completed, stopping timer");
                     clearInterval(timerRef.current);
                     timerRef.current = null;
                     timerLockRef.current = false;
@@ -229,7 +207,7 @@ const PerksTab = ({
             });
         };
 
-        tick(); // Immediate first tick
+        tick();
         timerRef.current = setInterval(tick, TICK_INTERVAL);
     }, [state.isInitialized, state.userLearningEffects, calculateTime, initializeData, userId]);
 
@@ -247,12 +225,6 @@ const PerksTab = ({
     }, [initializeData]);
 
     useEffect(() => {
-        console.log("Timer check:", {
-            isInitialized: state.isInitialized,
-            hasLearningEffects: state.userLearningEffects.length,
-            timerRunning: !!timerRef.current,
-            effects: state.userLearningEffects,
-        });
         if (state.isInitialized && state.userLearningEffects.length > 0 && !timerRef.current) {
             startTimer();
         }
@@ -264,7 +236,7 @@ const PerksTab = ({
         );
     }, [state.userLearningEffects]);
 
-    const { refreshData } = useUser()
+    const { refreshData } = useUser();
 
     const handleBuySkill = useCallback(async (effect) => {
         try {
@@ -277,7 +249,7 @@ const PerksTab = ({
             }
 
             await startProcess("skill", userId, effect.next.id, "constant_effects");
-            await refreshData()
+            await refreshData();
             await initializeData();
             if (!timerRef.current) {
                 startTimer();
@@ -288,7 +260,31 @@ const PerksTab = ({
         } finally {
             isInitializingRef.current = false;
         }
-    }, [userId, initializeData, setVisibleModal, startTimer]);
+    }, [userId, initializeData, setVisibleModal, startTimer, refreshData]);
+
+    const handleStarsBuy = useCallback(async (effect) => {
+        try {
+            if (isInitializingRef.current) return;
+            isInitializingRef.current = true;
+
+            if (!effect?.next?.id) {
+                console.error("No next effect ID for stars purchase:", effect);
+                return;
+            }
+
+            await handleStarsPayment(userId, "skill", effect.next.id, lang);
+            await refreshData();
+            await initializeData();
+            if (!timerRef.current) {
+                startTimer();
+            }
+            setVisibleModal(false);
+        } catch (error) {
+            console.error("Stars purchase failed:", error);
+        } finally {
+            isInitializingRef.current = false;
+        }
+    }, [userId, lang, refreshData, initializeData, startTimer, setVisibleModal]);
 
     const handleBoost = useCallback(async (boostId, effectId) => {
         try {
@@ -308,18 +304,21 @@ const PerksTab = ({
         }
     }, [userId, setVisibleModal, initializeData, startTimer]);
 
-    const navigate = useNavigate()
+    const navigate = useNavigate();
 
     const createEffectModalData = useMemo(() => {
-        console.log('@@@', state.userBoosts)
         return (effect) => {
             if (!effect || !effect.next || typeof effect.next !== 'object' || !effect.next.id) {
                 console.warn("Invalid effect passed to createEffectModalData:", effect);
-                return null;
+                return null
             }
-            
+
             const learning = checkLearningEffect(effect.next.id);
-            
+            const learned = !!state.userLearningEffects?.find(
+                skill => skill?.type_id === effect.next.id && skill?.remainingSeconds <= 0
+            ); // Fixed the incomplete learned variable
+            const isStarsPurchase = (effect.next.price_stars || 0) > 0;
+
             return {
                 type: "skill",
                 sub_type: 'constant_effects',
@@ -328,18 +327,20 @@ const PerksTab = ({
                 image: effect.next?.link || '',
                 blocks: [
                     {
-                        icon: Icons.balance,
+                        icon: isStarsPurchase ? Icons.starsIcon : Icons.balance,
                         text: translations.cost[lang],
-                        value: effect.next.price || 0,
+                        value: isStarsPurchase ? effect.next.price_stars : effect.next.price || 0,
                         fillPercent: '100%',
-                        fillBackground: userParameters?.coins < (effect.next.price || 0) ? "#ff0000" : "#00ff00",
+                        fillBackground: isStarsPurchase 
+                            ? COLORS.GREEN 
+                            : userParameters?.coins < (effect.next.price || 0) ? COLORS.RED : COLORS.GREEN,
                     },
                     {
                         icon: Icons.levelIcon,
                         text: translations.requiredLevel[lang],
                         value: effect.next.required_level || 0,
                         fillPercent: "100%",
-                        fillBackground: userParameters?.level < (effect.next.required_level || 0) ? "#ff0000" : "#00ff00",
+                        fillBackground: userParameters?.level < (effect.next.required_level || 0) ? COLORS.RED : COLORS.GREEN,
                     },
                     {
                         icon: Icons.clock,
@@ -352,28 +353,32 @@ const PerksTab = ({
                     }
                 ].filter(Boolean),
                 buttons: [
-                    {
-                        text: learning ? translations.learning[lang] : (effect.next.price || 0),
-                        icon: learning ? null : Icons.balance,
-                        onClick: !learning ? () => handleBuySkill(effect) : null,
-                        active: !learning && 
+                    // Only include the primary button if the effect is not being learned
+                    ...(learning && !learned ? [] : [{
+                        text: learned ? translations.learned[lang] : 
+                              learning ? translations.learning[lang] : 
+                              isStarsPurchase ? effect.next.price_stars : effect.next.price || 0,
+                        icon: learned || learning ? null : (isStarsPurchase ? Icons.starsIcon : Icons.balance),
+                        onClick: !(learning || learned) ? () => 
+                            isStarsPurchase ? handleStarsBuy(effect) : handleBuySkill(effect) : null,
+                        active: !(learning || learned) && 
                             userParameters?.level >= (effect.next.required_level || 0) && 
-                            userParameters.coins >= (effect.next.price || 0),
-                    },
-                    ...(learning ? [
+                            (isStarsPurchase || userParameters?.coins >= (effect.next.price || 0)),
+                    }]),
+                    ...(learning && !learned ? [
                         {
                             icon: "https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/Boost%2FBoost3.webp",
                             text: translations.boost[lang] + ' x25%',
-                            active: state.userBoosts?.find(boost => boost.boost_id === 7),
+                            active: !!state.userBoosts?.find(boost => boost.boost_id === 7),
                             onClick: state.userBoosts?.find(boost => boost.boost_id === 7) ? 
-                                () => handleBoost(7, effect.next?.id, 'constant_effects') : () => navigate('/boost'),
+                                () => handleBoost(7, effect.next.id, "constant_effects") : null,
                         },
                         {
                             icon: "https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/Boost%2FBoost2.webp",
                             text: translations.boost[lang] + ' x50%',
-                            active: state.userBoosts?.find(boost => boost.boost_id === 8),
+                            active: !!state.userBoosts?.find(boost => boost.boost_id === 8),
                             onClick: state.userBoosts?.find(boost => boost.boost_id === 8) ? 
-                                () => handleBoost(8, effect?.next?.id, 'constant_effects') : () => navigate('/boost'),
+                                () => handleBoost(8, effect.next.id, "constant_effects") : null,
                         },
                     ] : [])
                 ],
@@ -387,7 +392,9 @@ const PerksTab = ({
         userParameters,
         state.userBoosts,
         handleBuySkill,
-        handleBoost
+        handleStarsBuy,
+        handleBoost,
+        navigate
     ]);
 
     const getItemEffectsParamsBlock = useMemo(() => {
@@ -408,6 +415,7 @@ const PerksTab = ({
             const learning = checkLearningEffect(effect.next.id);
             const totalSeconds = learning?.totalSeconds || ((effect.next.duration || 1) * 60);
             const remainingSeconds = learning?.remainingSeconds || totalSeconds;
+            const isStarsPurchase = (effect.next.price_stars || 0) > 0;
 
             const timerBar = {
                 icon: Icons.clock,
@@ -416,8 +424,9 @@ const PerksTab = ({
             };
 
             const accessStatus = !learning && 
-                userParameters?.coins >= (effect.next.price || 0) && 
-                userParameters.level >= (effect.next.required_level || 0);
+                (isStarsPurchase || 
+                 (userParameters?.coins >= (effect.next.price || 0) && 
+                  userParameters.level >= (effect.next.required_level || 0)));
 
             const accessBar = {
                 icon: accessStatus ? Icons.unlockedIcon : Icons.lockedIcon,
@@ -440,13 +449,19 @@ const PerksTab = ({
         }
 
         const learning = checkLearningEffect(effect.next.id);
-        const active = !learning && 
-            userParameters?.coins >= (effect.next.price || 0) && 
-            userParameters.level >= (effect.next.required_level || 0);
+        const isStarsPurchase = (effect.next.price_stars || 0) > 0;
+        const active = learning 
+            ? true 
+            : isStarsPurchase 
+                ? true 
+                : userParameters?.coins >= (effect.next.price || 0) && 
+                  userParameters.level >= (effect.next.required_level || 0);
 
         return [{
-            text: learning ? translations.learning[lang] : (effect.next.price || 0),
-            icon: learning ? null : Icons.balance,
+            text: learning 
+                ? translations.learning[lang] 
+                : (isStarsPurchase ? effect.next.price_stars : effect.next.price || 0),
+            icon: learning ? null : (isStarsPurchase ? Icons.starsIcon : Icons.balance),
             onClick: () => {
                 const newModalData = createEffectModalData(effect);
                 if (newModalData) {
@@ -454,7 +469,19 @@ const PerksTab = ({
                     setVisibleModal(true);
                 }
             },
-            active: learning ? true : active,
+            active,
+            style: isStarsPurchase 
+                ? {
+                    borderColor: "rgb(34, 199, 163)",
+                    background: "linear-gradient(to bottom, rgb(34 199 163 / 0%), rgb(34 199 163 / 24%))",
+                    color: "rgb(255, 255, 255)",
+                    filter: active ? "none" : "grayscale(100%)",
+                }
+                : {
+                    background: "rgb(255, 118, 0)",
+                    color: "rgb(255, 255, 255)",
+                    filter: active ? "none" : "grayscale(100%)",
+                },
         }];
     }, [checkLearningEffect, userParameters, lang, Icons, translations, setModalData, setVisibleModal, createEffectModalData]);
 
