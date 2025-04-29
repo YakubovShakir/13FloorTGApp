@@ -131,6 +131,8 @@ export const UserProvider = ({ children }) => {
             userParameters: {
               ...data?.parameters,
               work_hourly_income_increase: data.work_hourly_income_increase,
+              game_work_cooldown_decrease: data.game_work_cooldown_decrease || 0,
+              game_work_process_duration_decrease: data.game_work_process_duration_decrease || 0,
               work_duration_decrease: data.work_duration_decrease,
               sleeping_duration_decrease: data.sleeping_duration_decrease,
               training_duration_decrease: data.training_duration_decrease,
@@ -422,6 +424,8 @@ export const useForeignUser = (userId) => {
               work_hourly_income_increase: data.work_hourly_income_increase,
               work_duration_decrease: data.work_duration_decrease,
               neko_boost_percentage: data.neko_boost_percentage,
+              game_work_cooldown_decrease: data.game_work_cooldown_decrease || 0,
+              game_work_process_duration_decrease: data.game_work_process_duration_decrease || 0,
             },
             isParametersLoading: false,
             parametersError: null,

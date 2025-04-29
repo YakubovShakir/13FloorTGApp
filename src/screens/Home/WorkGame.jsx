@@ -26,10 +26,10 @@ const Spinner = () => (
 )
 
 const translations = {
-  minus: {
-    ru: "-10 СЕКУНД!",
-    en: "-10 SECONDS!",
-  },
+  minus: (value) => ({
+    ru: `-${10 + value} СЕКУНД!`,
+    en: `-${10 + value} SECONDS!`,
+  }),
   miss: {
     ru: "ПРОМАХ",
     en: "MISSED",
@@ -49,7 +49,7 @@ const WorkGame = ({
   onDurationUpdate,
   onComplete,
 }) => {
-  const { userId, refreshData } = useUser()
+  const { userId, userParameters, refreshData } = useUser()
   const { lang } = useSettingsProvider()
   const [isLoading, setIsLoading] = useState(true)
   const [cooldown, setCooldown] = useState(0)
@@ -64,6 +64,14 @@ const WorkGame = ({
   const animationFrameRef = useRef(null)
   const hasPassedZoneRef = useRef(false)
 
+  // Calculate modified values from userParameters
+  const baseZoneSize = 35
+  const zoneSizeIncrease = userParameters?.game_work_process_duration_decrease || 0
+  const modifiedZoneSize = baseZoneSize + zoneSizeIncrease // Fixed: Include zoneSizeIncrease for safe zone angle
+  const baseCooldown = 30000 // 30 seconds in milliseconds
+  const cooldownDecrease = (userParameters?.game_work_cooldown_decrease || 0) * 1000 // Convert seconds to milliseconds
+  const modifiedCooldown = Math.max(1000, baseCooldown - cooldownDecrease) // e.g., 30000 - (24 * 1000) = 6000ms
+
   // Fetch last click with silent retries
   const fetchLastClick = useCallback(
     async (retryCount = 10) => {
@@ -76,7 +84,9 @@ const WorkGame = ({
           remainingCooldown,
         })
         if (Number.isFinite(remainingCooldown) && remainingCooldown >= 0) {
-          setCooldown(remainingCooldown)
+          // Adjust fetched cooldown to respect userParameters (in milliseconds)
+          const adjustedCooldown = Math.max(1000, remainingCooldown - cooldownDecrease)
+          setCooldown(adjustedCooldown)
           setShowResult(null)
           setIsLoading(false)
         } else {
@@ -99,7 +109,7 @@ const WorkGame = ({
         }
       }
     },
-    [userId]
+    [userId, cooldownDecrease]
   )
 
   // Debounce function for fetch
@@ -140,16 +150,15 @@ const WorkGame = ({
       .padStart(2, "0")}`
   }
 
-  // Initialize success zone
+  // Initialize success zone with modified zone size
   const initSuccessZone = useCallback(() => {
-    const zoneSize = 35
     const currentEnd = successZoneRef.current.end || 0
     const newStart = normalizeAngle(currentEnd + 180)
-    const newEnd = normalizeAngle(newStart + zoneSize)
+    const newEnd = normalizeAngle(newStart + modifiedZoneSize)
     successZoneRef.current = { start: newStart, end: newEnd }
     hasPassedZoneRef.current = false
-    console.log("initSuccessZone:", { start: newStart, end: newEnd })
-  }, [])
+    console.log("initSuccessZone:", { start: newStart, end: newEnd, modifiedZoneSize })
+  }, [modifiedZoneSize])
 
   // Normalize angle to [0, 360)
   const normalizeAngle = (angle) => {
@@ -176,7 +185,7 @@ const WorkGame = ({
       const deltaTime = (time - lastTime) / 1000
       lastTime = time
       const prevAngle = needleRef.current
-      needleRef.current = (needleRef.current + deltaTime * 120) % 360 // Changed from 180 to 120
+      needleRef.current = (needleRef.current + deltaTime * 120) % 360
       setNeedleAngle(needleRef.current)
   
       const normPrev = normalizeAngle(prevAngle)
@@ -253,7 +262,7 @@ const WorkGame = ({
           }
           refreshData()
         }
-        setCooldown(30000)
+        setCooldown(modifiedCooldown)
       } catch (err) {
         console.error(
           "Error boosting work time:",
@@ -272,6 +281,7 @@ const WorkGame = ({
       refreshData,
       onDurationUpdate,
       onComplete,
+      modifiedCooldown,
     ]
   )
 
@@ -341,7 +351,6 @@ const WorkGame = ({
   >
     <h3
       style={{
-       
         WebkitBackgroundClip: "text", 
         color: "#fff",
         textAlign: "center",
@@ -526,7 +535,7 @@ const WorkGame = ({
               zIndex: 1000000,
             }}
           >
-            {translations.minus[lang]}
+            {translations.minus(zoneSizeIncrease || 0)[lang]}
           </div>
         )}
         {showResult === "miss" && (
