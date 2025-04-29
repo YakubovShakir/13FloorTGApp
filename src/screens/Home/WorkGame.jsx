@@ -27,8 +27,8 @@ const Spinner = () => (
 
 const translations = {
   minus: (value) => ({
-    ru: `-${10 + value} СЕКУНД!`,
-    en: `-${10 + value} SECONDS!`,
+    ru: `-${value} СЕКУНД!`,
+    en: `-${value} SECONDS!`,
   }),
   miss: {
     ru: "ПРОМАХ",
@@ -66,11 +66,11 @@ const WorkGame = ({
 
   // Calculate modified values from userParameters
   const baseZoneSize = 35
-  const zoneSizeIncrease = userParameters?.game_work_process_duration_decrease || 0
-  const modifiedZoneSize = baseZoneSize + zoneSizeIncrease // Fixed: Include zoneSizeIncrease for safe zone angle
+  const durationDecrease = userParameters?.game_work_process_duration_decrease || 10 // Default to 10 if undefined
+  const modifiedZoneSize = baseZoneSize + durationDecrease // Safe zone angle
   const baseCooldown = 30000 // 30 seconds in milliseconds
-  const cooldownDecrease = (userParameters?.game_work_cooldown_decrease || 0) * 1000 // Convert seconds to milliseconds
-  const modifiedCooldown = Math.max(1000, baseCooldown - cooldownDecrease) // e.g., 30000 - (24 * 1000) = 6000ms
+  const cooldownDecrease = (userParameters?.game_work_cooldown_decrease || 0) * 1000 // Convert seconds to milliseconds (e.g., 24s = 24000ms)
+  const modifiedCooldown = Math.max(1000, baseCooldown - cooldownDecrease) // e.g., 30000 - 24000 = 6000ms
 
   // Fetch last click with silent retries
   const fetchLastClick = useCallback(
@@ -246,7 +246,8 @@ const WorkGame = ({
       try {
         if (isSuccess) {
           const response = await instance.post(
-            `/users/work/boost-time/${userId}`
+            `/users/work/boost-time/${userId}`,
+            { durationDecrease } // Send the total seconds to decrease
           )
           const newRemainingSeconds = response.data.remainingSeconds
           remainingSecondsRef.current = newRemainingSeconds
@@ -282,6 +283,7 @@ const WorkGame = ({
       onDurationUpdate,
       onComplete,
       modifiedCooldown,
+      durationDecrease,
     ]
   )
 
@@ -535,7 +537,7 @@ const WorkGame = ({
               zIndex: 1000000,
             }}
           >
-            {translations.minus(zoneSizeIncrease || 0)[lang]}
+            {translations.minus(durationDecrease)[lang]}
           </div>
         )}
         {showResult === "miss" && (
