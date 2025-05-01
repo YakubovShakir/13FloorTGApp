@@ -3,6 +3,8 @@ import { instance } from "../../services/instance"
 import { useUser } from "../../UserContext"
 import { useSettingsProvider } from "../../hooks"
 
+const INITIAL_WORK_GAME_COOLDOWN = 30
+
 // Simple spinner SVG component
 const Spinner = () => (
   <svg
@@ -537,7 +539,7 @@ const WorkGame = ({
               zIndex: 1000000,
             }}
           >
-            {translations.minus(durationDecrease)[lang]}
+            {translations.minus(INITIAL_WORK_GAME_COOLDOWN - durationDecrease)[lang]}
           </div>
         )}
         {showResult === "miss" && (
