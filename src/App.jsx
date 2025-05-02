@@ -118,59 +118,57 @@ function App() {
     }
   }, [])
 
-  // Telegram SDK initialization with timeout
-  useEffect(() => {
-    if (import.meta.env.VITE_NODE_ENV === "test") {
-      setIsInitialized(true)
-      return
+// Telegram SDK initialization with timeout
+useEffect(() => {
+  if (import.meta.env.VITE_NODE_ENV === "test") {
+    setIsInitialized(true)
+    return
+  }
+
+  let attempts = 0
+  const maxAttempts = 100 // 5 seconds at 50ms intervals
+
+  const initTelegramApp = () => {
+    if (!window.Telegram?.WebApp) {
+      console.warn(`Telegram WebApp not available yet, attempt ${attempts}/${maxAttempts}`)
+      return false
     }
 
-    let attempts = 0
-    const maxAttempts = 100 // 5 seconds at 50ms intervals
+    try {
+      const platform = (window.Telegram.WebApp.platform || "").toLowerCase()
+      console.log("Detected platform:", platform)
 
-    const initTelegramApp = () => {
-      if (!window.Telegram?.WebApp) {
-        console.warn(`Telegram WebApp not available yet, attempt ${attempts}/${maxAttempts}`)
-        return false
-      }
+      window.Telegram.WebApp.ready()
+      postEvent("web_app_expand")
 
-      // const platform = (window.Telegram.WebApp.platform || "").toLowerCase()
-      // console.log("Detected platform:", platform)
-      // const isMobileApp = /^(android|ios)$/.test(platform)
-
-      // if (!isMobileApp) {
-      //   console.log("Non-mobile platform detected, blocking access")
-      //   setShouldBlock(true)
-      //   return true
-      // }
-
-      try {
-        window.Telegram.WebApp.ready()
-        postEvent("web_app_expand")
+      // Trigger fullscreen only if not on Telegram Desktop ("tdesktop")
+      if (platform !== "tdesktop") {
         setTimeout(() => postEvent("web_app_request_fullscreen"), 100)
-        console.log("Telegram WebApp initialized successfully")
-        setIsInitialized(true)
-        return true
-      } catch (err) {
-        console.error("Error initializing Telegram events:", err)
-        return false
       }
-    }
 
-    if (!initTelegramApp()) {
-      const interval = setInterval(() => {
-        attempts++
-        if (initTelegramApp() || attempts >= maxAttempts) {
-          clearInterval(interval)
-          if (attempts >= maxAttempts) {
-            console.error("Failed to initialize Telegram WebApp after max attempts")
-            setShouldBlock(true) // Fallback to block screen
-          }
-        }
-      }, 50)
-      return () => clearInterval(interval)
+      console.log("Telegram WebApp initialized successfully")
+      setIsInitialized(true)
+      return true
+    } catch (err) {
+      console.error("Error initializing Telegram events:", err)
+      return false
     }
-  }, [])
+  }
+
+  if (!initTelegramApp()) {
+    const interval = setInterval(() => {
+      attempts++
+      if (initTelegramApp() || attempts >= maxAttempts) {
+        clearInterval(interval)
+        if (attempts >= maxAttempts) {
+          console.error("Failed to initialize Telegram WebApp after max attempts")
+          setShouldBlock(true) // Fallback to block screen
+        }
+      }
+    }, 50)
+    return () => clearInterval(interval)
+  }
+}, [])
 
   const { userParameters, userId } = useContext(UserContext)
   const [notificationsSent, setNotificationsSent] = useState({
