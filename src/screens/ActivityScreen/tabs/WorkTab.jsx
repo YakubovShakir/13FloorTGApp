@@ -134,7 +134,7 @@ export const WorkTab = ({
     const currentWork = getWorkById(
       userParameters?.current_work_id || userParameters?.work_id
     )
-    const isFinished = work?.work_id <= userParameters?.work_id
+    const isFinished = userParameters.works.includes(work?.work_id)
     const isCurrentWork = work?.work_id === currentWork?.work_id
     const requiredRespect = userParameters?.respect >= work?.respect_required
     const requiredSkill = work?.skill_id_required
@@ -295,7 +295,7 @@ export const WorkTab = ({
       isNextLevelWork &&
       enoughBalance
 
-    if (userParameters?.work_id >= workId) {
+    if (userParameters?.works.includes(workId)) {
       return [
         [
           {
