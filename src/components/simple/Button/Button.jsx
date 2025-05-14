@@ -22,7 +22,9 @@ const Button = ({
   border,
   backdropFilter, // Новый параметр
   iconStyles = {},
-  animation
+  animation,
+  strokeText,
+  paddingLeft
 }) => {
   const [isPressed, setIsPressed] = useState(false);
   const shadowColorValue = active ? (shadowColor || "rgb(199, 80, 21)") : "rgb(24 24 24)";
@@ -60,7 +62,7 @@ const Button = ({
       }}
     >
       {icon && <img src={icon} style={iconStyles} alt="Button" />}
-      <span style={{ fontSize, paddingTop, fontFamily, fontWeight, paddingBottom }}>{text}</span>
+      {strokeText && <span style={{ fontSize, paddingTop, fontFamily, fontWeight, paddingBottom, textDecoration: 'line-through', color: 'gray', marginLeft: paddingLeft }}>{strokeText}</span>}<span style={{ fontSize, paddingTop, fontFamily, fontWeight, paddingBottom, paddingLeft: strokeText ? 5 : 0 }}>{text}</span>
     </button>
   );
 };

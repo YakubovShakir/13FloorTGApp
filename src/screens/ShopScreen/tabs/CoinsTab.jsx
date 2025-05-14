@@ -251,6 +251,7 @@ const GridItemShelf = ({
   setCurrentItem,
   handleCoinsBuy,
   handleStarsBuy,
+  priceOld
 }) => {
   console.log(id)
   const isNftItem = id >= 9 && id <= 38 // Check if ID is in NFT range
@@ -403,6 +404,7 @@ const GridItemShelf = ({
             height={44}
             fontFamily={"Oswald"}
             fontWeight={"300"}
+            strokeText={priceOld}
             text={price}
             icon={Assets.Icons.starsIcon}
             fontSize={14}
@@ -491,6 +493,7 @@ const GridLayout = ({
                 icon={item.image}
                 title={item.name}
                 price={item.price}
+                priceOld={item.priceOld} // stroked
                 respect={item.respect}
                 equipped={item.equipped}
                 available={item.available}
@@ -513,6 +516,7 @@ const GridLayout = ({
                 title={item.name}
                 price={item.price}
                 respect={item.respect}
+                isPrem={item.isPrem}
                 equipped={item.equipped}
                 available={item.available}
                 handleCoinsBuy={handleCoinsBuy}
@@ -573,6 +577,7 @@ const CoinsTab = () => {
           category: item.type,
           available: userParameters.coins >= item.price && userParameters.level >= item.requiredLevel,
           effects: item.effects,
+          isPrem: item.is_premium || item.cost?.stars > 0,
         })).filter((item) => !blackList.includes(item.id));
       const loadedShelfItems = data.shelf
         .filter(item => !(item.type === 'neko' && item.id !== 8)) // Existing neko filter
@@ -582,8 +587,9 @@ const CoinsTab = () => {
           name: item.name[lang],
           image: item.link,
           price: item.cost.stars || item.cost.coins,
+          priceOld: item.cost.starsOld || item.cost.coinsOld || 0,
           category: "Shelf",
-          isPrem: item.cost.stars > 0,
+          isPrem: item.is_premium || item.cost.stars > 0,
           available: item.cost.stars > 0 || item.cost.coins === 0 || userParameters.coins >= item.cost.coins,
           description: item.description && item.description[lang],
           respect: item.respect,

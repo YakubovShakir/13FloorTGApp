@@ -531,7 +531,8 @@ const AutoclaimModal = ({
             {...buttonStyle}
             active={data.canUpgrade}
             onClick={() => handleAutoclaimPurchased(data.type, 6)}
-            text={35}
+            strokeText={35}
+            text={10}
             width={100}
             icon={Assets.Icons.starsIcon}
           />
@@ -558,7 +559,8 @@ const AutoclaimModal = ({
             {...buttonStyle}
             active={data.canUpgrade}
             onClick={() => handleAutoclaimPurchased(data.type, 10)}
-            text={50}
+            strokeText={50}
+            text={15}
             width={100}
             icon={Assets.Icons.starsIcon}
           />
@@ -585,7 +587,8 @@ const AutoclaimModal = ({
             {...buttonStyle}
             active={data.canUpgrade}
             onClick={() => handleAutoclaimPurchased(data.type, 18)}
-            text={100}
+            strokeText={100}
+            text={40}
             width={100}
             icon={Assets.Icons.starsIcon}
           />

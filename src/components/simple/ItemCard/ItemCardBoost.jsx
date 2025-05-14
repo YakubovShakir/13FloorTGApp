@@ -14,7 +14,7 @@ const ItemCard = ({
   ItemAmount = undefined,
   ItemBottomAmount,
   isWaiting = false, // Это флаг ожидания
-  handleStarsBuy
+  handleStarsBuy,
 }) => {
   // Определяем, активна ли хотя бы одна кнопка
   const isAnyButtonActive = ItemButtons.some(button => button.active);
@@ -140,6 +140,8 @@ const isImageGrayscale = !isAnyButtonActive; // Если кнопка неакт
                     ItemButton?.onClick && ItemButton.onClick();
                   }
                 }}
+                paddingLeft={-10}
+                strokeText={ItemButton.strokeText}
                 active={ItemButton.active}
                 text={ItemButton.text}
                 icon={ItemButton.icon}

@@ -114,6 +114,7 @@ const handleStarsPayment = async (userId, productType, itemId, lang, onSuccess) 
     const buttons = [
       {
         text: boost.stars_price,
+        strokeText: boost.stars_price_old,
         active: buyBoostStatus,
         onClick: buyBoostStatus && (() => handleBuyBoost(boost?.boost_id)),
         icon: Icons.starsIcon,
