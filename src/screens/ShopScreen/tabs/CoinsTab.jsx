@@ -543,7 +543,7 @@ const CoinsTab = () => {
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [currentComplexFilters, setCurrentComplexFilters] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const blackList = [48,49,50,51,55,56,57,58,59,]
+  const blackList = [48,49,50,51,55,56,57,58,59,64,65,66,67]
   const { userPersonage, userParameters } = useContext(UserContext);
   const { lang } = useSettingsProvider();
   const { refreshData, userId } = useUser();
