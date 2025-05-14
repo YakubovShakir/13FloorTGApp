@@ -274,7 +274,7 @@ const PerksTab = ({
         ...(learning ? [ // Spread the conditional array elements
           {
             icon: "https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/Boost%2FBoost3.webp",
-            text: translations.boost[lang] + ' x25%',
+             text: translations.boost[lang] + ' x15%',
             active: userBoosts?.find(boost => boost.boost_id === 7),
             onClick: userBoosts?.find(boost => boost.boost_id === 7) && (async () => {
               setIsInitialized(false)
@@ -300,7 +300,7 @@ const PerksTab = ({
           },
           {
             icon: "https://d8bddedf-ac40-4488-8101-05035bb63d25.selstorage.ru/Boost%2FBoost2.webp",
-            text: translations.boost[lang] + ' x50%',
+             text: translations.boost[lang] + ' x25%',
             active: userBoosts?.find(boost => boost.boost_id === 8),
             onClick: userBoosts?.find(boost => boost.boost_id === 8) && (async () => {
               setIsInitialized(false)
